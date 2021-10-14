@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>1845551f-deff-4082-b2db-3548a44f83af</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MongoDB.Analyzer.Tests.Common.TestCases</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersCollections.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersIgnoredExpressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\NotSupportedBuildersExpressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersArrays.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersFluentApi.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersBasic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersConstantsReplacement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersComplexDataModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqBasic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqCollections.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqConstantsReplacement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqIgnoredExpressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\NotSupportedLinq2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\NotSupportedLinqExpressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqArrays.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqComments.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqComplexDataModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqEnums.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqSuffix.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqIMongoQueryableSource.cs" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>10</LangVersion>
+    <IsPackable>false</IsPackable>
+
+    <PackageId>MongoDBAnalyzerCore</PackageId>
+
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <Company>MongoDB Inc.</Company>
+    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
+    <Description>MongoDB Roslyn analyzer for MongoDB .Net driver.</Description>
+    <InformationalVersion>1.0.0-beta2</InformationalVersion>
+    <Product>MongoDB.Analyzer</Product>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Builders\MqlGenerator.cs" Link="Core\Builders\HelpersResources\MqlGenerator.cs" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\EmptyCursor.cs" Link="Core\Linq\HelpersResources\EmptyCursor.cs" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\IQueryableProvider.cs" Link="Core\Linq\HelpersResources\IQueryableProvider.cs" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\IQueryableProviderV2.cs" Link="Core\Linq\HelpersResources\IQueryableProviderV2.cs" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\IQueryableProviderV3.cs" Link="Core\Linq\HelpersResources\IQueryableProviderV3.cs" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\MongoCollectionMock.cs" Link="Core\Linq\HelpersResources\MongoCollectionMock.cs" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\MqlGenerator.cs" Link="Core\Linq\HelpersResources\MqlGenerator.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Analytics" Version="3.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.3.1" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

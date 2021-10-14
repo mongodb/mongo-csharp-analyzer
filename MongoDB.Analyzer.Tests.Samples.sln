@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MongoDB.Analyzer.Tests.Common", "tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.shproj", "{4F59BE68-9AB5-4DCC-8049-04AD7BB36AB6}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MongoDB.Analyzer.Tests.Common.TestCases", "tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.shproj", "{1845551F-DEFF-4082-B2DB-3548A44F83AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SamplesProjects", "SamplesProjects", "{47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleApp_2.13.x", "tests\SampleProjects\SampleConsoleApp_2.13.x\SampleConsoleApp_2.13.x.csproj", "{B961DE33-1BD0-4F7E-BC1D-7EB46C4ED720}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleApp_2.12.x", "tests\SampleProjects\SampleConsoleApp_2.12.x\SampleConsoleApp_2.12.x.csproj", "{3EE8845F-D215-4F4B-9CB9-137DC91EAE6E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleApp_2.14.x", "tests\SampleProjects\SampleConsoleApp_2.14.x\SampleConsoleApp_2.14.x.csproj", "{72B09EC6-A660-48D3-9F4E-98CDED49D107}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{1845551f-deff-4082-b2db-3548a44f83af}*SharedItemsImports = 13
+		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{3ee8845f-d215-4f4b-9cb9-137dc91eae6e}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{3ee8845f-d215-4f4b-9cb9-137dc91eae6e}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{4f59be68-9ab5-4dcc-8049-04ad7bb36ab6}*SharedItemsImports = 13
+		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{72b09ec6-a660-48d3-9f4e-98cded49d107}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{72b09ec6-a660-48d3-9f4e-98cded49d107}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{b961de33-1bd0-4f7e-bc1d-7eb46c4ed720}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{b961de33-1bd0-4f7e-bc1d-7eb46c4ed720}*SharedItemsImports = 5
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B961DE33-1BD0-4F7E-BC1D-7EB46C4ED720}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B961DE33-1BD0-4F7E-BC1D-7EB46C4ED720}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B961DE33-1BD0-4F7E-BC1D-7EB46C4ED720}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B961DE33-1BD0-4F7E-BC1D-7EB46C4ED720}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EE8845F-D215-4F4B-9CB9-137DC91EAE6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EE8845F-D215-4F4B-9CB9-137DC91EAE6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EE8845F-D215-4F4B-9CB9-137DC91EAE6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EE8845F-D215-4F4B-9CB9-137DC91EAE6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72B09EC6-A660-48D3-9F4E-98CDED49D107}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72B09EC6-A660-48D3-9F4E-98CDED49D107}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72B09EC6-A660-48D3-9F4E-98CDED49D107}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72B09EC6-A660-48D3-9F4E-98CDED49D107}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B961DE33-1BD0-4F7E-BC1D-7EB46C4ED720} = {47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}
+		{3EE8845F-D215-4F4B-9CB9-137DC91EAE6E} = {47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}
+		{72B09EC6-A660-48D3-9F4E-98CDED49D107} = {47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A8E1DFF-E447-45A0-A578-EDE0818F6B2D}
+	EndGlobalSection
+EndGlobal
