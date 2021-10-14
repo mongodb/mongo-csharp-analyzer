@@ -1,0 +1,85 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31717.71
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Analyzer", "src\MongoDB.Analyzer\MongoDB.Analyzer.csproj", "{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Analyzer.Package", "src\MongoDB.Analyzer.Package\MongoDB.Analyzer.Package.csproj", "{612B7D09-FEF8-4C12-B31A-04B02EC1F297}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Analyzer.Tests", "tests\MongoDB.Analyzer.Tests\MongoDB.Analyzer.Tests.csproj", "{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Analyzer.Vsix", "src\MongoDB.Analyzer.Vsix\MongoDB.Analyzer.Vsix.csproj", "{E131D033-9174-4B75-AD2F-3EA0FF390B7F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3CBBF53B-DAE1-49C2-A97D-19FC6DAF8867}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{2D18C947-A75E-4330-A272-213658715E74}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MongoDB.Analyzer.Tests.Common", "tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.shproj", "{4F59BE68-9AB5-4DCC-8049-04AD7BB36AB6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Analyzer.Tests.Common.ClassLibrary", "tests\MongoDB.Analyzer.Tests.Common.ClassLibrary\MongoDB.Analyzer.Tests.Common.ClassLibrary.csproj", "{41218684-A8E3-41AC-8F85-58B9B2F43B09}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MongoDB.Analyzer.Tests.Common.TestCases", "tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.shproj", "{1845551F-DEFF-4082-B2DB-3548A44F83AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Analyzer.Helpers", "src\MongoDB.Analyzer.Helpers\MongoDB.Analyzer.Helpers.csproj", "{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3C0C2773-03D6-440B-AFE7-E21AFA02B991}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{1845551f-deff-4082-b2db-3548a44f83af}*SharedItemsImports = 13
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{41218684-a8e3-41ac-8f85-58b9b2f43b09}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{4f59be68-9ab5-4dcc-8049-04ad7bb36ab6}*SharedItemsImports = 13
+		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{acb908a0-7f5c-44da-b9d2-ccfbcaeadd1d}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{acb908a0-7f5c-44da-b9d2-ccfbcaeadd1d}*SharedItemsImports = 5
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E131D033-9174-4B75-AD2F-3EA0FF390B7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E131D033-9174-4B75-AD2F-3EA0FF390B7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E131D033-9174-4B75-AD2F-3EA0FF390B7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E131D033-9174-4B75-AD2F-3EA0FF390B7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41218684-A8E3-41AC-8F85-58B9B2F43B09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41218684-A8E3-41AC-8F85-58B9B2F43B09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41218684-A8E3-41AC-8F85-58B9B2F43B09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41218684-A8E3-41AC-8F85-58B9B2F43B09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5} = {3CBBF53B-DAE1-49C2-A97D-19FC6DAF8867}
+		{612B7D09-FEF8-4C12-B31A-04B02EC1F297} = {3CBBF53B-DAE1-49C2-A97D-19FC6DAF8867}
+		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D} = {2D18C947-A75E-4330-A272-213658715E74}
+		{E131D033-9174-4B75-AD2F-3EA0FF390B7F} = {3CBBF53B-DAE1-49C2-A97D-19FC6DAF8867}
+		{4F59BE68-9AB5-4DCC-8049-04AD7BB36AB6} = {2D18C947-A75E-4330-A272-213658715E74}
+		{41218684-A8E3-41AC-8F85-58B9B2F43B09} = {2D18C947-A75E-4330-A272-213658715E74}
+		{1845551F-DEFF-4082-B2DB-3548A44F83AF} = {2D18C947-A75E-4330-A272-213658715E74}
+		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65} = {3CBBF53B-DAE1-49C2-A97D-19FC6DAF8867}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {92FC99D4-1527-4D7F-AD28-B0949CD5BE72}
+	EndGlobalSection
+EndGlobal

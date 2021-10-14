@@ -1,0 +1,16 @@
+{
+  // Default LINQ provider, for drivers supporting LINQ3 (2.14 and higher)
+  "DefaultLinqVersion": "V2",
+
+  // Appends the driver version to MQL expression
+  "OutputDriverVersion": false,
+
+  // Outputs internal analyzer exceptions
+  "OutputInternalExceptions": false,
+
+  // Outputs internal logs to a file
+  "OutputInternalLogsToFile": false,
+
+  // Logs file, to be used in conjunction with OutputInternalLogsToFile setting
+  "LogFileName": "c:\\logs\\analyzerlogs.txt"
+}

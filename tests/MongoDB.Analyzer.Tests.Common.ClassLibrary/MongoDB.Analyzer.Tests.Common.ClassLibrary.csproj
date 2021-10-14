@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>9</LangVersion>
+  </PropertyGroup>
+
+  <Import Project="..\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems" Label="Shared" />
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="2.11.0">
+         <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

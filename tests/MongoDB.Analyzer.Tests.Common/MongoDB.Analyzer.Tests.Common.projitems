@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>4f59be68-9ab5-4dcc-8049-04ad7bb36ab6</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MongoDB.Analyzer.Tests.Common.DataModel</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Collections.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\ObjectId.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Methods.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\SystemTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Address.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Structs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Arrays.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Enums.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Generics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Inheritance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Person.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Tree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\MixedDataMembers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Vehicle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DiagnosticRulesConstants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DiagnosticTestCaseAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DriverTargetFramework.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DriverVersions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqVersion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MongoDBProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestCasesBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\User.cs" />
+  </ItemGroup>
+</Project>
