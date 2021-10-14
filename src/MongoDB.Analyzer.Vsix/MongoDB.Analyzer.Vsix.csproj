@@ -4,8 +4,8 @@
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-    <RootNamespace>Mongolyzer.Vsix</RootNamespace>
-    <AssemblyName>Mongolyzer.Vsix</AssemblyName>
+    <RootNamespace>MongoDB.Analyzer.Vsix</RootNamespace>
+    <AssemblyName>MongoDB.Analyzer.Vsix</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup>

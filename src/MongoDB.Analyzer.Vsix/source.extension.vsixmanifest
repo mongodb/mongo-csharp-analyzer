@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="Mongolyzer.f5105a31-bc7c-4ba0-b41f-37ffdab9982c" Version="1.0" Language="en-US" Publisher="BorisDog"/>
+    <Identity Id="MongoDB.Analyzer.f5105a31-bc7c-4ba0-b41f-37ffdab9982c" Version="1.0" Language="en-US" Publisher="BorisDog"/>
     <DisplayName>MongoDB.Analyzer</DisplayName>
     <Description xml:space="preserve">This is a sample diagnostic extension for the .NET Compiler Platform ("Roslyn").</Description>
   </Metadata>
