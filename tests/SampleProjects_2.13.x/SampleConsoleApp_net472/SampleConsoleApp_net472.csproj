@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>MongoAnalyzer.Tests.SampleConsoleApp_net472</RootNamespace>
+  </PropertyGroup>
+
+  <Import Project="..\..\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems" Label="Shared" />
+  <Import Project="..\..\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems" Label="Shared" />
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="2.13.2" />
+    <!--<PackageReference Include="Mongolyzer" Version="1.0.0"/>-->
+</ItemGroup>
+
+
+</Project>

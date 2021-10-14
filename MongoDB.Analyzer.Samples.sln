@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MongoDB.Analyzer.Tests.Common", "tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.shproj", "{4F59BE68-9AB5-4DCC-8049-04AD7BB36AB6}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MongoDB.Analyzer.Tests.Common.TestCases", "tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.shproj", "{1845551F-DEFF-4082-B2DB-3548A44F83AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SamplesProjects_2.13.x", "SamplesProjects_2.13.x", "{47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleApp_netcoreapp21", "tests\SampleProjects_2.13.x\SampleConsoleApp_netcoreapp2.1\SampleConsoleApp_netcoreapp21.csproj", "{2FD926F6-764D-45F1-BCD8-C642631FD95E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleApp_net472", "tests\SampleProjects_2.13.x\SampleConsoleApp_net472\SampleConsoleApp_net472.csproj", "{5F8FB5E6-D807-4A1D-923E-A71C9B381884}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{1845551f-deff-4082-b2db-3548a44f83af}*SharedItemsImports = 13
+		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{2fd926f6-764d-45f1-bcd8-c642631fd95e}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{2fd926f6-764d-45f1-bcd8-c642631fd95e}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{4f59be68-9ab5-4dcc-8049-04ad7bb36ab6}*SharedItemsImports = 13
+		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{5f8fb5e6-d807-4a1d-923e-a71c9b381884}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{5f8fb5e6-d807-4a1d-923e-a71c9b381884}*SharedItemsImports = 5
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2FD926F6-764D-45F1-BCD8-C642631FD95E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FD926F6-764D-45F1-BCD8-C642631FD95E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FD926F6-764D-45F1-BCD8-C642631FD95E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FD926F6-764D-45F1-BCD8-C642631FD95E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F8FB5E6-D807-4A1D-923E-A71C9B381884}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F8FB5E6-D807-4A1D-923E-A71C9B381884}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F8FB5E6-D807-4A1D-923E-A71C9B381884}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F8FB5E6-D807-4A1D-923E-A71C9B381884}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2FD926F6-764D-45F1-BCD8-C642631FD95E} = {47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}
+		{5F8FB5E6-D807-4A1D-923E-A71C9B381884} = {47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A8E1DFF-E447-45A0-A578-EDE0818F6B2D}
+	EndGlobalSection
+EndGlobal
