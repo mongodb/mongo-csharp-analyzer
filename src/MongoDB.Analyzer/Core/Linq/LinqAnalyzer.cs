@@ -54,7 +54,9 @@ internal static class LinqAnalyzer
         var semanticContext = context.SemanticModelAnalysisContext;
 
         if (linqExpressionAnalysis.InvalidExpressionNodes.EmptyOrNull())
+        {
             return;
+        }
 
         var driverVersion = ReferencesProvider.GetMongoDBDriverVersion(semanticContext.SemanticModel.Compilation.References);
         var driverVersionString = driverVersion?.ToString(3);
@@ -75,11 +77,15 @@ internal static class LinqAnalyzer
         var semanticContext = context.SemanticModelAnalysisContext;
 
         if (linqExpressionAnalysis.AnalysisNodeContexts.EmptyOrNull())
+        {
             return AnalysisStats.Empty;
+        }
 
         var compilationResult = AnalysisCodeGenerator.Compile(context, linqExpressionAnalysis);
         if (!compilationResult.Success)
+        {
             return AnalysisStats.Empty;
+        }
 
         var driverVersion = compilationResult.LinqTestCodeExecutor.DriverVersion;
         var settings = context.Settings;

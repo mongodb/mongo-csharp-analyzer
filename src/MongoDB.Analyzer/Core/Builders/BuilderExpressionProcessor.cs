@@ -67,7 +67,9 @@ internal static class BuilderExpressionProcessor
         foreach (var node in root.DescendantNodes(n => !nodesProcessed.Contains(n.Parent)))
         {
             if (nodesProcessed.Contains(node.Parent))
+            {
                 continue;
+            }
 
             var (isValid, namedType, builderExpressionNode) = IsValidBuildersExpression(semanticModel, node);
 
@@ -255,7 +257,9 @@ internal static class BuilderExpressionProcessor
             var genericRemappedType = rewriteContext.TypesProcessor.ProcessTypeSymbol(genericTypeInfo.Type);
 
             if (genericRemappedType == null)
+            {
                 return RewriteResult.Invalid;
+            }
 
             return new RewriteResult(simpleNameNode, SyntaxFactory.IdentifierName(genericRemappedType));
         }
@@ -264,7 +268,9 @@ internal static class BuilderExpressionProcessor
         var remappedType = rewriteContext.TypesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeInfo.Type);
 
         if (remappedType == null)
+        {
             return RewriteResult.Invalid;
+        }
 
         SyntaxNode nodeToReplace = simpleNameNode;
         var identifierName = simpleNameNode.Identifier.Text;
@@ -308,7 +314,9 @@ internal static class BuilderExpressionProcessor
         var remappedType = rewriteContext.TypesProcessor.ProcessTypeSymbol(typeInfo.Type);
 
         if (remappedType == null)
+        {
             return null;
+        }
 
         var typeArguments = new List<TypeSyntax>();
 
@@ -321,7 +329,9 @@ internal static class BuilderExpressionProcessor
                 typeSyntax = ProcessGenericType(rewriteContext, nestedGenericNameSyntax);
 
                 if (typeSyntax == null)
+                {
                     return null;
+                }
             }
             else
             {
@@ -329,7 +339,9 @@ internal static class BuilderExpressionProcessor
                 var typeArgumentRemappedType = rewriteContext.TypesProcessor.ProcessTypeSymbol(typeArgumentTypeInfo.Type);
 
                 if (typeArgumentRemappedType == null)
+                {
                     return null;
+                }
 
                 typeSyntax = SyntaxFactory.IdentifierName(typeArgumentRemappedType);
             }
@@ -356,7 +368,9 @@ internal static class BuilderExpressionProcessor
         }
 
         if (!simpleNameSyntax.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+        {
             return RewriteResult.Ignore;
+        }
 
         SyntaxNode replacementNode;
         if (fieldSymbol.Type.TypeKind == TypeKind.Enum)
@@ -405,7 +419,9 @@ internal static class BuilderExpressionProcessor
         var remappedEnumTypeName = typesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeSymbol);
 
         if (remappedEnumTypeName.IsNullOrWhiteSpace())
+        {
             return null;
+        }
 
         return SyntaxFactoryUtilities.GetCastConstantExpression(remappedEnumTypeName, constantValue);
     }
@@ -438,11 +454,15 @@ internal static class BuilderExpressionProcessor
         SymbolInfo symbolInfo)
     {
         if (symbolInfo.Symbol.IsContainedInLambda(rewriteContext.BuildersExpression))
+        {
             return true;
+        }
 
         var underlyingIdetifier = SyntaxFactoryUtilities.GetUnderlyingIdentifier(simpleNameSyntax);
         if (underlyingIdetifier == null)
+        {
             return false;
+        }
 
         if (underlyingIdetifier.Identifier.Text == "Builders" ||
             rewriteContext.SemanticModel.GetSymbolInfo(underlyingIdetifier).Symbol.IsContainedInLambda(rewriteContext.BuildersExpression))
@@ -459,12 +479,16 @@ internal static class BuilderExpressionProcessor
         SymbolInfo symbolInfo)
     {
         if (IsChildOfLambdaParameterOrBuilders(rewriteContext, simpleNameSyntax, symbolInfo))
+        {
             return RewriteResult.Ignore;
+        }
 
         var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(simpleNameSyntax);
 
         if (typeInfo.Type == null)
+        {
             return RewriteResult.Ignore;
+        }
 
         var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(simpleNameSyntax);
         var replacementNode = GetConstantReplacementNode(rewriteContext, typeInfo.Type, nodeToReplace.ToString());

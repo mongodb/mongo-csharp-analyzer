@@ -52,11 +52,15 @@ internal static class BuildersAnalyzer
     {
         var semanticContext = context.SemanticModelAnalysisContext;
         if (buildersAnalysis.AnalysisNodeContexts.EmptyOrNull())
+        {
             return AnalysisStats.Empty;
+        }
 
         var compilationResult = AnalysisCodeGenerator.Compile(context, buildersAnalysis);
         if (!compilationResult.Success)
+        {
             return AnalysisStats.Empty;
+        }
 
         var driverVersion = compilationResult.BuildersTestCodeExecutor.DriverVersion;
         var settings = context.Settings;

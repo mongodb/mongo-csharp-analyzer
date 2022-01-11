@@ -38,11 +38,15 @@ internal sealed class TypesProcessor
     public string GetTypeSymbolToGeneratedTypeMapping(ITypeSymbol typeSymbol)
     {
         if (typeSymbol == null)
+        {
             return null;
+        }
 
         var fullTypeName = GetFullName(typeSymbol);
         if (s_knownTypes.TryGetValue(fullTypeName, out var knowTypeName))
+        {
             return knowTypeName;
+        }
 
         if (_processedTypes.TryGetValue(fullTypeName, out var result))
         {
@@ -55,11 +59,15 @@ internal sealed class TypesProcessor
     public string ProcessTypeSymbol(ITypeSymbol typeSymbol)
     {
         if (typeSymbol == null)
+        {
             return null;
+        }
 
         var fullTypeName = GetFullName(typeSymbol);
         if (s_knownTypes.TryGetValue(fullTypeName, out var knowTypeName))
+        {
             return knowTypeName;
+        }
 
         if (_processedTypes.TryGetValue(fullTypeName, out var pair))
         {

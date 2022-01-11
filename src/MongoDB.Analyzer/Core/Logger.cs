@@ -42,14 +42,16 @@ internal sealed class Logger : IDisposable
     public void Flush()
     {
         if (_logs.EmptyOrNull())
+        {
             return;
+        }
 
         try
         {
             var fileExists = File.Exists(_fileName);
             if (fileExists)
             {
-                var fileInfo = new System.IO.FileInfo(_fileName);
+                var fileInfo = new FileInfo(_fileName);
                 if (fileInfo.Length > 32 * 1024 * 1024)
                 {
                     File.Delete(_fileName);

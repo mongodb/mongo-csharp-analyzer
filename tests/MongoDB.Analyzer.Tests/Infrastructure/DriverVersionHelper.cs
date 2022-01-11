@@ -29,7 +29,9 @@ internal static class DriverVersionHelper
     public static NuGetVersion[] FilterVersionForRange(string versionRange)
     {
         if (versionRange == null)
+        {
             return DriverVersions;
+        }
 
         var versionRangeParsed = VersionRange.Parse(versionRange);
         return DriverVersions.Where(versionRangeParsed.Satisfies).ToArray();

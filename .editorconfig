@@ -166,3 +166,6 @@ dotnet_diagnostic.IDE0005.severity = warning
 
 # Unused variables
 dotnet_diagnostic.IDE0051.severity = warning
+
+# Single line block braces
+dotnet_diagnostic.IDE0011.severity = warning
