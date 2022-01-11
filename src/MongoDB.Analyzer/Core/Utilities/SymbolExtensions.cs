@@ -23,21 +23,13 @@ internal static class SymbolExtensions
         "System.Collections.Generic.IEnumerable<T>"
     };
 
-    public static bool ImplementsInterface(this ITypeSymbol typeSymbol, string interfaceName) =>
-        typeSymbol?.TypeKind switch
-        {
-            TypeKind.Class => typeSymbol.Interfaces.Any(i => i.Name == interfaceName),
-            TypeKind.Interface => typeSymbol.Name == interfaceName,
-            _ => false
-        };
-
     public static bool IsDefinedInMongoLinq(this ISymbol symbol) =>
         symbol?.ContainingModule?.Name?.ToLowerInvariant() == "mongodb.driver.dll" &&
         symbol?.ContainingNamespace?.Name == "Linq";
 
     public static bool IsIMongoQueryable(this ITypeSymbol typeSymbol) =>
-        ImplementsInterface(typeSymbol, "IMongoQueryable") ||
-        ImplementsInterface(typeSymbol, "IOrderedMongoQueryable");
+        ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IMongoQueryable") ||
+        ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IOrderedMongoQueryable");
 
     public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
         (typeSymbol.TypeKind == TypeKind.Class ||
@@ -98,4 +90,12 @@ internal static class SymbolExtensions
 
         return result;
     }
+
+    private static bool ImplementsOrIsInterface(this ITypeSymbol typeSymbol, string @namespace, string interfaceName) =>
+        typeSymbol?.TypeKind switch
+        {
+            TypeKind.Class => typeSymbol.Interfaces.Any(i => i.Name == interfaceName && i.ContainingNamespace.ToDisplayString() == @namespace),
+            TypeKind.Interface => typeSymbol.Name == interfaceName && typeSymbol.ContainingNamespace.ToDisplayString() == @namespace,
+            _ => false
+        };
 }

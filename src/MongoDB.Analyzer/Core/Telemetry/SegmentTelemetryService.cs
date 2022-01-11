@@ -71,7 +71,9 @@ internal sealed class SegmentTelemetryService : ITelemetryService
     private void Initialize(string secret)
     {
         if (Interlocked.Exchange(ref s_isInitialized, 1) != 0)
+        {
             return;
+        }
 
         Analytics.Initialize(secret, new Config(flushAt: 40, flushInterval: 10));
 

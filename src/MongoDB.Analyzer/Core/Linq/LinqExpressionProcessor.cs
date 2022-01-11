@@ -81,14 +81,18 @@ internal static class LinqExpressionProcessor
                 var currentMethodSymbol = semanticModel.GetSymbolInfo(deepestMongoQueryableNode).Symbol as IMethodSymbol;
 
                 if (currentMethodSymbol?.ReducedFrom?.ReceiverType.IsMongoQueryable() != true)
+                {
                     break;
+                }
 
                 deepestMongoQueryableNode = GetNextNestedInvocation(deepestMongoQueryableNode);
             }
 
             // Validate IMongoQueryable node candidate
             if (deepestMongoQueryableNode == null)
+            {
                 continue;
+            }
 
             var mongoQueryableTypeInfo = semanticModel.GetTypeInfo(deepestMongoQueryableNode);
             if (!mongoQueryableTypeInfo.Type.IsIMongoQueryable() ||
@@ -157,7 +161,9 @@ internal static class LinqExpressionProcessor
                     {
                         var underlyingNode = SyntaxFactoryUtilities.GetUnderlyingNameSyntax(arg.Expression);
                         if (underlyingNode == null)
+                        {
                             continue;
+                        }
 
                         var argSymbol = semanticModel.GetSymbolInfo(underlyingNode).Symbol;
 
@@ -273,7 +279,9 @@ internal static class LinqExpressionProcessor
         var remmapedType = rewriteContext.TypesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeInfo.Type);
 
         if (remmapedType == null)
+        {
             return RewriteResult.Invalid;
+        }
 
         SyntaxNode nodeToReplace = identifierNode;
         var identifierName = identifierNode.Identifier.Text;
@@ -319,7 +327,9 @@ internal static class LinqExpressionProcessor
         }
 
         if (!identifierNode.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+        {
             return RewriteResult.Ignore;
+        }
 
         SyntaxNode replacementNode;
         if (fieldSymbol.Type.TypeKind == TypeKind.Enum)
@@ -368,7 +378,9 @@ internal static class LinqExpressionProcessor
         var remappedEnumTypeName = typesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeSymbol);
 
         if (remappedEnumTypeName.IsNullOrWhiteSpace())
+        {
             return null;
+        }
 
         return SyntaxFactoryUtilities.GetCastConstantExpression(remappedEnumTypeName, constantValue);
     }
@@ -401,16 +413,17 @@ internal static class LinqExpressionProcessor
         SymbolInfo symbolInfo)
     {
         if (symbolInfo.Symbol.IsContainedInLambda(rewriteContext.LinqExpression))
+        {
             return true;
+        }
 
         var underlyingIdetifier = SyntaxFactoryUtilities.GetUnderlyingIdentifier(identifier);
         if (underlyingIdetifier == null)
+        {
             return false;
+        }
 
-        if (rewriteContext.SemanticModel.GetSymbolInfo(underlyingIdetifier).Symbol.IsContainedInLambda(rewriteContext.LinqExpression))
-            return true;
-
-        return false;
+        return rewriteContext.SemanticModel.GetSymbolInfo(underlyingIdetifier).Symbol.IsContainedInLambda(rewriteContext.LinqExpression);
     }
 
     private static RewriteResult SubstituteExpressionWithConst(
@@ -420,12 +433,16 @@ internal static class LinqExpressionProcessor
     {
         if (IsChildOfLambdaParameter(rewriteContext, identifierNode, symbolInfo) ||
             identifierNode.IsMemberOfAnonymousObject())
+        {
             return RewriteResult.Ignore;
+        }
 
         var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(identifierNode);
 
         if (typeInfo.Type == null)
+        {
             return RewriteResult.Ignore;
+        }
 
         var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(identifierNode);
         var replacementNode = GetConstantReplacementNode(rewriteContext, typeInfo.Type, nodeToReplace.ToString());

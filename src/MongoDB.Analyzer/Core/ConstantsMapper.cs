@@ -38,7 +38,9 @@ internal sealed class ConstantsMapper
         AssertLiteralsRegistred();
 
         if (constant == null)
+        {
             return null;
+        }
 
         // Skip replacing for doubles and strings if not needed
         if (constant is double @double && ((@double - (long)@double) != DoubleSuffix) ||
@@ -55,7 +57,9 @@ internal sealed class ConstantsMapper
         AssertLiteralsRegistred();
 
         if (constant == null)
+        {
             return null;
+        }
 
         // Skip replacing for doubles and strings if not needed
         if (constant is double @double && ((@double - (long)@double) != DoubleSuffix) ||
@@ -72,7 +76,9 @@ internal sealed class ConstantsMapper
         AssertLiteralsRegistred();
 
         if (literalExpressionSyntax == null)
+        {
             return null;
+        }
 
         // Skip replacing for doubles and strings if not needed
         var value = literalExpressionSyntax.Token.Value;
@@ -94,7 +100,9 @@ internal sealed class ConstantsMapper
         AssertLiteralsRegistred();
 
         if (_originalToSyntax.TryGetValueSafe(originalValue, out var expressionSyntax))
+        {
             return expressionSyntax;
+        }
 
         var syntaxToken = specialType switch
         {
@@ -129,7 +137,9 @@ internal sealed class ConstantsMapper
     public void FinalizeLiteralsRegistration()
     {
         if (_allConstantsRegistered)
+        {
             throw new InvalidOperationException("Literals registration is finalized.");
+        }
 
         _overflowConstantInt8 = _registredNumericConstants?.Contains(sbyte.MaxValue) == true ? GetNextConstantInt8(sbyte.MaxValue) : sbyte.MaxValue;
         _allConstantsRegistered = true;
@@ -138,7 +148,9 @@ internal sealed class ConstantsMapper
     public void RegisterLiteral(LiteralExpressionSyntax literalExpressionSyntax)
     {
         if (literalExpressionSyntax == null)
+        {
             return;
+        }
 
         var value = literalExpressionSyntax.Token.Value;
 
@@ -219,7 +231,9 @@ internal sealed class ConstantsMapper
     private void AssertLiteralsRegistred()
     {
         if (!_allConstantsRegistered)
+        {
             throw new InvalidOperationException("Literals registration not finished");
+        }
     }
 
     private int GetNextConstantInt()
