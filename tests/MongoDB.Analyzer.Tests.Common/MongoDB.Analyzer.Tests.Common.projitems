@@ -32,5 +32,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)MongoDBProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestCasesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\User.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Location.cs" />
   </ItemGroup>
 </Project>

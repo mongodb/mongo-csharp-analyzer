@@ -13,22 +13,19 @@
 // limitations under the License.
 
 using System;
-using MongoDB.Analyzer.Tests.Common;
 
-namespace MongoDB.Analyzer.Tests.Infrastructure;
-
-[Serializable]
-public record DiagnosticRule(
-    string RuleId,
-    string Message,
-    Location Location);
-
-[Serializable]
-public record DiagnosticTestCase(
-    string FileName,
-    string MethodName,
-    string Version,
-    LinqVersion LinqVersion,
-    DiagnosticRule[] DiagnosticRules)
+namespace MongoDB.Analyzer.Tests.Common
 {
+    [Serializable]
+    public sealed class Location
+    {
+        public int StartLine { get; }
+        public int EndLine { get; }
+
+        public Location(int startLine, int endLine)
+        {
+            StartLine = startLine;
+            EndLine = endLine;
+        }
+    }
 }
