@@ -1,0 +1,49 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup msbuild
+      uses: microsoft/setup-msbuild@v1.1  
+      
+    - name: Setup nuget
+      uses: NuGet/setup-nuget@v1.0.6
+
+    - name: Restore dependencies
+      run: dotnet restore MongoDB.Analyzer.sln
+      
+    - name: Build
+      run: msbuild MongoDB.Analyzer.sln -restore:false
+     
+    - name: Test net472
+      uses: microsoft/vstest-action@v1.0.0
+      with:
+          testAssembly: MongoDB.Analyzer.Tests.dll
+          searchFolder: ./tests/MongoDB.Analyzer.Tests/bin/debug/net472/
+          runInParallel: false
+
+    - name: Test netcoreapp3.1
+      uses: microsoft/vstest-action@v1.0.0
+      with:
+          testAssembly: MongoDB.Analyzer.Tests.dll
+          searchFolder: ./tests/MongoDB.Analyzer.Tests/bin/debug/netcoreapp3.1/
+          runInParallel: false
+          
+    - name: Tests Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: tests results          
+        path: '**/TestResults/*.trx'
+        reporter: dotnet-trx
