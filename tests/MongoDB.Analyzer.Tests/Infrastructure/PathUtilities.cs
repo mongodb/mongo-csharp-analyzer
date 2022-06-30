@@ -45,7 +45,6 @@ internal static class PathUtilities
         }
     }
 
-
     private static string GetFullPathRelativeToParent(string partialPath) =>
         Path.GetFullPath(Path.Combine(s_projectParentFolderPrefix, partialPath));
 }
