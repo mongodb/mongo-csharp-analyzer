@@ -28,15 +28,11 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<User>.Filter.Exists(u => u.Address, false);
         }
 
-        [BuildersMQL("{ \"Age\" : 1 }")]
-        public void Sort_single_expression_ascending()
+        [BuildersMQL("{ \"Age\" : 1 }", 34, 34)]
+        [BuildersMQL("{ \"Age\" : -1 }", 35, 35)]
+        public void Sort_single_expression()
         {
             _ = Builders<User>.Sort.Ascending(u => u.Age);
-        }
-
-        [BuildersMQL("{ \"Age\" : -1 }")]
-        public void Sort_single_expression_descending()
-        {
             _ = Builders<User>.Sort.Descending(u => u.Age);
         }
 

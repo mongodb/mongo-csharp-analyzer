@@ -44,5 +44,15 @@ public abstract class DiagnosticsTestCasesRunner
     {
         Assert.AreEqual(diagnosticRule.RuleId, diagnostic.Id);
         Assert.AreEqual(diagnosticRule.Message, diagnostic.GetMessage());
+
+        var location = diagnosticRule.Location;
+        if (location?.StartLine >= 0)
+        {
+            Assert.AreEqual(location.StartLine, diagnostic.Location.GetLineSpan().StartLinePosition.Line);
+        }
+        if (location?.EndLine >= 0)
+        {
+            Assert.AreEqual(location.EndLine, diagnostic.Location.GetLineSpan().EndLinePosition.Line);
+        }
     }
 }

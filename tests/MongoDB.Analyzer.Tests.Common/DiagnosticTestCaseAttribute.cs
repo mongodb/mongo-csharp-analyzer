@@ -22,6 +22,7 @@ namespace MongoDB.Analyzer.Tests.Common
         public string RuleId { get; }
         public string Message { get; }
         public string Version { get; }
+        public Location Location { get; }
         public DriverTargetFramework TargetFramework { get; }
         public LinqVersion LinqProvider { get; }
 
@@ -30,13 +31,15 @@ namespace MongoDB.Analyzer.Tests.Common
             string message,
             string version = null,
             LinqVersion linqProvider = LinqVersion.V2,
-            DriverTargetFramework targetFramework = DriverTargetFramework.All)
+            DriverTargetFramework targetFramework = DriverTargetFramework.All,
+            Location location = null)
         {
             RuleId = ruleId;
             Message = message;
             Version = version;
-            TargetFramework = targetFramework;
             LinqProvider = linqProvider;
+            TargetFramework = targetFramework;
+            Location = location;
         }
     }
 
@@ -102,8 +105,8 @@ namespace MongoDB.Analyzer.Tests.Common
 
     public sealed class BuildersMQLAttribute : DiagnosticRuleTestCaseAttribute
     {
-        public BuildersMQLAttribute(string message) :
-            base(DiagnosticRulesConstants.Builders2MQL, message)
+        public BuildersMQLAttribute(string message, int startLine = -1, int endLine = -1) :
+            base(DiagnosticRulesConstants.Builders2MQL, message, location: new Location(startLine, endLine))
         {
         }
     }

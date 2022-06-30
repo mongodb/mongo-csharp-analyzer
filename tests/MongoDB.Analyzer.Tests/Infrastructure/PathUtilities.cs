@@ -20,17 +20,17 @@ internal static class PathUtilities
 {
     private static readonly string s_testCasesBaseNamespace = "MongoDB.Analyzer.Tests.Common.TestCases";
     private static readonly string s_testCasesBaseFolder = s_testCasesBaseNamespace;
-    private static readonly string s_projectParentFolderPrefix = @"..\..\..\..\";
+    private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..");
     private static readonly string s_testCasesPath = GetFullPathRelativeToParent(s_testCasesBaseFolder);
 
-    public static string TestDataModelAssemblyPath { get; } = GetFullPathRelativeToParent(@"MongoDB.Analyzer.Tests.Common.ClassLibrary\bin\Debug\netstandard2.0\MongoDB.Analyzer.Tests.Common.ClassLibrary");
+    public static string TestDataModelAssemblyPath { get; } = GetFullPathRelativeToParent("MongoDB.Analyzer.Tests.Common.ClassLibrary", "bin", "Debug", "netstandard2.0", "MongoDB.Analyzer.Tests.Common.ClassLibrary");
 
     public static string GetTestCaseFileFullPathFromName(string testCaseFullyQualifiedName)
     {
         var pathNameFromTypeName = testCaseFullyQualifiedName
             .Replace(s_testCasesBaseNamespace, string.Empty)
             .Trim('.')
-            .Replace('.', '\\');
+            .Replace('.', Path.DirectorySeparatorChar);
 
         var result = Path.Combine(s_testCasesPath, pathNameFromTypeName + ".cs");
         return result;
@@ -45,7 +45,6 @@ internal static class PathUtilities
         }
     }
 
-
-    private static string GetFullPathRelativeToParent(string partialPath) =>
-        Path.GetFullPath(s_projectParentFolderPrefix + partialPath);
+    private static string GetFullPathRelativeToParent(params string[] pathComponents) =>
+        Path.GetFullPath(Path.Combine(s_projectParentFolderPrefix, pathComponents.Length == 1 ? pathComponents[0] : Path.Combine(pathComponents)));
 }
