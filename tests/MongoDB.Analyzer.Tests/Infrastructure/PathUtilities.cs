@@ -23,7 +23,7 @@ internal static class PathUtilities
     private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..");
     private static readonly string s_testCasesPath = GetFullPathRelativeToParent(s_testCasesBaseFolder);
 
-    public static string TestDataModelAssemblyPath { get; } = GetFullPathRelativeToParent(@"MongoDB.Analyzer.Tests.Common.ClassLibrary/bin/Debug/netstandard2.0/MongoDB.Analyzer.Tests.Common.ClassLibrary");
+    public static string TestDataModelAssemblyPath { get; } = GetFullPathRelativeToParent("MongoDB.Analyzer.Tests.Common.ClassLibrary", "bin", "Debug", "netstandard2.0", "MongoDB.Analyzer.Tests.Common.ClassLibrary");
 
     public static string GetTestCaseFileFullPathFromName(string testCaseFullyQualifiedName)
     {
@@ -45,6 +45,6 @@ internal static class PathUtilities
         }
     }
 
-    private static string GetFullPathRelativeToParent(string partialPath) =>
-        Path.GetFullPath(Path.Combine(s_projectParentFolderPrefix, partialPath));
+    private static string GetFullPathRelativeToParent(params string[] pathComponents) =>
+        Path.GetFullPath(Path.Combine(s_projectParentFolderPrefix, pathComponents.Length == 1 ? pathComponents[0] : Path.Combine(pathComponents)));
 }
