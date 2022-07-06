@@ -60,6 +60,10 @@ internal static class LinqExpressionProcessor
             return !processedSyntaxNodes.Contains(n.Parent);
         };
 
+        foreach(var node in root.DescendantNodes(descendToChildrenPredicate).OfType<QueryExpressionSyntax>())
+        {
+            var childNode = node;
+        }
         foreach (var node in root.DescendantNodes(descendToChildrenPredicate).OfType<InvocationExpressionSyntax>())
         {
             var methodSymbol = semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
