@@ -17,7 +17,6 @@ namespace MongoDB.Analyzer.Core;
 internal sealed class ExpressionsAnalysis
 {
     public MemberDeclarationSyntax[] TypesDeclarations { get; set; }
-
     public ExpressionAnalysisContext[] AnalysisNodeContexts { get; set; }
     public InvalidExpressionAnalysisNode[] InvalidExpressionNodes { get; set; }
 }
@@ -33,7 +32,9 @@ internal record ExpressionAnalysisNode(
     SyntaxNode OriginalExpression,
     string ArgumentTypeName,
     SyntaxNode RewrittenExpression,
-    ConstantsMapper ConstantsRemapper) :
+    ConstantsMapper ConstantsRemapper,
+    bool display = true,
+    bool process = true) :
     ExpressionAnalysisNodeBase(OriginalExpression);
 
 internal record InvalidExpressionAnalysisNode(SyntaxNode OriginalExpression, params string[] Errors) :

@@ -50,6 +50,7 @@ internal static class BuildersAnalyzer
 
     private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalyzerContext context, ExpressionsAnalysis buildersAnalysis)
     {
+        var mqlMap = new Dictionary<SyntaxNode, string>();      //stores corresponding mql for each builder expression syntax node
         var semanticContext = context.SemanticModelAnalysisContext;
         if (buildersAnalysis.AnalysisNodeContexts.EmptyOrNull())
         {
@@ -68,20 +69,40 @@ internal static class BuildersAnalyzer
 
         foreach (var analysisContext in buildersAnalysis.AnalysisNodeContexts)
         {
-            var mqlResult = compilationResult.BuildersTestCodeExecutor.GenerateMql(analysisContext.EvaluationMethodName);
-            var location = analysisContext.Node.OriginalExpression.GetLocation();
-
-            if (mqlResult.Mql != null)
+            bool mqlAlreadyComputed = mqlMap.ContainsKey(analysisContext.Node.RewrittenExpression);
+            var mqlResult = new MQLResult(null, null);
+            if (!mqlAlreadyComputed)
             {
-                var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
-
-                var diagnostics = Diagnostic.Create(
+                mqlResult = compilationResult.BuildersTestCodeExecutor.GenerateMql(analysisContext.EvaluationMethodName);
+            }
+            var location = analysisContext.Node.OriginalExpression.GetLocation();
+            var display = analysisContext.Node.display;
+            if (mqlAlreadyComputed)
+            {
+                var mql = mqlMap[analysisContext.Node.RewrittenExpression];
+                if (display)
+                {
+                    var diagnostics = Diagnostic.Create(
                     BuidersDiagnosticsRules.DiagnosticRuleBuilder2MQL,
                     location,
                     DecorateMessage(mql, driverVersion, context.Settings));
-
-                semanticContext.ReportDiagnostic(diagnostics);
-                mqlCount++;
+                    semanticContext.ReportDiagnostic(diagnostics);
+                    mqlCount++;
+                }
+            }
+            else if (mqlResult.Mql != null)
+            {
+                var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
+                mqlMap.Add(analysisContext.Node.RewrittenExpression, mql);
+                if (display)
+                {
+                    var diagnostics = Diagnostic.Create(
+                    BuidersDiagnosticsRules.DiagnosticRuleBuilder2MQL,
+                    location,
+                    DecorateMessage(mql, driverVersion, context.Settings));
+                    semanticContext.ReportDiagnostic(diagnostics);
+                    mqlCount++;
+                }
             }
             else if (mqlResult.Exception != null)
             {

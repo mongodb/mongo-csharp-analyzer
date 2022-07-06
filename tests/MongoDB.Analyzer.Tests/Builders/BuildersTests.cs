@@ -49,4 +49,8 @@ public sealed class BuildersTests : DiagnosticsTestCasesRunner
     [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersCollections))]
     public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersVariables))]
+    public Task Variables(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

@@ -29,5 +29,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqEnums.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqSuffix.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqIMongoQueryableSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersVariables.cs" />
   </ItemGroup>
 </Project>

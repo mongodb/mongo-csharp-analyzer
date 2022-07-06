@@ -22,14 +22,67 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersBasic : TestCasesBase
     {
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 28)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 29)]
+        public void Single_expression_variable_reassignment()
+        {
+            var x = Builders<User>.Filter.Exists(u => u.Address, false);
+            x = Builders<User>.Filter.Exists(u => u.Address, true);
+        }
+
+        [BuildersMQL("{ \"Age\" : 25 }", 44)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 65 } }", 45)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 11 } }", 47)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 25 } }", 48)]
+        [BuildersMQL("{ \"Age\" : 100 }", 50)]
+        [BuildersMQL("{ \"Age\" : 11 }", 51)]
+        [BuildersMQL("{ \"Age\" : 1 }", 53)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 1 } }", 54)]
+        [BuildersMQL("{ \"Age\" : 200 }", 56)]
+        [BuildersMQL("{ \"Age\" : -1 }", 57)]
+        public void Multiple_expression_variables_reassignment()
+        {
+            var x = Builders<User>.Filter.Eq(u => u.Age, 25);
+            var y = Builders<User>.Filter.Lt(u => u.Age, 65);
+
+            x = Builders<User>.Filter.Gt(u => u.Age, 11);
+            var z = Builders<User>.Filter.Lt(u => u.Age, 25);
+
+            y = Builders<User>.Filter.Eq(u => u.Age, 100);
+            x = Builders<User>.Filter.Eq(u => u.Age, 11);
+
+            var w = Builders<User>.Sort.Ascending(u => u.Age);
+            z = Builders<User>.Filter.Gt(u => u.Age, 1);
+
+            y = Builders<User>.Filter.Eq(u => u.Age, 200);
+            w = Builders<User>.Sort.Descending(u => u.Age);
+        }
+
+        [BuildersMQL("{ \"Address\" : \"1\" }", 68)]
+        [BuildersMQL("{ \"Address\" : \"2\" }", 69)]
+        [BuildersMQL("{ \"Address\" : \"3\" }", 70)]
+        [BuildersMQL("{ \"Address\" : \"4\" }", 70)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 15, \"$gt\" : 65 } }", 72)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 17, \"$gt\" : 18 } }", 73)]
+        public void Multiple_expression_variables_declaration_and_reassignment()
+        {
+            var x = Builders<User>.Filter.Eq(u => u.Address, "1");
+            var y = Builders<User>.Filter.Eq(u => u.Address, "2");
+            FilterDefinition<User> z = Builders<User>.Filter.Eq(u => u.Address, "3"), w = (Builders<User>.Filter.Eq(u => u.Address, "4"));
+
+            x = y = Builders<User>.Filter.Lt(u => u.Age, 15) & Builders<User>.Filter.Gt(u => u.Age, 65);
+            x = z = w = y = x = z = w = y = Builders<User>.Filter.Lt(u => u.Age, 17) & Builders<User>.Filter.Gt(u => u.Age, 18);
+
+        }
+
         [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
         public void Filters_single_expression_exists()
         {
             _ = Builders<User>.Filter.Exists(u => u.Address, false);
         }
 
-        [BuildersMQL("{ \"Age\" : 1 }", 34, 34)]
-        [BuildersMQL("{ \"Age\" : -1 }", 35, 35)]
+        [BuildersMQL("{ \"Age\" : 1 }", 87, 87)]
+        [BuildersMQL("{ \"Age\" : -1 }", 88, 88)]
         public void Sort_single_expression()
         {
             _ = Builders<User>.Sort.Ascending(u => u.Age);

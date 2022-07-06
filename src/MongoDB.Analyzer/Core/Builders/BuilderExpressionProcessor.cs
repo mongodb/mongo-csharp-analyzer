@@ -43,6 +43,114 @@ internal static class BuilderExpressionProcessor
         public static RewriteResult Invalid = new(RewriteAction.Invalid, null, null);
     }
 
+    public static void ProcessDeclaration(VariableDeclaratorSyntax variableDeclaratorSyntax,
+                                            SyntaxNode builderExpressionNode,
+                                           Dictionary<string, SyntaxNode> variableValues,
+                                           Dictionary<string, Location> variableLocations)
+    {
+        SyntaxToken LHS = variableDeclaratorSyntax.Identifier;
+        string variableName = LHS.ToString();
+        Location currentLocation = LHS.GetLocation();
+        if (!variableValues.ContainsKey(variableName))
+        {
+            variableValues.Add(variableName, builderExpressionNode);
+        }
+        else
+        {
+            variableValues[variableName] = builderExpressionNode;
+        }
+
+        if (!variableLocations.ContainsKey(variableName))
+        {
+            variableLocations.Add(variableName, currentLocation);
+        }
+        else
+        {
+            variableLocations[variableName] = currentLocation;
+        }
+    }
+    public static SyntaxNode ProcessAssignment(AssignmentExpressionSyntax assignmentExpressionSyntax,
+                                            SyntaxNode builderExpressionNode,
+                                           Dictionary<string, SyntaxNode> variableValues,
+                                           Dictionary<string, Location> variableLocations)
+    {
+        SyntaxNode assignmentNode = assignmentExpressionSyntax;
+        bool compoundAssignment = false;
+        while (assignmentNode is AssignmentExpressionSyntax assignmentExpressionNode)
+        {
+            ExpressionSyntax LHS = assignmentExpressionNode.Left;
+            ExpressionSyntax RHS = assignmentExpressionNode.Right;
+            string variableName = LHS.ToString();
+
+            if (variableName.Equals("_"))
+            {
+                break;
+            }
+
+            Location recentLocation = variableLocations[variableName];
+            SyntaxNode buildersNode = variableValues[variableName];
+
+            var kind = assignmentExpressionNode.Kind();
+            if (kind == SyntaxKind.AndAssignmentExpression)
+            {
+                builderExpressionNode = SyntaxFactory.BinaryExpression(SyntaxKind.BitwiseAndExpression, buildersNode as ExpressionSyntax, builderExpressionNode as ExpressionSyntax);
+                compoundAssignment = true;
+            }
+            else if (kind == SyntaxKind.OrAssignmentExpression)
+            {
+                builderExpressionNode = SyntaxFactory.BinaryExpression(SyntaxKind.BitwiseOrExpression, buildersNode as ExpressionSyntax, builderExpressionNode as ExpressionSyntax);
+                compoundAssignment = true;
+            }
+            Location currentLocation = LHS.GetLocation();
+            if (!variableValues.ContainsKey(variableName))
+            {
+                variableValues.Add(variableName, builderExpressionNode);
+            }
+            else
+            {
+                variableValues[variableName] = builderExpressionNode;
+            }
+            if (!variableLocations.ContainsKey(variableName))
+            {
+                variableLocations.Add(variableName, currentLocation);
+            }
+            else
+            {
+                variableLocations[variableName] = currentLocation;
+            }
+            assignmentNode = RHS;
+        }
+        if (!compoundAssignment)
+        {
+            return null;
+        }
+        return builderExpressionNode;
+    }
+
+    public static SyntaxNode storeVariableValue(SyntaxNode node, SyntaxNode buildersNode, Dictionary<string, SyntaxNode> variableValues, Dictionary<string, Location> variableLocations)
+    {
+        if (node is VariableDeclaratorSyntax variableDeclaratorSyntax)
+        {
+            ProcessDeclaration(variableDeclaratorSyntax, buildersNode, variableValues, variableLocations);
+        }
+        else if (node is AssignmentExpressionSyntax assignmentExpressionSyntax)
+        {
+            return ProcessAssignment(assignmentExpressionSyntax, buildersNode, variableValues, variableLocations);
+        }
+        else if (node is ExpressionStatementSyntax)
+        {
+            while (node is ExpressionStatementSyntax expressionStatement)
+            {
+                node = expressionStatement.Expression;
+            }
+            if (node is AssignmentExpressionSyntax assignmentExpression)
+            {
+                return ProcessAssignment(assignmentExpression, buildersNode, variableValues, variableLocations);
+            }
+        }
+        return null;
+    }
+
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalyzerContext context)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
@@ -62,6 +170,9 @@ internal static class BuilderExpressionProcessor
         var variableNodes = new List<(SyntaxNode, ISymbol)>();
         var builderToVariableNodeMapping = new Dictionary<SyntaxNode, List<SyntaxNode>>();
 
+        var variableValues = new Dictionary<string, SyntaxNode>();
+        var variableLocations = new Dictionary<string, Location>();
+
         // Find builders expressions
         // TODO skip children iterations
         foreach (var node in root.DescendantNodes(n => !nodesProcessed.Contains(n.Parent)))
@@ -71,8 +182,9 @@ internal static class BuilderExpressionProcessor
                 continue;
             }
 
-            var (isValid, namedType, builderExpressionNode) = IsValidBuildersExpression(semanticModel, node);
-
+            Dictionary<SyntaxNode, SyntaxNode> replacementMap = new Dictionary<SyntaxNode, SyntaxNode>();
+            var (isValid, namedType, builderExpressionNode, display) = IsValidBuildersExpression(semanticModel, node, variableValues,
+                                                                                        variableLocations, analysisContexts, typesProcessor, replacementMap);
             if (!isValid)
             {
                 continue;
@@ -87,16 +199,33 @@ internal static class BuilderExpressionProcessor
                     typesProcessor.ProcessTypeSymbol(typeArgument);
                 }
 
-                var (newBuildersExpression, constantsMapper) = RewriteBuildersExpression(node, typesProcessor, semanticModel);
-
+                var (newBuildersExpression, constantsMapper) = RewriteBuildersExpression(builderExpressionNode, typesProcessor, semanticModel, replacementMap);
+                SyntaxNode returnedNode = storeVariableValue(node, newBuildersExpression, variableValues, variableLocations);
+                if (returnedNode != null)
+                {
+                    if (display)
+                    {
+                        var expresionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(
+                        builderExpressionNode,
+                        typesProcessor.GetTypeSymbolToGeneratedTypeMapping(namedType.TypeArguments.First()),
+                        newBuildersExpression,
+                        constantsMapper,
+                        true,
+                        true));
+                        analysisContexts.Add(expresionContext);
+                    }
+                    newBuildersExpression = returnedNode;
+                    display = false;
+                }
                 if (newBuildersExpression != null)
                 {
                     var expresionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(
                         builderExpressionNode,
                         typesProcessor.GetTypeSymbolToGeneratedTypeMapping(namedType.TypeArguments.First()),
                         newBuildersExpression,
-                        constantsMapper));
-
+                        constantsMapper,
+                        display,
+                        true));
                     analysisContexts.Add(expresionContext);
                 }
             }
@@ -118,10 +247,60 @@ internal static class BuilderExpressionProcessor
         return linqAnalysis;
     }
 
-    private static (bool IsValid, INamedTypeSymbol, SyntaxNode) IsValidBuildersExpression(SemanticModel semanticModel, SyntaxNode node)
+    private static bool ProcessSingleIdentifier(IdentifierNameSyntax identifierNameSyntax,
+                                                    Dictionary<string, SyntaxNode> variableValues,
+                                                    Dictionary<string, Location> variableLocations,
+                                                    List<ExpressionAnalysisContext> analysisContexts,
+                                                    TypesProcessor typesProcessor,
+                                                    INamedTypeSymbol namedType,
+                                                    Dictionary<SyntaxNode, SyntaxNode> replacementMap)
+    {
+        bool valid = false;
+        string varName = identifierNameSyntax.ToString();
+        Location varLocation = identifierNameSyntax.GetLocation();
+        if (!variableLocations.ContainsKey(varName))
+        {
+            return default;
+        }
+
+        valid = true;
+        Location recentLocation = variableLocations[varName];
+        SyntaxNode buildersValue = variableValues[varName];
+        var expresionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(
+                        identifierNameSyntax,
+                        typesProcessor.GetTypeSymbolToGeneratedTypeMapping(namedType.TypeArguments.First()),
+                        buildersValue,
+                        new ConstantsMapper(),
+                        true,
+                        false));
+        analysisContexts.Add(expresionContext);
+
+        if (!replacementMap.ContainsKey(identifierNameSyntax))
+        {
+            replacementMap.Add(identifierNameSyntax, buildersValue);
+        }
+        return valid;
+    }
+    private static (bool IsValid, INamedTypeSymbol, SyntaxNode, bool display) IsValidBuildersExpression(SemanticModel semanticModel, SyntaxNode node,
+                                                                                            Dictionary<string, SyntaxNode> variableValues,
+                                                                                            Dictionary<string, Location> variableLocations,
+                                                                                            List<ExpressionAnalysisContext> analysisContexts,
+                                                                                            TypesProcessor typesProcessor,
+                                                                                            Dictionary<SyntaxNode, SyntaxNode> replacementMap)
     {
         var builderExpressionNode = node;
-        if (builderExpressionNode is AssignmentExpressionSyntax assignmentExpressionSyntax)
+
+        if (builderExpressionNode is VariableDeclaratorSyntax variableDeclaratorSyntax)
+        {
+            builderExpressionNode = variableDeclaratorSyntax.Initializer.Value;
+        }
+
+        while (builderExpressionNode is ExpressionStatementSyntax expressionStatementSyntax)
+        {
+            builderExpressionNode = expressionStatementSyntax.Expression;
+        }
+
+        while (builderExpressionNode is AssignmentExpressionSyntax assignmentExpressionSyntax)
         {
             builderExpressionNode = assignmentExpressionSyntax.Right;
         }
@@ -132,7 +311,8 @@ internal static class BuilderExpressionProcessor
         }
 
         if (builderExpressionNode is not InvocationExpressionSyntax &&
-            builderExpressionNode is not BinaryExpressionSyntax)
+            builderExpressionNode is not BinaryExpressionSyntax &&
+            builderExpressionNode is not IdentifierNameSyntax)
         {
             return default;
         }
@@ -144,14 +324,26 @@ internal static class BuilderExpressionProcessor
             return default;
         }
 
+        if (builderExpressionNode is IdentifierNameSyntax identifierNameSyntax)
+        {
+            bool returnValue = ProcessSingleIdentifier(identifierNameSyntax, variableValues, variableLocations, analysisContexts, typesProcessor, namedType, replacementMap);
+            if (!returnValue)
+            {
+                return default;
+            }
+            return (true, namedType, builderExpressionNode, false);
+        }
+
         if (builderExpressionNode is BinaryExpressionSyntax binaryExpressionSyntax)
         {
-            var leftValid = IsValidBuildersExpression(semanticModel, binaryExpressionSyntax.Left);
-            var rightValid = IsValidBuildersExpression(semanticModel, binaryExpressionSyntax.Right);
+            var leftValid = IsValidBuildersExpression(semanticModel, binaryExpressionSyntax.Left,
+                                                        variableValues, variableLocations, analysisContexts, typesProcessor, replacementMap);
+            var rightValid = IsValidBuildersExpression(semanticModel, binaryExpressionSyntax.Right,
+                                                        variableValues, variableLocations, analysisContexts, typesProcessor, replacementMap);
 
-            if (leftValid.IsValid && rightValid.IsValid)
+            if ((leftValid.IsValid) && (rightValid.IsValid))
             {
-                return (true, namedType, builderExpressionNode);
+                return (true, namedType, builderExpressionNode, leftValid.display && rightValid.display);
             }
             else
             {
@@ -173,14 +365,23 @@ internal static class BuilderExpressionProcessor
             return default;
         }
 
-        return (true, namedType, builderExpressionNode);
+        return (true, namedType, builderExpressionNode, true);
     }
 
     private static (SyntaxNode RewrittenLinqExpression, ConstantsMapper ConstantsMapper) RewriteBuildersExpression(
        SyntaxNode buildersExpressionNode,
        TypesProcessor typesProcessor,
-       SemanticModel semanticModel)
+       SemanticModel semanticModel,
+       Dictionary<SyntaxNode, SyntaxNode> replacementMap = null)
     {
+        if (buildersExpressionNode is IdentifierNameSyntax identifierNameSyntax)
+        {
+            if (replacementMap.ContainsKey(identifierNameSyntax))
+            {
+                return (replacementMap[identifierNameSyntax], new ConstantsMapper());
+            }
+            return default;
+        }
         var rewriteContext = new RewriteContext(buildersExpressionNode, semanticModel, typesProcessor, new ConstantsMapper());
 
         var nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
@@ -196,13 +397,22 @@ internal static class BuilderExpressionProcessor
 
         foreach (var identifierNode in buildersExpressionNode.DescendantNodes().OfType<SimpleNameSyntax>())
         {
+            SyntaxNode syntaxNode = identifierNode;
             if (!identifierNode.IsLeaf() ||
                 nodeProcessed.Any(e => e.Contains(identifierNode)))
             {
                 continue;
             }
-
+            if (replacementMap.ContainsKey(syntaxNode))
+            {
+                if (!nodesRemapping.ContainsKey(syntaxNode))
+                {
+                    nodesRemapping.Add(syntaxNode, replacementMap[syntaxNode]);
+                }
+                continue;
+            }
             var nodeToHandle = SyntaxNodeExtensions.GetTopMostInvocationOrBinaryExpressionSyntax(identifierNode, null);
+
             if (nodeToHandle != identifierNode)
             {
                 nodeProcessed.Add(nodeToHandle);
