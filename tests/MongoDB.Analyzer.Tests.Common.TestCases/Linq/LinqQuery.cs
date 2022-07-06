@@ -21,13 +21,19 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqQuery: TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"_id\" : { \"$type\" : -1 } } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : user.Age, \"LastName\" : person.Address.City } }])")]
         public void Query_Syntax()
         {
+            User user = new User();
+            user.Age = 25;
+            Person person = new Person();
+
             var queryable = GetMongoQueryable();
             var query = from item in queryable
-                where item.Age == 25
-                select item;
+                        where item.Age == user.Age && item.LastName == person.Address.City
+                        select item;
+
+            //_ = GetMongoCollection().AsQueryable().Where(u => u.Age == user.Age && u.LastName == person.Address.City);
 
         }
     }

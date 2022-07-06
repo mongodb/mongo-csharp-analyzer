@@ -60,10 +60,10 @@ internal static class LinqExpressionProcessor
             return !processedSyntaxNodes.Contains(n.Parent);
         };
 
+        //LINQ Query Syntax
         foreach(var node in root.DescendantNodes(descendToChildrenPredicate).OfType<QueryExpressionSyntax>())
         {
-            var fromClause = node.FromClause;
-            var expression = fromClause.Expression;
+            var expression = node.FromClause.Expression;
             var methodSymbol = semanticModel.GetTypeInfo(expression).Type;
             if (!methodSymbol.IsIMongoQueryable())
             {
@@ -87,23 +87,23 @@ internal static class LinqExpressionProcessor
                 continue;
             }
             var generatedMongoQueryableTypeName = typesProcessor.ProcessTypeSymbol(mongoQueryableNamedType.TypeArguments[0]);
-
-            var queryBody = node.Body;
             var (newLinqExpression, constantsMapper) = RewriteLinqExpression(node, deepestMongoQueryableNode, typesProcessor, semanticModel);
-
-            if (newLinqExpression != null)
-            {
-                var linqContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(
+            var linqContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(
                     node,
                     generatedMongoQueryableTypeName,
                     newLinqExpression,
                     constantsMapper));
 
-                analysisContexts.Add(linqContext);
-            }
+            analysisContexts.Add(linqContext);
         }
-        foreach (var node in root.DescendantNodes(descendToChildrenPredicate).OfType<InvocationExpressionSyntax>())
+
+        //LINQ Method Syntax
+        foreach (var node in root.DescendantNodes(descendToChildrenPredicate))
         {
+            if(node is not InvocationExpressionSyntax && node is not QueryExpressionSyntax)
+            {
+                continue;
+            }
             var methodSymbol = semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
 
             if (!methodSymbol.IsDefinedInMongoLinq() ||
@@ -116,19 +116,28 @@ internal static class LinqExpressionProcessor
             processedSyntaxNodes.Add(node);
 
             // Find the deepest node that supplies IMongoQueryable symbol type
-            var deepestMongoQueryableNode = GetNextNestedInvocation(node);
-
-            while (deepestMongoQueryableNode != null)
+            var deepestMongoQueryableNode = node;
+            if(node is QueryExpressionSyntax queryExpressionSyntax)
             {
-                var currentMethodSymbol = semanticModel.GetSymbolInfo(deepestMongoQueryableNode).Symbol as IMethodSymbol;
-
-                if (currentMethodSymbol?.ReducedFrom?.ReceiverType.IsMongoQueryable() != true)
-                {
-                    break;
-                }
-
-                deepestMongoQueryableNode = GetNextNestedInvocation(deepestMongoQueryableNode);
+                deepestMongoQueryableNode = queryExpressionSyntax.FromClause.Expression;
             }
+            else if(node is InvocationExpressionSyntax invocationExpressionSyntax)
+            {
+                deepestMongoQueryableNode = GetNextNestedInvocation(invocationExpressionSyntax);
+
+                while (deepestMongoQueryableNode != null)
+                {
+                    var currentMethodSymbol = semanticModel.GetSymbolInfo(deepestMongoQueryableNode).Symbol as IMethodSymbol;
+
+                    if (currentMethodSymbol?.ReducedFrom?.ReceiverType.IsMongoQueryable() != true)
+                    {
+                        break;
+                    }
+
+                    deepestMongoQueryableNode = GetNextNestedInvocation(invocationExpressionSyntax);
+                }
+            }
+            
 
             // Validate IMongoQueryable node candidate
             if (deepestMongoQueryableNode == null)
@@ -449,6 +458,23 @@ internal static class LinqExpressionProcessor
         return replacementNode;
     }
 
+    private static bool IsChildOfQueryParameter(
+        RewriteContext rewriteContext,
+        SyntaxNode identifier,
+        SymbolInfo symbolInfo)
+    {
+        var linqExpression = rewriteContext.LinqExpression;
+        if(linqExpression is not QueryExpressionSyntax queryExpressionSyntax)
+        {
+            return false;
+        }
+        var queryVariable = queryExpressionSyntax.FromClause.Identifier;
+        var symbol = symbolInfo;
+        SyntaxNode parentNode = identifier.Parent;
+        bool isChild = parentNode.ToString().Contains(queryVariable.ToString());
+        return isChild;
+    }
+
     private static bool IsChildOfLambdaParameter(
         RewriteContext rewriteContext,
         SyntaxNode identifier,
@@ -474,7 +500,8 @@ internal static class LinqExpressionProcessor
         SymbolInfo symbolInfo)
     {
         if (IsChildOfLambdaParameter(rewriteContext, identifierNode, symbolInfo) ||
-            identifierNode.IsMemberOfAnonymousObject())
+            identifierNode.IsMemberOfAnonymousObject()
+            || IsChildOfQueryParameter(rewriteContext, identifierNode, symbolInfo))
         {
             return RewriteResult.Ignore;
         }
