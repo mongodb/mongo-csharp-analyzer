@@ -21,7 +21,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqQuery: TestCasesBase
     {
-        [NoDiagnostics]
+        [MQL("aggregate([{ \"$match\" : { \"_id\" : { \"$type\" : -1 } } }])")]
         public void Query_Syntax()
         {
             var queryable = GetMongoQueryable();

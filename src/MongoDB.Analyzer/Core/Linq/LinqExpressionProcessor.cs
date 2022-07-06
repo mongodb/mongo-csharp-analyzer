@@ -64,11 +64,42 @@ internal static class LinqExpressionProcessor
         {
             var fromClause = node.FromClause;
             var expression = fromClause.Expression;
-            var isMongoQueryable = semanticModel.GetSymbolInfo(expression).Symbol
-            var queryBody = node.Body;
-            foreach(var clause in queryBody.Clauses)
+            var methodSymbol = semanticModel.GetTypeInfo(expression).Type;
+            if (!methodSymbol.IsIMongoQueryable())
             {
+                continue;
+            }
 
+            processedSyntaxNodes.Add(node);
+            var deepestMongoQueryableNode = expression;
+
+            if(deepestMongoQueryableNode == null)
+            {
+                continue;
+            }
+
+            var mongoQueryableTypeInfo = semanticModel.GetTypeInfo(deepestMongoQueryableNode);
+            if (!mongoQueryableTypeInfo.Type.IsIMongoQueryable() ||
+                mongoQueryableTypeInfo.Type is not INamedTypeSymbol mongoQueryableNamedType ||
+                mongoQueryableNamedType.TypeArguments.Length != 1 ||
+                !mongoQueryableNamedType.TypeArguments[0].IsSupportedMongoCollectionType())
+            {
+                continue;
+            }
+            var generatedMongoQueryableTypeName = typesProcessor.ProcessTypeSymbol(mongoQueryableNamedType.TypeArguments[0]);
+
+            var queryBody = node.Body;
+            var (newLinqExpression, constantsMapper) = RewriteLinqExpression(node, deepestMongoQueryableNode, typesProcessor, semanticModel);
+
+            if (newLinqExpression != null)
+            {
+                var linqContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(
+                    node,
+                    generatedMongoQueryableTypeName,
+                    newLinqExpression,
+                    constantsMapper));
+
+                analysisContexts.Add(linqContext);
             }
         }
         foreach (var node in root.DescendantNodes(descendToChildrenPredicate).OfType<InvocationExpressionSyntax>())
