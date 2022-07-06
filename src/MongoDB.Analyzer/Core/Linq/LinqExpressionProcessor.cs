@@ -62,7 +62,14 @@ internal static class LinqExpressionProcessor
 
         foreach(var node in root.DescendantNodes(descendToChildrenPredicate).OfType<QueryExpressionSyntax>())
         {
-            var childNode = node;
+            var fromClause = node.FromClause;
+            var expression = fromClause.Expression;
+            var isMongoQueryable = semanticModel.GetSymbolInfo(expression).Symbol
+            var queryBody = node.Body;
+            foreach(var clause in queryBody.Clauses)
+            {
+
+            }
         }
         foreach (var node in root.DescendantNodes(descendToChildrenPredicate).OfType<InvocationExpressionSyntax>())
         {
