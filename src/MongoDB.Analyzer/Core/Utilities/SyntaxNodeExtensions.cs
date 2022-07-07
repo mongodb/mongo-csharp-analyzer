@@ -34,7 +34,7 @@ internal static class SyntaxNodeExtensions
     public static MethodDeclarationSyntax GetSingleMethod(this SyntaxNode syntaxNode, string name) =>
         syntaxNode.DescendantNodes().OfType<MethodDeclarationSyntax>().Single(m => m.Identifier.Text == name);
 
-    public static SyntaxNode GetTopMostInvocationOrBinaryExpressionSyntax(SimpleNameSyntax identifier, IdentifierNameSyntax[] lambdaIdentifiers)
+    public static SyntaxNode GetTopMostInvocationOrBinaryExpressionSyntax(SimpleNameSyntax identifier, IdentifierNameSyntax[] lambdaIdentifiers, IdentifierNameSyntax [] queryIdentifiers = null)
     {
         SyntaxNode previous = null;
         SyntaxNode result = identifier;
@@ -70,6 +70,21 @@ internal static class SyntaxNodeExtensions
 
                     if (binaryExpressionSyntax.Right != previousSyntaxNode &&
                         lambdaIdentifiers.Any(l => binaryExpressionSyntax.Right.Contains(l)))
+                    {
+                        return false;
+                    }
+                }
+
+                if (queryIdentifiers != null)
+                {
+                    if (binaryExpressionSyntax.Left != previousSyntaxNode &&
+                        queryIdentifiers.Any(l => binaryExpressionSyntax.Left.Contains(l)))
+                    {
+                        return false;
+                    }
+
+                    if (binaryExpressionSyntax.Right != previousSyntaxNode &&
+                        queryIdentifiers.Any(l => binaryExpressionSyntax.Right.Contains(l)))
                     {
                         return false;
                     }

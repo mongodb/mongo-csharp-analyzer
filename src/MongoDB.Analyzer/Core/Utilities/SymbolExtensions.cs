@@ -91,6 +91,13 @@ internal static class SymbolExtensions
         return result;
     }
 
+    public static bool ContainsQueryParameter(this ISymbol symbol, SyntaxNode parentNode)
+    {
+        var containsQueryParameter = symbol?.ContainingSymbol is IMethodSymbol methodSymbol;
+        var result = containsQueryParameter && (symbol != null && symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax())));
+        return result;
+    }
+
     private static bool ImplementsOrIsInterface(this ITypeSymbol typeSymbol, string @namespace, string interfaceName) =>
         typeSymbol?.TypeKind switch
         {
