@@ -41,16 +41,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
         [NoDiagnostics]
-        public void IMongoQueryable_with_anonymous_type_should_be_ignored()
-        {
-            var query = from p in GetMongoQueryable()
-                        where p.Name == "Jules"
-                        select new { p.Name, p.LastName };
-
-            query = query.Where(p => p.LastName == "Verne");
-        }
-
-        [NoDiagnostics]
         public void IMongoQueryable_with_generic_type_should_be_ignored<T>()
         {
             _ = GetMongoQueryable<T>().Where(t => t.GetHashCode() == 1);
