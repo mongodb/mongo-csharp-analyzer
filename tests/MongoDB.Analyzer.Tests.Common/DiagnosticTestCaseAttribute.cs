@@ -55,7 +55,9 @@ namespace MongoDB.Analyzer.Tests.Common
             string message,
             string version = null,
             LinqVersion linqProvider = LinqVersion.V2,
-            DriverTargetFramework targetFramework = DriverTargetFramework.All) :
+            DriverTargetFramework targetFramework = DriverTargetFramework.All,
+            int startLine = -1,
+            int endLine = -1) :
             base(DiagnosticRulesConstants.MongoLinq2MQL, message, version, linqProvider, targetFramework)
         {
         }

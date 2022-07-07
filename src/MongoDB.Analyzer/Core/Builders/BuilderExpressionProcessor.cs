@@ -87,7 +87,7 @@ internal static class BuilderExpressionProcessor
                     typesProcessor.ProcessTypeSymbol(typeArgument);
                 }
 
-                var (newBuildersExpression, constantsMapper) = RewriteBuildersExpression(node, typesProcessor, semanticModel);
+                var (newBuildersExpression, constantsMapper) = RewriteBuildersExpression(builderExpressionNode, typesProcessor, semanticModel);
 
                 if (newBuildersExpression != null)
                 {
