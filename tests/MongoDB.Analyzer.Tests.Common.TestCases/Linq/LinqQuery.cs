@@ -16,6 +16,7 @@
 using System.Linq;
 using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver.Linq;
+
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqQuery: TestCasesBase
@@ -109,7 +110,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                         where (item.Age == 22 || item.Age == 25)
                         where (item.LastName == "Doe" || item.Name == "John")
                         where item.Address.StartsWith("Drive")
-                        select new { item.Age, item.Address, item.Name};
+                        select new { item.Age, item.Address, item.Name };
         }
 
         [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] } }, { \"$match\" : { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }, { \"$match\" : { \"Address\" : /^Drive/s } }, { \"$project\" : { \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
