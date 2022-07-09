@@ -78,10 +78,7 @@ internal static class AnalysisCodeGenerator
         foreach (var linqContext in builderExpressionAnalysis.AnalysisNodeContexts)
         {
             var analysisNode = linqContext.Node;
-            if (!analysisNode.process)
-            {
-                continue;
-            }
+
             linqContext.EvaluationMethodName = testCodeBuilder.AddBuildersExpression(
                 analysisNode.ArgumentTypeName,
                 analysisNode.RewrittenExpression);
