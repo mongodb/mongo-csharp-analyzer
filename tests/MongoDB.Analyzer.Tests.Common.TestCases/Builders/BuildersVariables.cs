@@ -243,7 +243,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             FilterDefinition<User> x = Builders<User>.Filter.Eq(u => u.Age, 20), y = Builders<User>.Filter.Eq(u => u.Age, 10);
             if (true)
             {
-                var random = 19;
+                FilterDefinition<User> x3 = Builders<User>.Filter.Eq(u => u.Age, 20), y3 = Builders<User>.Filter.Eq(u => u.Age, 10);
             }
             x = y = Builders<User>.Filter.Eq(u => u.Age, 60);
             var w = Builders<User>.Filter.Lt(u => u.Age, 20);
