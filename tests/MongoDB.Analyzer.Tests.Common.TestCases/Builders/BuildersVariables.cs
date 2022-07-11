@@ -19,22 +19,26 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersVariables : TestCasesBase
     {
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 25)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 26)]
+        private FilterDefinition<User> Foo(FilterDefinition<User> x)
+        {
+            return x;
+        }
+        [BuildersMQL("{ \"$or\" : [{ \"Address\" : { \"$exists\" : false } }, { \"Address\" : { \"$exists\" : true } }] }", 30)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 31)]
+        [BuildersMQL("{ \"$or\" : [{ \"Address\" : { \"$exists\" : false } }, { \"Address\" : { \"$exists\" : true } }] }", 32)]
         public void variable_tracking_1()
         {
-            var x = Builders<User>.Filter.Exists(u => u.Address, false);
-            var z = x;
-            var w = 1;
-            var x2 = 2;
-            var y3 = 3;
+            var x = Builders<User>.Filter.Exists(u => u.Address, false) | Builders<User>.Filter.Exists(u => u.Address, true);
+            var y = Builders<User>.Filter.Exists(u => u.Address, false);
+            x = Foo(x);
+            y = Foo(x);
         }
 
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 36)]
-        [BuildersMQL("{ \"Age\" : 21 }", 37)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 38)]
-        [BuildersMQL("{ \"Age\" : 21 }", 38)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false }, \"Age\" : 21 }", 39)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 43)]
+        [BuildersMQL("{ \"Age\" : 21 }", 44)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 45)]
+        [BuildersMQL("{ \"Age\" : 21 }", 45)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false }, \"Age\" : 21 }", 46)]
         public void variable_tracking_2()
         {
             var x = Builders<User>.Filter.Exists(u => u.Address, false);
@@ -43,15 +47,15 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var u = z;
         }
 
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 53)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 21 } }", 54)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 65 } }", 55)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 56)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 57)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 21 } }", 57)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 65 } }", 57)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 57)]
-        [BuildersMQL("{ \"$or\" : [{ \"Address\" : { \"$exists\" : false }, \"Age\" : { \"$lt\" : 21 } }, { \"Age\" : { \"$gt\" : 65 }, \"Address\" : { \"$exists\" : true } }] }", 58)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 60)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 21 } }", 61)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 65 } }", 62)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 63)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 64)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 21 } }", 64)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 65 } }", 64)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 64)]
+        [BuildersMQL("{ \"$or\" : [{ \"Address\" : { \"$exists\" : false }, \"Age\" : { \"$lt\" : 21 } }, { \"Age\" : { \"$gt\" : 65 }, \"Address\" : { \"$exists\" : true } }] }", 65)]
         public void variable_tracking_3()
         {
             var x = Builders<User>.Filter.Exists(u => u.Address, false);
@@ -62,9 +66,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var t = u;
         }
 
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 66)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 67)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }", 68)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 74)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 75)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 75)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }", 76)]
         public void variable_tracking_4()
         {
             var x = Builders<User>.Filter.Gt(u => u.Age, 21);
@@ -72,9 +77,9 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var z = y;
         }
 
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 76)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 77)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 78)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 84)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 85)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 86)]
         public void variable_tracking_5()
         {
             var x = Builders<User>.Filter.Exists(u => u.Address, false);
@@ -82,9 +87,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             z = x;
         }
 
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 86)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 87)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }", 88)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 95)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 96)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 96)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }", 97)]
         public void variable_tracking_6()
         {
             var x = Builders<User>.Filter.Gt(u => u.Age, 21);
@@ -92,9 +98,9 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var z = x;
         }
 
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 96)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 97)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }", 98)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 105)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 106)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }", 107)]
         public void variable_tracking_7()
         {
             var x = Builders<User>.Filter.Gt(u => u.Age, 21);
@@ -102,9 +108,9 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var z = x;
         }
 
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 106)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 107)]
-        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$gt\" : 21 } }, { \"Age\" : { \"$lt\" : 40 } }] }", 108)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 115)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 116)]
+        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$gt\" : 21 } }, { \"Age\" : { \"$lt\" : 40 } }] }", 117)]
         public void variable_tracking_8()
         {
             var x = Builders<User>.Filter.Gt(u => u.Age, 21);
@@ -112,15 +118,15 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var z = x;
         }
 
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 122)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 65 } }", 123)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 21 } }", 124)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 125)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 126)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 65 } }", 126)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 21 } }", 126)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 126)]
-        [BuildersMQL("{ \"$and\" : [{ \"$or\" : [{ \"Address\" : { \"$exists\" : false } }, { \"Age\" : { \"$gt\" : 65 } }] }, { \"$or\" : [{ \"Age\" : { \"$lt\" : 21 } }, { \"Address\" : { \"$exists\" : true } }] }] }", 127)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 131)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 65 } }", 132)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 21 } }", 133)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 134)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 135)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 65 } }", 135)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 21 } }", 135)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 135)]
+        [BuildersMQL("{ \"$and\" : [{ \"$or\" : [{ \"Address\" : { \"$exists\" : false } }, { \"Age\" : { \"$gt\" : 65 } }] }, { \"$or\" : [{ \"Age\" : { \"$lt\" : 21 } }, { \"Address\" : { \"$exists\" : true } }] }] }", 136)]
         public void variable_tracking_9()
         {
             var x = Builders<User>.Filter.Exists(u => u.Address, false);
@@ -131,13 +137,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var t = u;
         }
 
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 139)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 140)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 141)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }", 142)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }", 143)]
-        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 40 } }, { \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }] }", 143)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 }, \"$or\" : [{ \"Age\" : { \"$lt\" : 40 } }, { \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }] }", 144)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 148)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 149)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 150)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }", 151)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }", 152)]
+        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 40 } }, { \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }] }", 152)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 }, \"$or\" : [{ \"Age\" : { \"$lt\" : 40 } }, { \"Age\" : { \"$gt\" : 21, \"$lt\" : 40 } }] }", 153)]
         public void variable_tracking_10()
         {
             var x = Builders<User>.Filter.Gt(u => u.Age, 21);
@@ -148,16 +154,16 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var z = x;
         }
 
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 159)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 160)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 25 } }", 161)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 25 } }", 162)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 162)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 39 } }", 163)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 29 } }", 164)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 29 } }", 165)]
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 39 } }", 165)]
-        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$gt\" : 29 } }, { \"Age\" : { \"$gt\" : 39 } }] }", 166)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 21 } }", 168)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 169)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 25 } }", 170)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 25 } }", 171)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 40 } }", 171)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 39 } }", 172)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 29 } }", 173)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 29 } }", 174)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 39 } }", 174)]
+        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$gt\" : 29 } }, { \"Age\" : { \"$gt\" : 39 } }] }", 175)]
         public void variable_tracking_11()
         {
             var x = Builders<User>.Filter.Gt(u => u.Age, 21);
@@ -170,20 +176,20 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var w = z;
         }
 
-        [BuildersMQL("{ \"Name\" : \"John\" }", 185)]
-        [BuildersMQL("{ \"LastName\" : \"Doe\" }", 186)]
-        [BuildersMQL("{ \"LastName\" : \"Doe\" }", 187)]
-        [BuildersMQL("{ \"Name\" : \"John\", \"LastName\" : \"Doe\" }", 188)]
-        [BuildersMQL("{ \"Name\" : \"John\", \"LastName\" : \"Doe\" }", 189)]
-        [BuildersMQL("{ \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\", \"LastName\" : \"Doe\" }] }", 189)]
-        [BuildersMQL("{ \"Name\" : \"Jane\" }", 190)]
-        [BuildersMQL("{ \"Name\" : \"Jane\" }", 191)]
-        [BuildersMQL("{ \"Name\" : \"John\", \"LastName\" : \"Doe\", \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\", \"LastName\" : \"Doe\" }] }", 191)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 192)]
-        [BuildersMQL("{ \"$or\" : [{ \"Name\" : \"Jane\" }, { \"Address\" : { \"$exists\" : true } }] }", 193)]
-        [BuildersMQL("{ \"$or\" : [{ \"Name\" : \"Jane\" }, { \"Address\" : { \"$exists\" : true } }] }", 194)]
-        [BuildersMQL("{ \"$or\" : [{ \"Name\" : \"Jane\" }, { \"Address\" : { \"$exists\" : true } }] }", 194)]
-        [BuildersMQL("{ \"$or\" : [{ \"Name\" : \"Jane\" }, { \"Address\" : { \"$exists\" : true } }, { \"Name\" : \"Jane\" }, { \"Address\" : { \"$exists\" : true } }] }", 195)]
+        [BuildersMQL("{ \"Name\" : \"John\" }", 194)]
+        [BuildersMQL("{ \"LastName\" : \"Doe\" }", 195)]
+        [BuildersMQL("{ \"LastName\" : \"Doe\" }", 196)]
+        [BuildersMQL("{ \"Name\" : \"John\", \"LastName\" : \"Doe\" }", 197)]
+        [BuildersMQL("{ \"Name\" : \"John\", \"LastName\" : \"Doe\" }", 198)]
+        [BuildersMQL("{ \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\", \"LastName\" : \"Doe\" }] }", 198)]
+        [BuildersMQL("{ \"Name\" : \"Jane\" }", 199)]
+        [BuildersMQL("{ \"Name\" : \"Jane\" }", 200)]
+        [BuildersMQL("{ \"Name\" : \"John\", \"LastName\" : \"Doe\", \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\", \"LastName\" : \"Doe\" }] }", 200)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 201)]
+        [BuildersMQL("{ \"$or\" : [{ \"Name\" : \"Jane\" }, { \"Address\" : { \"$exists\" : true } }] }", 202)]
+        [BuildersMQL("{ \"$or\" : [{ \"Name\" : \"Jane\" }, { \"Address\" : { \"$exists\" : true } }] }", 203)]
+        [BuildersMQL("{ \"$or\" : [{ \"Name\" : \"Jane\" }, { \"Address\" : { \"$exists\" : true } }] }", 203)]
+        [BuildersMQL("{ \"$or\" : [{ \"Name\" : \"Jane\" }, { \"Address\" : { \"$exists\" : true } }, { \"Name\" : \"Jane\" }, { \"Address\" : { \"$exists\" : true } }] }", 204)]
         public void variable_tracking_12()
         {
             var x = Builders<User>.Filter.Eq(u => u.Name, "John");
@@ -199,17 +205,17 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var p = y;
         }
 
-        [BuildersMQL("{ \"Age\" : 20 }", 211)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 212)]
-        [BuildersMQL("{ \"Age\" : 20 }", 213)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 213)]
-        [BuildersMQL("{ \"Scores\" : 20 }", 214)]
-        [BuildersMQL("{ \"Age\" : 20, \"Address\" : { \"$exists\" : true } }", 215)]
-        [BuildersMQL("{ \"Scores\" : 20 }", 215)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 60 } }", 216)]
-        [BuildersMQL("{ \"Age\" : { \"$lt\" : 60 } }", 217)]
-        [BuildersMQL("{ \"Age\" : 20, \"Address\" : { \"$exists\" : true }, \"Scores\" : 20 }", 217)]
-        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 60 } }, { \"Age\" : 20, \"Address\" : { \"$exists\" : true }, \"Scores\" : 20 }] }", 218)]
+        [BuildersMQL("{ \"Age\" : 20 }", 220)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 221)]
+        [BuildersMQL("{ \"Age\" : 20 }", 222)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 222)]
+        [BuildersMQL("{ \"Scores\" : 20 }", 223)]
+        [BuildersMQL("{ \"Age\" : 20, \"Address\" : { \"$exists\" : true } }", 224)]
+        [BuildersMQL("{ \"Scores\" : 20 }", 224)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 60 } }", 225)]
+        [BuildersMQL("{ \"Age\" : { \"$lt\" : 60 } }", 226)]
+        [BuildersMQL("{ \"Age\" : 20, \"Address\" : { \"$exists\" : true }, \"Scores\" : 20 }", 226)]
+        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 60 } }, { \"Age\" : 20, \"Address\" : { \"$exists\" : true }, \"Scores\" : 20 }] }", 227)]
         public void variable_tracking_13()
         {
             var x = Builders<User>.Filter.Eq(u => u.Age, 20);

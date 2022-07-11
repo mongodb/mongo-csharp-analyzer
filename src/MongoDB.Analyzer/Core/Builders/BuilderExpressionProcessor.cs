@@ -22,9 +22,6 @@ internal static class BuilderExpressionProcessor
         TypesProcessor TypesProcessor,
         ConstantsMapper ConstantsMapper);
 
-    private record ProcessContext(
-        Dictionary<string, ExpressionAnalysisContext> variableValues);
-
     private enum RewriteAction
     {
         Rewrite,
@@ -44,161 +41,6 @@ internal static class BuilderExpressionProcessor
 
         public static RewriteResult Ignore = new(RewriteAction.Ignore, null, null);
         public static RewriteResult Invalid = new(RewriteAction.Invalid, null, null);
-    }
-
-    private static void FindChildNodes(SyntaxNode expression,
-                                       Dictionary<string, ExpressionAnalysisContext> variableValues,
-                                       Dictionary<string, ExpressionAnalysisContext> buildersToExpressionContext,
-                                       List<SyntaxNode> childNodes)
-    {
-        if (variableValues.ContainsKey(expression.ToString()) || buildersToExpressionContext.ContainsKey(expression.ToString()))
-        {
-            childNodes.Add(expression);
-            return;
-        }
-
-        var directChildren = expression.ChildNodes();
-        foreach(var childNode in directChildren)
-        {
-            FindChildNodes(childNode, variableValues, buildersToExpressionContext, childNodes);
-        }
-    }
-
-    private static void StoreValue(List<ExpressionAnalysisContext> analysisContexts,
-                                            Dictionary<string, ExpressionAnalysisContext> buildersToExpressionContext,
-                                            SyntaxNode syntaxNode,
-                                             ProcessContext processContext)
-    {
-        var variableNames = new List<string>();
-        var RHS = syntaxNode;
-        if(syntaxNode is VariableDeclaratorSyntax variableDeclaratorSyntax)
-        {
-            var LHS = variableDeclaratorSyntax.Identifier;
-            variableNames.Add(LHS.ToString());
-            RHS = variableDeclaratorSyntax.Initializer.Value;
-        }
-        else
-        {
-            while(RHS is AssignmentExpressionSyntax assignmentExpression)
-            {
-                var LHS = assignmentExpression.Left;
-                variableNames.Add(LHS.ToString());
-                RHS = assignmentExpression.Right;
-            }
-        }
-
-        var variableValues = processContext.variableValues;
-        var childNodes = new List<SyntaxNode>();
-        FindChildNodes(RHS, variableValues, buildersToExpressionContext, childNodes);
-
-        Dictionary<SyntaxNode, SyntaxNode> nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
-        var type = "";
-        foreach(var childNode in childNodes)
-        {
-            string childNodeName = childNode.ToString();
-            if (variableValues.ContainsKey(childNodeName))
-            {
-                var rewrittenExpression = variableValues[childNodeName].Node.RewrittenExpression;
-                type = variableValues[childNodeName].Node.ArgumentTypeName;
-                var constantsMapper = variableValues[childNodeName].Node.ConstantsRemapper;
-                nodesRemapping.Add(childNode, rewrittenExpression);
-                ExpressionAnalysisContext diagnostic = new ExpressionAnalysisContext(new ExpressionAnalysisNode(childNode, type, rewrittenExpression, constantsMapper));
-                analysisContexts.Add(diagnostic);
-            }
-            else if (buildersToExpressionContext.ContainsKey(childNodeName))
-            {
-                var rewrittenExpression = buildersToExpressionContext[childNodeName].Node.RewrittenExpression;
-                type = buildersToExpressionContext[childNodeName].Node.ArgumentTypeName;
-                nodesRemapping.Add(childNode, rewrittenExpression);
-            }
-        }
-
-        var result = RHS;
-        if(!variableValues.ContainsKey(RHS.ToString()) && !buildersToExpressionContext.ContainsKey(RHS.ToString()))
-        {
-            result = RHS.ReplaceNodes(nodesRemapping.Keys, (n, _) => nodesRemapping[n]);
-        }
-        else if (variableValues.ContainsKey(RHS.ToString()))
-        {
-            result = variableValues[RHS.ToString()].Node.RewrittenExpression;
-        }
-        else if (buildersToExpressionContext.ContainsKey(RHS.ToString()))
-        {
-            result = buildersToExpressionContext[RHS.ToString()].Node.RewrittenExpression;
-        }
-
-        SyntaxKind syntaxKind = syntaxNode.Kind();
-        if(syntaxKind == SyntaxKind.AndAssignmentExpression)
-        {
-            var firstOperand = result;
-            if (variableValues.ContainsKey(variableNames.First()))
-            {
-                firstOperand = variableValues[variableNames.First()].Node.RewrittenExpression;
-            }
-            result = SyntaxFactory.BinaryExpression(SyntaxKind.BitwiseAndExpression, firstOperand as ExpressionSyntax, result as ExpressionSyntax);
-        }
-        else if(syntaxKind == SyntaxKind.OrAssignmentExpression)
-        {
-            var firstOperand = result;
-            if (variableValues.ContainsKey(variableNames.First()))
-            {
-                firstOperand = variableValues[variableNames.First()].Node.RewrittenExpression;
-            }
-            result = SyntaxFactory.BinaryExpression(SyntaxKind.BitwiseOrExpression, firstOperand as ExpressionSyntax, result as ExpressionSyntax);
-        }
-
-        bool isValidBuilders = childNodes.Count > 0;
-        ExpressionAnalysisContext variableInfo = new ExpressionAnalysisContext(new ExpressionAnalysisNode(RHS, type, result, new ConstantsMapper()));
-        foreach(var variableName in variableNames)
-        {
-            if (!variableValues.ContainsKey(variableName) && isValidBuilders)
-            {
-                variableValues.Add(variableName, variableInfo);
-            }
-            else if(isValidBuilders)
-            {
-                variableValues[variableName] = variableInfo;
-            }
-        }
-    }
-
-    private static void ProcessNodes(List<ExpressionAnalysisContext> analysisContexts,
-                                    Dictionary<string, ExpressionAnalysisContext> buildersToExpressionContext,
-                                    SyntaxNode node,
-                                    ProcessContext current)
-    {
-        Dictionary<string, ExpressionAnalysisContext> variableValues = current.variableValues;
-        var nodesToProcess = new List<SyntaxNode>();
-
-        if (node is LocalDeclarationStatementSyntax localDeclarationStatementSyntax)
-        {
-            VariableDeclarationSyntax variableDeclaration = localDeclarationStatementSyntax.Declaration;
-            foreach (var declaration in variableDeclaration.Variables)
-            {
-                nodesToProcess.Add(declaration);
-            }
-        }
-        else if (node is AssignmentExpressionSyntax assignmentExpressionSyntax)
-        {
-            nodesToProcess.Add(assignmentExpressionSyntax);
-        }
-        
-        if (!nodesToProcess.EmptyOrNull())
-        {
-            foreach (var syntaxNode in nodesToProcess)
-            {
-                StoreValue(analysisContexts, buildersToExpressionContext, syntaxNode, current);
-            }
-            return;
-        }
-
-        var childNodes = node.ChildNodes();
-        Dictionary<string, ExpressionAnalysisContext> variableValuesCopy = new Dictionary<string, ExpressionAnalysisContext>(current.variableValues);
-        foreach(var child in childNodes)
-        {
-            ProcessContext childProcessContext = new ProcessContext(variableValuesCopy);
-            ProcessNodes(analysisContexts, buildersToExpressionContext, child, childProcessContext);
-        }
     }
 
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalyzerContext context)
@@ -268,7 +110,7 @@ internal static class BuilderExpressionProcessor
                 throw new Exception($"Failed analyzing {node.NormalizeWhitespace()} with {ex.Message}");
             }
         }
-        ProcessNodes(analysisContexts, builderToAnalysisContextMap, root, new ProcessContext(new Dictionary<string, ExpressionAnalysisContext>()));
+        BuildersResolveVariables.ResolveVariables(analysisContexts, builderToAnalysisContextMap, root);
         var linqAnalysis = new ExpressionsAnalysis()
         {
             AnalysisNodeContexts = analysisContexts.ToArray(),
