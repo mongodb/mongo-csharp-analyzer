@@ -37,10 +37,10 @@ internal static class BuildersResolveVariables
     }
 
     private static bool ParseExpression(SyntaxNode expression,
-                                  int currentLevel,
-                                  Dictionary<int, Dictionary<string, ExpressionAnalysisContext>> variableValues,
-                                  Dictionary<string, ExpressionAnalysisContext> buildersToExpressionContext,
-                                  List<SyntaxNode> childNodes)
+                                          int currentLevel,
+                                          Dictionary<int, Dictionary<string, ExpressionAnalysisContext>> variableValues,
+                                          Dictionary<string, ExpressionAnalysisContext> buildersToExpressionContext,
+                                          List<SyntaxNode> childNodes)
     {
         var canEvaluate = true;
         while(expression is ParenthesizedExpressionSyntax parenthesizedExpression)
