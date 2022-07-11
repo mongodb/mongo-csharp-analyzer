@@ -52,51 +52,39 @@ internal static class BuildersResolveVariables
            expression is not BinaryExpressionSyntax &&
            expression is not IdentifierNameSyntax)
         {
-            canEvaluate = false;
-            var descendantNodes = expression.ChildNodes();
-            foreach (var descendantNode in descendantNodes)
-            {
-                ParseExpression(descendantNode, currentLevel, variableValues, buildersToExpressionContext, childNodes);
-            }
+            canEvaluate = default;
         }
 
         if(expression is InvocationExpressionSyntax)
         {
             canEvaluate = buildersToExpressionContext.ContainsKey(expression.ToString());
-            if (!canEvaluate)
-            {
-                var descendantNodes = expression.ChildNodes();
-                foreach(var descendantNode in descendantNodes)
-                {
-                    ParseExpression(descendantNode, currentLevel, variableValues, buildersToExpressionContext, childNodes);
-                }
-            }
-            else
-            {
-                childNodes.Add(expression);
-            }
         }
 
         if(expression is IdentifierNameSyntax)
         {
             canEvaluate = ExistsInContext(variableValues, currentLevel, expression.ToString()) != -1;
-            if (canEvaluate)
-            {
-                childNodes.Add(expression);
-            }
         }
 
         if (expression is BinaryExpressionSyntax binaryExpression)
         {
             canEvaluate = buildersToExpressionContext.ContainsKey(expression.ToString());
-            if (!canEvaluate)
+        }
+
+        if (canEvaluate)
+        {
+            childNodes.Add(expression);
+        }
+        else
+        {
+            var descendantNodes = expression.ChildNodes();
+            var canEvaluateChildNode = true;
+            foreach (var descendantNode in descendantNodes)
             {
-                canEvaluate = ParseExpression(binaryExpression.Left, currentLevel, variableValues, buildersToExpressionContext, childNodes)
-                              && ParseExpression(binaryExpression.Right, currentLevel, variableValues, buildersToExpressionContext, childNodes);
+                canEvaluateChildNode = ParseExpression(descendantNode, currentLevel, variableValues, buildersToExpressionContext, childNodes) && canEvaluateChildNode;
             }
-            else
+            if(expression is BinaryExpressionSyntax)
             {
-                childNodes.Add(expression);
+                canEvaluate = canEvaluateChildNode;
             }
         }
         return canEvaluate;
