@@ -100,7 +100,7 @@ internal static class BuilderExpressionProcessor
             {
                 var rewrittenExpression = variableValues[childNodeName].Node.RewrittenExpression;
                 type = variableValues[childNodeName].Node.ArgumentTypeName;
-                var constantsMapper = new ConstantsMapper();
+                var constantsMapper = variableValues[childNodeName].Node.ConstantsRemapper;
                 nodesRemapping.Add(childNode, rewrittenExpression);
                 ExpressionAnalysisContext diagnostic = new ExpressionAnalysisContext(new ExpressionAnalysisNode(childNode, type, rewrittenExpression, constantsMapper));
                 analysisContexts.Add(diagnostic);
@@ -182,17 +182,7 @@ internal static class BuilderExpressionProcessor
         {
             nodesToProcess.Add(assignmentExpressionSyntax);
         }
-        else if (node is ExpressionStatementSyntax expressionStatementSyntax)
-        {
-            while (node is ExpressionStatementSyntax expressionStatement)
-            {
-                node = expressionStatement.Expression;
-            }
-            if (node is AssignmentExpressionSyntax assignmentExpression)
-            {
-                nodesToProcess.Add(assignmentExpression);
-            }
-        }
+        
         if (!nodesToProcess.EmptyOrNull())
         {
             foreach (var syntaxNode in nodesToProcess)
