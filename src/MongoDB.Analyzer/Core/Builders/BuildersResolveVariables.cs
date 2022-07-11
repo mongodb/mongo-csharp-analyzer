@@ -55,7 +55,7 @@ internal static class BuildersResolveVariables
             canEvaluate = default;
         }
 
-        if(expression is InvocationExpressionSyntax)
+        if(expression is InvocationExpressionSyntax || expression is BinaryExpressionSyntax)
         {
             canEvaluate = buildersToExpressionContext.ContainsKey(expression.ToString());
         }
@@ -63,11 +63,6 @@ internal static class BuildersResolveVariables
         if(expression is IdentifierNameSyntax)
         {
             canEvaluate = ExistsInContext(variableValues, currentLevel, expression.ToString()) != -1;
-        }
-
-        if (expression is BinaryExpressionSyntax binaryExpression)
-        {
-            canEvaluate = buildersToExpressionContext.ContainsKey(expression.ToString());
         }
 
         if (canEvaluate)
