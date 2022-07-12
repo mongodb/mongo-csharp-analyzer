@@ -119,8 +119,8 @@ internal static class BuildersResolveVariables
         }
 
         var childNodes = new List<SyntaxNode>();
-        bool renderLHS = ParseExpression(RHS, level, variableValues,
-                                        buildersToExpressionContext, childNodes);
+        bool canEvaluate = ParseExpression(RHS, level, variableValues,
+                                            buildersToExpressionContext, childNodes);
 
         Dictionary<SyntaxNode, SyntaxNode> nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
         var argumentTypeName = "";
@@ -145,7 +145,7 @@ internal static class BuildersResolveVariables
             }
         }
 
-        if (!renderLHS)
+        if (!canEvaluate)
         {
             foreach(var variable in variableNames)
             {
@@ -196,11 +196,11 @@ internal static class BuildersResolveVariables
         ExpressionAnalysisContext variableInfo = new ExpressionAnalysisContext(new ExpressionAnalysisNode(RHS, argumentTypeName, result, new ConstantsMapper()));
         foreach (var variableName in variableNames)
         {
-            if (!variableValues[level].ContainsKey(variableName) && renderLHS)
+            if (!variableValues[level].ContainsKey(variableName) && canEvaluate)
             {
                 variableValues[level].Add(variableName, variableInfo);
             }
-            else if (renderLHS)
+            else if (canEvaluate)
             {
                 variableValues[level][variableName] = variableInfo;
             }
