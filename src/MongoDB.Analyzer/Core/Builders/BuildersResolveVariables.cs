@@ -43,24 +43,24 @@ internal static class BuildersResolveVariables
                                           List<SyntaxNode> childNodes)
     {
         var canEvaluate = true;
-        while(expression is ParenthesizedExpressionSyntax parenthesizedExpression)
+        while (expression is ParenthesizedExpressionSyntax parenthesizedExpression)
         {
             expression = parenthesizedExpression.Expression;
         }
 
-        if(expression is not InvocationExpressionSyntax &&
+        if (expression is not InvocationExpressionSyntax &&
            expression is not BinaryExpressionSyntax &&
            expression is not IdentifierNameSyntax)
         {
             canEvaluate = default;
         }
 
-        if(expression is InvocationExpressionSyntax || expression is BinaryExpressionSyntax)
+        if (expression is InvocationExpressionSyntax || expression is BinaryExpressionSyntax)
         {
             canEvaluate = buildersToExpressionContext.ContainsKey(expression.ToString());
         }
 
-        if(expression is IdentifierNameSyntax)
+        if (expression is IdentifierNameSyntax)
         {
             canEvaluate = ExistsInContext(variableValues, currentLevel, expression.ToString()) != -1;
         }
@@ -78,7 +78,7 @@ internal static class BuildersResolveVariables
                 canEvaluateChildNode = ParseExpression(descendantNode, currentLevel, variableValues,
                                                         buildersToExpressionContext, childNodes) && canEvaluateChildNode;
             }
-            if(expression is BinaryExpressionSyntax)
+            if (expression is BinaryExpressionSyntax)
             {
                 canEvaluate = canEvaluateChildNode;
             }
@@ -147,7 +147,7 @@ internal static class BuildersResolveVariables
 
         if (!canEvaluate)
         {
-            foreach(var variable in variableNames)
+            foreach (var variable in variableNames)
             {
                 if (variableValues[level].ContainsKey(variable))
                 {
