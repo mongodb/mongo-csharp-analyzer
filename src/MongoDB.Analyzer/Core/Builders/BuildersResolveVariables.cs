@@ -25,9 +25,9 @@ internal static class BuildersResolveVariables
                                         string variableName)
     {
         int level = currentLevel;
-        while (level >= 0)
+        while(level >= 0)
         {
-            if (variableValues.ContainsKey(level) && variableValues[level].ContainsKey(variableName))
+            if(variableValues.ContainsKey(level) && variableValues[level].ContainsKey(variableName))
             {
                 break;
             }
@@ -43,29 +43,29 @@ internal static class BuildersResolveVariables
                                           List<SyntaxNode> childNodes)
     {
         var canEvaluate = true;
-        while (expression is ParenthesizedExpressionSyntax parenthesizedExpression)
+        while(expression is ParenthesizedExpressionSyntax parenthesizedExpression)
         {
             expression = parenthesizedExpression.Expression;
         }
 
-        if (expression is not InvocationExpressionSyntax &&
+        if(expression is not InvocationExpressionSyntax &&
            expression is not BinaryExpressionSyntax &&
            expression is not IdentifierNameSyntax)
         {
             canEvaluate = default;
         }
 
-        if (expression is InvocationExpressionSyntax || expression is BinaryExpressionSyntax)
+        if(expression is InvocationExpressionSyntax || expression is BinaryExpressionSyntax)
         {
             canEvaluate = buildersToExpressionContext.ContainsKey(expression.ToString());
         }
 
-        if (expression is IdentifierNameSyntax)
+        if(expression is IdentifierNameSyntax)
         {
             canEvaluate = ExistsInContext(variableValues, currentLevel, expression.ToString()) != -1;
         }
 
-        if (canEvaluate)
+        if(canEvaluate)
         {
             childNodes.Add(expression);
         }
@@ -73,12 +73,12 @@ internal static class BuildersResolveVariables
         {
             var descendantNodes = expression.ChildNodes();
             var canEvaluateChildNode = true;
-            foreach (var descendantNode in descendantNodes)
+            foreach(var descendantNode in descendantNodes)
             {
                 canEvaluateChildNode = ParseExpression(descendantNode, currentLevel, variableValues,
                                                         buildersToExpressionContext, childNodes) && canEvaluateChildNode;
             }
-            if (expression is BinaryExpressionSyntax)
+            if(expression is BinaryExpressionSyntax)
             {
                 canEvaluate = canEvaluateChildNode;
             }
@@ -97,7 +97,7 @@ internal static class BuildersResolveVariables
         SyntaxKind syntaxKind = syntaxNode.Kind();
         Dictionary<int, Dictionary<string, ExpressionAnalysisContext>> variableValues = processContext.variableValues;
 
-        if (RHS is VariableDeclaratorSyntax variableDeclaratorSyntax)
+        if(RHS is VariableDeclaratorSyntax variableDeclaratorSyntax)
         {
             var LHS = variableDeclaratorSyntax.Identifier;
             variableNames.Add(LHS.ToString());
@@ -105,12 +105,12 @@ internal static class BuildersResolveVariables
         }
         else
         {
-            while (RHS is ExpressionStatementSyntax expressionStatement)
+            while(RHS is ExpressionStatementSyntax expressionStatement)
             {
                 RHS = expressionStatement.Expression;
             }
             syntaxKind = RHS.Kind();
-            while (RHS is AssignmentExpressionSyntax assignmentExpression)
+            while(RHS is AssignmentExpressionSyntax assignmentExpression)
             {
                 var LHS = assignmentExpression.Left;
                 variableNames.Add(LHS.ToString());
@@ -124,10 +124,10 @@ internal static class BuildersResolveVariables
 
         Dictionary<SyntaxNode, SyntaxNode> nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
         var argumentTypeName = "";
-        foreach (var childNode in childNodes)
+        foreach(var childNode in childNodes)
         {
             string childNodeName = childNode.ToString();
-            if (buildersToExpressionContext.ContainsKey(childNodeName))
+            if(buildersToExpressionContext.ContainsKey(childNodeName))
             {
                 var rewrittenExpression = buildersToExpressionContext[childNodeName].Node.RewrittenExpression;
                 argumentTypeName = buildersToExpressionContext[childNodeName].Node.ArgumentTypeName;
@@ -145,11 +145,11 @@ internal static class BuildersResolveVariables
             }
         }
 
-        if (!canEvaluate)
+        if(!canEvaluate)
         {
-            foreach (var variable in variableNames)
+            foreach(var variable in variableNames)
             {
-                if (variableValues[level].ContainsKey(variable))
+                if(variableValues[level].ContainsKey(variable))
                 {
                     variableValues[level].Remove(variable);
                 }
@@ -159,34 +159,34 @@ internal static class BuildersResolveVariables
 
         var result = RHS;
         int context = ExistsInContext(variableValues, level, RHS.ToString());
-        if (context == -1 && !buildersToExpressionContext.ContainsKey(RHS.ToString()))
+        if(context == -1 && !buildersToExpressionContext.ContainsKey(RHS.ToString()))
         {
             result = RHS.ReplaceNodes(nodesRemapping.Keys, (n, _) => nodesRemapping[n]);
         }
-        else if (context != -1)
+        else if(context != -1)
         {
             result = variableValues[context][RHS.ToString()].Node.RewrittenExpression;
         }
-        else if (buildersToExpressionContext.ContainsKey(RHS.ToString()))
+        else if(buildersToExpressionContext.ContainsKey(RHS.ToString()))
         {
             result = buildersToExpressionContext[RHS.ToString()].Node.RewrittenExpression;
         }
 
-        if (syntaxKind == SyntaxKind.AndAssignmentExpression)
+        if(syntaxKind == SyntaxKind.AndAssignmentExpression)
         {
             var firstOperand = result;
             context = ExistsInContext(variableValues, level, variableNames.First());
-            if (context != -1)
+            if(context != -1)
             {
                 firstOperand = variableValues[context][variableNames.First()].Node.RewrittenExpression;
             }
             result = SyntaxFactory.BinaryExpression(SyntaxKind.BitwiseAndExpression, firstOperand as ExpressionSyntax, result as ExpressionSyntax);
         }
-        else if (syntaxKind == SyntaxKind.OrAssignmentExpression)
+        else if(syntaxKind == SyntaxKind.OrAssignmentExpression)
         {
             var firstOperand = result;
             context = ExistsInContext(variableValues, level, variableNames.First());
-            if (context != -1)
+            if(context != -1)
             {
                 firstOperand = variableValues[context][variableNames.First()].Node.RewrittenExpression;
             }
@@ -194,13 +194,13 @@ internal static class BuildersResolveVariables
         }
 
         ExpressionAnalysisContext variableInfo = new ExpressionAnalysisContext(new ExpressionAnalysisNode(RHS, argumentTypeName, result, new ConstantsMapper()));
-        foreach (var variableName in variableNames)
+        foreach(var variableName in variableNames)
         {
-            if (!variableValues[level].ContainsKey(variableName) && canEvaluate)
+            if(!variableValues[level].ContainsKey(variableName) && canEvaluate)
             {
                 variableValues[level].Add(variableName, variableInfo);
             }
-            else if (canEvaluate)
+            else if(canEvaluate)
             {
                 variableValues[level][variableName] = variableInfo;
             }
@@ -215,34 +215,34 @@ internal static class BuildersResolveVariables
         int level = current.level;
         Dictionary<int, Dictionary<string, ExpressionAnalysisContext>> variableValues = current.variableValues;
 
-        if (!variableValues.ContainsKey(level))
+        if(!variableValues.ContainsKey(level))
         {
             variableValues.Add(level, new Dictionary<string, ExpressionAnalysisContext>());
         }
 
-        if (node is LocalDeclarationStatementSyntax localDeclarationStatementSyntax)
+        if(node is LocalDeclarationStatementSyntax localDeclarationStatementSyntax)
         {
             VariableDeclarationSyntax variableDeclaration = localDeclarationStatementSyntax.Declaration;
-            foreach (var declaration in variableDeclaration.Variables)
+            foreach(var declaration in variableDeclaration.Variables)
             {
                 StoreValue(analysisContexts, buildersToExpressionContext, declaration, current);
             }
             return;
         }
-        else if (node is AssignmentExpressionSyntax || node is ExpressionStatementSyntax)
+        else if(node is AssignmentExpressionSyntax || node is ExpressionStatementSyntax)
         {
             StoreValue(analysisContexts, buildersToExpressionContext, node, current);
             return;
         }
 
         var childNodes = node.ChildNodes();
-        foreach (var child in childNodes)
+        foreach(var child in childNodes)
         {
             ProcessContext childProcessContext = new ProcessContext(level + 1, variableValues);
             ProcessNodes(analysisContexts, buildersToExpressionContext, child, childProcessContext);
         }
 
-        if (variableValues.ContainsKey(level + 1))
+        if(variableValues.ContainsKey(level + 1))
         {
             variableValues.Remove(level + 1);
         }
