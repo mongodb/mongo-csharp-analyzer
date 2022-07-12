@@ -40,7 +40,8 @@ internal static class BuildersResolveVariables
                                           int currentLevel,
                                           Dictionary<int, Dictionary<string, ExpressionAnalysisContext>> variableValues,
                                           Dictionary<string, ExpressionAnalysisContext> buildersToExpressionContext,
-                                          List<SyntaxNode> childNodes)
+                                          List<SyntaxNode> childNodes,
+                                          HashSet<string> lambdaIdentifiers)
     {
         var canEvaluate = true;
         while(expression is ParenthesizedExpressionSyntax parenthesizedExpression)
@@ -60,6 +61,12 @@ internal static class BuildersResolveVariables
             canEvaluate = buildersToExpressionContext.ContainsKey(expression.ToString());
         }
 
+        if(expression is SimpleLambdaExpressionSyntax lambdaExpression
+                && !lambdaIdentifiers.Contains(lambdaExpression.Parameter.ToString()))
+        {
+            lambdaIdentifiers.Add(lambdaExpression.Parameter.ToString());
+        }
+
         if(expression is IdentifierNameSyntax)
         {
             canEvaluate = ExistsInContext(variableValues, currentLevel, expression.ToString()) != -1;
@@ -75,7 +82,8 @@ internal static class BuildersResolveVariables
             var canEvaluateChildNode = true;
             foreach (var descendantNode in descendantNodes)
             {
-                canEvaluateChildNode = ParseExpression(descendantNode, currentLevel, variableValues, buildersToExpressionContext, childNodes) && canEvaluateChildNode;
+                canEvaluateChildNode = ParseExpression(descendantNode, currentLevel, variableValues,
+                                                        buildersToExpressionContext, childNodes, lambdaIdentifiers) && canEvaluateChildNode;
             }
             if(expression is BinaryExpressionSyntax)
             {
@@ -118,7 +126,9 @@ internal static class BuildersResolveVariables
         }
 
         var childNodes = new List<SyntaxNode>();
-        bool renderLHS = ParseExpression(RHS, level, variableValues, buildersToExpressionContext, childNodes);
+        var lambdaIdentifiers = new HashSet<string>();
+        bool renderLHS = ParseExpression(RHS, level, variableValues,
+                                        buildersToExpressionContext, childNodes, lambdaIdentifiers);
 
         Dictionary<SyntaxNode, SyntaxNode> nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
         var argumentTypeName = "";
@@ -133,6 +143,10 @@ internal static class BuildersResolveVariables
             }
             else
             {
+                if (lambdaIdentifiers.Contains(childNodeName))
+                {
+                    continue;
+                }
                 var recentLevel = ExistsInContext(variableValues, level, childNodeName);
                 var rewrittenExpression = variableValues[recentLevel][childNodeName].Node.RewrittenExpression;
                 argumentTypeName = variableValues[recentLevel][childNodeName].Node.ArgumentTypeName;
