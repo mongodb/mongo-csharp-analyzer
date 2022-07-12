@@ -238,10 +238,7 @@ internal static class BuildersResolveVariables
             ProcessNodes(analysisContexts, buildersToExpressionContext, child, childProcessContext);
         }
 
-        if(variableValues.ContainsKey(level + 1))
-        {
-            variableValues.Remove(level + 1);
-        }
+        variableValues.Remove(level + 1);
     }
 
     public static void ResolveVariables(List<ExpressionAnalysisContext> analysisContexts, Dictionary<string, ExpressionAnalysisContext> builderToAnalysisContextMap, SyntaxNode root)
