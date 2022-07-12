@@ -105,10 +105,6 @@ internal static class BuildersResolveVariables
         }
         else
         {
-            while(RHS is ExpressionStatementSyntax expressionStatement)
-            {
-                RHS = expressionStatement.Expression;
-            }
             syntaxKind = RHS.Kind();
             while(RHS is AssignmentExpressionSyntax assignmentExpression)
             {
@@ -229,9 +225,9 @@ internal static class BuildersResolveVariables
             }
             return;
         }
-        else if(node is AssignmentExpressionSyntax || node is ExpressionStatementSyntax)
+        else if(node is ExpressionStatementSyntax expressionStatementSyntax)
         {
-            StoreValue(analysisContexts, buildersToExpressionContext, node, current);
+            StoreValue(analysisContexts, buildersToExpressionContext, expressionStatementSyntax.Expression, current);
             return;
         }
 
