@@ -40,7 +40,8 @@ internal static class BuildersResolveVariables
                                           int currentLevel,
                                           Dictionary<int, Dictionary<string, ExpressionAnalysisContext>> variableValues,
                                           Dictionary<string, ExpressionAnalysisContext> buildersToExpressionContext,
-                                          List<SyntaxNode> childNodes)
+                                          List<SyntaxNode> childNodes,
+                                          HashSet<string> lambdaIdentifiers)
     {
         var canEvaluate = true;
         while(expression is ParenthesizedExpressionSyntax parenthesizedExpression)
@@ -53,6 +54,10 @@ internal static class BuildersResolveVariables
            expression is not IdentifierNameSyntax)
         {
             canEvaluate = default;
+            if (expression is ParameterSyntax parameterSyntax && !lambdaIdentifiers.Contains(parameterSyntax.ToString()))
+            {
+                lambdaIdentifiers.Add(parameterSyntax.ToString());
+            }
         }
 
         if(expression is InvocationExpressionSyntax || expression is BinaryExpressionSyntax)
@@ -60,7 +65,7 @@ internal static class BuildersResolveVariables
             canEvaluate = buildersToExpressionContext.ContainsKey(expression.ToString());
         }
 
-        if(expression is IdentifierNameSyntax)
+        if (expression is IdentifierNameSyntax)
         {
             canEvaluate = ExistsInContext(variableValues, currentLevel, expression.ToString()) != -1;
         }
@@ -76,7 +81,7 @@ internal static class BuildersResolveVariables
             foreach(var descendantNode in descendantNodes)
             {
                 canEvaluateChildNode = ParseExpression(descendantNode, currentLevel, variableValues,
-                                                        buildersToExpressionContext, childNodes) && canEvaluateChildNode;
+                                                        buildersToExpressionContext, childNodes, lambdaIdentifiers) && canEvaluateChildNode;
             }
             if(expression is BinaryExpressionSyntax)
             {
@@ -115,8 +120,9 @@ internal static class BuildersResolveVariables
         }
 
         var childNodes = new List<SyntaxNode>();
+        var lambdaIdentifiers = new HashSet<string>();
         bool canEvaluate = ParseExpression(RHS, level, variableValues,
-                                            buildersToExpressionContext, childNodes);
+                                            buildersToExpressionContext, childNodes, lambdaIdentifiers);
 
         Dictionary<SyntaxNode, SyntaxNode> nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
         var argumentTypeName = "";
@@ -131,6 +137,10 @@ internal static class BuildersResolveVariables
             }
             else
             {
+                if (lambdaIdentifiers.Contains(childNodeName))
+                {
+                    continue;
+                }
                 var recentLevel = ExistsInContext(variableValues, level, childNodeName);
                 var rewrittenExpression = variableValues[recentLevel][childNodeName].Node.RewrittenExpression;
                 argumentTypeName = variableValues[recentLevel][childNodeName].Node.ArgumentTypeName;
@@ -216,18 +226,37 @@ internal static class BuildersResolveVariables
             variableValues.Add(level, new Dictionary<string, ExpressionAnalysisContext>());
         }
 
+        if(node is GlobalStatementSyntax globalStatementSyntax)
+        {
+            node = globalStatementSyntax.Statement;
+        }
+
+        if(node is FieldDeclarationSyntax fieldDeclarationSyntax)
+        {
+            node = fieldDeclarationSyntax.Declaration;
+        }
+
         if(node is LocalDeclarationStatementSyntax localDeclarationStatementSyntax)
         {
-            VariableDeclarationSyntax variableDeclaration = localDeclarationStatementSyntax.Declaration;
+            node = localDeclarationStatementSyntax.Declaration;
+        }
+
+        if(node is ExpressionStatementSyntax expressionStatementSyntax)
+        {
+            node = expressionStatementSyntax.Expression;
+        }
+
+        if(node is VariableDeclarationSyntax variableDeclaration)
+        {
             foreach(var declaration in variableDeclaration.Variables)
             {
                 StoreValue(analysisContexts, buildersToExpressionContext, declaration, current);
             }
             return;
         }
-        else if(node is ExpressionStatementSyntax expressionStatementSyntax)
+        else if(node is AssignmentExpressionSyntax assignmentExpression)
         {
-            StoreValue(analysisContexts, buildersToExpressionContext, expressionStatementSyntax.Expression, current);
+            StoreValue(analysisContexts, buildersToExpressionContext, assignmentExpression, current);
             return;
         }
 
@@ -246,3 +275,9 @@ internal static class BuildersResolveVariables
         ProcessNodes(analysisContexts, builderToAnalysisContextMap, root, new ProcessContext(0, new Dictionary<int, Dictionary<string, ExpressionAnalysisContext>>()));
     }
 }
+
+// Further Re-Design Ideas:
+// Add "lambda identifiers" thing to ProcessExpression to ensure that diagnostics are not displayed for variables that have same name as lambda parameters
+// Add a List<Location> to ExpressionAnalysisContext
+// Enable ExpressionAnalysisContext to have a List of ConstantMappers rather than just one.
+// Talk about having statement syntaxes MUST HAVE SAME DIRECT PARENT NODE
