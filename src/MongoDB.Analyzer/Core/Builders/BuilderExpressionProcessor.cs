@@ -110,7 +110,7 @@ internal static class BuilderExpressionProcessor
                 throw new Exception($"Failed analyzing {node.NormalizeWhitespace()} with {ex.Message}");
             }
         }
-        BuildersResolveVariables.ResolveVariables(analysisContexts, builderToAnalysisContextMap, root);
+        BuildersResolveVariables.ResolveVariables(analysisContexts, builderToAnalysisContextMap, semanticModel);
         var linqAnalysis = new ExpressionsAnalysis()
         {
             AnalysisNodeContexts = analysisContexts.ToArray(),
