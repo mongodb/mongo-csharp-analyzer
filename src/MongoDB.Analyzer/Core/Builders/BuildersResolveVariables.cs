@@ -16,33 +16,29 @@ namespace MongoDB.Analyzer.Core.Builders;
 
 internal static class BuildersResolveVariables
 {
-    private record VariableContext(
-        int level,
-        ExpressionAnalysisContext analysisContext);
-
     private record ProcessContext(
         int level,
-        Dictionary<string, VariableContext> variableValues,
+        Dictionary<string, ExpressionAnalysisContext> variableValues,
         SemanticModel semanticModel);
 
-    private static bool IsFunctionArgument(SyntaxNode identifierNameSyntax)
+    private static bool IsFunctionArgument(IdentifierNameSyntax identifierNameSyntax)
     {
         return identifierNameSyntax.Parent is ArgumentSyntax;
     }
 
-    private static ExpressionAnalysisContext ExistsInContext(Dictionary<string, VariableContext> variableValues,
+    private static ExpressionAnalysisContext ExistsInContext(Dictionary<string, ExpressionAnalysisContext> variableValues,
                                                              string variableName)
     {
         if (!variableValues.ContainsKey(variableName))
         {
             return null;
         }
-        return variableValues[variableName].analysisContext;
+        return variableValues[variableName];
     }
 
     private static bool ParseExpression(SyntaxNode expression,
                                         SyntaxNode RHS,
-                                        Dictionary<string, VariableContext> variableValues,
+                                        Dictionary<string, ExpressionAnalysisContext> variableValues,
                                         Dictionary<string, ExpressionAnalysisContext> buildersToExpressionContext,
                                         List<SyntaxNode> childNodes,
                                         SemanticModel semanticModel)
@@ -101,9 +97,8 @@ internal static class BuildersResolveVariables
     {
         var variableNames = new List<string>();
         var RHS = syntaxNode;
-        int level = processContext.level;
         SyntaxKind syntaxKind = syntaxNode.Kind();
-        Dictionary<string, VariableContext> variableValues = processContext.variableValues;
+        Dictionary<string, ExpressionAnalysisContext> variableValues = processContext.variableValues;
         bool canEvaluate = true;
 
         var semanticModel = processContext.semanticModel;
@@ -156,11 +151,11 @@ internal static class BuildersResolveVariables
             }
             else
             {
-                if (IsFunctionArgument(childNode))
+                if (IsFunctionArgument(childNode as IdentifierNameSyntax))
                 {
                     functionArguments.Add(childNodeName);
                 }
-                var analysisContext = variableValues[childNodeName].analysisContext;
+                var analysisContext = variableValues[childNodeName];
                 var rewrittenExpression = analysisContext.Node.RewrittenExpression;
                 argumentTypeName = analysisContext.Node.ArgumentTypeName;
                 var constantsMapper = analysisContext.Node.ConstantsRemapper;
@@ -231,11 +226,11 @@ internal static class BuildersResolveVariables
         {
             if (!variableValues.ContainsKey(variableName) && canEvaluate)
             {
-                variableValues.Add(variableName, new VariableContext(level, variableInfo));
+                variableValues.Add(variableName, variableInfo);
             }
             else if (canEvaluate)
             {
-                variableValues[variableName] = new VariableContext(level, variableInfo);
+                variableValues[variableName] = variableInfo;
             }
         }
         return variableNames;
@@ -249,7 +244,7 @@ internal static class BuildersResolveVariables
     {
         var variables = new List<string>();
         int level = current.level;
-        Dictionary<string, VariableContext> variableValues = current.variableValues;
+        Dictionary<string, ExpressionAnalysisContext> variableValues = current.variableValues;
 
         if (node is LocalDeclarationStatementSyntax localDeclarationStatementSyntax)
         {
@@ -310,7 +305,7 @@ internal static class BuildersResolveVariables
                                     ProcessContext current)
     {
         int level = current.level;
-        Dictionary<string, VariableContext> variableValues = current.variableValues;
+        Dictionary<string, ExpressionAnalysisContext> variableValues = current.variableValues;
         if (node is MethodDeclarationSyntax)
         {
             ProcessContext childProcessContext = new ProcessContext(level, variableValues, semanticModel);
@@ -330,7 +325,7 @@ internal static class BuildersResolveVariables
                                         SemanticModel semanticModel)
     {
         var root = semanticModel.SyntaxTree.GetRoot();
-        ProcessContext processContext = new ProcessContext(0, new Dictionary<string, VariableContext>(), semanticModel);
+        ProcessContext processContext = new ProcessContext(0, new Dictionary<string, ExpressionAnalysisContext>(), semanticModel);
         ProcessTree(analysisContexts, builderToAnalysisContextMap, semanticModel, root, processContext);
     }
 }
