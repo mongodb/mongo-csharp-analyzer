@@ -21,6 +21,10 @@ internal static class BuildersResolveVariables
         Dictionary<string, ExpressionAnalysisContext> variableValues,
         SemanticModel semanticModel);
 
+    private static bool IsContainedInMemberAccess(IdentifierNameSyntax identifierNameSyntax)
+    {
+        return identifierNameSyntax.Parent is MemberAccessExpressionSyntax;
+    }
     private static bool IsFunctionArgument(IdentifierNameSyntax identifierNameSyntax)
     {
         return identifierNameSyntax.Parent is ArgumentSyntax;
@@ -29,7 +33,7 @@ internal static class BuildersResolveVariables
     private static ExpressionAnalysisContext ExistsInContext(Dictionary<string, ExpressionAnalysisContext> variableValues,
                                                              string variableName)
     {
-        if (!variableValues.ContainsKey(variableName))
+        if (variableName.Equals(default) || !variableValues.ContainsKey(variableName))
         {
             return null;
         }
@@ -61,12 +65,13 @@ internal static class BuildersResolveVariables
             canEvaluate = buildersToExpressionContext.ContainsKey(expression.ToString());
         }
 
-        if (expression is IdentifierNameSyntax)
+        if (expression is IdentifierNameSyntax identifier)
         {
             var symbolInfo = semanticModel.GetSymbolInfo(expression);
             bool containedInLambda = symbolInfo.Symbol.IsContainedInLambda(RHS);
+            bool isMemberAccess = IsContainedInMemberAccess(identifier);
             canEvaluate = ExistsInContext(variableValues, expression.ToString()) != null
-                            && !containedInLambda;
+                            && !containedInLambda && !isMemberAccess;
         }
 
         if (canEvaluate)
@@ -203,7 +208,7 @@ internal static class BuildersResolveVariables
         if (syntaxKind == SyntaxKind.AndAssignmentExpression)
         {
             var firstOperand = result;
-            context = ExistsInContext(variableValues, variableNames.First());
+            context = ExistsInContext(variableValues, variableNames.FirstOrDefault());
             if (context != null)
             {
                 firstOperand = context.Node.RewrittenExpression;
@@ -213,7 +218,7 @@ internal static class BuildersResolveVariables
         else if (syntaxKind == SyntaxKind.OrAssignmentExpression)
         {
             var firstOperand = result;
-            context = ExistsInContext(variableValues, variableNames.First());
+            context = ExistsInContext(variableValues, variableNames.FirstOrDefault());
             if (context != null)
             {
                 firstOperand = context.Node.RewrittenExpression;

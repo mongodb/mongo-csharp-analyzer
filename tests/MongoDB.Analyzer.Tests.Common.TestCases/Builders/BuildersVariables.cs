@@ -462,7 +462,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             }
             var w3 = x;
         }
-
     }
 }
 
