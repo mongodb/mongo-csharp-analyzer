@@ -308,7 +308,7 @@ internal static class BuildersResolveVariables
         Dictionary<string, ExpressionAnalysisContext> variableValues = current.variableValues;
         if (node is MethodDeclarationSyntax)
         {
-            ProcessContext childProcessContext = new ProcessContext(level, variableValues, semanticModel);
+            ProcessContext childProcessContext = new ProcessContext(level + 1, variableValues, semanticModel);
             ProcessNodes(analysisContexts, buildersToExpressionContext, semanticModel, node, childProcessContext);
             return;
         }
