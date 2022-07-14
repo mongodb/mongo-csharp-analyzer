@@ -324,7 +324,8 @@ internal static class BuildersResolveVariables
                                         Dictionary<string, ExpressionAnalysisContext> builderToAnalysisContextMap,
                                         SemanticModel semanticModel)
     {
-        var root = semanticModel.SyntaxTree.GetRoot();
+        var syntaxTree = semanticModel.SyntaxTree;
+        var root = syntaxTree.GetRoot();
         ProcessContext processContext = new ProcessContext(0, new Dictionary<string, ExpressionAnalysisContext>(), semanticModel);
         ProcessTree(analysisContexts, builderToAnalysisContextMap, semanticModel, root, processContext);
     }
