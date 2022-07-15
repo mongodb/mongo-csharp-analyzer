@@ -46,6 +46,7 @@ internal static class BuilderExpressionProcessor
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalyzerContext context)
     {
         var timer = new Stopwatch();
+        timer.Start();
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var syntaxTree = semanticModel.SyntaxTree;
         var root = syntaxTree.GetRoot();
@@ -111,7 +112,19 @@ internal static class BuilderExpressionProcessor
                 throw new Exception($"Failed analyzing {node.NormalizeWhitespace()} with {ex.Message}");
             }
         }
+        timer.Stop();
+        TimeSpan timeTaken = timer.Elapsed;
+        string consoleOutputOne = "Time taken: " + timeTaken.TotalMilliseconds.ToString();
+        Console.WriteLine(consoleOutputOne);
+
+        var otherTimer = new Stopwatch();
+        otherTimer.Start();
         BuildersResolveVariables.ResolveVariables(analysisContexts, builderToAnalysisContextMap, semanticModel);
+        otherTimer.Stop();
+        timeTaken = otherTimer.Elapsed;
+        consoleOutputOne = "Time taken(ms): " + timeTaken.TotalMilliseconds.ToString();
+        Console.WriteLine(consoleOutputOne);
+
         var linqAnalysis = new ExpressionsAnalysis()
         {
             AnalysisNodeContexts = analysisContexts.ToArray(),
