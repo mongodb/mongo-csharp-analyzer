@@ -462,6 +462,102 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             }
             var w3 = x;
         }
+
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 474)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 475)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 476)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 479)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 480)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 490)]
+        [BuildersMQL("{ \"Age\" : 20 }", 493)]
+        public void variable_tracking_25()
+        {
+            var x = Builders<User>.Filter.Exists(u => u.Address, false);
+            var y = Builders<User>.Filter.Exists(u => u.Address, false);
+            var z = Builders<User>.Filter.Exists(u => u.Address, false);
+            F2();
+            var a = x;
+            var b = y;
+            var c = z;
+            var f = x;
+            var g = x;
+            var h = x;
+            var i = x;
+            var j = x;
+            var k = x;
+            void F2()
+            {
+                var d = x;
+                x = Builders<User>.Filter.Exists((x => x.Address), true);
+                if (true)
+                {
+                    x = Builders<User>.Filter.Eq(u => u.Age, 20);
+                }
+                var e = x;
+
+                void F3()
+                {
+
+                }
+            }
+        }
+
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 512)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 513)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 514)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 518)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 528)]
+        [BuildersMQL("{ \"Age\" : 20 }", 531)]
+        public void variable_tracking_26()
+        {
+            var x = Builders<User>.Filter.Exists(u => u.Address, false);
+            var y = Builders<User>.Filter.Exists(u => u.Address, false);
+            var z = Builders<User>.Filter.Exists(u => u.Address, false);
+            F2();
+            var a = x;
+            var b = y;
+            var c = z;
+            var f = x;
+            var g = x;
+            var h = x;
+            var i = x;
+            var j = x;
+            var k = x;
+            void F2()
+            {
+                var d = x;
+                x = Builders<User>.Filter.Exists((x => x.Address), true);
+                if (true)
+                {
+                    x = Builders<User>.Filter.Eq(u => u.Age, 20);
+                }
+                var e = x;
+
+                void F3()
+                {
+                    y = x;
+                }
+            }
+        }
+
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 547)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 552)]
+        [BuildersMQL("{ \"Age\" : 20 }", 555)]
+        public void variable_tracking_27()
+        {
+            var x = Builders<User>.Filter.Exists(u => u.Address, false);
+            F2(); F2();
+            void F2()
+            {
+                var z = x;
+                x = Builders<User>.Filter.Exists(u => u.Address, false);
+                if (true)
+                {
+                    x = Builders<User>.Filter.Eq(u => u.Age, 20);
+                }
+                var y = x;
+            }
+        }
     }
 }
 
