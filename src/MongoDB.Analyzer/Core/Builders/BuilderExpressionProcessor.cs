@@ -45,6 +45,7 @@ internal static class BuilderExpressionProcessor
 
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalyzerContext context)
     {
+        var timer = new Stopwatch();
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var syntaxTree = semanticModel.SyntaxTree;
         var root = syntaxTree.GetRoot();
