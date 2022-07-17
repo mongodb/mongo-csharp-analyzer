@@ -797,7 +797,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 void F3()
                 {
                     var f = z;
-                    if(f != null)
+                    if (f != null)
                     {
                         f = Builders<User>.Filter.Eq(u => u.Age, 23);
                     }
