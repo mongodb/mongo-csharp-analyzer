@@ -19,6 +19,7 @@ internal static class BuildersResolveVariables
     private record VariableContext(
         int level,
         ExpressionAnalysisContext analysisContext);
+
     private record ProcessContext(
         int level,
         Dictionary<string, VariableContext> variableValues,
