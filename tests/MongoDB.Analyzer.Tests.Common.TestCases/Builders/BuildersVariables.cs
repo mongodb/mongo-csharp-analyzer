@@ -864,6 +864,66 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var randomVar = x;
             var randomVar2 = y;
         }
+
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
+        [BuildersMQL("{ \"Age\" : 22 }")]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }")]
+        [BuildersMQL("{ \"Age\" : 20 }")]
+        [BuildersMQL("{ \"Age\" : 20 }")]
+        [BuildersMQL("{ \"Age\" : 23 }")]
+        [BuildersMQL("{ \"Age\" : 24 }")]
+        [BuildersMQL("{ \"Age\" : 21 }")]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }")]
+        public void variable_tracking_37()
+        {
+            var x = Builders<User>.Filter.Exists(u => u.Address, false);
+            var y = Builders<User>.Filter.Eq(u => u.Age, 22);
+            var z = Builders<User>.Filter.Exists(u => u.Address, false);
+            F2();
+            var a = x;
+            var b = y;
+            var c = z;
+            var f = x;
+            var g = x;
+            var h = x;
+            var i = x;
+            var j = x;
+            var k = x;
+            void F2()
+            {
+                var x = Builders<User>.Filter.Exists((x => x.Address), true);
+                x = Builders<User>.Filter.Eq(u => u.Age, 20);
+                var e = x;
+                F3();
+                void F3()
+                {
+                    var f = z;
+                    if (f != null)
+                    {
+                        f = Builders<User>.Filter.Eq(u => u.Age, 23);
+                    }
+                    else
+                    {
+                        y = Builders<User>.Filter.Eq(u => u.Age, 24);
+                    }
+                    void F4()
+                    {
+                        z = Builders<User>.Filter.Eq(u => u.Age, 21);
+                    }
+                    F4();
+                }
+            }
+            var randomVar = x;
+            var randomVar2 = y;
+        }
     }
 }
 
