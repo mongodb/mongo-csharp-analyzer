@@ -109,6 +109,7 @@ internal static class BuildersResolveVariables
                                            List<SyntaxNode> buildersNodes)
     {
         var variableNames = new List<string>();
+        var variablesList = new List<string>();
         var RHS = syntaxNode;
         var variableValues = processContext.variableValues;
         var semanticModel = processContext.semanticModel;
