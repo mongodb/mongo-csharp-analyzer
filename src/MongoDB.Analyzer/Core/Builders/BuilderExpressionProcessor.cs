@@ -45,6 +45,8 @@ internal static class BuilderExpressionProcessor
 
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalyzerContext context)
     {
+        var timer = new Stopwatch();
+        timer.Start();
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var syntaxTree = semanticModel.SyntaxTree;
         var root = syntaxTree.GetRoot();
@@ -61,6 +63,7 @@ internal static class BuilderExpressionProcessor
         var declaredNodes = new List<(SyntaxNode, ISymbol)>();
         var variableNodes = new List<(SyntaxNode, ISymbol)>();
         var builderToVariableNodeMapping = new Dictionary<SyntaxNode, List<SyntaxNode>>();
+        var builderToAnalysisContextMap = new Dictionary<string, ExpressionAnalysisContext>();
 
         // Find builders expressions
         // TODO skip children iterations
@@ -98,6 +101,10 @@ internal static class BuilderExpressionProcessor
                         constantsMapper));
 
                     analysisContexts.Add(expresionContext);
+                    if (!builderToAnalysisContextMap.ContainsKey(builderExpressionNode.ToString()))
+                    {
+                        builderToAnalysisContextMap.Add(builderExpressionNode.ToString(), expresionContext);
+                    }
                 }
             }
             catch (Exception ex)
@@ -105,6 +112,18 @@ internal static class BuilderExpressionProcessor
                 throw new Exception($"Failed analyzing {node.NormalizeWhitespace()} with {ex.Message}");
             }
         }
+        timer.Stop();
+        TimeSpan timeTaken = timer.Elapsed;
+        string consoleOutputOne = "Time taken: " + timeTaken.TotalMilliseconds.ToString();
+        Console.WriteLine(consoleOutputOne);
+
+        var otherTimer = new Stopwatch();
+        otherTimer.Start();
+        BuildersResolveVariables.ResolveVariables(analysisContexts, builderToAnalysisContextMap, semanticModel);
+        otherTimer.Stop();
+        timeTaken = otherTimer.Elapsed;
+        consoleOutputOne = "Time taken(ms): " + timeTaken.TotalMilliseconds.ToString();
+        Console.WriteLine(consoleOutputOne);
 
         var linqAnalysis = new ExpressionsAnalysis()
         {

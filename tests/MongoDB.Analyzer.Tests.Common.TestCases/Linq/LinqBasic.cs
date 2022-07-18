@@ -21,6 +21,59 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqBasic : TestCasesBase
     {
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", startLine: 27)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\", \"Age\" : { \"$gt\" : 45, \"$lte\" : 50 } } }])", startLine: 28)]
+        public void Single_expression_variable_reassignment()
+        {
+            var x = GetMongoCollection().AsQueryable().Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21);
+            x = GetMongoCollection().AsQueryable().Where(u => u.Name == "John" && u.Age > 45 && u.Age <= 50);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : 45 } }])", startLine: 43)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\" } }])", startLine: 44)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", startLine: 46)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"James\", \"Age\" : { \"$gt\" : 25, \"$lte\" : 99 } } }])", startLine: 47)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Steve\" } }])", startLine: 49)]
+        [MQL("aggregate([{ \"$match\" : { \"Height\" : 100 } }])", startLine: 50)]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])", startLine: 52)]
+        [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", startLine: 53)]
+        [MQL("aggregate([{ \"$match\" : { \"Address\" : \"Address\" } }])", startLine: 55)]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : { \"$lte\" : 122 } } }])", startLine: 56)]
+        public void Multiple_expression_variables_reassignment()
+        {
+            var x = GetMongoCollection().AsQueryable().Where(u => u.Age == 45);
+            var y = GetMongoCollection().AsQueryable().Where(u => u.Name == "John");
+
+            x = GetMongoCollection().AsQueryable().Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21);
+            var z = GetMongoCollection().AsQueryable().Where(u => u.Name == "James" && u.Age > 25 && u.Age <= 99);
+
+            y = GetMongoCollection().AsQueryable().Where(u => u.Name == "Steve");
+            x = GetMongoCollection().AsQueryable().Where(u => u.Height == 100);
+
+            var w = GetMongoCollection().AsQueryable().Where(u => u.Age == 22);
+            z = GetMongoCollection().AsQueryable().Where(u => u.LastName == "LastName");
+
+            y = GetMongoCollection().AsQueryable().Where(u => u.Address == "Address");
+            w = GetMongoCollection().AsQueryable().Where(u => u.Age <= 122);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", startLine: 67)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\", \"Age\" : { \"$gt\" : 22, \"$lte\" : 25 } } }])", startLine: 68)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Steve\", \"Age\" : { \"$gt\" : 27, \"$lte\" : 31 } } }])", startLine: 69)]
+        [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", startLine: 69)]
+        [MQL("aggregate([{ \"$match\" : { \"Address\" : \"Address\" } }])", startLine: 71)]
+        [MQL("aggregate([{ \"$match\" : { \"Height\" : 180 } }])", startLine: 72)]
+        public void Multiple_expression_variables_declaration_and_reassignment()
+        {
+            var x = GetMongoCollection().AsQueryable().Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21);
+            var y = GetMongoCollection().AsQueryable().Where(u => u.Name == "John" && u.Age > 22 && u.Age <= 25);
+            IMongoQueryable<User> z = GetMongoCollection().AsQueryable().Where(u => u.Name == "Steve" && u.Age > 27 && u.Age <= 31), w = (GetMongoCollection().AsQueryable().Where(u => u.LastName == "LastName"));
+
+            x = y = GetMongoCollection().AsQueryable().Where(u => u.Address == "Address");
+            x = z = w = y = x = z = w = y = GetMongoCollection().AsQueryable().Where(u => u.Height == 180);
+
+        }
+
         [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])")]
         public void SingleLine_expression()
         {

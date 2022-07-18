@@ -56,7 +56,14 @@ internal static class BuildersAnalyzer
             return AnalysisStats.Empty;
         }
 
+        var compileTimer = new Stopwatch();
+        compileTimer.Start();
         var compilationResult = AnalysisCodeGenerator.Compile(context, buildersAnalysis);
+        compileTimer.Stop();
+        TimeSpan timeTaken = compileTimer.Elapsed;
+        string consoleOutputOne = "Time taken: " + timeTaken.TotalMilliseconds.ToString();
+        Console.WriteLine(consoleOutputOne);
+
         if (!compilationResult.Success)
         {
             return AnalysisStats.Empty;
@@ -66,6 +73,8 @@ internal static class BuildersAnalyzer
         var settings = context.Settings;
         int mqlCount = 0, internalExceptionsCount = 0, driverExceptionsCount = 0;
 
+        compileTimer = new Stopwatch();
+        compileTimer.Start();
         foreach (var analysisContext in buildersAnalysis.AnalysisNodeContexts)
         {
             var mqlResult = compilationResult.BuildersTestCodeExecutor.GenerateMql(analysisContext.EvaluationMethodName);
@@ -108,7 +117,10 @@ internal static class BuildersAnalyzer
                 }
             }
         }
-
+        compileTimer.Stop();
+        timeTaken = compileTimer.Elapsed;
+        consoleOutputOne = "Time taken: " + timeTaken.TotalMilliseconds.ToString();
+        Console.WriteLine(consoleOutputOne);
         return new AnalysisStats(mqlCount, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
     }
 
