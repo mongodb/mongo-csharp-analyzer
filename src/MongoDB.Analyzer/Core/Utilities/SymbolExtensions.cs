@@ -34,8 +34,7 @@ internal static class SymbolExtensions
     public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
         (typeSymbol.TypeKind == TypeKind.Class ||
          typeSymbol.TypeKind == TypeKind.Struct ||
-         typeSymbol.TypeKind == TypeKind.Enum) &&
-        !typeSymbol.IsAnonymousType;
+         typeSymbol.TypeKind == TypeKind.Enum);
 
     public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
         typeSymbol is INamedTypeSymbol namedTypeSymbol &&
@@ -55,7 +54,8 @@ internal static class SymbolExtensions
             "IndexKeysDefinitionBuilder" or
             "SortDefinitionBuilder" or
             "SortDefinitionExtensions" or
-            //"ProjectionDefinitionBuilder" or
+            "ProjectionDefinitionBuilder" or
+            "ProjectionDefinitionExtensions" or
             "UpdateDefinitionBuilder" => true,
             _ => false
         };
@@ -71,7 +71,7 @@ internal static class SymbolExtensions
             "FilterDefinition" or
             "IndexKeysDefinition" or
             "SortDefinition" or
-            // "ProjectionDefinition" ors
+            "ProjectionDefinition" or
             "UpdateDefinition" => true,
             _ => false
         };
