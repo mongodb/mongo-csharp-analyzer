@@ -19,10 +19,12 @@ namespace MongoDB.Analyzer.Core.Builders;
 internal static class AnalysisCodeGenerator
 {
     private static readonly SyntaxTree s_mqlGeneratorSyntaxTree;
+    private static readonly SyntaxTree s_buildersRenderer;
 
     static AnalysisCodeGenerator()
     {
         s_mqlGeneratorSyntaxTree = ResourcesUtilities.GetCodeResource(ResourceNames.MqlGenerator);
+        s_buildersRenderer = ResourcesUtilities.GetCodeResource(ResourceNames.Renderer);
     }
 
     public static CompilationResult Compile(MongoAnalyzerContext context, ExpressionsAnalysis buildersExpressionAnalysis)
@@ -39,7 +41,7 @@ internal static class AnalysisCodeGenerator
 
         var compilation = CSharpCompilation.Create(
             BuildersAnalysisConstants.AnalysisAssemblyName,
-            new[] { typesSyntaxTree, mqlGeneratorSyntaxTree },
+            new[] { typesSyntaxTree, mqlGeneratorSyntaxTree, s_buildersRenderer },
             referencesContainer.References,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 

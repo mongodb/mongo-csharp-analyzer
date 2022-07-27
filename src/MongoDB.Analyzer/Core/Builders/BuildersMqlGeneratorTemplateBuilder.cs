@@ -19,7 +19,7 @@ internal sealed class BuildersMqlGeneratorTemplateBuilder
     private readonly SyntaxNode _root;
     private readonly ClassDeclarationSyntax _mqlGeneratorDeclarationSyntax;
     private readonly MethodDeclarationSyntax _mainTestMethodNode;
-    private readonly SyntaxNode[] _nodesToReplace;
+    private readonly SyntaxNode _builderDefinitionNode;
 
     private ClassDeclarationSyntax _mqlGeneratorDeclarationSyntaxNew;
 
@@ -32,24 +32,15 @@ internal sealed class BuildersMqlGeneratorTemplateBuilder
         _mqlGeneratorDeclarationSyntax = _root.GetSingleClassDeclaration(MqlGeneratorSyntaxElements.MqlGenerator);
         _mqlGeneratorDeclarationSyntaxNew = _mqlGeneratorDeclarationSyntax;
         _mainTestMethodNode = _mqlGeneratorDeclarationSyntax.GetSingleMethod(MqlGeneratorSyntaxElements.MqlGeneratorMainMethodName);
-        var typeNode = _mainTestMethodNode.GetIdentifiers(MqlGeneratorSyntaxElements.MqlGeneratorTemplateType).ElementAt(1);
 
-        var builderEntryNode = _mainTestMethodNode.DescendantNodes()
+        _builderDefinitionNode = _mainTestMethodNode.DescendantNodes()
             .OfType<IdentifierNameSyntax>()
             .Single(i => i.Identifier.Text == "Filter").Parent.Parent.Parent;
-
-        _nodesToReplace = new[] { typeNode, builderEntryNode };
     }
 
     public string AddBuildersExpression(string typeArgumentName, SyntaxNode buildersExpression)
     {
-        var newMethodDeclaration = _mainTestMethodNode.ReplaceNodes(_nodesToReplace, (n, _) =>
-           n.Kind() switch
-           {
-               SyntaxKind.InvocationExpression => buildersExpression,
-               SyntaxKind.IdentifierName => SyntaxFactory.IdentifierName(typeArgumentName),
-               _ => throw new Exception($"Unrecognized node {n}")
-           });
+        var newMethodDeclaration = _mainTestMethodNode.ReplaceNode(_builderDefinitionNode, buildersExpression);
 
         var newMqlGeneratorMethodName = $"{_mainTestMethodNode.Identifier.Value}_{ _nextTestMethodIndex++}";
         newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newMqlGeneratorMethodName));

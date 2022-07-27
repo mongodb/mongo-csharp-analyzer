@@ -19,4 +19,6 @@ internal static class ResourceNames
     private const string HelpersResourcesBasePath = "MongoDB.Analyzer.Core.Builders.HelpersResources.";
 
     public const string MqlGenerator = HelpersResourcesBasePath + nameof(MqlGenerator) + ".cs";
+
+    public const string Renderer = HelpersResourcesBasePath + nameof(Renderer) + ".cs";
 }
