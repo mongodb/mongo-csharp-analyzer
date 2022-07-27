@@ -18,6 +18,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersConstantsReplacement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersComplexDataModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersProjection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersIndexKeys.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqBasic.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqCollections.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqConstantsReplacement.cs" />

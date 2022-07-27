@@ -53,4 +53,8 @@ public sealed class BuildersTests : DiagnosticsTestCasesRunner
     [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersProjection))]
     public Task Projection(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersIndexKeys))]
+    public Task IndexKeys(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }
