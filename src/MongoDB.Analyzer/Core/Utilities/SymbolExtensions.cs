@@ -55,7 +55,8 @@ internal static class SymbolExtensions
             "IndexKeysDefinitionBuilder" or
             "SortDefinitionBuilder" or
             "SortDefinitionExtensions" or
-            //"ProjectionDefinitionBuilder" or
+            "ProjectionDefinitionBuilder" or
+            "ProjectionDefinitionExtensions" or
             "UpdateDefinitionBuilder" => true,
             _ => false
         };
@@ -71,7 +72,7 @@ internal static class SymbolExtensions
             "FilterDefinition" or
             "IndexKeysDefinition" or
             "SortDefinition" or
-            // "ProjectionDefinition" ors
+            "ProjectionDefinition" or
             "UpdateDefinition" => true,
             _ => false
         };

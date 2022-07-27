@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System.Linq;
 using BsonDocumentCustom123 = MongoDB.Bson.BsonDocument;
@@ -43,9 +42,8 @@ namespace MongoDB.Analyzer.Helpers.Builders
 
         public static string GetMQL()
         {
-            var filter = Builders<MqlGeneratorTemplateType>.Filter.Gt(p => p.Field, 10);
-            var filterRendered = filter.Render(BsonSerializer.LookupSerializer<MqlGeneratorTemplateType>(), BsonSerializer.SerializerRegistry);
-            return filterRendered.ToString();
+            var buildersDefinition = Builders<MqlGeneratorTemplateType>.Filter.Gt(p => p.Field, 10);
+            return Renderer.Render(buildersDefinition);
         }
     }
 }
