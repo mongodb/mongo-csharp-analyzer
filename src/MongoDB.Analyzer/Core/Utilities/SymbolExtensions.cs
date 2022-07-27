@@ -53,6 +53,7 @@ internal static class SymbolExtensions
         {
             "FilterDefinitionBuilder" or
             "IndexKeysDefinitionBuilder" or
+            "IndexKeysDefinitionExtensions" or
             "SortDefinitionBuilder" or
             "SortDefinitionExtensions" or
             "ProjectionDefinitionBuilder" or
