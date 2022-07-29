@@ -78,13 +78,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         {
             _ = Builders<User>.Projection.As<Person>();
         }
-
-        [NoDiagnostics]
-        public void Anonymous_objects()
-        {
-            _ = Builders<Person>.Projection.Expression(x => new { Address = x.Address, Name = x.Name, LastName = x.LastName });
-            _ = Builders<User>.Projection.Expression(x => new { Age = x.Age, Height = x.Height });
-        }
     }
 }
 

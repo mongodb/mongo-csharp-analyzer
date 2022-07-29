@@ -34,8 +34,7 @@ internal static class SymbolExtensions
     public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
         (typeSymbol.TypeKind == TypeKind.Class ||
          typeSymbol.TypeKind == TypeKind.Struct ||
-         typeSymbol.TypeKind == TypeKind.Enum) &&
-        !typeSymbol.IsAnonymousType;
+         typeSymbol.TypeKind == TypeKind.Enum);
 
     public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
         typeSymbol is INamedTypeSymbol namedTypeSymbol &&

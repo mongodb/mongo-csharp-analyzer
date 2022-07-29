@@ -483,6 +483,11 @@ internal static class BuilderExpressionProcessor
             return RewriteResult.Ignore;
         }
 
+        if (SyntaxFactoryUtilities.IsMemberOfAnonymousObject(simpleNameSyntax))
+        {
+            return RewriteResult.Ignore;
+        }
+
         var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(simpleNameSyntax);
 
         if (typeInfo.Type == null)

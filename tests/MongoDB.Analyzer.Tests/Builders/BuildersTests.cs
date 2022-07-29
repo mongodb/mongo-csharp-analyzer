@@ -57,4 +57,8 @@ public sealed class BuildersTests : DiagnosticsTestCasesRunner
     [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersIndexKeys))]
     public Task IndexKeys(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersAnonymousObjects))]
+    public Task AnonymousObjects(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }
