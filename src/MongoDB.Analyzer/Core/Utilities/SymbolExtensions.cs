@@ -106,12 +106,6 @@ internal static class SymbolExtensions
     public static bool IsMongoQueryable(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name == "MongoQueryable";
 
-    public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
-        (typeSymbol.TypeKind == TypeKind.Class ||
-         typeSymbol.TypeKind == TypeKind.Struct ||
-         typeSymbol.TypeKind == TypeKind.Enum) &&
-        !typeSymbol.IsAnonymousType;
-
     public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
         typeSymbol is INamedTypeSymbol namedTypeSymbol &&
         s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString());
@@ -122,6 +116,15 @@ internal static class SymbolExtensions
 
     public static bool IsString(this ITypeSymbol typeSymbol) =>
         typeSymbol?.SpecialType == SpecialType.System_String;
+
+    public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.TypeKind switch
+        {
+            TypeKind.Class or
+            TypeKind.Enum or
+            TypeKind.Struct => true,
+            _ => false
+        };
 
     public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
         typeSymbol.IsIMongoCollection() &&

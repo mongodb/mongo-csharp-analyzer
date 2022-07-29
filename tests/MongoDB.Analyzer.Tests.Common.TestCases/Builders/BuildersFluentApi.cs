@@ -129,19 +129,23 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         {
             GetMongoCollection()
                 .Find(Builders<User>.Filter.Lt(u => u.Age, 10))
-                .Project(u => new User() { Address = u.Address });
-
-            GetMongoCollection()
-                .Find(Builders<User>.Filter.Lt(u => u.Age, 10))
                 .Project(u => new User() { });
 
             GetMongoCollection()
                 .Find(Builders<User>.Filter.Lt(u => u.Age, 10))
-                .Project(u => new { Address = u.Address });
+                .Project(u => new User() { Address = u.Address });
 
             GetMongoCollection()
                 .Find(Builders<User>.Filter.Lt(u => u.Age, 10))
-                .Project(u => new { });
+                .Project(u => new Person() { LastName = u.LastName });
+
+            GetMongoCollection()
+                .Find(Builders<User>.Filter.Lt(u => u.Age, 10))
+                .Project(u => new Person() { LastName = u.LastName });
+
+            GetMongoCollection()
+                .Find(Builders<User>.Filter.Lt(u => u.Age, 10))
+                .Project(u => new MultipleTypeGeneric<Person, User, int, string>() { Data = u.Age });
         }
 
         [BuildersMQL("find({ \"Age\" : 1 }).sort({ \"Address\" : 1, \"Name\" : 1 })")]

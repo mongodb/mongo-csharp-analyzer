@@ -577,12 +577,9 @@ internal static class BuilderExpressionProcessor
         SymbolInfo symbolInfo,
         TypeInfo typeInfo)
     {
-        if (IsChildOfLambdaParameterOrBuilders(rewriteContext, simpleNameSyntax, symbolInfo))
-        {
-            return RewriteResult.Ignore;
-        }
-
-        if (typeInfo.Type == null)
+        if (IsChildOfLambdaParameterOrBuilders(rewriteContext, simpleNameSyntax, symbolInfo) ||
+            simpleNameSyntax.IsMemberOfAnonymousObject() ||
+            typeInfo.Type == null)
         {
             return RewriteResult.Ignore;
         }

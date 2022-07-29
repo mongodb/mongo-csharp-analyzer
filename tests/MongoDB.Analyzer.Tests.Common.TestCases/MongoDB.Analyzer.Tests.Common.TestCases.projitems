@@ -9,29 +9,7 @@
     <Import_RootNamespace>MongoDB.Analyzer.Tests.Common.TestCases</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersCollections.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersIgnoredExpressions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\NotSupportedBuildersExpressions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersArrays.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersFluentApi.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersBasic.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersConstantsReplacement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersComplexDataModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersProjection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersIndexKeys.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersVariables.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqBasic.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqCollections.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqConstantsReplacement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqIgnoredExpressions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\NotSupportedLinq2.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\NotSupportedLinqExpressions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqArrays.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqComments.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqComplexDataModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqEnums.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqSuffix.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqIMongoQueryableSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqQuerySyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\*.cs" />
   </ItemGroup>
 </Project>
