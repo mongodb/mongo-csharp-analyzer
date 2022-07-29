@@ -28,7 +28,7 @@ public abstract class DiagnosticsTestCasesRunner
 
         if (testCase.DiagnosticRules[0].RuleId == DiagnosticRulesConstants.NoRule)
         {
-            Assert.IsNull(testCaseResult, "No diagnostics is expected");
+            Assert.IsNull(testCaseResult, "No diagnostics is expected but found {0} diagnostic messages.", testCaseResult?.Diagnostics?.Length);
         }
         else
         {

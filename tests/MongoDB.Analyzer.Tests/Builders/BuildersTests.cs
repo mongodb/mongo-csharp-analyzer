@@ -23,12 +23,20 @@ namespace MongoDB.Analyzer.Tests.Builders;
 public sealed class BuildersTests : DiagnosticsTestCasesRunner
 {
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersAnonymousObjects))]
+    public Task AnonymousObjects(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersArrays))]
     public Task Arrays(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersBasic))]
     public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersCollections))]
+    public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersComplexDataModel))]
@@ -47,16 +55,12 @@ public sealed class BuildersTests : DiagnosticsTestCasesRunner
     public Task IgnoredExpressions(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersCollections))]
-    public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+    [CodeBasedTestCasesSource(typeof(BuildersIndexKeys))]
+    public Task IndexKeys(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersProjection))]
     public Task Projection(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersIndexKeys))]
-    public Task IndexKeys(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersVariables))]

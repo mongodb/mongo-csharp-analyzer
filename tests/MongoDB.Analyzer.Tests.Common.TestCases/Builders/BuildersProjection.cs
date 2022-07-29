@@ -19,28 +19,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public class BuildersProjection : TestCasesBase
     {
-        [BuildersMQL("{ \"Age\" : 1 }")]
-        [BuildersMQL("{ \"Address\" : 1, \"LastName\" : 1 }")]
-        [BuildersMQL("{ \"Name\" : 1, \"TicksSinceBirth\" : 1, \"Vehicle\" : 0 }")]
-        [BuildersMQL("{ \"LicenceNumber\" : 0, \"VehicleType\" : 1 }")]
-        [BuildersMQL("{ \"Name\" : 1, \"TicksSinceBirth\" : 0, \"Vehicle\" : 1, \"Address\" : 0 }")]
-        public void Include_exclude()
+        [NoDiagnostics]
+        public void As()
         {
-            _ = Builders<User>.Projection.Include(u => u.Age);
-            _ = Builders<Person>.Projection.Include(u => u.Address).Include(u => u.LastName);
-            _ = Builders<Person>.Projection.Include(u => u.Name).Include(u => u.TicksSinceBirth)
-                .Exclude(u => u.Vehicle);
-            _ = Builders<Vehicle>.Projection.Exclude(v => v.LicenceNumber).Include(v => v.VehicleType);
-            _ = Builders<Person>.Projection.Include(u => u.Name).Exclude(u => u.TicksSinceBirth)
-                .Include(u => u.Vehicle).Exclude(u => u.Address);
-        }
-
-        [BuildersMQL("{ \"Address\" : 1, \"_id\" : 0 }")]
-        [BuildersMQL("{ \"Address\" : 1, \"LastName\" : 1, \"Name\" : 1, \"_id\" : 0 }")]
-        public void Expression()
-        {
-            _ = Builders<Person>.Projection.Expression(u => u.Address);
-            _ = Builders<User>.Projection.Expression(u => u.LastName.Length + u.Address.Length + u.Name.Length);
+            _ = Builders<User>.Projection.As<Person>();
         }
 
         [BuildersMQL("{ \"Age\" : 1 }")]
@@ -65,25 +47,36 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<ListsHolder>.Projection.ElemMatch(u => u.PesonsList, g => g.SiblingsCount < 12 && g.SiblingsCount > 3).ElemMatch(u => u.NestedListsHolderIList, g => g.PesonsList.Count == 22);
         }
 
+        [BuildersMQL("{ \"Address\" : 1, \"_id\" : 0 }")]
+        [BuildersMQL("{ \"Address\" : 1, \"LastName\" : 1, \"Name\" : 1, \"_id\" : 0 }")]
+        public void Expression()
+        {
+            _ = Builders<Person>.Projection.Expression(u => u.Address);
+            _ = Builders<User>.Projection.Expression(u => u.LastName.Length + u.Address.Length + u.Name.Length);
+        }
+
+        [BuildersMQL("{ \"Age\" : 1 }")]
+        [BuildersMQL("{ \"Address\" : 1, \"LastName\" : 1 }")]
+        [BuildersMQL("{ \"Name\" : 1, \"TicksSinceBirth\" : 1, \"Vehicle\" : 0 }")]
+        [BuildersMQL("{ \"LicenceNumber\" : 0, \"VehicleType\" : 1 }")]
+        [BuildersMQL("{ \"Name\" : 1, \"TicksSinceBirth\" : 0, \"Vehicle\" : 1, \"Address\" : 0 }")]
+        public void Include_exclude()
+        {
+            _ = Builders<User>.Projection.Include(u => u.Age);
+            _ = Builders<Person>.Projection.Include(u => u.Address).Include(u => u.LastName);
+            _ = Builders<Person>.Projection.Include(u => u.Name).Include(u => u.TicksSinceBirth)
+                .Exclude(u => u.Vehicle);
+            _ = Builders<Vehicle>.Projection.Exclude(v => v.LicenceNumber).Include(v => v.VehicleType);
+            _ = Builders<Person>.Projection.Include(u => u.Name).Exclude(u => u.TicksSinceBirth)
+                .Include(u => u.Vehicle).Exclude(u => u.Address);
+        }
+
         [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [10, 5] } }")]
         [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [10, 5] }, \"JaggedStringArray2\" : { \"$slice\" : [3, 9] } }")]
         public void Slice()
         {
             _ = Builders<SimpleTypesArraysHolder>.Projection.Slice(u => u.IntArray, 10, 5);
             _ = Builders<SimpleTypesArraysHolder>.Projection.Slice(u => u.IntArray, 10, 5).Slice(u => u.JaggedStringArray2, 3, 9);
-        }
-
-        [NoDiagnostics]
-        public void As()
-        {
-            _ = Builders<User>.Projection.As<Person>();
-        }
-
-        [NoDiagnostics]
-        public void Anonymous_objects()
-        {
-            _ = Builders<Person>.Projection.Expression(x => new { Address = x.Address, Name = x.Name, LastName = x.LastName });
-            _ = Builders<User>.Projection.Expression(x => new { Age = x.Age, Height = x.Height });
         }
     }
 }
