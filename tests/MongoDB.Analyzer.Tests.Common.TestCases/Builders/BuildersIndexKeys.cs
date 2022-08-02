@@ -83,6 +83,20 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<Person>.IndexKeys.Text(u => u.Address).Text("Vehicle");
         }
 
+        [BuildersMQL("{ \"$**\" : 1 }")]
+        [BuildersMQL("{ \"Address.$**\" : 1 }")]
+        [BuildersMQL("{ \"SiblingsCount.$**\" : 1 }")]
+        [BuildersMQL("{ wildcardField.$** : 1 }")]
+        public void Wildcard()
+        {
+            _ = Builders<Person>.IndexKeys.Wildcard();
+            _ = Builders<Person>.IndexKeys.Wildcard("Address");
+            _ = Builders<Person>.IndexKeys.Wildcard(p => p.SiblingsCount);
+
+            var wildcardField = "Vehicle";
+            _ = Builders<Person>.IndexKeys.Wildcard(wildcardField);
+        }
+
         [BuildersMQL("{ \"Name\" : \"text\", \"LastName\" : \"hashed\", \"Vehicle\" : \"2d\", \"Address\" : 1 }")]
         [BuildersMQL("{ \"Name\" : \"2d\", \"LastName\" : \"2dsphere\", \"Vehicle\" : \"text\", \"Address\" : -1, \"SiblingsCount\" : \"hashed\", \"TicksSinceBirth\" : 1 }")]
         [BuildersMQL("{ \"Name\" : \"2d\", \"LastName\" : \"2d\", \"Address\" : \"text\", \"Vehicle\" : \"text\" }")]
