@@ -219,5 +219,94 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             x = y = GetMongoCollection().AsQueryable().Where(u => u.Address == "Address");
             x = z = w = y = x = z = w = y = GetMongoCollection().AsQueryable().Where(u => u.Height == 180);
         }
+
+        [MQL("aggregate([{ \"$match\" : { \"Root.Data\" : intVariable1 + intVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : intVariable1 + intVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(intVariable1 + intVariable2) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : uintVariable1 + uintVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(uintVariable1 + uintVariable2) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Root.Data\" : shortVariable1 + shortVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : shortVariable1 + shortVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(shortVariable1 + shortVariable2) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Root.Data\" : ushortVariable1 + ushortVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : ushortVariable1 + ushortVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(ushortVariable1 + ushortVariable2) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Data\" : byteVariable1 + byteVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : byteVariable1 + byteVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(byteVariable1 + byteVariable2) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Data\" : sbyteVariable1 + sbyteVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : sbyteVariable1 + sbyteVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(sbyteVariable1 + sbyteVariable2) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Data\" : longVariable1 + longVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : longVariable1 + longVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(longVariable1 + longVariable2) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : ulongVariable1 + ulongVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Root.Data\" : doubleVariable1 + doubleVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : doubleVariable1 + doubleVariable2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : doubleVariable1 + doubleVariable2 } }])")]
+        public void Mixed_data_types()
+        {
+            int intVariable1 = 10;
+            int intVariable2 = 11;
+
+            long longVariable1 = 12L;
+            long longVariable2 = 13L;
+
+            double doubleVariable1 = 2.5;
+            double doubleVariable2 = 3.5;
+
+            uint uintVariable1 = 22;
+            uint uintVariable2 = 23;
+
+            short shortVariable1 = 24;
+            short shortVariable2 = 25;
+
+            ushort ushortVariable1 = 26;
+            ushort ushortVariable2 = 27;
+
+            byte byteVariable1 = 28;
+            byte byteVariable2 = 29;
+
+            sbyte sbyteVariable1 = 30;
+            sbyte sbyteVariable2 = 31;
+
+            ulong ulongVariable1 = 32L;
+            ulong ulongVariable2 = 33L;
+
+            _ = GetMongoCollection<Tree>().AsQueryable().Where(t => t.Root.Data == intVariable1 + intVariable2);
+            _ = GetMongoCollection<Vehicle>().AsQueryable().Where(v => v.VehicleType.MPG == intVariable1 + intVariable2);
+            _ = GetMongoCollection<Person>().AsQueryable().Where(p => p.TicksSinceBirth == intVariable1 + intVariable2);
+
+            _ = GetMongoCollection<Vehicle>().AsQueryable().Where(v => v.VehicleType.MPG == uintVariable1 + uintVariable2);
+            _ = GetMongoCollection<Person>().AsQueryable().Where(p => p.TicksSinceBirth == uintVariable1 + uintVariable2);
+
+            _ = GetMongoCollection<Tree>().AsQueryable().Where(t => t.Root.Data == shortVariable1 + shortVariable2);
+            _ = GetMongoCollection<Vehicle>().AsQueryable().Where(v => v.VehicleType.MPG == shortVariable1 + shortVariable2);
+            _ = GetMongoCollection<Person>().AsQueryable().Where(p => p.TicksSinceBirth == shortVariable1 + shortVariable2);
+
+            _ = GetMongoCollection<Tree>().AsQueryable().Where(t => t.Root.Data == ushortVariable1 + ushortVariable2);
+            _ = GetMongoCollection<Vehicle>().AsQueryable().Where(v => v.VehicleType.MPG == ushortVariable1 + ushortVariable2);
+            _ = GetMongoCollection<Person>().AsQueryable().Where(p => p.TicksSinceBirth == ushortVariable1 + ushortVariable2);
+
+
+            _ = GetMongoCollection<TreeNode>().AsQueryable().Where(n => n.Data == byteVariable1 + byteVariable2);
+            _ = GetMongoCollection<Vehicle>().AsQueryable().Where(v => v.VehicleType.MPG == byteVariable1 + byteVariable2);
+            _ = GetMongoCollection<Person>().AsQueryable().Where(p => p.TicksSinceBirth == byteVariable1 + byteVariable2);
+
+            _ = GetMongoCollection<TreeNode>().AsQueryable().Where(n => n.Data == sbyteVariable1 + sbyteVariable2);
+            _ = GetMongoCollection<Vehicle>().AsQueryable().Where(v => v.VehicleType.MPG == sbyteVariable1 + sbyteVariable2);
+            _ = GetMongoCollection<Person>().AsQueryable().Where(p => p.TicksSinceBirth == sbyteVariable1 + sbyteVariable2);
+
+            _ = GetMongoCollection<TreeNode>().AsQueryable().Where(n => n.Data == longVariable1 + longVariable2);
+            _ = GetMongoCollection<Vehicle>().AsQueryable().Where(v => v.VehicleType.MPG == longVariable1 + longVariable2);
+            _ = GetMongoCollection<Person>().AsQueryable().Where(p => p.TicksSinceBirth == longVariable1 + longVariable2);
+
+            _ = GetMongoCollection<Vehicle>().AsQueryable().Where(v => v.VehicleType.MPG == ulongVariable1 + ulongVariable2);
+
+            _ = GetMongoCollection<Tree>().AsQueryable().Where(t => t.Root.Data == doubleVariable1 + doubleVariable2);
+            _ = GetMongoCollection<Vehicle>().AsQueryable().Where(v => v.VehicleType.MPG == doubleVariable1 + doubleVariable2);
+            _ = GetMongoCollection<Person>().AsQueryable().Where(p => p.TicksSinceBirth == doubleVariable1 + doubleVariable2);
+
+        }
     }
 }
