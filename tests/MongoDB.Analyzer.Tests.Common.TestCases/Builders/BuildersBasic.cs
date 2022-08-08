@@ -320,5 +320,92 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             x = y = Builders<User>.Filter.Lt(u => u.Age, 15) & Builders<User>.Filter.Gt(u => u.Age, 65);
             x = z = w = y = x = z = w = y = Builders<User>.Filter.Lt(u => u.Age, 17) & Builders<User>.Filter.Gt(u => u.Age, 18);
         }
+
+        [BuildersMQL("{ \"Root.Data\" : intVariable1 + intVariable2 }")]
+        [BuildersMQL("{ \"VehicleType.MPG\" : intVariable1 + intVariable2 }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(intVariable1 + intVariable2) }")]
+        [BuildersMQL("{ \"VehicleType.MPG\" : uintVariable1 + uintVariable2 }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(uintVariable1 + uintVariable2) }")]
+        [BuildersMQL("{ \"Root.Data\" : shortVariable1 + shortVariable2 }")]
+        [BuildersMQL("{ \"VehicleType.MPG\" : shortVariable1 + shortVariable2 }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(shortVariable1 + shortVariable2) }")]
+        [BuildersMQL("{ \"Root.Data\" : ushortVariable1 + ushortVariable2 }")]
+        [BuildersMQL("{ \"VehicleType.MPG\" : ushortVariable1 + ushortVariable2 }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(ushortVariable1 + ushortVariable2) }")]
+        [BuildersMQL("{ \"Data\" : byteVariable1 + byteVariable2 }")]
+        [BuildersMQL("{ \"VehicleType.MPG\" : byteVariable1 + byteVariable2 }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(byteVariable1 + byteVariable2) }")]
+        [BuildersMQL("{ \"Data\" : sbyteVariable1 + sbyteVariable2 }")]
+        [BuildersMQL("{ \"VehicleType.MPG\" : sbyteVariable1 + sbyteVariable2 }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(sbyteVariable1 + sbyteVariable2) }")]
+        [BuildersMQL("{ \"Data\" : longVariable1 + longVariable2 }")]
+        [BuildersMQL("{ \"VehicleType.MPG\" : longVariable1 + longVariable2 }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(longVariable1 + longVariable2) }")]
+        [BuildersMQL("{ \"VehicleType.MPG\" : ulongVariable1 + ulongVariable2 }")]
+        [BuildersMQL("{ \"Root.Data\" : doubleVariable1 + doubleVariable2 }")]
+        [BuildersMQL("{ \"VehicleType.MPG\" : doubleVariable1 + doubleVariable2 }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : doubleVariable1 + doubleVariable2 }")]
+        public void Mixed_data_types()
+        {
+            int intVariable1 = 10;
+            int intVariable2 = 11;
+
+            long longVariable1 = 12L;
+            long longVariable2 = 13L;
+
+            double doubleVariable1 = 2.5;
+            double doubleVariable2 = 3.5;
+
+            uint uintVariable1 = 22;
+            uint uintVariable2 = 23;
+
+            short shortVariable1 = 24;
+            short shortVariable2 = 25;
+
+            ushort ushortVariable1 = 26;
+            ushort ushortVariable2 = 27;
+
+            byte byteVariable1 = 28;
+            byte byteVariable2 = 29;
+
+            sbyte sbyteVariable1 = 30;
+            sbyte sbyteVariable2 = 31;
+
+            ulong ulongVariable1 = 32L;
+            ulong ulongVariable2 = 33L;
+
+            _ = Builders<Tree>.Filter.Eq(t => t.Root.Data, intVariable1 + intVariable2);
+            _ = Builders<Vehicle>.Filter.Eq(v => v.VehicleType.MPG, intVariable1 + intVariable2);
+            _ = Builders<Person>.Filter.Eq(p => p.TicksSinceBirth, intVariable1 + intVariable2);
+
+            _ = Builders<Vehicle>.Filter.Eq(v => v.VehicleType.MPG, uintVariable1 + uintVariable2);
+            _ = Builders<Person>.Filter.Eq(p => p.TicksSinceBirth, uintVariable1 + uintVariable2);
+
+            _ = Builders<Tree>.Filter.Eq(t => t.Root.Data, shortVariable1 + shortVariable2);
+            _ = Builders<Vehicle>.Filter.Eq(v => v.VehicleType.MPG, shortVariable1 + shortVariable2);
+            _ = Builders<Person>.Filter.Eq(p => p.TicksSinceBirth, shortVariable1 + shortVariable2);
+
+            _ = Builders<Tree>.Filter.Eq(t => t.Root.Data, ushortVariable1 + ushortVariable2);
+            _ = Builders<Vehicle>.Filter.Eq(v => v.VehicleType.MPG, ushortVariable1 + ushortVariable2);
+            _ = Builders<Person>.Filter.Eq(p => p.TicksSinceBirth, ushortVariable1 + ushortVariable2);
+
+            _ = Builders<TreeNode>.Filter.Eq(n => n.Data, byteVariable1 + byteVariable2);
+            _ = Builders<Vehicle>.Filter.Eq(v => v.VehicleType.MPG, byteVariable1 + byteVariable2);
+            _ = Builders<Person>.Filter.Eq(p => p.TicksSinceBirth, byteVariable1 + byteVariable2);
+
+            _ = Builders<TreeNode>.Filter.Eq(n => n.Data, sbyteVariable1 + sbyteVariable2);
+            _ = Builders<Vehicle>.Filter.Eq(v => v.VehicleType.MPG, sbyteVariable1 + sbyteVariable2);
+            _ = Builders<Person>.Filter.Eq(p => p.TicksSinceBirth, sbyteVariable1 + sbyteVariable2);
+
+            _ = Builders<TreeNode>.Filter.Eq(n => n.Data, longVariable1 + longVariable2);
+            _ = Builders<Vehicle>.Filter.Eq(v => v.VehicleType.MPG, longVariable1 + longVariable2);
+            _ = Builders<Person>.Filter.Eq(p => p.TicksSinceBirth, longVariable1 + longVariable2);
+
+            _ = Builders<Vehicle>.Filter.Eq(v => v.VehicleType.MPG, ulongVariable1 + ulongVariable2);
+
+            _ = Builders<Tree>.Filter.Eq(t => t.Root.Data, doubleVariable1 + doubleVariable2);
+            _ = Builders<Vehicle>.Filter.Eq(v => v.VehicleType.MPG, doubleVariable1 + doubleVariable2);
+            _ = Builders<Person>.Filter.Eq(p => p.TicksSinceBirth, doubleVariable1 + doubleVariable2);
+        }
     }
 }
