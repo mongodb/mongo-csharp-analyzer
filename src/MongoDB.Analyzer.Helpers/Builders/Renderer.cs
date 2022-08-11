@@ -54,6 +54,11 @@ namespace MongoDB.Analyzer.Helpers.Builders
             var renderedBuildersDefinition = projectionDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
             return renderedBuildersDefinition.Document.ToString();
         }
+
+        public static string Render<T, E> (IFindFluent<T, E> fluentDefinition)
+        {
+            return fluentDefinition.ToString();
+        }
     }
 }
 

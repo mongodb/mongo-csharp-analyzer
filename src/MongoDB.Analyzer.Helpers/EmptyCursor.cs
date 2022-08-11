@@ -17,7 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 
-namespace MongoDB.Analyzer.Helpers.Linq
+namespace MongoDB.Analyzer.Helpers
 {
     public sealed class EmptyCursor<TDocument> : IAsyncCursor<TDocument>
     {
@@ -32,3 +32,4 @@ namespace MongoDB.Analyzer.Helpers.Linq
         }
     }
 }
+

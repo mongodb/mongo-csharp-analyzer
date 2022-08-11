@@ -74,6 +74,20 @@ internal static class BuilderExpressionProcessor
             }
 
             nodesProcessed.Add(node);
+            var mongoCollectionNode = GetNextNestedInvocation(node);
+
+            while (mongoCollectionNode != null)
+            {
+                var mongoCollectionTypeInfo = semanticModel.GetTypeInfo(mongoCollectionNode);
+
+                if (mongoCollectionTypeInfo.Type.IsIMongoCollection() && mongoCollectionTypeInfo.Type is INamedTypeSymbol mongoCollectionNamedType &&
+                    mongoCollectionNamedType.TypeArguments.Length == 1 && mongoCollectionNamedType.TypeArguments[0].IsSupportedMongoCollectionType())
+                {
+                    break;
+                }
+
+                mongoCollectionNode = GetNextNestedInvocation(mongoCollectionNode);
+            }
 
             try
             {
@@ -82,7 +96,7 @@ internal static class BuilderExpressionProcessor
                     typesProcessor.ProcessTypeSymbol(typeArgument);
                 }
 
-                var (newBuildersExpression, constantsMapper) = RewriteBuildersExpression(builderExpressionNode, typesProcessor, semanticModel);
+                var (newBuildersExpression, constantsMapper) = RewriteBuildersExpression(builderExpressionNode, typesProcessor, semanticModel, mongoCollectionNode);
 
                 if (newBuildersExpression != null)
                 {
@@ -125,6 +139,24 @@ internal static class BuilderExpressionProcessor
         context.Logger.Log($"Builders: Found {builderAnalysis.AnalysisNodeContexts.Length} expressions.");
 
         return builderAnalysis;
+    }
+
+    private static SyntaxNode GetNextNestedInvocation(SyntaxNode expressionSyntax)
+    {
+        if (expressionSyntax is InvocationExpressionSyntax invocationExpressionSyntax)
+        {
+            expressionSyntax = invocationExpressionSyntax.Expression;
+        }
+        else if (expressionSyntax is MemberAccessExpressionSyntax memberAccessExpression)
+        {
+            expressionSyntax = memberAccessExpression.Expression;
+        }
+        else
+        {
+            expressionSyntax = null;
+        }
+
+        return expressionSyntax;
     }
 
     private static (bool IsValid, INamedTypeSymbol, SyntaxNode) IsValidBuildersExpression(SemanticModel semanticModel, SyntaxNode node)
@@ -188,11 +220,17 @@ internal static class BuilderExpressionProcessor
     private static (SyntaxNode RewrittenLinqExpression, ConstantsMapper ConstantsMapper) RewriteBuildersExpression(
        SyntaxNode buildersExpressionNode,
        TypesProcessor typesProcessor,
-       SemanticModel semanticModel)
+       SemanticModel semanticModel,
+       SyntaxNode collectionNode = null)
     {
         var rewriteContext = new RewriteContext(buildersExpressionNode, semanticModel, typesProcessor, new ConstantsMapper());
 
         var nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
+
+        if (collectionNode != null)
+        {
+            nodesRemapping.Add(collectionNode, SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.CollectionName));
+        }
 
         foreach (var literalSyntax in buildersExpressionNode.DescendantNodes().OfType<LiteralExpressionSyntax>())
         {
@@ -203,9 +241,10 @@ internal static class BuilderExpressionProcessor
 
         var nodeProcessed = new List<SyntaxNode>();
 
-        foreach (var identifierNode in buildersExpressionNode.DescendantNodes().OfType<SimpleNameSyntax>())
+        foreach (var identifierNode in buildersExpressionNode.DescendantNodes(n => n != collectionNode).OfType<SimpleNameSyntax>())
         {
-            if (!identifierNode.IsLeaf() ||
+            if (identifierNode == collectionNode ||
+                !identifierNode.IsLeaf() ||
                 nodeProcessed.Any(e => e.Contains(identifierNode)))
             {
                 continue;
@@ -407,7 +446,8 @@ internal static class BuilderExpressionProcessor
         if (methodSymbol.ReceiverType.IsIMongoQueryable() ||
            methodSymbol.ReturnType.IsIMongoQueryable() ||
            methodSymbol.ReturnType == null ||
-           IsChildOfLambdaParameterOrBuilders(rewriteContext, simpleNameSyntax, symbolInfo))
+           IsChildOfLambdaParameterOrBuilders(rewriteContext, simpleNameSyntax, symbolInfo) ||
+           SymbolExtensions.IsBuilderMethod(methodSymbol))
         {
             return RewriteResult.Ignore;
         }

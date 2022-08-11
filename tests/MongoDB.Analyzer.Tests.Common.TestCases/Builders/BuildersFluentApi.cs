@@ -19,8 +19,11 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersFluentApi : TestCasesBase
     {
-        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
-        [BuildersMQL("{ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 }")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }).sort({ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 })")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }).sort({ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 })")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }).sort({ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 })")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }).sort({ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 })")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }).sort({ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 })")]
         public void Filter_and_sort()
         {
             GetMongoCollection().Find(
@@ -32,14 +35,106 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                     Builders<User>.Sort.Descending(u => u.Age),
                     Builders<User>.Sort.Ascending(u => u.Name),
                     Builders<User>.Sort.Ascending(u => u.Address)));
+
+            MongoDBProvider.MongoDatabase.GetCollection<User>("TestCollection").Find(
+                Builders<User>.Filter.Lt(u => u.Age, 10) |
+                Builders<User>.Filter.Gt(u => u.Age, 20) |
+                (Builders<User>.Filter.Ne(u => u.Name, "Bob") &
+                 Builders<User>.Filter.Exists(u => u.LastName)))
+                .Sort(Builders<User>.Sort.Combine(
+                    Builders<User>.Sort.Descending(u => u.Age),
+                    Builders<User>.Sort.Ascending(u => u.Name),
+                    Builders<User>.Sort.Ascending(u => u.Address)));
+
+            GetDatabase().GetCollection<User>("TestCollection").Find(
+                Builders<User>.Filter.Lt(u => u.Age, 10) |
+                Builders<User>.Filter.Gt(u => u.Age, 20) |
+                (Builders<User>.Filter.Ne(u => u.Name, "Bob") &
+                 Builders<User>.Filter.Exists(u => u.LastName)))
+                .Sort(Builders<User>.Sort.Combine(
+                    Builders<User>.Sort.Descending(u => u.Age),
+                    Builders<User>.Sort.Ascending(u => u.Name),
+                    Builders<User>.Sort.Ascending(u => u.Address)));
+
+            new MongoClient(@"mongodb://localhost:27017").GetDatabase("TestDatabase").GetCollection<User>("TestCollection").Find(
+                Builders<User>.Filter.Lt(u => u.Age, 10) |
+                Builders<User>.Filter.Gt(u => u.Age, 20) |
+                (Builders<User>.Filter.Ne(u => u.Name, "Bob") &
+                 Builders<User>.Filter.Exists(u => u.LastName)))
+                .Sort(Builders<User>.Sort.Combine(
+                    Builders<User>.Sort.Descending(u => u.Age),
+                    Builders<User>.Sort.Ascending(u => u.Name),
+                    Builders<User>.Sort.Ascending(u => u.Address)));
+
+            var mongoCollection = GetMongoCollection();
+            mongoCollection.Find(
+                Builders<User>.Filter.Lt(u => u.Age, 10) |
+                Builders<User>.Filter.Gt(u => u.Age, 20) |
+                (Builders<User>.Filter.Ne(u => u.Name, "Bob") &
+                 Builders<User>.Filter.Exists(u => u.LastName)))
+                .Sort(Builders<User>.Sort.Combine(
+                    Builders<User>.Sort.Descending(u => u.Age),
+                    Builders<User>.Sort.Ascending(u => u.Name),
+                    Builders<User>.Sort.Ascending(u => u.Address)));
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
-        [BuildersMQL("{ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 }")]
-        [BuildersMQL("{ \"Age\" : 1, \"Address\" : 0, \"Height\" : 1 }")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }, { \"Age\" : 1, \"Address\" : 0, \"Height\" : 1 }).sort({ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 })")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }, { \"Age\" : 1, \"Address\" : 0, \"Height\" : 1 }).sort({ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 })")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }, { \"Age\" : 1, \"Address\" : 0, \"Height\" : 1 }).sort({ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 })")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }, { \"Age\" : 1, \"Address\" : 0, \"Height\" : 1 }).sort({ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 })")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }, { \"Age\" : 1, \"Address\" : 0, \"Height\" : 1 }).sort({ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 })")]
         public void Filter_and_sort_and_project()
         {
             GetMongoCollection().Find(
+                Builders<User>.Filter.Lt(u => u.Age, 10) |
+                Builders<User>.Filter.Gt(u => u.Age, 20) |
+                (Builders<User>.Filter.Ne(u => u.Name, "Bob") &
+                 Builders<User>.Filter.Exists(u => u.LastName)))
+                .Sort(Builders<User>.Sort.Combine(
+                    Builders<User>.Sort.Descending(u => u.Age),
+                    Builders<User>.Sort.Ascending(u => u.Name),
+                    Builders<User>.Sort.Ascending(u => u.Address)))
+                .Project(Builders<User>.Projection.Include(u => u.Age)
+                .Exclude(u => u.Address).Include(u => u.Height));
+
+            GetDatabase().GetCollection<User>("TestCollection").Find(
+                Builders<User>.Filter.Lt(u => u.Age, 10) |
+                Builders<User>.Filter.Gt(u => u.Age, 20) |
+                (Builders<User>.Filter.Ne(u => u.Name, "Bob") &
+                 Builders<User>.Filter.Exists(u => u.LastName)))
+                .Sort(Builders<User>.Sort.Combine(
+                    Builders<User>.Sort.Descending(u => u.Age),
+                    Builders<User>.Sort.Ascending(u => u.Name),
+                    Builders<User>.Sort.Ascending(u => u.Address)))
+                .Project(Builders<User>.Projection.Include(u => u.Age)
+                .Exclude(u => u.Address).Include(u => u.Height));
+
+            MongoDBProvider.MongoDatabase.GetCollection<User>("TestCollection").Find(
+                Builders<User>.Filter.Lt(u => u.Age, 10) |
+                Builders<User>.Filter.Gt(u => u.Age, 20) |
+                (Builders<User>.Filter.Ne(u => u.Name, "Bob") &
+                 Builders<User>.Filter.Exists(u => u.LastName)))
+                .Sort(Builders<User>.Sort.Combine(
+                    Builders<User>.Sort.Descending(u => u.Age),
+                    Builders<User>.Sort.Ascending(u => u.Name),
+                    Builders<User>.Sort.Ascending(u => u.Address)))
+                .Project(Builders<User>.Projection.Include(u => u.Age)
+                .Exclude(u => u.Address).Include(u => u.Height));
+
+            new MongoClient(@"mongodb://localhost:27017").GetDatabase("TestDatabase").GetCollection<User>("TestCollection").Find(
+                Builders<User>.Filter.Lt(u => u.Age, 10) |
+                Builders<User>.Filter.Gt(u => u.Age, 20) |
+                (Builders<User>.Filter.Ne(u => u.Name, "Bob") &
+                 Builders<User>.Filter.Exists(u => u.LastName)))
+                .Sort(Builders<User>.Sort.Combine(
+                    Builders<User>.Sort.Descending(u => u.Age),
+                    Builders<User>.Sort.Ascending(u => u.Name),
+                    Builders<User>.Sort.Ascending(u => u.Address)))
+                .Project(Builders<User>.Projection.Include(u => u.Age)
+                .Exclude(u => u.Address).Include(u => u.Height));
+
+            var mongoCollection = GetMongoCollection();
+            mongoCollection.Find(
                 Builders<User>.Filter.Lt(u => u.Age, 10) |
                 Builders<User>.Filter.Gt(u => u.Age, 20) |
                 (Builders<User>.Filter.Ne(u => u.Name, "Bob") &

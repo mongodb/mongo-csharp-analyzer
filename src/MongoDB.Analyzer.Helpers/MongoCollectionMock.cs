@@ -20,13 +20,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.Analyzer.Helpers.Linq
+namespace MongoDB.Analyzer.Helpers
 {
     public sealed class MongoCollectionMock<TDocument> : MongoCollectionBase<TDocument>
     {
         public override CollectionNamespace CollectionNamespace => new CollectionNamespace("db", "coll");
 
-        public override IMongoDatabase Database => throw new NotImplementedException();
+        public override IMongoDatabase Database => new MongoDatabaseMock();
 
         public override IBsonSerializer<TDocument> DocumentSerializer => BsonSerializer.LookupSerializer<TDocument>();
 
@@ -393,3 +393,4 @@ namespace MongoDB.Analyzer.Helpers.Linq
         }
     }
 }
+
