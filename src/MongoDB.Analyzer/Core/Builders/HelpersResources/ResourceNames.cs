@@ -17,8 +17,17 @@ namespace MongoDB.Analyzer.Core.Builders;
 internal static class ResourceNames
 {
     private const string HelpersResourcesBasePath = "MongoDB.Analyzer.Core.Builders.HelpersResources.";
+    private const string CorePath = "MongoDB.Analyzer.Core.";
 
     public const string MqlGenerator = HelpersResourcesBasePath + nameof(MqlGenerator) + ".cs";
 
     public const string Renderer = HelpersResourcesBasePath + nameof(Renderer) + ".cs";
+
+    public const string MongoCollectionMock = CorePath + nameof(MongoCollectionMock) + ".cs";
+
+    public const string EmptyCursor = CorePath + nameof(EmptyCursor) + ".cs";
+
+    public const string MongoDatabaseMock = CorePath + nameof(MongoDatabaseMock) + ".cs";
+
+    public const string MongoClientMock = CorePath + nameof(MongoClientMock) + ".cs";
 }

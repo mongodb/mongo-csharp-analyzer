@@ -19,12 +19,19 @@ namespace MongoDB.Analyzer.Core.Builders;
 internal static class AnalysisCodeGenerator
 {
     private static readonly SyntaxTree s_mqlGeneratorSyntaxTree;
-    private static readonly SyntaxTree s_buildersRenderer;
+    private static readonly SyntaxTree[] s_helpersSyntaxTrees;
 
     static AnalysisCodeGenerator()
     {
         s_mqlGeneratorSyntaxTree = ResourcesUtilities.GetCodeResource(ResourceNames.MqlGenerator);
-        s_buildersRenderer = ResourcesUtilities.GetCodeResource(ResourceNames.Renderer);
+        s_helpersSyntaxTrees = new SyntaxTree[]
+        {
+            ResourcesUtilities.GetCodeResource(ResourceNames.EmptyCursor),
+            ResourcesUtilities.GetCodeResource(ResourceNames.MongoCollectionMock),
+            ResourcesUtilities.GetCodeResource(ResourceNames.MongoDatabaseMock),
+            ResourcesUtilities.GetCodeResource(ResourceNames.MongoClientMock),
+            ResourcesUtilities.GetCodeResource(ResourceNames.Renderer)
+        };
     }
 
     public static CompilationResult Compile(MongoAnalyzerContext context, ExpressionsAnalysis buildersExpressionAnalysis)
@@ -39,9 +46,16 @@ internal static class AnalysisCodeGenerator
         var typesSyntaxTree = GenerateTypesSyntaxTree(buildersExpressionAnalysis);
         var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(buildersExpressionAnalysis);
 
+        var syntaxTrees = new List<SyntaxTree>(s_helpersSyntaxTrees)
+            {
+                typesSyntaxTree,
+                mqlGeneratorSyntaxTree
+            };
+
+
         var compilation = CSharpCompilation.Create(
             BuildersAnalysisConstants.AnalysisAssemblyName,
-            new[] { typesSyntaxTree, mqlGeneratorSyntaxTree, s_buildersRenderer },
+            syntaxTrees,
             referencesContainer.References,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 

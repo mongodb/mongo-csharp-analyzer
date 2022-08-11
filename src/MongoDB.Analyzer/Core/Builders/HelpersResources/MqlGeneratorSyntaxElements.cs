@@ -19,6 +19,7 @@ internal static class MqlGeneratorSyntaxElements
     public const string GetDriverVersion = nameof(GetDriverVersion);
     public const string MqlGenerator = nameof(MqlGenerator);
     public const string MqlGeneratorTemplateType = nameof(MqlGeneratorTemplateType);
+    public const string CollectionName = "collection";
 
     public const string MqlGeneratorNamespace = "MongoDB.Analyzer.Helpers.Builders";
     public const string MqlGeneratorFullName = MqlGeneratorNamespace + "." + MqlGenerator;

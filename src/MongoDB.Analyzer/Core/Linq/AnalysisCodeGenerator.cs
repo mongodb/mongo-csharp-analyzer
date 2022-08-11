@@ -33,7 +33,9 @@ internal static class AnalysisCodeGenerator
         {
             ResourcesUtilities.GetCodeResource(ResourceNames.IQueryableProvider),
             ResourcesUtilities.GetCodeResource(ResourceNames.EmptyCursor),
-            ResourcesUtilities.GetCodeResource(ResourceNames.MongoCollectionMock)
+            ResourcesUtilities.GetCodeResource(ResourceNames.MongoCollectionMock),
+            ResourcesUtilities.GetCodeResource(ResourceNames.MongoDatabaseMock),
+            ResourcesUtilities.GetCodeResource(ResourceNames.MongoClientMock)
         };
     }
 
