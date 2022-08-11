@@ -20,12 +20,14 @@
   <ItemGroup>
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Builders\MqlGenerator.cs" Link="Core\Builders\HelpersResources\MqlGenerator.cs" />
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Builders\Renderer.cs" Link="Core\Builders\HelpersResources\Renderer.cs" />
-    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\EmptyCursor.cs" Link="Core\Linq\HelpersResources\EmptyCursor.cs" />
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\IQueryableProvider.cs" Link="Core\Linq\HelpersResources\IQueryableProvider.cs" />
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\IQueryableProviderV2.cs" Link="Core\Linq\HelpersResources\IQueryableProviderV2.cs" />
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\IQueryableProviderV3.cs" Link="Core\Linq\HelpersResources\IQueryableProviderV3.cs" />
-    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\MongoCollectionMock.cs" Link="Core\Linq\HelpersResources\MongoCollectionMock.cs" />
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\MqlGenerator.cs" Link="Core\Linq\HelpersResources\MqlGenerator.cs" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\EmptyCursor.cs" Link = "Core\EmptyCursor.cs" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\MongoClientMock.cs" Link = "Core\MongoClientMock.cs" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\MongoCollectionMock.cs" Link = "Core\MongoCollectionMock.cs" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\MongoDatabaseMock.cs" Link = "Core\MongoDatabaseMock.cs" />
   </ItemGroup>
 
   <ItemGroup>

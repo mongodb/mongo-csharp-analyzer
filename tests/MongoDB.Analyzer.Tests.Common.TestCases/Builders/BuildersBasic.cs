@@ -140,7 +140,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                         Builders<User>.Filter.Exists(u => u.LastName)));
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
+        [BuildersMQL("find({ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] })")]
         public void Filters_combined_inside_collection_find()
         {
             GetMongoCollection().Find(Builders<User>.Filter.Lt(u => u.Age, 10) |

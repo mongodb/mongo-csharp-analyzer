@@ -33,5 +33,7 @@ namespace MongoDB.Analyzer.Tests.Common
         protected T ReturnArgument<T>(T arg) => arg;
 
         protected FilterDefinition<User> GetFilterUser() => Builders<User>.Filter.Lt(u => u.Age, 10);
+
+        protected IMongoDatabase GetDatabase() => MongoDBProvider.MongoDatabase;
     }
 }

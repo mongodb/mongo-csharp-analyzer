@@ -42,6 +42,7 @@ namespace MongoDB.Analyzer.Helpers.Builders
 
         public static string GetMQL()
         {
+            var collection = new MongoCollectionMock<MqlGeneratorTemplateType>();
             var buildersDefinition = Builders<MqlGeneratorTemplateType>.Filter.Gt(p => p.Field, 10);
             return Renderer.Render(buildersDefinition);
         }

@@ -27,6 +27,8 @@ internal static class SymbolExtensions
         symbol?.ContainingModule?.Name?.ToLowerInvariant() == "mongodb.driver.dll" &&
         symbol?.ContainingNamespace?.Name == "Linq";
 
+    public static bool IsIMongoCollection(this ITypeSymbol typeSymbol) => ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver", "IMongoCollection");
+
     public static bool IsIMongoQueryable(this ITypeSymbol typeSymbol) =>
         ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IMongoQueryable") ||
         ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IOrderedMongoQueryable");
@@ -58,6 +60,9 @@ internal static class SymbolExtensions
             "SortDefinitionExtensions" or
             "ProjectionDefinitionBuilder" or
             "ProjectionDefinitionExtensions" or
+            "IFindFluent" or
+            "IMongoCollection" or
+            "PipelineDefinitionBuilder" or
             "UpdateDefinitionBuilder" => true,
             _ => false
         };
@@ -74,6 +79,8 @@ internal static class SymbolExtensions
             "IndexKeysDefinition" or
             "SortDefinition" or
             "ProjectionDefinition" or
+            "IFindFluent" or
+            "PipelineDefinition" or
             "UpdateDefinition" => true,
             _ => false
         };
