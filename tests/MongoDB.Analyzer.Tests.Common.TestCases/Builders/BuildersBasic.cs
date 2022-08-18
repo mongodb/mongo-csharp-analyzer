@@ -320,5 +320,35 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             x = y = Builders<User>.Filter.Lt(u => u.Age, 15) & Builders<User>.Filter.Gt(u => u.Age, 65);
             x = z = w = y = x = z = w = y = Builders<User>.Filter.Lt(u => u.Age, 17) & Builders<User>.Filter.Gt(u => u.Age, 18);
         }
+
+        [BuildersMQL("{ \"isRaining\" : { \"$exists\" : exists } }")]
+        [BuildersMQL("{ \"isRaining\" : exists }")]
+        [BuildersMQL("{ \"isRaining\" : { \"$in\" : [exists, exists, exists] } }")]
+        [BuildersMQL("{ \"boolArray\" : true }")]
+        [BuildersMQL("{ \"isRaining\" : { \"$ne\" : exists } }")]
+        public void Filter_with_boolean_variables()
+        {
+            var exists = true;
+            _ = Builders<Weather>.Filter.Exists(u => u.isRaining, exists);
+            _ = Builders<Weather>.Filter.Eq(u => u.isRaining, exists);
+            _ = Builders<Weather>.Filter.In(t => t.isRaining, new[] { exists, exists, exists });
+            _ = Builders<Weather>.Filter.AnyEq(t => t.boolArray, true);
+            _ = Builders<Weather>.Filter.Ne(u => u.isRaining, exists);
+        }
+
+        [BuildersMQL("{ \"Weather.isThunder\" : { \"$exists\" : exists } }")]
+        [BuildersMQL("{ \"isRaining\" : { \"$ne\" : weatherContainer.Weather.isRaining } }")]
+        [BuildersMQL("{ \"Weather.isSunny\" : weatherContainer.Weather.isSunny }")]
+        [BuildersMQL("{ \"isThunder\" : weather.isThunder }")]
+        public void Filter_with_complex_boolean_variables()
+        {
+            var exists = true;
+            var weatherContainer = new WeatherContainer();
+            var weather = new Weather();
+            _ = Builders<WeatherContainer>.Filter.Exists(u => u.Weather.isThunder, exists);
+            _ = Builders<Weather>.Filter.Ne(u => u.isRaining, weatherContainer.Weather.isRaining);
+            _ = Builders<WeatherContainer>.Filter.Eq(u => u.Weather.isSunny, weatherContainer.Weather.isSunny);
+            _ = Builders<Weather>.Filter.Eq(u => u.isThunder, weather.isThunder);
+        }
     }
 }

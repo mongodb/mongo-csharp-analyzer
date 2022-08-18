@@ -398,5 +398,49 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                                             where user.Height == 180
                                             select user;
         }
+
+        [MQL("aggregate([{ \"$match\" : { \"isRaining\" : exists } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"isRaining\" : true } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"isRaining\" : { \"$ne\" : true } } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"isRaining\" : true } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"isRaining\" : false } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Weather.isRaining\" : exists } }])")]
+        public void SingleLine_expression_with_booleans()
+        {
+            var exists = true;
+            _ = GetMongoCollection<Weather>().AsQueryable().Where(u => u.isRaining == exists);
+            _ = GetMongoCollection<Weather>().AsQueryable().Where(u => u.isRaining);
+            _ = GetMongoCollection<Weather>().AsQueryable().Where(u => !u.isRaining);
+            _ = GetMongoCollection<Weather>().AsQueryable().Where(u => u.isRaining == true);
+            _ = GetMongoCollection<Weather>().AsQueryable().Where(u => u.isRaining == false);
+            _ = GetMongoCollection<WeatherContainer>().AsQueryable().Where(u => u.Weather.isRaining == exists);
+
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"isRaining\" : exists, \"isSunny\" : { \"$ne\" : exists }, \"isThunder\" : exists } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"isRaining\" : true, \"isSunny\" : { \"$ne\" : true }, \"isThunder\" : true } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"isRaining\" : { \"$ne\" : true }, \"isSunny\" : true, \"isThunder\" : { \"$ne\" : true } } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Weather.isRaining\" : { \"$ne\" : true }, \"Weather.isSunny\" : true, \"Weather.isThunder\" : { \"$ne\" : true } } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Weather.isRaining\" : exists, \"Weather.isSunny\" : exists, \"Weather.isThunder\" : exists } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Weather.isRaining\" : weather.isThunder, \"Weather.isSunny\" : weather.isThunder, \"Weather.isThunder\" : weather.isThunder } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Weather.isRaining\" : weatherContainer.Weather.isThunder, \"Weather.isSunny\" : weatherContainer.Weather.isThunder, \"Weather.isThunder\" : weatherContainer.Weather.isThunder } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"isRaining\" : true, \"isThunder\" : false, \"isSunny\" : true } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"isRaining\" : false, \"isThunder\" : true, \"isSunny\" : false } }])")]
+        public void Expression_with_multiple_booleans()
+        {
+            var exists = true;
+            var weatherContainer = new WeatherContainer();
+            var weather = new Weather();
+
+            _ = GetMongoCollection<Weather>().AsQueryable().Where(u => u.isRaining == exists && u.isSunny != exists && u.isThunder == exists);
+            _ = GetMongoCollection<Weather>().AsQueryable().Where(u => u.isRaining && !u.isSunny && u.isThunder);
+            _ = GetMongoCollection<Weather>().AsQueryable().Where(u => !u.isRaining && u.isSunny && !u.isThunder);
+            _ = GetMongoCollection<WeatherContainer>().AsQueryable().Where(u => !u.Weather.isRaining && u.Weather.isSunny && !u.Weather.isThunder);
+            _ = GetMongoCollection<WeatherContainer>().AsQueryable().Where(u => u.Weather.isRaining == exists && u.Weather.isSunny == exists && u.Weather.isThunder == exists);
+            _ = GetMongoCollection<WeatherContainer>().AsQueryable().Where(u => u.Weather.isRaining == weather.isRaining && u.Weather.isSunny == weather.isSunny && u.Weather.isThunder == weather.isThunder);
+            _ = GetMongoCollection<WeatherContainer>().AsQueryable().Where(u => u.Weather.isRaining == weatherContainer.Weather.isRaining && u.Weather.isSunny == weatherContainer.Weather.isSunny && u.Weather.isThunder == weatherContainer.Weather.isThunder);
+            _ = GetMongoCollection<Weather>().AsQueryable().Where(u => u.isRaining == true && u.isThunder == false && u.isSunny == true);
+            _ = GetMongoCollection<Weather>().AsQueryable().Where(u => u.isRaining == false && u.isThunder == true && u.isSunny == false);
+        }
     }
 }

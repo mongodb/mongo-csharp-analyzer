@@ -127,6 +127,7 @@ internal sealed class ConstantsMapper
             SpecialType.System_UInt64 => SyntaxFactory.Literal(GetNextConstantInt()),
             SpecialType.System_Double => SyntaxFactory.Literal(GetNextConstantInt() + DoubleSuffix),
             SpecialType.System_String => SyntaxFactory.Literal(GetNextConstantString()),
+            SpecialType.System_Boolean => SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression).Token,
             _ => (SyntaxToken?)null
         };
 
