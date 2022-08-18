@@ -16,6 +16,29 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SyntaxNodeExtensions
 {
+    public static SyntaxNode TrimParenthesis(this SyntaxNode syntaxNode)
+    {
+        while (syntaxNode is ParenthesizedExpressionSyntax parenthesizedExpression)
+        {
+            syntaxNode = parenthesizedExpression.Expression;
+        }
+
+        return syntaxNode;
+    }
+
+    public static IEnumerable<SyntaxNode> DescendantNodesWithSkipList(this SyntaxNode syntaxNode, HashSet<SyntaxNode> skipList)
+    {
+        foreach (var node in syntaxNode.DescendantNodes(n => !skipList.Contains(n.Parent)))
+        {
+            if (skipList.Contains(node.Parent))
+            {
+                continue;
+            }
+
+            yield return node;
+        }
+    }
+
     public static string GetCommentText(this SyntaxTrivia syntaxTrivia) =>
         syntaxTrivia.ToFullString().Trim('/', ' ');
 

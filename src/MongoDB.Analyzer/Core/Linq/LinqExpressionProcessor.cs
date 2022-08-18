@@ -117,7 +117,8 @@ internal static class LinqExpressionProcessor
                             node,
                             generatedMongoQueryableTypeName,
                             newLinqExpression,
-                            constantsMapper));
+                            constantsMapper,
+                            node.GetLocation()));
 
                         analysisContexts.Add(linqContext);
                     }

@@ -71,7 +71,8 @@ internal static class TestCasesRunner
                  .FindNode(d.Location.SourceSpan)
                  .Ancestors()
                  .OfType<MethodDeclarationSyntax>()
-                 .First()))
+                 .FirstOrDefault()))
+            .Where(d => d.MethodNode != null)
             .ToArray();
 
         var result = diagnosticsAndMethodNodes
