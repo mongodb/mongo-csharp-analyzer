@@ -86,5 +86,42 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(/* multi line comment */ u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21 /* multi line comment */)
                 .Where(/* multi line comment */ u => u.Height == 180 /* multi line comment */);
         }
+
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        public void Query_Syntax()
+        {
+            _ = from user in GetMongoCollection()
+                // single line comment
+                .AsQueryable()
+                    // single line comment
+                where user.Name == "Bob" && user.Age > 16 && user.Age <= 21
+                // single line comment
+                where user.Height == 180
+                // single line comment
+                select user;
+
+            _ = from user in GetMongoCollection()
+                /*
+                    multi line comment line 1
+                    multi line comment line 2
+                */
+                .AsQueryable()
+                    /*
+                        multi line comment line 1
+                        multi line comment line 2
+                    */
+                where user.Name == "Bob" && user.Age > 16 && user.Age <= 21
+                /*
+                    multi line comment line 1
+                    multi line comment line 2
+                */
+                where user.Height == 180
+                /*
+                    multi line comment line 1
+                    multi line comment line 2
+                */
+                select user;
+        }
     }
 }
