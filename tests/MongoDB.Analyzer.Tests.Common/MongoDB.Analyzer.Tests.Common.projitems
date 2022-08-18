@@ -33,5 +33,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)TestCasesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\User.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Location.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\NestedFilter.cs" />
   </ItemGroup>
 </Project>

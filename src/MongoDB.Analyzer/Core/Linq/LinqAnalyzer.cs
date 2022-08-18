@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.Utilities;
+
 namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class LinqAnalyzer
@@ -94,18 +96,14 @@ internal static class LinqAnalyzer
         foreach (var analysisContext in linqExpressionAnalysis.AnalysisNodeContexts)
         {
             var mqlResult = compilationResult.LinqTestCodeExecutor.GenerateMql(analysisContext.EvaluationMethodName);
-            var location = analysisContext.Node.OriginalExpression.GetLocation();
+            var locations = analysisContext.Node.Locations;
 
             if (mqlResult.Mql != null)
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
-
-                var diagnostics = Diagnostic.Create(
-                    mqlResult.Linq3Only ? LinqDiagnosticsRules.DiagnosticRuleNotSupportedLinq2Expression : LinqDiagnosticsRules.DiagnosticRuleLinq2MQL,
-                    location,
-                    DecorateMessage(mql, driverVersion, settings));
-
-                semanticContext.ReportDiagnostic(diagnostics);
+                var diagnosticDescriptor = mqlResult.Linq3Only ? LinqDiagnosticsRules.DiagnosticRuleNotSupportedLinq2Expression : LinqDiagnosticsRules.DiagnosticRuleLinq2MQL;
+                var decoratedMessage = DecorateMessage(mql, driverVersion, settings);
+                semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
             }
             else if (mqlResult.Exception != null)
@@ -114,12 +112,9 @@ internal static class LinqAnalyzer
 
                 if (isDriverException || settings.OutputInternalExceptions)
                 {
-                    var diagnostics = Diagnostic.Create(
-                        LinqDiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression,
-                        location,
-                        DecorateMessage(mqlResult.Exception.InnerException?.Message ?? "Unsupported LINQ expression", driverVersion, settings));
-
-                    semanticContext.ReportDiagnostic(diagnostics);
+                    var diagnosticDescriptor = LinqDiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression;
+                    var decoratedMessage = DecorateMessage(mqlResult.Exception.InnerException?.Message ?? "Unsupported LINQ expression", driverVersion, settings);
+                    semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 
                 if (!isDriverException)

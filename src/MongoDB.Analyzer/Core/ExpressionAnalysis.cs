@@ -33,7 +33,8 @@ internal record ExpressionAnalysisNode(
     SyntaxNode OriginalExpression,
     string ArgumentTypeName,
     SyntaxNode RewrittenExpression,
-    ConstantsMapper ConstantsRemapper) :
+    ConstantsMapper ConstantsRemapper,
+    params Location[] Locations) :
     ExpressionAnalysisNodeBase(OriginalExpression);
 
 internal record InvalidExpressionAnalysisNode(SyntaxNode OriginalExpression, params string[] Errors) :

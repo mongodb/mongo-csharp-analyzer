@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,6 +33,7 @@ public abstract class DiagnosticsTestCasesRunner
         else
         {
             Assert.AreEqual(testCase.DiagnosticRules.Length, testCaseResult.Diagnostics.Length);
+            Array.Sort(testCaseResult.Diagnostics, new DiagnosticsComparer());
 
             for (int i = 0; i < testCase.DiagnosticRules.Length; i++)
             {
