@@ -87,6 +87,49 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
                 .Where(u => u.LastName.Length < 10);
         }
+
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"Smith\" } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
+        public void Query_syntax()
+        {
+            var collection = GetMongoCollection();
+
+            _ = (from u in collection.AsQueryable()
+                 where u.Name == "Bob" && u.Age > 16 && u.Age <= 21
+                 where u.LastName.Length < 10
+                 select u.Name).ToCursor();
+
+            _ = (from u in collection.AsQueryable()
+                 where u.Name == "Bob" && u.Age > 16 && u.Age <= 21
+                 where u.LastName.Length < 10
+                 select u.Name).ToCursor().ToList();
+
+            _ = (from u in collection.AsQueryable()
+                 where u.Name == "Bob" && u.Age > 16 && u.Age <= 21
+                 where u.LastName.Length < 10
+                 select u.Name).ToCursor().ToList().ToArray().ToList();
+
+            _ = (from u in GetMongoQueryable()
+                 where u.Name == "Bob" && u.Age > 16 && u.Age <= 21
+                 where u.LastName.Length < 10
+                 select u).ApplyPaging(1, 0);
+
+            _ = from u in ((from u in GetMongoQueryable()
+                            where u.Name == "Bob" && u.Age > 16 && u.Age <= 21
+                            where u.LastName.Length < 10
+                            select u).ApplyPaging(1, 0))
+                where u.LastName == "Smith"
+                select u;
+
+            _ = from u in GetMongoQueryable().ApplyPaging(1, 0)
+                where u.Name == "Bob" && u.Age > 16 && u.Age <= 21
+                where u.LastName.Length < 10
+                select u;
+        }
     }
 
     public static class LinqExtensions

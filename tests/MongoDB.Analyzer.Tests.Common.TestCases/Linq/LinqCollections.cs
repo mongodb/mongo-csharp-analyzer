@@ -41,5 +41,26 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                     t.Enumerable2.Count() == 22 &&
                     t.Enumerable2.ElementAt(12).Enumerable2.ElementAt(21).Enumerable1.ElementAt(1) == 2);
         }
+
+        [MQL("aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
+        public void Query_syntax()
+        {
+            _ = from listsHolder in GetMongoQueryable<ListsHolder>()
+                where listsHolder.IntList[0] == 2
+                where listsHolder.StringList.Count == 12
+                where listsHolder.PesonsList[2].Address.City == "Hamburg"
+                where listsHolder.NestedListsHolderList[2].StringList[4] == "Nested"
+                where listsHolder.IntIList[1] == 12
+                where listsHolder.NestedListsHolderIList[12].IntIList[12] == 2
+                select listsHolder;
+
+            _ = from enumerableHolder in GetMongoQueryable<EnumerableHolder>()
+                where enumerableHolder.Enumerable1.Count() == 121 &&
+                      enumerableHolder.Enumerable1.ElementAt(12) == 1 &&
+                      enumerableHolder.Enumerable2.Count() == 22 &&
+                      enumerableHolder.Enumerable2.ElementAt(12).Enumerable2.ElementAt(21).Enumerable1.ElementAt(1) == 2
+                select enumerableHolder;
+        }
     }
 }

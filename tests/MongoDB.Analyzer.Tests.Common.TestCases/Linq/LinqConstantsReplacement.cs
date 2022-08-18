@@ -150,7 +150,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 o.Nested.Point.X == GetDrawingPoint().X);
         }
 
-        //[MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Age\" : byteConstant }, { \"Age\" : 0 }, { \"Age\" : byteConstant58 }, { "Age" : byteConstant56 }, { "Age" : byteConstant59 }, { "Age" : byteConstant57 }, { "Name" : stringConstant }, { "Name" : "s__257" }] } }])")]
         [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : byteConstant }, { \"SiblingsCount\" : 0 }, { \"SiblingsCount\" : intConstant1 }, { \"SiblingsCount\" : 1 }, { \"SiblingsCount\" : intConstant2 }, { \"SiblingsCount\" : 2 }, { \"TicksSinceBirth\" : NumberLong(longConstant1) }, { \"TicksSinceBirth\" : NumberLong(3) }, { \"TicksSinceBirth\" : NumberLong(longConstant2) }, { \"TicksSinceBirth\" : NumberLong(4) }, { \"Name\" : stringConstant1 }, { \"Name\" : \"s__5\" }, { \"Name\" : stringConstant2 }, { \"Name\" : \"s__6\" }] } }])")]
         public void Colliding_constants_and_variables()
         {
@@ -382,6 +381,22 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<Person>().Where(u =>
                 u.SiblingsCount + u.LastName.Length + count2 <= u.SiblingsCount + GetPerson().SiblingsCount * _fieldPerson.TicksSinceBirth * count1 &&
                 u.Name + _fieldPerson.LastName + count2.ToString() == Concate(_fieldPerson.Name, _fieldPerson.LastName) + "suffix" + u.Address.City);
+        }
+
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1, 1] }, { \"$add\" : [\"$SiblingsCount\", count2] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"_prefix\", \"$Name\", \"_suffix\"] }, { \"$concat\" : [suffix, \"$Name\", prefix] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\"] }, { \"$concat\" : [\"$LastName\", Concate(prefix, Concate(prefix, suffix))] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\", Concate(\"abc\", suffix)] }, { \"$concat\" : [Concate(\"bca\", prefix), \"$LastName\", { \"$toString\" : \"$SiblingsCount\" }, suffix] }] } } }])")]
+        public void Query_syntax()
+        {
+            var count1 = 1;
+            var count2 = 2;
+            var suffix = "suf";
+            var prefix = "pre";
+
+            _ = from person in GetMongoQueryable<Person>()
+                where person.SiblingsCount + count1 + 1 == person.SiblingsCount + count2
+                where "_prefix" + person.Name + "_suffix" == suffix + person.Name + prefix
+                where prefix + person.Name == person.LastName + Concate(prefix, Concate(prefix, suffix))
+                where prefix + person.Name + Concate("abc", suffix) == Concate("bca", prefix) + person.LastName + person.SiblingsCount.ToString() + suffix
+                select person;
         }
 
         private int _fieldInt = 222;

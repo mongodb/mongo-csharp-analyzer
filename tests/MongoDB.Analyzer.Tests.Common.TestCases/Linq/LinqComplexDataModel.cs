@@ -131,5 +131,24 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         {
             _ = GetMongoQueryable<ClassWithNonTrivialProperties>().Where(t => t.IntProp == 123);
         }
+
+        [MQL("aggregate([{ \"$match\" : { \"Data\" : 1 } }, { \"$match\" : { \"DataT1\" : 32 } }, { \"$match\" : { \"DataT2\" : \"dataString\" } }, { \"$match\" : { \"DataT3.Vehicle.LicenceNumber\" : \"LicenceNumber\" } }, { \"$match\" : { \"DataT4\" : NumberLong(999) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"AbstractBaseData\" : \"base\", \"AbstractBaseDataT1\" : 0, \"AbstractBaseDataT2.Name\" : \"Bob\" } }, { \"$match\" : { \"NestedGenericClass1T1\" : 1, \"NestedGenericClass1T2.Name\" : \"Alice\" } }, { \"$match\" : { \"NestedGenericClass2T1\" : 0, \"NestedGenericClass2T2.Name\" : \"John\" } }])")]
+        public void Query_syntax()
+        {
+            _ = from multipleTypeGeneric in GetMongoQueryable<MultipleTypeGeneric<int, string, Person, EnumInt64>>()
+                where multipleTypeGeneric.Data == 1
+                where multipleTypeGeneric.DataT1 == 32
+                where multipleTypeGeneric.DataT2 == "dataString"
+                where multipleTypeGeneric.DataT3.Vehicle.LicenceNumber == "LicenceNumber"
+                where multipleTypeGeneric.DataT4 == EnumInt64.Value999
+                select multipleTypeGeneric;
+
+            _ = from nestedGenericClass2 in GetMongoQueryable<NestedGenericClass2<EnumInt32, Person>>()
+                where nestedGenericClass2.AbstractBaseData == "base" && nestedGenericClass2.AbstractBaseDataT1 == EnumInt32.Value0 && nestedGenericClass2.AbstractBaseDataT2.Name == "Bob"
+                where nestedGenericClass2.NestedGenericClass1T1 == EnumInt32.Value1 && nestedGenericClass2.NestedGenericClass1T2.Name == "Alice"
+                where nestedGenericClass2.NestedGenericClass2T1 == EnumInt32.Value0 && nestedGenericClass2.NestedGenericClass2T2.Name == "John"
+                select nestedGenericClass2;
+        }
     }
 }
