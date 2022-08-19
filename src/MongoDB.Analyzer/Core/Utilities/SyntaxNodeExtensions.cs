@@ -16,6 +16,53 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SyntaxNodeExtensions
 {
+    public static T AddBsonAttributes<T>(this T memberDeclaration, IEnumerable<AttributeData> attributes) where T : MemberDeclarationSyntax
+    {
+        attributes = attributes?.Where(a => a.AttributeClass.IsBsonAttribute());
+
+        if (attributes.EmptyOrNull())
+        {
+            return memberDeclaration;
+        }
+
+        var attributeList = new SeparatedSyntaxList<AttributeSyntax>();
+
+        foreach (var attribute in attributes)
+        {
+            var argumentList = new SeparatedSyntaxList<AttributeArgumentSyntax>();
+
+            if (attribute.ConstructorArguments.Any(a => !IsSupportedAttributeArgumentKind(a)) ||
+                attribute.NamedArguments.Any(a => !IsSupportedAttributeArgumentKind(a.Value)))
+            {
+                continue;
+            }
+
+            argumentList = argumentList.AddRange(attribute.ConstructorArguments.Select(c => ToConstructorAttributeArgument(c)));
+            argumentList = argumentList.AddRange(attribute.NamedArguments.Select(n => ToNameAttributeArgument(n)));
+            attributeList = attributeList.Add(SyntaxFactory.Attribute(SyntaxFactory.IdentifierName(attribute.AttributeClass.Name), SyntaxFactory.AttributeArgumentList(argumentList)));
+        }
+
+        var result = attributeList.Any() ? (T)memberDeclaration.AddAttributeLists(SyntaxFactory.AttributeList(attributeList)) : memberDeclaration;
+        return result;
+
+        LiteralExpressionSyntax GenerateArgumentValue(TypedConstant typedConstant)
+        {
+            var literalToken = SyntaxFactoryUtilities.GetConstantValueToken(typedConstant.Value);
+            var literalSyntaxKind = literalToken.Kind() == SyntaxKind.StringLiteralToken ? SyntaxKind.StringLiteralExpression : SyntaxKind.NumericLiteralExpression;
+            return SyntaxFactory.LiteralExpression(literalSyntaxKind, literalToken);
+        }
+
+        bool IsSupportedAttributeArgumentKind(TypedConstant typedConstant) => typedConstant.Kind == TypedConstantKind.Primitive;
+
+        AttributeArgumentSyntax ToConstructorAttributeArgument(TypedConstant constructorArgument) => SyntaxFactory.AttributeArgument(GenerateArgumentValue(constructorArgument));
+        
+        AttributeArgumentSyntax ToNameAttributeArgument(KeyValuePair<string, TypedConstant> namedArgument)
+        {
+            var argumentNameIdentifier = SyntaxFactory.IdentifierName(namedArgument.Key);
+            return SyntaxFactory.AttributeArgument(SyntaxFactory.NameEquals(argumentNameIdentifier), SyntaxFactory.NameColon(argumentNameIdentifier), GenerateArgumentValue(namedArgument.Value));
+        }
+    }
+
     public static SyntaxNode TrimParenthesis(this SyntaxNode syntaxNode)
     {
         while (syntaxNode is ParenthesizedExpressionSyntax parenthesizedExpression)

@@ -48,6 +48,9 @@ internal static class SymbolExtensions
     public static bool IsMongoQueryable(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name == "MongoQueryable";
 
+    public static bool IsBsonAttribute(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == "MongoDB.Bson.Serialization.Attributes";
+
     public static bool IsBuilder(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
         {

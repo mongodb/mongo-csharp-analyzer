@@ -33,5 +33,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqSuffix.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqIMongoQueryableSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqQuerySyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqBsonAttributes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersBsonAttributes.cs" />
   </ItemGroup>
 </Project>

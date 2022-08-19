@@ -197,6 +197,7 @@ internal sealed class TypesProcessor
                 propertyDeclaration = propertyDeclaration.AddAccessorListAccessors(SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
             }
 
+            propertyDeclaration = propertyDeclaration.AddBsonAttributes(propertySymbol.GetAttributes());
             members.Add(propertyDeclaration);
         }
     }
@@ -222,6 +223,7 @@ internal sealed class TypesProcessor
                 modifiers: SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
                 declaration: variableDeclaration);
 
+            fieldDeclaration = fieldDeclaration.AddBsonAttributes(fieldSymbol.GetAttributes());
             members.Add(fieldDeclaration);
         }
     }
