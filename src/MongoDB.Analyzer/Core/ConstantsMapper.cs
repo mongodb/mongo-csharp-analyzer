@@ -18,7 +18,6 @@ namespace MongoDB.Analyzer.Core;
 
 internal sealed class ConstantsMapper
 {
-    private const string CastingSuffix = ".0";  //Add .0 to cast int to double
     private const double DoubleSuffix = 0.5; // (x.5).ToString("G17") == x.5
     private const string StringPrefix = "s__";
     private const string RegexLookahead = "(?![\\w\"\\.])";
@@ -144,34 +143,10 @@ internal sealed class ConstantsMapper
             _originalToSyntax ??= new Dictionary<string, LiteralExpressionSyntax>();
             _originalToSyntax[originalValue] = expressionSyntax;
 
-            var valueText = syntaxToken.Value.ValueText;
-            AddMapping(valueText, originalValue, isString);
-            GenerateTypeCastMappings(specialType, valueText, originalValue);
+            AddMapping(syntaxToken.Value.ValueText, originalValue, isString);
         }
 
         return expressionSyntax;
-    }
-
-    private void GenerateTypeCastMappings(SpecialType specialType, string valueText, string originalValue)
-    {
-        var isString = specialType == SpecialType.System_String;
-        valueText = specialType switch
-        {
-            SpecialType.System_Byte or
-            SpecialType.System_SByte or
-            SpecialType.System_UInt16 or
-            SpecialType.System_Int16 or
-            SpecialType.System_Int32 or
-            SpecialType.System_UInt32 or
-            SpecialType.System_Int64 or
-            SpecialType.System_UInt64 => $"{valueText}{CastingSuffix}",
-            _ => null
-        };
-
-        if(valueText != null)
-        {
-            AddMapping(valueText, originalValue, isString);
-        }
     }
 
     public void FinalizeLiteralsRegistration()

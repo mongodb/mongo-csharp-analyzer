@@ -412,8 +412,9 @@ internal static class BuilderExpressionProcessor
             return RewriteResult.Ignore;
         }
 
+        var typeSymbol = rewriteContext.SemanticModel.GetTypeInfo(simpleNameSyntax).ConvertedType ?? methodSymbol.ReturnType;
         var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(simpleNameSyntax);
-        var replacementNode = GetConstantReplacementNode(rewriteContext, methodSymbol.ReturnType, nodeToReplace.ToString());
+        var replacementNode = GetConstantReplacementNode(rewriteContext, typeSymbol, nodeToReplace.ToString());
 
         if (replacementNode == null)
         {
