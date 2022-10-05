@@ -49,6 +49,22 @@ internal static class SyntaxFactoryUtilities
             _ => throw new NotSupportedException($"Not supported type {value?.GetType()}")
         };
 
+    public static SpecialType GetSpecialType(object value) =>
+        value switch
+        {
+            sbyte @sbyte => SpecialType.System_SByte,
+            byte @byte => SpecialType.System_Byte,
+            short @short => SpecialType.System_Int16,
+            ushort @ushort => SpecialType.System_UInt16,
+            int @int => SpecialType.System_Int32,
+            uint @uint => SpecialType.System_UInt32,
+            long @long => SpecialType.System_Int64,
+            ulong @ulong => SpecialType.System_UInt64,
+            double @double => SpecialType.System_Double,
+            string @string => SpecialType.System_String,
+            _ => throw new NotSupportedException($"Not supported type {value?.GetType()}")
+        };
+
     public static NameSyntax GetIdentifier(string identifierName)
     {
         var parts = identifierName.Split('.');

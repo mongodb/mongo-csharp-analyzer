@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
+
 namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class LinqExpressionProcessor
@@ -55,38 +57,51 @@ internal static class LinqExpressionProcessor
 
         var typesProcessor = new TypesProcessor();
 
-        Func<SyntaxNode, bool> descendToChildrenPredicate = n =>
+        foreach (var node in root.DescendantNodesWithSkipList(processedSyntaxNodes).OfType<ExpressionSyntax>())
         {
-            return !processedSyntaxNodes.Contains(n.Parent);
-        };
+            var deepestMongoQueryableNode = node;
 
-        foreach (var node in root.DescendantNodes(descendToChildrenPredicate).OfType<InvocationExpressionSyntax>())
-        {
-            var methodSymbol = semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
+            if (node is QueryExpressionSyntax queryNode)
+            {
+                var expression = queryNode.FromClause.Expression;
+                var queryMethodSymbol = semanticModel.GetTypeInfo(expression).Type;
+                if (!queryMethodSymbol.IsIMongoQueryable())
+                {
+                    continue;
+                }
 
-            if (!methodSymbol.IsDefinedInMongoLinq() ||
-                !methodSymbol.ReceiverType.IsIMongoQueryable() ||
-                !methodSymbol.ReturnType.IsIMongoQueryable())
+                deepestMongoQueryableNode = queryNode.FromClause.Expression;
+            }
+            else if (node is InvocationExpressionSyntax invocationNode)
+            {
+                var methodSymbol = semanticModel.GetSymbolInfo(invocationNode).Symbol as IMethodSymbol;
+
+                if (!methodSymbol.IsDefinedInMongoLinq() ||
+                    !methodSymbol.ReceiverType.IsIMongoQueryable() ||
+                    !methodSymbol.ReturnType.IsIMongoQueryable())
+                {
+                    continue;
+                }
+
+                deepestMongoQueryableNode = GetNextNestedInvocation(invocationNode);
+                while (deepestMongoQueryableNode != null)
+                {
+                    var currentMethodSymbol = semanticModel.GetSymbolInfo(deepestMongoQueryableNode).Symbol as IMethodSymbol;
+
+                    if (currentMethodSymbol?.ReducedFrom?.ReceiverType.IsMongoQueryable() != true)
+                    {
+                        break;
+                    }
+
+                    deepestMongoQueryableNode = GetNextNestedInvocation(deepestMongoQueryableNode);
+                }
+            }
+            else
             {
                 continue;
             }
 
             processedSyntaxNodes.Add(node);
-
-            // Find the deepest node that supplies IMongoQueryable symbol type
-            var deepestMongoQueryableNode = GetNextNestedInvocation(node);
-
-            while (deepestMongoQueryableNode != null)
-            {
-                var currentMethodSymbol = semanticModel.GetSymbolInfo(deepestMongoQueryableNode).Symbol as IMethodSymbol;
-
-                if (currentMethodSymbol?.ReducedFrom?.ReceiverType.IsMongoQueryable() != true)
-                {
-                    break;
-                }
-
-                deepestMongoQueryableNode = GetNextNestedInvocation(deepestMongoQueryableNode);
-            }
 
             // Validate IMongoQueryable node candidate
             if (deepestMongoQueryableNode == null)
@@ -117,7 +132,8 @@ internal static class LinqExpressionProcessor
                             node,
                             generatedMongoQueryableTypeName,
                             newLinqExpression,
-                            constantsMapper));
+                            constantsMapper,
+                            node.GetLocation()));
 
                         analysisContexts.Add(linqContext);
                     }
@@ -148,9 +164,9 @@ internal static class LinqExpressionProcessor
     {
         var result = true;
 
-        foreach (var lambdaExpression in linqExpressionNode.DescendantNodes().OfType<SimpleLambdaExpressionSyntax>())
+        foreach (var expression in linqExpressionNode.DescendantNodes().Where(node => node is QueryClauseSyntax || node is SimpleLambdaExpressionSyntax))
         {
-            foreach (var methodInvocation in lambdaExpression.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            foreach (var methodInvocation in expression.DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
                 var symbolInfo = semanticModel.GetSymbolInfo(methodInvocation);
 
@@ -167,7 +183,7 @@ internal static class LinqExpressionProcessor
 
                         var argSymbol = semanticModel.GetSymbolInfo(underlyingNode).Symbol;
 
-                        if (argSymbol.IsContainedInLambda(linqExpressionNode))
+                        if (argSymbol.IsContainedInLambdaOrQueryParameter(linqExpressionNode))
                         {
                             invalidLinqExpressionNodes.Add(new InvalidExpressionAnalysisNode(
                                 methodInvocation,
@@ -213,13 +229,13 @@ internal static class LinqExpressionProcessor
             rewriteContext.ConstantsMapper.FinalizeLiteralsRegistration();
 
             var nodeProcessed = new List<SyntaxNode>();
-            var lambdaIdentifiers = linqExpressionNode
+            var lambdaAndQueryIdentifiers = linqExpressionNode
                 .DescendantNodes(n => n != deepestMongoQueryableNode)
                 .OfType<IdentifierNameSyntax>()
                 .Where(identifierNode =>
                 {
                     var symbolInfo = semanticModel.GetSymbolInfo(identifierNode);
-                    return symbolInfo.Symbol != null && IsChildOfLambdaParameter(rewriteContext, identifierNode, symbolInfo);
+                    return symbolInfo.Symbol != null && IsChildOfLambdaOrQueryParameter(rewriteContext, identifierNode, symbolInfo);
                 })
                 .ToArray();
 
@@ -232,7 +248,7 @@ internal static class LinqExpressionProcessor
                     continue;
                 }
 
-                var nodeToHandle = SyntaxNodeExtensions.GetTopMostInvocationOrBinaryExpressionSyntax(identifierNode, lambdaIdentifiers);
+                var nodeToHandle = SyntaxNodeExtensions.GetTopMostInvocationOrBinaryExpressionSyntax(identifierNode, lambdaAndQueryIdentifiers);
                 if (nodeToHandle != identifierNode)
                 {
                     nodeProcessed.Add(nodeToHandle);
@@ -357,7 +373,7 @@ internal static class LinqExpressionProcessor
         if (methodSymbol.ReceiverType.IsIMongoQueryable() ||
            methodSymbol.ReturnType.IsIMongoQueryable() ||
            methodSymbol.ReturnType == null ||
-           IsChildOfLambdaParameter(rewriteContext, identifierNode, symbolInfo))
+           IsChildOfLambdaOrQueryParameter(rewriteContext, identifierNode, symbolInfo))
         {
             return RewriteResult.Ignore;
         }
@@ -407,12 +423,12 @@ internal static class LinqExpressionProcessor
         return replacementNode;
     }
 
-    private static bool IsChildOfLambdaParameter(
+    private static bool IsChildOfLambdaOrQueryParameter(
         RewriteContext rewriteContext,
         SyntaxNode identifier,
         SymbolInfo symbolInfo)
     {
-        if (symbolInfo.Symbol.IsContainedInLambda(rewriteContext.LinqExpression))
+        if (symbolInfo.Symbol.IsContainedInLambdaOrQueryParameter(rewriteContext.LinqExpression))
         {
             return true;
         }
@@ -423,7 +439,7 @@ internal static class LinqExpressionProcessor
             return false;
         }
 
-        return rewriteContext.SemanticModel.GetSymbolInfo(underlyingIdetifier).Symbol.IsContainedInLambda(rewriteContext.LinqExpression);
+        return rewriteContext.SemanticModel.GetSymbolInfo(underlyingIdetifier).Symbol.IsContainedInLambdaOrQueryParameter(rewriteContext.LinqExpression);
     }
 
     private static RewriteResult SubstituteExpressionWithConst(
@@ -431,7 +447,7 @@ internal static class LinqExpressionProcessor
         SyntaxNode identifierNode,
         SymbolInfo symbolInfo)
     {
-        if (IsChildOfLambdaParameter(rewriteContext, identifierNode, symbolInfo) ||
+        if (IsChildOfLambdaOrQueryParameter(rewriteContext, identifierNode, symbolInfo) ||
             identifierNode.IsMemberOfAnonymousObject())
         {
             return RewriteResult.Ignore;

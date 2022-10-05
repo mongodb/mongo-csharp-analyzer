@@ -60,17 +60,12 @@ internal static class BuilderExpressionProcessor
         var filterNodes = new List<(SyntaxNode, ISymbol)>();
         var declaredNodes = new List<(SyntaxNode, ISymbol)>();
         var variableNodes = new List<(SyntaxNode, ISymbol)>();
-        var builderToVariableNodeMapping = new Dictionary<SyntaxNode, List<SyntaxNode>>();
+        var buildersToAnalysisContextMap = context.Settings.EnableVariableTracking ? new Dictionary<SyntaxNode, ExpressionAnalysisContext>() : null;
 
         // Find builders expressions
         // TODO skip children iterations
-        foreach (var node in root.DescendantNodes(n => !nodesProcessed.Contains(n.Parent)))
+        foreach (var node in root.DescendantNodesWithSkipList(nodesProcessed))
         {
-            if (nodesProcessed.Contains(node.Parent))
-            {
-                continue;
-            }
-
             var (isValid, namedType, builderExpressionNode) = IsValidBuildersExpression(semanticModel, node);
 
             if (!isValid)
@@ -95,9 +90,11 @@ internal static class BuilderExpressionProcessor
                         builderExpressionNode,
                         typesProcessor.GetTypeSymbolToGeneratedTypeMapping(namedType.TypeArguments.First()),
                         newBuildersExpression,
-                        constantsMapper));
+                        constantsMapper,
+                        builderExpressionNode.GetLocation()));
 
                     analysisContexts.Add(expresionContext);
+                    buildersToAnalysisContextMap?.Add(builderExpressionNode, expresionContext);
                 }
             }
             catch (Exception ex)
@@ -106,16 +103,28 @@ internal static class BuilderExpressionProcessor
             }
         }
 
-        var linqAnalysis = new ExpressionsAnalysis()
+        if (context.Settings.EnableVariableTracking)
+        {
+            try
+            {
+                analysisContexts = BuildersVariablesResolver.ResolveVariables(analysisContexts, buildersToAnalysisContextMap, semanticModel);
+            }
+            catch (Exception ex)
+            {
+                context.Logger.Log($"Failed resolving variables with {ex.Message}.");
+            }
+        }
+
+        var builderAnalysis = new ExpressionsAnalysis()
         {
             AnalysisNodeContexts = analysisContexts.ToArray(),
             InvalidExpressionNodes = invalidExpressionNodes.ToArray(),
             TypesDeclarations = typesProcessor.TypesDeclarations
         };
 
-        context.Logger.Log($"Builders: Found {linqAnalysis.AnalysisNodeContexts.Length} expressions.");
+        context.Logger.Log($"Builders: Found {builderAnalysis.AnalysisNodeContexts.Length} expressions.");
 
-        return linqAnalysis;
+        return builderAnalysis;
     }
 
     private static (bool IsValid, INamedTypeSymbol, SyntaxNode) IsValidBuildersExpression(SemanticModel semanticModel, SyntaxNode node)

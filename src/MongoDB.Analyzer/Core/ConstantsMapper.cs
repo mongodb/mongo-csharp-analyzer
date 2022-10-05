@@ -22,6 +22,7 @@ internal sealed class ConstantsMapper
     private const string StringPrefix = "s__";
     private const string RegexLookahead = "(?![\\w\"\\.])";
     private const string RegexLookbehind = "(?<![\\w\"\\.])";
+    private const string VariableAnnotation = "VariableName";
     private const string WildcardRegex = "\\.\\$\\*\\*";
     private const string WildcardSuffix = ".$**";
 
@@ -34,6 +35,16 @@ internal sealed class ConstantsMapper
     private int _overflowConstantInt8;
 
     private bool _allConstantsRegistered = false;
+
+    public static string GetVariableName(LiteralExpressionSyntax literalExpressionSyntax) => literalExpressionSyntax.GetAnnotations(VariableAnnotation).FirstOrDefault()?.Data;
+    
+    public void CopyRegisteredConstants(ConstantsMapper mapper)
+    {
+        _registredNumericConstants ??= new HashSet<long>();
+        _registredStringConstants ??= new HashSet<string>();
+        _registredNumericConstants.AddRange(mapper._registredNumericConstants);
+        _registredStringConstants.AddRange(mapper._registredStringConstants);
+    }
 
     public LiteralExpressionSyntax GetExpressionForConstant(SpecialType specialType, object constant)
     {
@@ -125,7 +136,9 @@ internal sealed class ConstantsMapper
         {
             var isString = specialType == SpecialType.System_String;
             var expressionKind = isString ? SyntaxKind.StringLiteralExpression : SyntaxKind.NumericLiteralExpression;
-            expressionSyntax = SyntaxFactory.LiteralExpression(expressionKind, syntaxToken.Value);
+
+            var syntaxAnnotation = new SyntaxAnnotation(VariableAnnotation, originalValue);
+            expressionSyntax = SyntaxFactory.LiteralExpression(expressionKind, syntaxToken.Value).WithAdditionalAnnotations(syntaxAnnotation);
 
             _originalToSyntax ??= new Dictionary<string, LiteralExpressionSyntax>();
             _originalToSyntax[originalValue] = expressionSyntax;

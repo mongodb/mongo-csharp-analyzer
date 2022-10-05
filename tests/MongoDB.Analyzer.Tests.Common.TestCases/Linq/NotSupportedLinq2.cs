@@ -60,5 +60,39 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(u => u.Age + 1 == 123)
                 .Where(u => "Dr " + u.Name == "Dr Bob");
         }
+
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])")]
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])")]
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$substrCP\" : [\"$Name\", 1, 2] }, \"abc\"] } } }])")]
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$substrCP\" : [\"$Name\", 1, 2] }, \"abc\"] } } }])")]
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [\"$Name\", \"$LastName\"] } } }])")]
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [\"$Name\", \"$LastName\"] } } }])")]
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$arrayElemAt\" : [\"$IntArray\", 0] }, { \"$arrayElemAt\" : [\"$IntArray\", 1] }] } } }])")]
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$arrayElemAt\" : [\"$IntArray\", 0] }, { \"$arrayElemAt\" : [\"$IntArray\", 1] }] } } }])")]
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$Age\", 1] }, 123] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"Dr\", \"$Name\"] }, \"Dr Bob\"] } } }])")]
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$Age\", 1] }, 123] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"Dr\", \"$Name\"] }, \"Dr Bob\"] } } }])")]
+        public void Query_syntax()
+        {
+            _ = from user in GetMongoQueryable()
+                where user.Name.Trim() == "123"
+                select user;
+
+            _ = from user in GetMongoQueryable()
+                where user.Name.Substring(1, 2) == "abc"
+                select user;
+
+            _ = from person in GetMongoQueryable<Person>()
+                where person.Name == person.LastName
+                select person;
+
+            _ = from array in GetMongoQueryable<SimpleTypesArraysHolder>()
+                where array.IntArray[0] == array.IntArray[1]
+                select array;
+
+            _ = from user in GetMongoQueryable()
+                where user.Age + 1 == 123
+                where "Dr" + user.Name == "Dr Bob"
+                select user;
+        }
     }
 }

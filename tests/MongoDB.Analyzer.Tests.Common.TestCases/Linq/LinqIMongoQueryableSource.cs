@@ -92,6 +92,44 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => u.Name);
         }
 
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob2\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,10}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        public void Query_Syntax()
+        {
+            var collection = GetMongoCollection();
+            var queryable = collection.AsQueryable();
+
+            _ = from u in collection.AsQueryable()
+                where u.Name == "Bob" && u.Age > 18 && u.Age <= 21
+                where u.LastName.Length < 10
+                select u.Name;
+
+            _ = from u in GetMongoCollection().AsQueryable()
+                where u.Name == "Bob" && u.Age > 18 && u.Age <= 21
+                where u.LastName.Length < 10
+                select u.Name;
+
+            _ = from u in GetMongoQueryable()
+                where u.Name == "Bob" && u.Age > 18 && u.Age <= 21
+                where u.LastName.Length < 10
+                select u.Name;
+
+            _ = from u in ReturnArgument(ReturnArgument(GetThis().GetThis()
+                .ReturnArgument(GetMongoCollection()))
+                .AsQueryable())
+                where u.Name == "Bob2" && u.Age > 18 && u.Age <= 21
+                where u.LastName.Length < 11
+                select u.Name;
+
+            _ = from u in queryable
+                where u.Name == "Bob" && u.Age > 18 && u.Age <= 21
+                where u.LastName.Length < 10
+                select u.Name;
+        }
+
         private LinqIMongoQueryableSource GetThis() => this;
     }
 }

@@ -81,5 +81,36 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(t => t.Children[0].Data == 1)
                 .Where(t => t.Children[0].Children[1].Children[2].Children[3].Children[4].Data == 2);
         }
+
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"JaggedStringArray2.0.1\" : \"str\" }, { \"JaggedStringArray2.1.3\" : \"str2\" }] } }, { \"$match\" : { \"$or\" : [{ \"JaggedIntArray3.2.999.29\" : -1 }, { \"JaggedIntArray3.10.1.3\" : 3 }] } }, { \"$match\" : { \"$or\" : [{ \"JaggedLongArray4.2.3.2.2\" : NumberLong(-9223372036854775808) }, { \"JaggedLongArray4.10.1.3.3\" : NumberLong(23) }] } }, { \"$match\" : { \"$or\" : [{ \"JaggedShortArray5.2.999.29.12.144\" : 0 }, { \"JaggedShortArray5.10.1.3.3.32\" : 23 }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"EnumArrayWithDimension1.0\" : 32767 } }, { \"$match\" : { \"TreeJaggedArray2.0.1.Root.Data\" : 1 } }, { \"$match\" : { \"$or\" : [{ \"TreeNodeJaggedArray3.0.1.2.Data\" : 3 }, { \"TreeNodeJaggedArray3.2.1.0.Left.Data\" : 1 }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"EnumArrayWithDimension1\" : { \"$size\" : 1 } } }, { \"$match\" : { \"TreeJaggedArray2\" : { \"$size\" : 2 } } }, { \"$match\" : { \"TreeNodeJaggedArray3\" : { \"$size\" : 3 } } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Children.0.Data\" : 1 } }, { \"$match\" : { \"Children.0.Children.1.Children.2.Children.3.Children.4.Data\" : 2 } }])")]
+        public void Query_syntax()
+        {
+            _ = from array in GetMongoQueryable<SimpleTypesArraysHolder>()
+                where array.JaggedStringArray2[0][1] == "str" || array.JaggedStringArray2.ElementAt(1).ElementAt(3) == "str2"
+                where array.JaggedIntArray3[2][999][29] == -1 || array.JaggedIntArray3.ElementAt(10).ElementAt(1).ElementAt(3) == 3
+                where array.JaggedLongArray4[2][3][2][2] == long.MinValue || array.JaggedLongArray4.ElementAt(10).ElementAt(1).ElementAt(3).ElementAt(3) == 23
+                where array.JaggedShortArray5[2][999][29][12][144] == 0 || array.JaggedShortArray5.ElementAt(10).ElementAt(1).ElementAt(3).ElementAt(3).ElementAt(32) == 23
+                select array;
+
+            _ = from customTypesArrayHolder in GetMongoQueryable<CustomTypesArraysHolder>()
+                where customTypesArrayHolder.EnumArrayWithDimension1[0] == EnumInt16.MaxValue
+                where customTypesArrayHolder.TreeJaggedArray2[0][1].Root.Data == 1
+                where customTypesArrayHolder.TreeNodeJaggedArray3[0][1][2].Data == 3 || customTypesArrayHolder.TreeNodeJaggedArray3[2][1][0].Left.Data == 1
+                select customTypesArrayHolder;
+
+            _ = from customTypesArrayHolder in GetMongoQueryable<CustomTypesArraysHolder>()
+                where customTypesArrayHolder.EnumArrayWithDimension1.Length == 1
+                where customTypesArrayHolder.TreeJaggedArray2.Length == 2
+                where customTypesArrayHolder.TreeNodeJaggedArray3.Length == 3
+                select customTypesArrayHolder;
+
+            _ = from nestedArrayHolder in GetMongoQueryable<NestedArrayHolder>()
+                where nestedArrayHolder.Children[0].Data == 1
+                where nestedArrayHolder.Children[0].Children[1].Children[2].Children[3].Children[4].Data == 2
+                select nestedArrayHolder;
+        }
     }
 }

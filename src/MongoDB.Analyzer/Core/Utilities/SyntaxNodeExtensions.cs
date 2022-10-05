@@ -16,6 +16,29 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SyntaxNodeExtensions
 {
+    public static SyntaxNode TrimParenthesis(this SyntaxNode syntaxNode)
+    {
+        while (syntaxNode is ParenthesizedExpressionSyntax parenthesizedExpression)
+        {
+            syntaxNode = parenthesizedExpression.Expression;
+        }
+
+        return syntaxNode;
+    }
+
+    public static IEnumerable<SyntaxNode> DescendantNodesWithSkipList(this SyntaxNode syntaxNode, HashSet<SyntaxNode> skipList)
+    {
+        foreach (var node in syntaxNode.DescendantNodes(n => !skipList.Contains(n.Parent)))
+        {
+            if (skipList.Contains(node.Parent))
+            {
+                continue;
+            }
+
+            yield return node;
+        }
+    }
+
     public static string GetCommentText(this SyntaxTrivia syntaxTrivia) =>
         syntaxTrivia.ToFullString().Trim('/', ' ');
 
@@ -34,7 +57,7 @@ internal static class SyntaxNodeExtensions
     public static MethodDeclarationSyntax GetSingleMethod(this SyntaxNode syntaxNode, string name) =>
         syntaxNode.DescendantNodes().OfType<MethodDeclarationSyntax>().Single(m => m.Identifier.Text == name);
 
-    public static SyntaxNode GetTopMostInvocationOrBinaryExpressionSyntax(SimpleNameSyntax identifier, IdentifierNameSyntax[] lambdaIdentifiers)
+    public static SyntaxNode GetTopMostInvocationOrBinaryExpressionSyntax(SimpleNameSyntax identifier, IdentifierNameSyntax[] lambdaAndQueryIdentifiers)
     {
         SyntaxNode previous = null;
         SyntaxNode result = identifier;
@@ -60,16 +83,16 @@ internal static class SyntaxNodeExtensions
                     return false;
                 }
 
-                if (lambdaIdentifiers != null)
+                if (lambdaAndQueryIdentifiers != null)
                 {
                     if (binaryExpressionSyntax.Left != previousSyntaxNode &&
-                        lambdaIdentifiers.Any(l => binaryExpressionSyntax.Left.Contains(l)))
+                        lambdaAndQueryIdentifiers.Any(l => binaryExpressionSyntax.Left.Contains(l)))
                     {
                         return false;
                     }
 
                     if (binaryExpressionSyntax.Right != previousSyntaxNode &&
-                        lambdaIdentifiers.Any(l => binaryExpressionSyntax.Right.Contains(l)))
+                        lambdaAndQueryIdentifiers.Any(l => binaryExpressionSyntax.Right.Contains(l)))
                     {
                         return false;
                     }

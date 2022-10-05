@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.Utilities;
+
 namespace MongoDB.Analyzer.Core.Builders;
 
 internal static class BuildersAnalyzer
@@ -69,18 +71,14 @@ internal static class BuildersAnalyzer
         foreach (var analysisContext in buildersAnalysis.AnalysisNodeContexts)
         {
             var mqlResult = compilationResult.BuildersTestCodeExecutor.GenerateMql(analysisContext.EvaluationMethodName);
-            var location = analysisContext.Node.OriginalExpression.GetLocation();
+            var locations = analysisContext.Node.Locations;
 
             if (mqlResult.Mql != null)
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
-
-                var diagnostics = Diagnostic.Create(
-                    BuidersDiagnosticsRules.DiagnosticRuleBuilder2MQL,
-                    location,
-                    DecorateMessage(mql, driverVersion, context.Settings));
-
-                semanticContext.ReportDiagnostic(diagnostics);
+                var diagnosticDescriptor = BuidersDiagnosticsRules.DiagnosticRuleBuilder2MQL;
+                var decoratedMessage = DecorateMessage(mql, driverVersion, context.Settings);
+                semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
             }
             else if (mqlResult.Exception != null)
@@ -89,12 +87,9 @@ internal static class BuildersAnalyzer
 
                 if (isDriverException || settings.OutputInternalExceptions)
                 {
-                    var diagnostics = Diagnostic.Create(
-                        BuidersDiagnosticsRules.DiagnosticRuleNotSupportedBuilderExpression,
-                        location,
-                        DecorateMessage(mqlResult.Exception.InnerException?.Message ?? "Unsupported builders expression", driverVersion, context.Settings));
-
-                    semanticContext.ReportDiagnostic(diagnostics);
+                    var diagnosticDescriptor = BuidersDiagnosticsRules.DiagnosticRuleNotSupportedBuilderExpression;
+                    var decoratedMessage = DecorateMessage(mqlResult.Exception.InnerException?.Message ?? "Unsupported builders expression", driverVersion, context.Settings);
+                    semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 
                 if (!isDriverException)

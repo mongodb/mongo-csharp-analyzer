@@ -87,11 +87,17 @@ internal static class SymbolExtensions
     public static bool IsContainedInLambda(this ISymbol symbol, SyntaxNode parentNode)
     {
         var isContainedInLambda = (symbol?.ContainingSymbol is IMethodSymbol methodSymbol && methodSymbol.MethodKind == MethodKind.AnonymousFunction);
-        var result = isContainedInLambda &&
-            (symbol != null && symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax())));
+        var result = isContainedInLambda && symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax()));
 
         return result;
     }
+
+    public static bool IsContainedInLambdaOrQueryParameter(this ISymbol symbol, SyntaxNode parentNode) =>
+        symbol switch
+        {
+            IRangeVariableSymbol => symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax())),
+            _ => symbol.IsContainedInLambda(parentNode)
+        };
 
     private static bool ImplementsOrIsInterface(this ITypeSymbol typeSymbol, string @namespace, string interfaceName) =>
         typeSymbol?.TypeKind switch

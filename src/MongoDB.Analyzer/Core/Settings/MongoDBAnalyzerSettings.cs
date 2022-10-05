@@ -31,6 +31,7 @@ internal record MongoDBAnalyzerSettings(
     [DefaultValue(false)] bool OutputInternalLogsToFile = false,
     [DefaultValue(null)] string LogFileName = null,
     [DefaultValue(true)] bool SendTelemetry = true,
-    [DefaultValue(LinqVersion.V2)] LinqVersion DefaultLinqVersion = LinqVersion.V2)
+    [DefaultValue(LinqVersion.V2)] LinqVersion DefaultLinqVersion = LinqVersion.V2,
+    [DefaultValue(true)] bool EnableVariableTracking = true)
 {
 }

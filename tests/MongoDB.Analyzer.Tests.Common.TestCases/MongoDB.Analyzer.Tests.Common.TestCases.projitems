@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersComplexDataModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersProjection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersIndexKeys.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Builders\BuildersVariables.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqBasic.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqCollections.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqConstantsReplacement.cs" />
@@ -31,5 +32,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqEnums.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqSuffix.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqIMongoQueryableSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linq\LinqQuerySyntax.cs" />
   </ItemGroup>
 </Project>

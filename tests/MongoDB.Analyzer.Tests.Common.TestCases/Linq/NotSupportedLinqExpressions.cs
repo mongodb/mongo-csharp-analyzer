@@ -121,5 +121,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<SimpleTypesArraysHolder>()
                 .Where(u => u.ByteArray[0] == 12);
         }
+
+        [InvalidLinq("Method referencing lambda parameter is not supported LINQ expression.")]
+        [InvalidLinq3("Method referencing lambda parameter is not supported LINQ expression.")]
+        public void Query_syntax()
+        {
+            _ = from person in GetMongoQueryable<Person>()
+                where ReturnArgument(ReturnArgument(ReturnArgument(this).ReturnArgument(person.Vehicle.VehicleType))).Type == VehicleTypeEnum.Bus
+                select person;
+        }
     }
 }
