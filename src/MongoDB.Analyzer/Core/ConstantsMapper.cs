@@ -23,6 +23,8 @@ internal sealed class ConstantsMapper
     private const string RegexLookahead = "(?![\\w\"\\.])";
     private const string RegexLookbehind = "(?<![\\w\"\\.])";
     private const string VariableAnnotation = "VariableName";
+    private const string WildcardRegex = "\\.\\$\\*\\*";
+    private const string WildcardSuffix = ".$**";
 
     private IDictionary<string, LiteralExpressionSyntax> _originalToSyntax;
     private IDictionary<string, string> _mqlRemapping;
@@ -222,6 +224,7 @@ internal sealed class ConstantsMapper
         {
             _mqlRemapping[$"{RegexLookbehind}\"{source}\"{RegexLookahead}"] = target;
             _mqlRemapping[$"/{source}/"] = $"/{target}/";
+            _mqlRemapping[$"{RegexLookbehind}\"{source}{WildcardRegex}\"{RegexLookahead}"] = $"{target}{WildcardSuffix}";
         }
         else
         {
