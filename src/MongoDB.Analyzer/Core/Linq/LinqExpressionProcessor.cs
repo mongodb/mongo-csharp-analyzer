@@ -461,7 +461,7 @@ internal static class LinqExpressionProcessor
         }
 
         var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(identifierNode);
-        var replacementNode = GetConstantReplacementNode(rewriteContext, typeInfo.Type, nodeToReplace.ToString());
+        var replacementNode = GetConstantReplacementNode(rewriteContext, typeInfo.ConvertedType, nodeToReplace.ToString());
 
         if (replacementNode == null)
         {
