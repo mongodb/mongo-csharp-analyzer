@@ -14,6 +14,13 @@
 
 namespace MongoDB.Analyzer.Core;
 
+internal enum AnalysisType
+{
+    Unknown,
+    Builders,
+    Linq
+}
+
 internal sealed class ExpressionsAnalysis
 {
     public MemberDeclarationSyntax[] TypesDeclarations { get; set; }

@@ -16,11 +16,8 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SyntaxFactoryUtilities
 {
-    public static MemberAccessExpressionSyntax SimpleMemberAccess(string source, string member) =>
-        SyntaxFactory.MemberAccessExpression(
-            SyntaxKind.SimpleMemberAccessExpression,
-            SyntaxFactory.IdentifierName(source),
-            SyntaxFactory.IdentifierName(member));
+    public static SyntaxNode NewFindOptionsArgument { get; } =
+        SyntaxFactory.Argument(SyntaxFactory.ParseExpression("new FindOptions()"));
 
     public static CastExpressionSyntax GetCastConstantExpression(string castToTypeName, object constantValue) =>
         SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(castToTypeName), GetConstantExpression(constantValue));
@@ -144,4 +141,10 @@ internal static class SyntaxFactoryUtilities
 
         return result;
     }
+
+    public static MemberAccessExpressionSyntax SimpleMemberAccess(string source, string member) =>
+        SyntaxFactory.MemberAccessExpression(
+            SyntaxKind.SimpleMemberAccessExpression,
+            SyntaxFactory.IdentifierName(source),
+            SyntaxFactory.IdentifierName(member));
 }

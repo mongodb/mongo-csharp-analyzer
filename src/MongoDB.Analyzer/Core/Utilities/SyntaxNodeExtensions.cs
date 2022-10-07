@@ -48,6 +48,39 @@ internal static class SyntaxNodeExtensions
         .Where(i => i.Identifier.Text == identifierName)
         .ToArray();
 
+    public static ExpressionSyntax GetNextNestedInvocation(this SyntaxNode syntaxNode) =>
+           ((syntaxNode as InvocationExpressionSyntax)?.Expression as MemberAccessExpressionSyntax)?.Expression;
+
+    public static IEnumerable<ExpressionSyntax> NestedInvocations(this SyntaxNode syntaxNode)
+    {
+        var expressionSyntax = GetNextNestedInvocation(syntaxNode);
+
+        while (expressionSyntax != null)
+        {
+            yield return expressionSyntax;
+
+            expressionSyntax = GetNextNestedInvocation(expressionSyntax);
+        }
+
+        ExpressionSyntax GetNextNestedInvocation(SyntaxNode syntaxNode) =>
+            ((syntaxNode as InvocationExpressionSyntax)?.Expression as MemberAccessExpressionSyntax)?.Expression;
+    }
+
+    public static ArgumentSyntax GetParentArgumentSyntaxIfExists(this SyntaxNode syntaxNode)
+    {
+        while (syntaxNode != null)
+        {
+            if (syntaxNode is ArgumentSyntax argumentSyntax)
+            {
+                return argumentSyntax;
+            }
+
+            syntaxNode = syntaxNode.Parent;
+        }
+
+        return null;
+    }
+
     public static IdentifierNameSyntax GetSingleIdentifier(this SyntaxNode syntaxNode, string identifierName) =>
         syntaxNode.DescendantNodes().OfType<IdentifierNameSyntax>().Single(i => i.Identifier.Text == identifierName);
 

@@ -23,32 +23,27 @@ internal static class SymbolExtensions
         "System.Collections.Generic.IEnumerable<T>"
     };
 
+    public static IMethodSymbol GetMethodSymbol(this SyntaxNode node, SemanticModel semanticModel) =>
+        semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
+
+    public static bool IsContainedInLambda(this ISymbol symbol, SyntaxNode parentNode)
+    {
+        var isContainedInLambda = (symbol?.ContainingSymbol is IMethodSymbol methodSymbol && methodSymbol.MethodKind == MethodKind.AnonymousFunction);
+        var result = isContainedInLambda && symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax()));
+
+        return result;
+    }
+
+    public static bool IsContainedInLambdaOrQueryParameter(this ISymbol symbol, SyntaxNode parentNode) =>
+        symbol switch
+        {
+            IRangeVariableSymbol => symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax())),
+            _ => symbol.IsContainedInLambda(parentNode)
+        };
+
     public static bool IsDefinedInMongoLinq(this ISymbol symbol) =>
         symbol?.ContainingModule?.Name?.ToLowerInvariant() == "mongodb.driver.dll" &&
         symbol?.ContainingNamespace?.Name == "Linq";
-
-    public static bool IsIMongoCollection(this ITypeSymbol typeSymbol) => ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver", "IMongoCollection");
-
-    public static bool IsIMongoQueryable(this ITypeSymbol typeSymbol) =>
-        ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IMongoQueryable") ||
-        ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IOrderedMongoQueryable");
-
-    public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
-        (typeSymbol.TypeKind == TypeKind.Class ||
-         typeSymbol.TypeKind == TypeKind.Struct ||
-         typeSymbol.TypeKind == TypeKind.Enum) &&
-        !typeSymbol.IsAnonymousType;
-
-    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
-        typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-        s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString());
-
-    public static bool IsSupportedMongoCollectionType(this ITypeSymbol typeSymbol) =>
-        typeSymbol.TypeKind == TypeKind.Class &&
-        !typeSymbol.IsAnonymousType;
-
-    public static bool IsMongoQueryable(this ITypeSymbol typeSymbol) =>
-        typeSymbol?.Name == "MongoQueryable";
 
     public static bool IsBuilder(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
@@ -60,8 +55,6 @@ internal static class SymbolExtensions
             "SortDefinitionExtensions" or
             "ProjectionDefinitionBuilder" or
             "ProjectionDefinitionExtensions" or
-            "IFindFluent" or
-            "IMongoCollection" or
             "PipelineDefinitionBuilder" or
             "UpdateDefinitionBuilder" => true,
             _ => false
@@ -79,32 +72,62 @@ internal static class SymbolExtensions
             "IndexKeysDefinition" or
             "SortDefinition" or
             "ProjectionDefinition" or
-            "IFindFluent" or
             "PipelineDefinition" or
             "UpdateDefinition" => true,
             _ => false
         };
 
+    public static bool IsFindFluent(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.Name switch
+        {
+            "IFindFluent" or
+            "IOrderedFindFluent" => true,
+            _ => false
+        };
+
+    public static bool IsFindFluentMethod(this IMethodSymbol methodSymbol) =>
+        methodSymbol != null &&
+        (methodSymbol.ReceiverType.IsIMongoCollection() || methodSymbol.ReceiverType.IsFindFluent()) &&
+        methodSymbol.ReturnType.IsFindFluent();
+
+    public static bool IsFindOptions(this ITypeSymbol namedTypeSymbol) =>
+       namedTypeSymbol?.Name == "FindOptions" &&
+       namedTypeSymbol?.ContainingAssembly.Name == "MongoDB.Driver";
+
+    public static bool IsIMongoCollection(this ITypeSymbol typeSymbol) => ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver", "IMongoCollection");
+
+    public static bool IsIMongoQueryable(this ITypeSymbol typeSymbol) =>
+        ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IMongoQueryable") ||
+        ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IOrderedMongoQueryable");
+
     public static bool IsLinqEnumerable(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name == "Enumerable" && typeSymbol.ContainingNamespace.Name == "Linq";
+
+    public static bool IsMongoQueryable(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.Name == "MongoQueryable";
+
+    public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
+        (typeSymbol.TypeKind == TypeKind.Class ||
+         typeSymbol.TypeKind == TypeKind.Struct ||
+         typeSymbol.TypeKind == TypeKind.Enum) &&
+        !typeSymbol.IsAnonymousType;
+
+    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
+        typeSymbol is INamedTypeSymbol namedTypeSymbol &&
+        s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString());
+
+    public static bool IsSupportedMongoCollectionType(this ITypeSymbol typeSymbol) =>
+        typeSymbol.TypeKind == TypeKind.Class &&
+        !typeSymbol.IsAnonymousType;
 
     public static bool IsString(this ITypeSymbol typeSymbol) =>
         typeSymbol?.SpecialType == SpecialType.System_String;
 
-    public static bool IsContainedInLambda(this ISymbol symbol, SyntaxNode parentNode)
-    {
-        var isContainedInLambda = (symbol?.ContainingSymbol is IMethodSymbol methodSymbol && methodSymbol.MethodKind == MethodKind.AnonymousFunction);
-        var result = isContainedInLambda && symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax()));
-
-        return result;
-    }
-
-    public static bool IsContainedInLambdaOrQueryParameter(this ISymbol symbol, SyntaxNode parentNode) =>
-        symbol switch
-        {
-            IRangeVariableSymbol => symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax())),
-            _ => symbol.IsContainedInLambda(parentNode)
-        };
+    public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
+        typeSymbol.IsIMongoCollection() &&
+        typeSymbol is INamedTypeSymbol namedType &&
+        namedType.TypeArguments.Length == 1 &&
+        namedType.TypeArguments[0].IsSupportedMongoCollectionType();
 
     private static bool ImplementsOrIsInterface(this ITypeSymbol typeSymbol, string @namespace, string interfaceName) =>
         typeSymbol?.TypeKind switch

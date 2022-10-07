@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
+
 namespace MongoDB.Analyzer.Core.Builders;
 
 internal record MQLResult(string Mql, Exception Exception);
@@ -33,7 +35,7 @@ internal sealed class BuildersMqlGeneratorExecutor
     {
         try
         {
-            return (string)_testClassType.GetMethod(MqlGeneratorSyntaxElements.GetDriverVersion).Invoke(null, new object[] { });
+            return (string)_testClassType.GetMethod(MqlGeneratorSyntaxElements.Builders.GetDriverVersion).Invoke(null, new object[] { });
         }
         catch { }
 

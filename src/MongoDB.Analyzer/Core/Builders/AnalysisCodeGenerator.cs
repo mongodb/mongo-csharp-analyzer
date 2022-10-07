@@ -12,26 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Analyzer.Core.Utilities;
+using static MongoDB.Analyzer.Core.HelperResources.MqlGeneratorSyntaxElements.Builders;
+using static MongoDB.Analyzer.Core.HelperResources.ResourcesUtilities;
 
 namespace MongoDB.Analyzer.Core.Builders;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly SyntaxTree s_mqlGeneratorSyntaxTree;
     private static readonly SyntaxTree[] s_helpersSyntaxTrees;
+    private static readonly BuildersMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElements;
+    private static readonly ParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
     {
-        s_mqlGeneratorSyntaxTree = ResourcesUtilities.GetCodeResource(ResourceNames.MqlGenerator);
-        s_helpersSyntaxTrees = new SyntaxTree[]
-        {
-            ResourcesUtilities.GetCodeResource(ResourceNames.EmptyCursor),
-            ResourcesUtilities.GetCodeResource(ResourceNames.MongoCollectionMock),
-            ResourcesUtilities.GetCodeResource(ResourceNames.MongoDatabaseMock),
-            ResourcesUtilities.GetCodeResource(ResourceNames.MongoClientMock),
-            ResourcesUtilities.GetCodeResource(ResourceNames.Renderer)
-        };
+        s_helpersSyntaxTrees = GetCommonCodeResources(ResourceNames.Builders.Renderer);
+
+        var mqlGeneratorSyntaxTree = GetCodeResource(ResourceNames.Builders.MqlGenerator);
+        s_mqlGeneratorSyntaxElements = BuildersMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree);
+        s_parseOptions = mqlGeneratorSyntaxTree.Options;
     }
 
     public static CompilationResult Compile(MongoAnalyzerContext context, ExpressionsAnalysis buildersExpressionAnalysis)
@@ -43,7 +41,7 @@ internal static class AnalysisCodeGenerator
             return CompilationResult.Failure;
         }
 
-        var typesSyntaxTree = GenerateTypesSyntaxTree(buildersExpressionAnalysis);
+        var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Builders, buildersExpressionAnalysis.TypesDeclarations, s_parseOptions);
         var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(buildersExpressionAnalysis);
 
         var syntaxTrees = new List<SyntaxTree>(s_helpersSyntaxTrees)
@@ -51,7 +49,6 @@ internal static class AnalysisCodeGenerator
                 typesSyntaxTree,
                 mqlGeneratorSyntaxTree
             };
-
 
         var compilation = CSharpCompilation.Create(
             BuildersAnalysisConstants.AnalysisAssemblyName,
@@ -70,7 +67,7 @@ internal static class AnalysisCodeGenerator
 
             memoryStream.Seek(0, SeekOrigin.Begin);
 
-            var mqlGeneratorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, MqlGeneratorSyntaxElements.MqlGeneratorFullName);
+            var mqlGeneratorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, MqlGeneratorFullName);
 
             buildersMqlCodeExecutor = mqlGeneratorType != null ? new BuildersMqlGeneratorExecutor(mqlGeneratorType) : null;
         }
@@ -89,46 +86,17 @@ internal static class AnalysisCodeGenerator
 
     private static SyntaxTree GenerateMqlGeneratorSyntaxTree(ExpressionsAnalysis builderExpressionAnalysis)
     {
-        var testCodeBuilder = new BuildersMqlGeneratorTemplateBuilder(s_mqlGeneratorSyntaxTree);
+        var testCodeBuilder = new BuildersMqlGeneratorTemplateBuilder(s_mqlGeneratorSyntaxElements);
 
-        foreach (var linqContext in builderExpressionAnalysis.AnalysisNodeContexts)
+        foreach (var builderContext in builderExpressionAnalysis.AnalysisNodeContexts)
         {
-            var analysisNode = linqContext.Node;
+            var analysisNode = builderContext.Node;
 
-            linqContext.EvaluationMethodName = testCodeBuilder.AddBuildersExpression(
+            builderContext.EvaluationMethodName = testCodeBuilder.AddBuildersExpression(
                 analysisNode.ArgumentTypeName,
                 analysisNode.RewrittenExpression);
         }
 
         return testCodeBuilder.GenerateSyntaxTree();
-    }
-
-    private static SyntaxTree GenerateTypesSyntaxTree(ExpressionsAnalysis buildersdExpressionAnalysis)
-    {
-        var namespaceDeclarationSyntax = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(MqlGeneratorSyntaxElements.MqlGeneratorNamespace))
-            .AddMembers(buildersdExpressionAnalysis.TypesDeclarations);
-
-        var generatedTypesCompilationUnit = SyntaxFactory.CompilationUnit()
-            .AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System")),
-                SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("MongoDB.Bson")),
-                SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("MongoDB.Bson.Serialization.Attributes")),
-                 SyntaxFactory.UsingDirective(
-                    SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("BsonTypeCustom123")),
-                    SyntaxFactory.ParseName("MongoDB.Bson.BsonType")),
-                SyntaxFactory.UsingDirective(
-                    SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("BsonDocumentCustom123")),
-                    SyntaxFactory.ParseName("MongoDB.Bson.BsonDocument")),
-                SyntaxFactory.UsingDirective(
-                    SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("BsonValueCustom123")),
-                    SyntaxFactory.ParseName("MongoDB.Bson.BsonValue")),
-                SyntaxFactory.UsingDirective(
-                    SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("BsonObjectIdCustom123")),
-                    SyntaxFactory.ParseName("MongoDB.Bson.BsonObjectId")))
-            .AddMembers(namespaceDeclarationSyntax);
-
-        var syntaxTree = generatedTypesCompilationUnit.SyntaxTree
-            .WithRootAndOptions(generatedTypesCompilationUnit.SyntaxTree.GetRoot(), s_mqlGeneratorSyntaxTree.Options);
-
-        return syntaxTree;
     }
 }

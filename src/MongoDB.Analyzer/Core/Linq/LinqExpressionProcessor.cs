@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Linq;
+using MongoDB.Analyzer.Core.HelperResources;
 
 namespace MongoDB.Analyzer.Core.Linq;
 
@@ -74,7 +74,7 @@ internal static class LinqExpressionProcessor
             }
             else if (node is InvocationExpressionSyntax invocationNode)
             {
-                var methodSymbol = semanticModel.GetSymbolInfo(invocationNode).Symbol as IMethodSymbol;
+                var methodSymbol = invocationNode.GetMethodSymbol(semanticModel);
 
                 if (!methodSymbol.IsDefinedInMongoLinq() ||
                     !methodSymbol.ReceiverType.IsIMongoQueryable() ||
@@ -83,18 +83,10 @@ internal static class LinqExpressionProcessor
                     continue;
                 }
 
-                deepestMongoQueryableNode = GetNextNestedInvocation(invocationNode);
-                while (deepestMongoQueryableNode != null)
-                {
-                    var currentMethodSymbol = semanticModel.GetSymbolInfo(deepestMongoQueryableNode).Symbol as IMethodSymbol;
-
-                    if (currentMethodSymbol?.ReducedFrom?.ReceiverType.IsMongoQueryable() != true)
-                    {
-                        break;
-                    }
-
-                    deepestMongoQueryableNode = GetNextNestedInvocation(deepestMongoQueryableNode);
-                }
+                deepestMongoQueryableNode = invocationNode
+                    .NestedInvocations()
+                    .FirstOrDefault(n =>
+                        n.GetMethodSymbol(semanticModel)?.ReducedFrom?.ReceiverType.IsMongoQueryable() != true);
             }
             else
             {
@@ -157,9 +149,6 @@ internal static class LinqExpressionProcessor
         return linqAnalysis;
     }
 
-    private static ExpressionSyntax GetNextNestedInvocation(ExpressionSyntax expressionSyntax) =>
-        ((expressionSyntax as InvocationExpressionSyntax)?.Expression as MemberAccessExpressionSyntax)?.Expression;
-
     private static bool PreanalyzeLinqExpression(SyntaxNode linqExpressionNode, SemanticModel semanticModel, List<InvalidExpressionAnalysisNode> invalidLinqExpressionNodes)
     {
         var result = true;
@@ -212,7 +201,7 @@ internal static class LinqExpressionProcessor
             var rewriteContext = new RewriteContext(linqExpressionNode, semanticModel, typesProcessor, new ConstantsMapper());
             var result = linqExpressionNode;
 
-            var queryableNode = SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.QueryableVarialbeName);
+            var queryableNode = SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Linq.QueryableName);
             var nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>()
             {
                 { deepestMongoQueryableNode, queryableNode }

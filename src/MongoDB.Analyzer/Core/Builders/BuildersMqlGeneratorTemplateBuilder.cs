@@ -12,58 +12,61 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using static MongoDB.Analyzer.Core.HelperResources.MqlGeneratorSyntaxElements.Builders;
 namespace MongoDB.Analyzer.Core.Builders;
 
 internal sealed class BuildersMqlGeneratorTemplateBuilder
 {
-    private readonly SyntaxNode _root;
-    private readonly ClassDeclarationSyntax _mqlGeneratorDeclarationSyntax;
-    private readonly MethodDeclarationSyntax _mainTestMethodNode;
-    private readonly SyntaxNode _builderDefinitionNode;
-    private Dictionary<SyntaxNode, SyntaxNode> _nodesToReplace;
+    internal record SyntaxElements(
+        SyntaxNode Root,
+        ClassDeclarationSyntax ClassDeclarationSyntax,
+        MethodDeclarationSyntax TestMethodNode,
+        SyntaxNode BuilderDefinitionNode,
+        SyntaxNode CollectionTypeNode)
+    {
+        public SyntaxNode[] NodesToReplace { get; } = new[] { BuilderDefinitionNode, CollectionTypeNode };
+    }
+
+    private readonly SyntaxElements _syntaxElements;
 
     private ClassDeclarationSyntax _mqlGeneratorDeclarationSyntaxNew;
-
     private int _nextTestMethodIndex;
 
-    public BuildersMqlGeneratorTemplateBuilder(SyntaxTree mqlGeneratorSyntaxTree)
+    public BuildersMqlGeneratorTemplateBuilder(SyntaxElements syntaxElements)
     {
-        _root = mqlGeneratorSyntaxTree.GetRoot();
-
-        _mqlGeneratorDeclarationSyntax = _root.GetSingleClassDeclaration(MqlGeneratorSyntaxElements.MqlGenerator);
-        _mqlGeneratorDeclarationSyntaxNew = _mqlGeneratorDeclarationSyntax;
-        _mainTestMethodNode = _mqlGeneratorDeclarationSyntax.GetSingleMethod(MqlGeneratorSyntaxElements.MqlGeneratorMainMethodName);
-        var queryableTypeNode = _mainTestMethodNode.GetIdentifiers(MqlGeneratorSyntaxElements.MqlGeneratorTemplateType).ElementAt(0);
-
-        _builderDefinitionNode = _mainTestMethodNode.DescendantNodes()
-            .OfType<IdentifierNameSyntax>()
-            .Single(i => i.Identifier.Text == "Filter").Parent.Parent.Parent;
-        _nodesToReplace = new Dictionary<SyntaxNode, SyntaxNode>();
-        _nodesToReplace.Add(queryableTypeNode, _builderDefinitionNode);
+        _syntaxElements = syntaxElements;
+        _mqlGeneratorDeclarationSyntaxNew = _syntaxElements.ClassDeclarationSyntax;
     }
 
     public string AddBuildersExpression(string typeArgumentName, SyntaxNode buildersExpression)
     {
-        _nodesToReplace.Add(_builderDefinitionNode, buildersExpression);
-        var newMethodDeclaration = _mainTestMethodNode.ReplaceNodes(_nodesToReplace.Keys, (n, _) =>
-           n.Kind() switch
-           {
-               SyntaxKind.InvocationExpression => buildersExpression,
-               SyntaxKind.IdentifierName => SyntaxFactory.IdentifierName(typeArgumentName),
-               _ => throw new Exception($"Unrecognized node {n}")
-           });
+        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNodes(_syntaxElements.NodesToReplace, (n, _) =>
+        n switch
+        {
+            _ when n == _syntaxElements.BuilderDefinitionNode => buildersExpression,
+            _ when n == _syntaxElements.CollectionTypeNode => SyntaxFactory.IdentifierName(typeArgumentName),
+            _ => throw new Exception($"Unrecognized node {n}")
+        });
 
-        var newMqlGeneratorMethodName = $"{_mainTestMethodNode.Identifier.Value}_{ _nextTestMethodIndex++}";
+        var newMqlGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
         newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newMqlGeneratorMethodName));
 
         _mqlGeneratorDeclarationSyntaxNew = _mqlGeneratorDeclarationSyntaxNew.AddMembers(newMethodDeclaration);
-        if (_nodesToReplace.ContainsKey(_builderDefinitionNode))
-        {
-            _nodesToReplace.Remove(_builderDefinitionNode);
-        }
         return newMqlGeneratorMethodName;
     }
 
     public SyntaxTree GenerateSyntaxTree() =>
-        _root.ReplaceNode(_mqlGeneratorDeclarationSyntax, _mqlGeneratorDeclarationSyntaxNew).SyntaxTree;
+        _syntaxElements.Root.ReplaceNode(_syntaxElements.ClassDeclarationSyntax, _mqlGeneratorDeclarationSyntaxNew).SyntaxTree;
+
+    public static SyntaxElements CreateSyntaxElements(SyntaxTree mqlGeneratorSyntaxTree)
+    {
+        var root = mqlGeneratorSyntaxTree.GetRoot();
+
+        var classDeclarationSyntax = root.GetSingleClassDeclaration(MqlGenerator);
+        var mainTestMethodNode = classDeclarationSyntax.GetSingleMethod(MqlGeneratorMainMethodName);
+        var builderDefinitionNode = mainTestMethodNode.GetSingleIdentifier(FilterName).Parent.Parent;
+        var collectionTypeNode = mainTestMethodNode.GetIdentifiers(MqlGeneratorTemplateType).ElementAt(0);
+
+        return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, builderDefinitionNode, collectionTypeNode);
+    }
 }

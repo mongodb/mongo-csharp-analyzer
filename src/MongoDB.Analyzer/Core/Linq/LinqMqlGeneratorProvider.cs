@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
+
 namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class LinqMqlGeneratorProvider
@@ -48,7 +50,7 @@ internal static class LinqMqlGeneratorProvider
             }
 
             var assembly = Assembly.Load(assemblyMemoryStream.ToArray());
-            var testClassType = assembly.GetType(MqlGeneratorSyntaxElements.MqlGeneratorFullName);
+            var testClassType = assembly.GetType(MqlGeneratorSyntaxElements.Linq.MqlGeneratorFullName);
             result = testClassType != null ? new LinqMqlGeneratorExecutor(testClassType, driverLinqVersion, defaultLinqVersion) : null;
         }
         catch
