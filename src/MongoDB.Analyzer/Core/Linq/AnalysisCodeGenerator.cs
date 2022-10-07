@@ -12,31 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Analyzer.Core.Utilities;
+using static MongoDB.Analyzer.Core.HelperResources.MqlGeneratorSyntaxElements.Linq;
+using static MongoDB.Analyzer.Core.HelperResources.ResourcesUtilities;
 
 namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly SyntaxTree s_mqlGeneratorSyntaxTree;
+    private static readonly SyntaxTree[] s_helpersSyntaxTrees;
     private static readonly SyntaxTree s_linqProviderV2SyntaxTree;
     private static readonly SyntaxTree s_linqProviderV3SyntaxTree;
-    private static readonly SyntaxTree[] s_helpersSyntaxTrees;
+    private static readonly LinqMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElementsLinq2;
+    private static readonly LinqMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElementsLinq3;
+    private static readonly ParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
     {
-        s_linqProviderV2SyntaxTree = ResourcesUtilities.GetCodeResource(ResourceNames.IQueryableProviderV2);
-        s_linqProviderV3SyntaxTree = ResourcesUtilities.GetCodeResource(ResourceNames.IQueryableProviderV3);
-        s_mqlGeneratorSyntaxTree = ResourcesUtilities.GetCodeResource(ResourceNames.MqlGenerator);
+        s_linqProviderV2SyntaxTree = GetCodeResource(ResourceNames.Linq.IQueryableProviderV2);
+        s_linqProviderV3SyntaxTree = GetCodeResource(ResourceNames.Linq.IQueryableProviderV3);
+        s_helpersSyntaxTrees = GetCommonCodeResources(ResourceNames.Linq.IQueryableProvider);
 
-        s_helpersSyntaxTrees = new SyntaxTree[]
-        {
-            ResourcesUtilities.GetCodeResource(ResourceNames.IQueryableProvider),
-            ResourcesUtilities.GetCodeResource(ResourceNames.EmptyCursor),
-            ResourcesUtilities.GetCodeResource(ResourceNames.MongoCollectionMock),
-            ResourcesUtilities.GetCodeResource(ResourceNames.MongoDatabaseMock),
-            ResourcesUtilities.GetCodeResource(ResourceNames.MongoClientMock)
-        };
+        var mqlGeneratorSyntaxTree = GetCodeResource(ResourceNames.Linq.MqlGenerator);
+        s_mqlGeneratorSyntaxElementsLinq2 = LinqMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree, false);
+        s_mqlGeneratorSyntaxElementsLinq3 = LinqMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree, true);
+        s_parseOptions = mqlGeneratorSyntaxTree.Options;
     }
 
     public static CompilationResult Compile(MongoAnalyzerContext context, ExpressionsAnalysis linqExpressionAnalysis)
@@ -51,7 +50,7 @@ internal static class AnalysisCodeGenerator
         var isLinq3 = referencesContainer.Version >= LinqAnalysisConstants.MinLinq3Version;
         var linqProviderSyntaxTree = isLinq3 ? s_linqProviderV3SyntaxTree : s_linqProviderV2SyntaxTree;
 
-        var typesSyntaxTree = GenerateTypesSyntaxTree(linqExpressionAnalysis);
+        var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Linq, linqExpressionAnalysis.TypesDeclarations, s_parseOptions);
         var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(linqExpressionAnalysis, isLinq3);
 
         var syntaxTrees = new List<SyntaxTree>(s_helpersSyntaxTrees)
@@ -78,7 +77,7 @@ internal static class AnalysisCodeGenerator
 
             memoryStream.Seek(0, SeekOrigin.Begin);
 
-            var mqlGeneratorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, MqlGeneratorSyntaxElements.MqlGeneratorFullName);
+            var mqlGeneratorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, MqlGeneratorFullName);
 
             linqTestCodeExecutor = mqlGeneratorType != null ?
                 new LinqMqlGeneratorExecutor(mqlGeneratorType, isLinq3 ? LinqVersion.V3 : LinqVersion.V2, context.Settings.DefaultLinqVersion) : null;
@@ -98,7 +97,8 @@ internal static class AnalysisCodeGenerator
 
     private static SyntaxTree GenerateMqlGeneratorSyntaxTree(ExpressionsAnalysis linqExpressionAnalysis, bool isLinq3)
     {
-        var testCodeBuilder = new LinqMqlGeneratorTemplateBuilder(s_mqlGeneratorSyntaxTree, isLinq3);
+        var syntaxElements = isLinq3 ? s_mqlGeneratorSyntaxElementsLinq3 : s_mqlGeneratorSyntaxElementsLinq2;
+        var testCodeBuilder = new LinqMqlGeneratorTemplateBuilder(syntaxElements);
 
         foreach (var linqContext in linqExpressionAnalysis.AnalysisNodeContexts)
         {
@@ -110,34 +110,5 @@ internal static class AnalysisCodeGenerator
         }
 
         return testCodeBuilder.GenerateSyntaxTree();
-    }
-
-    private static SyntaxTree GenerateTypesSyntaxTree(ExpressionsAnalysis linqExpressionAnalysis)
-    {
-        var namespaceDeclarationSyntax = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(MqlGeneratorSyntaxElements.MqlGeneratorNamespace))
-            .AddMembers(linqExpressionAnalysis.TypesDeclarations);
-
-        var generatedTypesCompilationUnit = SyntaxFactory.CompilationUnit()
-            .AddUsings(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("System")),
-                SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("MongoDB.Bson")),
-                SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("MongoDB.Bson.Serialization.Attributes")),
-                 SyntaxFactory.UsingDirective(
-                    SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("BsonTypeCustom123")),
-                    SyntaxFactory.ParseName("MongoDB.Bson.BsonType")),
-                SyntaxFactory.UsingDirective(
-                    SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("BsonDocumentCustom123")),
-                    SyntaxFactory.ParseName("MongoDB.Bson.BsonDocument")),
-                SyntaxFactory.UsingDirective(
-                    SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("BsonValueCustom123")),
-                    SyntaxFactory.ParseName("MongoDB.Bson.BsonValue")),
-                SyntaxFactory.UsingDirective(
-                    SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("BsonObjectIdCustom123")),
-                    SyntaxFactory.ParseName("MongoDB.Bson.BsonObjectId")))
-            .AddMembers(namespaceDeclarationSyntax);
-
-        var syntaxTree = generatedTypesCompilationUnit.SyntaxTree
-            .WithRootAndOptions(generatedTypesCompilationUnit.SyntaxTree.GetRoot(), s_mqlGeneratorSyntaxTree.Options);
-
-        return syntaxTree;
     }
 }

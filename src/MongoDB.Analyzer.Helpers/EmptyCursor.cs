@@ -25,11 +25,7 @@ namespace MongoDB.Analyzer.Helpers
 
         public void Dispose() { }
         public bool MoveNext(CancellationToken cancellationToken = default) => false;
-        public async Task<bool> MoveNextAsync(CancellationToken cancellationToken = default)
-        {
-            await Task.FromResult(1);
-            return false;
-        }
+        public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default) => Task.FromResult(false);
     }
 }
 

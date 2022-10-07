@@ -32,7 +32,7 @@ public abstract class DiagnosticsTestCasesRunner
         }
         else
         {
-            Assert.AreEqual(testCase.DiagnosticRules.Length, testCaseResult.Diagnostics.Length);
+            Assert.AreEqual(testCase.DiagnosticRules.Length, testCaseResult?.Diagnostics.Length ?? 0);
             Array.Sort(testCaseResult.Diagnostics, new DiagnosticsComparer());
 
             for (int i = 0; i < testCase.DiagnosticRules.Length; i++)
@@ -44,7 +44,7 @@ public abstract class DiagnosticsTestCasesRunner
 
     private void AssertDiagnostic(DiagnosticRule diagnosticRule, Diagnostic diagnostic)
     {
-        Assert.AreEqual(diagnosticRule.RuleId, diagnostic.Id);
+        Assert.AreEqual(diagnosticRule.RuleId, diagnostic.Id, diagnostic.GetMessage());
         Assert.AreEqual(diagnosticRule.Message, diagnostic.GetMessage());
 
         var location = diagnosticRule.Location;

@@ -23,22 +23,14 @@ namespace MongoDB.Analyzer.Helpers
     public sealed class MongoDatabaseMock : MongoDatabaseBase
     {
         public override IMongoClient Client => new MongoClientMock();
-
         public override DatabaseNamespace DatabaseNamespace => throw new NotImplementedException();
-
         public override MongoDatabaseSettings Settings => throw new NotImplementedException();
 
-        public override async Task CreateCollectionAsync(string name, CreateCollectionOptions options = null, CancellationToken cancellationToken = default) => await Task.FromResult(1);
-        public override Task DropCollectionAsync(string name, CancellationToken cancellationToken = default) => Task.FromResult(1);
+        public override Task CreateCollectionAsync(string name, CreateCollectionOptions options = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public override Task DropCollectionAsync(string name, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null) => new MongoCollectionMock<TDocument>();
-        public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options = null, CancellationToken cancellationToken = default)
-        {
-            return default;
-        }
-        public override Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options = null, CancellationToken cancellationToken = default) => Task.FromResult(1);
-        public override Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default)
-        {
-            return default;
-        }
+        public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options = null, CancellationToken cancellationToken = default) => default;
+        public override Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public override Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default) => default;
     }
 }

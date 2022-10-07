@@ -27,18 +27,9 @@ namespace MongoDB.Analyzer.Helpers
 
         public override MongoClientSettings Settings => new MongoClientSettings();
 
-        public override Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default)
-        {
-            return default;
-        }
-        public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
-        {
-            return default;
-        }
-        public override Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default)
-        {
-            return default;
-        }
+        public override Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default) => default;
+        public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null) => default;
+        public override Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default) => default;
     }
 }
 

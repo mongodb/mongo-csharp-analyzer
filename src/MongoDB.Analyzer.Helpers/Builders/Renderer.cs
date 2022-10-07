@@ -55,7 +55,7 @@ namespace MongoDB.Analyzer.Helpers.Builders
             return renderedBuildersDefinition.Document.ToString();
         }
 
-        public static string Render<T, E> (IFindFluent<T, E> fluentDefinition)
+        public static string Render<T, E>(IFindFluent<T, E> fluentDefinition)
         {
             return fluentDefinition.ToString();
         }
