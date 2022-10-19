@@ -22,8 +22,9 @@ internal static class DriverVersionHelper
     public static readonly NuGetVersion[] DriverVersions = new[]
     {
             NuGetVersion.Parse("2.12.4"),
-            NuGetVersion.Parse("2.13.2"),
-            NuGetVersion.Parse("2.14.1")
+            NuGetVersion.Parse("2.14.1"),
+            NuGetVersion.Parse("2.17.1"),
+            NuGetVersion.Parse("2.18.0"),
         };
 
     public static NuGetVersion[] FilterVersionForRange(string versionRange)
