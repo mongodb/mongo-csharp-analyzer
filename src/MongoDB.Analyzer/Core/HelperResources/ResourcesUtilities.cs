@@ -32,7 +32,7 @@ internal static class ResourcesUtilities
     public static SyntaxTree[] GetCommonCodeResources(params string[] additionalResourceNames) =>
         s_commonResources
             .Concat(additionalResourceNames)
-            .Select(s => GetCodeResource(s))
+            .Select(GetCodeResource)
             .ToArray();
 
     private static string GetStringResource(string resourceName)

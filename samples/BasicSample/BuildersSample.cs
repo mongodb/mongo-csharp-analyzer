@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MongoDB.Driver;
 
 namespace BasicSample
 {
@@ -36,22 +36,7 @@ namespace BasicSample
                 .Ascending(m => m.Score)
                 .Descending(m => m.Title);
 
-            _= moviesCollection
-                .Find(Builders<Movie>.Filter.Lt(u => u.Score, 10) & Builders<Movie>.Filter.Gt(u => u.Score, 5))
-                .Sort(Builders<Movie>.Sort.Combine(Builders<Movie>.Sort.Descending(u => u.Score), Builders<Movie>.Sort.Ascending(u => u.Title)))
-                .Project(Builders<Movie>.Projection.Include(u => u.Title));
-
-            _ = moviesCollection
-                .Find(Builders<Movie>.Filter.Lt(u => u.Score, 10))
-                .Project(Builders<Movie>.Projection.Include(u => u.Title));
-
             var movies = await moviesCollection.Find(filter).Sort(sort).ToListAsync();
-            _ = moviesCollection.Find(u => u.Score < 1.1 || u.Score > 20 || (u.Title == "Jaws" && u.Genre == Genre.Horror), new FindOptions());
-            _ = moviesCollection
-                .Find(u => u.Title.Contains("Summer"))
-                .SortBy(u => u.Score)
-                .ThenBy(u => u.Genre)
-                .ThenByDescending(u => u.Title);
 
             return movies;
         }
