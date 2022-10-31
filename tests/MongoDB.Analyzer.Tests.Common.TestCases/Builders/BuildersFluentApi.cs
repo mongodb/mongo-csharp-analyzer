@@ -267,15 +267,19 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 .Sort(Builders<User>.Sort.Descending(u => u.Age));
         }
 
-        [BuildersMQL("{ \"Age\" : { \"$gt\" : 10 } }")]
-        [BuildersMQL("{ \"Name\" : \"Bob\" }")]
-        public void Variable_tracking_should_be_ignored()
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 10 } }", 1, 2, 5, 7)]
+        [BuildersMQL("{ \"Name\" : \"Bob\" }", 4, 5, 7)]
+        [BuildersMQL("{ \"Age\" : { \"$gt\" : 10 }, \"Name\" : \"Bob\" }", 8)]
+        public void Variable_tracking_should_display_builders_only()
         {
             var filter1 = Builders<User>.Filter.Gt(u => u.Age, 10);
             GetMongoCollection().Find(filter1);
 
             var filter2 = Builders<User>.Filter.Eq(u => u.Name, "Bob");
             GetMongoCollection().Find(filter1 | filter2);
+
+            var filter3 = filter1 & filter2;
+            GetMongoCollection().Find(filter3);
         }
 
         private FindOptions GetFindOptions() => null;

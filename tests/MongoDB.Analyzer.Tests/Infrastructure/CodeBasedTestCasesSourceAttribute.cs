@@ -65,7 +65,11 @@ public sealed class CodeBasedTestCasesSourceAttribute : Attribute, ITestDataSour
             from attribute in testCasesAttributes
             where EnvironmentUtilities.IsDriverTargetFrameworkSupported((Core.DriverTargetFramework)(int)attribute.TargetFramework)
             from version in DriverVersionHelper.FilterVersionForRange(attribute.Version)
-            group new DiagnosticRule(attribute.RuleId, $"{attribute.Message}_v{version.ToString("V", new VersionFormatter())}", attribute.Location)
+            from location in attribute.Locations
+            orderby
+                location.StartLine >= 0 ? location.StartLine : 0,
+                location.StartLine >= 0 ? attribute.Message : null
+            group new DiagnosticRule(attribute.RuleId, $"{attribute.Message}_v{version.ToString("V", new VersionFormatter())}", location)
                 by new { version, attribute.LinqProvider } into g
             select new DiagnosticTestCase(fileName, memberInfo.Name, g.Key.version.ToString(), g.Key.LinqProvider, g.ToArray());
 

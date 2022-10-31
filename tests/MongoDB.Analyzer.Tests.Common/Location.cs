@@ -19,6 +19,8 @@ namespace MongoDB.Analyzer.Tests.Common
     [Serializable]
     public sealed class Location
     {
+        public static Location Empty { get; } = new Location(-1, -1);
+
         public int StartLine { get; }
         public int EndLine { get; }
 
@@ -27,5 +29,7 @@ namespace MongoDB.Analyzer.Tests.Common
             StartLine = startLine;
             EndLine = endLine;
         }
+
+        public override string ToString() => $"{StartLine}:{EndLine}";
     }
 }
