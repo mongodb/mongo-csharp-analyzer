@@ -51,6 +51,12 @@ namespace BasicSample
                 .GroupBy(m => m.Genre)
                 .ToListAsync();
 
+            // Query API
+            var queryable = from movie in moviesCollection
+                group movie by movie.Genre into g
+                select g;
+            groups = await queryable.ToListAsync();
+
             return groups;
         }
 
@@ -69,7 +75,7 @@ namespace BasicSample
             return groups;
         }
 
-        public async Task<IGrouping<Genre, Movie>> GetActionMoviesReviewsByProducer(string producerName)
+        public async Task<List<string>> GetActionMoviesReviewsByProducer(string producerName)
         {
             var mongoClient = new MongoClient(@"mongodb://localhost:27017");
             var db = mongoClient.GetDatabase("testdb");
@@ -79,10 +85,21 @@ namespace BasicSample
             var reviews = await moviesCollection
                 .Where(m => m.Producer == producerName)
                 .Where(m => m.Genre == Genre.Action)
+                .OrderBy(m => m.Score)
                 .SelectMany(m => m.Reviews)
                 .ToListAsync();
 
-            return null;
+            // Query API
+            var queryable = from movie in moviesCollection
+                where movie.Producer == producerName
+                where movie.Genre == Genre.Action
+                orderby movie.Score
+                from review in movie.Reviews
+                select review;
+
+            reviews = await queryable.ToListAsync();
+
+            return reviews;
         }
 
         public void NotSupportedQuery(double minScore, Genre genre)

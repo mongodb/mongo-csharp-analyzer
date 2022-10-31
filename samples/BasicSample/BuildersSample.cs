@@ -36,15 +36,51 @@ namespace BasicSample
                 .Ascending(m => m.Score)
                 .Descending(m => m.Title);
 
-            var movies = await moviesCollection.Find(filter).Sort(sort).ToListAsync();
+            var projection = Builders<Movie>.Projection
+                .Include(m => m.Title)
+                .Exclude(m => m.Genre);
+
+            // MQL is displayed for 'filter' and 'sort' variables
+            var movies = await moviesCollection
+                .Find(filter)
+                .Sort(sort)
+                .Project(projection)
+                .As<Movie>()
+                .ToListAsync();
+
+            // Fluent API
+            _ = moviesCollection
+                .Find(u => u.Producer.Contains("Nolan"))
+                .SortBy(u => u.Score)
+                .ThenBy(u => u.Title);
 
             return movies;
+        }
+
+        public void VariablesTracking()
+        {
+            var mongoClient = new MongoClient(@"mongodb://localhost:27017");
+            var db = mongoClient.GetDatabase("testdb");
+            var moviesCollection = db.GetCollection<Movie>("movies");
+
+            var filterScore = Builders<Movie>.Filter.Gt(p => p.Score, 5);
+            var filterTitle = Builders<Movie>.Filter.Regex(p => p.Title, "Summer");
+            var filterGenre = Builders<Movie>.Filter.Eq(p => p.Genre, Genre.Comedy);
+
+            // Each filter variable tracks its MQL
+            var filterCombined = filterTitle | filterScore | filterGenre;
+
+            // MQL for the combined filter
+            moviesCollection.Find(filterCombined);
         }
 
         public void NotSupportedFilter()
         {
             // Not supported filter expression (analyzer provides warning)
             var filter = Builders<Movie>.Filter.Gt(m => m.Reviews.Length, 2);
+
+            // Not supported filter expression (analyzer provides warning)
+            filter = Builders<Movie>.Filter.AnyNin(t => t.Reviews, null);
         }
     }
 }
