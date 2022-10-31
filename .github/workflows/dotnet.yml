@@ -1,10 +1,23 @@
 name: .NET
 
 on:
+  issues:
+    types:
+      - opened
+  pull_request_target:
+    branches:
+      - main
+    types:
+      - opened
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   build:
