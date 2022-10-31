@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,28 +33,33 @@ public abstract class DiagnosticsTestCasesRunner
         else
         {
             Assert.AreEqual(testCase.DiagnosticRules.Length, testCaseResult?.Diagnostics.Length ?? 0);
-            Array.Sort(testCaseResult.Diagnostics, new DiagnosticsComparer());
+
+            var actualDiagnostics = testCaseResult.Diagnostics
+                .OrderBy(d => d.Location.GetLineSpan().StartLinePosition.Line)
+                .ThenBy(d => d.GetMessage())
+                .ToArray();
 
             for (int i = 0; i < testCase.DiagnosticRules.Length; i++)
             {
-                AssertDiagnostic(testCase.DiagnosticRules[i], testCaseResult.Diagnostics[i]);
+                AssertDiagnostic(testCase.DiagnosticRules[i], actualDiagnostics[i], testCaseResult.TestCaseMethodStartLine);
             }
         }
     }
 
-    private void AssertDiagnostic(DiagnosticRule diagnosticRule, Diagnostic diagnostic)
+    private void AssertDiagnostic(DiagnosticRule expectedDiagnosticRule, Diagnostic actualDiagnostic, int baseStartLine)
     {
-        Assert.AreEqual(diagnosticRule.RuleId, diagnostic.Id, diagnostic.GetMessage());
-        Assert.AreEqual(diagnosticRule.Message, diagnostic.GetMessage());
+        var ruleData = expectedDiagnosticRule.ToString();
+        Assert.AreEqual(expectedDiagnosticRule.RuleId, actualDiagnostic.Id, actualDiagnostic.GetMessage(), ruleData);
+        Assert.AreEqual(expectedDiagnosticRule.Message, actualDiagnostic.GetMessage(), ruleData);
 
-        var location = diagnosticRule.Location;
+        var location = expectedDiagnosticRule.Location;
         if (location?.StartLine >= 0)
         {
-            Assert.AreEqual(location.StartLine, diagnostic.Location.GetLineSpan().StartLinePosition.Line);
+            Assert.AreEqual(location.StartLine, actualDiagnostic.Location.GetLineSpan().StartLinePosition.Line - baseStartLine, ruleData);
         }
         if (location?.EndLine >= 0)
         {
-            Assert.AreEqual(location.EndLine, diagnostic.Location.GetLineSpan().EndLinePosition.Line);
+            Assert.AreEqual(location.EndLine, actualDiagnostic.Location.GetLineSpan().EndLinePosition.Line - baseStartLine, ruleData);
         }
     }
 }

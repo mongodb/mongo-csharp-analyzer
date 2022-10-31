@@ -258,10 +258,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             });
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", startLine: 266)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\", \"Age\" : { \"$gt\" : 45, \"$lte\" : 50 } } }])", startLine: 267)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", startLine: 269)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\", \"Age\" : { \"$gt\" : 45, \"$lte\" : 50 } } }])", startLine: 273)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", 1)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\", \"Age\" : { \"$gt\" : 45, \"$lte\" : 50 } } }])", 2)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", 4)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\", \"Age\" : { \"$gt\" : 45, \"$lte\" : 50 } } }])", 8)]
         public void Single_expression_variable_reassignment()
         {
             var x = GetMongoCollection().AsQueryable().Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21);
@@ -276,26 +276,16 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select user;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : 45 } }])", startLine: 300)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\" } }])", startLine: 301)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", startLine: 303)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"James\", \"Age\" : { \"$gt\" : 25, \"$lte\" : 99 } } }])", startLine: 304)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Steve\" } }])", startLine: 306)]
-        [MQL("aggregate([{ \"$match\" : { \"Height\" : 100 } }])", startLine: 307)]
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])", startLine: 309)]
-        [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", startLine: 310)]
-        [MQL("aggregate([{ \"$match\" : { \"Address\" : \"Address\" } }])", startLine: 312)]
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : { \"$lte\" : 122 } } }])", startLine: 313)]
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : 45 } }])", startLine: 315)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\" } }])", startLine: 319)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", startLine: 323)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"James\", \"Age\" : { \"$gt\" : 25, \"$lte\" : 99 } } }])", startLine: 327)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Steve\" } }])", startLine: 331)]
-        [MQL("aggregate([{ \"$match\" : { \"Height\" : 100 } }])", startLine: 335)]
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])", startLine: 339)]
-        [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", startLine: 343)]
-        [MQL("aggregate([{ \"$match\" : { \"Address\" : \"Address\" } }])", startLine: 347)]
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : { \"$lte\" : 122 } } }])", startLine: 351)]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : 45 } }])", 1, 16)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\" } }])", 2, 20)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", 4, 24)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"James\", \"Age\" : { \"$gt\" : 25, \"$lte\" : 99 } } }])", 5, 28)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Steve\" } }])", 7, 32)]
+        [MQL("aggregate([{ \"$match\" : { \"Height\" : 100 } }])", 8, 36)]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])", 10, 40)]
+        [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", 11, 44)]
+        [MQL("aggregate([{ \"$match\" : { \"Address\" : \"Address\" } }])", 13, 48)]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : { \"$lte\" : 122 } } }])", 14, 52)]
         public void Multiple_expression_variables_reassignment()
         {
             var x = GetMongoCollection().AsQueryable().Where(u => u.Age == 45);
@@ -354,18 +344,18 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select user;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", startLine: 370)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\", \"Age\" : { \"$gt\" : 22, \"$lte\" : 25 } } }])", startLine: 371)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Steve\", \"Age\" : { \"$gt\" : 27, \"$lte\" : 31 } } }])", startLine: 372)]
-        [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", startLine: 372)]
-        [MQL("aggregate([{ \"$match\" : { \"Address\" : \"Address\" } }])", startLine: 374)]
-        [MQL("aggregate([{ \"$match\" : { \"Height\" : 180 } }])", startLine: 375)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", startLine: 377)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\", \"Age\" : { \"$gt\" : 22, \"$lte\" : 25 } } }])", startLine: 381)]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Steve\", \"Age\" : { \"$gt\" : 27, \"$lte\" : 31 } } }])", startLine: 385)]
-        [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", startLine: 388)]
-        [MQL("aggregate([{ \"$match\" : { \"Address\" : \"Address\" } }])", startLine: 392)]
-        [MQL("aggregate([{ \"$match\" : { \"Height\" : 180 } }])", startLine: 396)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", 1)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\", \"Age\" : { \"$gt\" : 22, \"$lte\" : 25 } } }])", 2)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Steve\", \"Age\" : { \"$gt\" : 27, \"$lte\" : 31 } } }])", 3)]
+        [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", 3)]
+        [MQL("aggregate([{ \"$match\" : { \"Address\" : \"Address\" } }])", 5)]
+        [MQL("aggregate([{ \"$match\" : { \"Height\" : 180 } }])", 6)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", 8)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"John\", \"Age\" : { \"$gt\" : 22, \"$lte\" : 25 } } }])", 12)]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Steve\", \"Age\" : { \"$gt\" : 27, \"$lte\" : 31 } } }])", 16)]
+        [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", 19)]
+        [MQL("aggregate([{ \"$match\" : { \"Address\" : \"Address\" } }])", 23)]
+        [MQL("aggregate([{ \"$match\" : { \"Height\" : 180 } }])", 27)]
         public void Multiple_expression_variables_declaration_and_reassignment()
         {
             var x = GetMongoCollection().AsQueryable().Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21);

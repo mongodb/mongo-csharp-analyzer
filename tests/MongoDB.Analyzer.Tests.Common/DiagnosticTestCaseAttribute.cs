@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Linq;
 
 namespace MongoDB.Analyzer.Tests.Common
 {
@@ -22,7 +23,7 @@ namespace MongoDB.Analyzer.Tests.Common
         public string RuleId { get; }
         public string Message { get; }
         public string Version { get; }
-        public Location Location { get; }
+        public Location[] Locations { get; }
         public DriverTargetFramework TargetFramework { get; }
         public LinqVersion LinqProvider { get; }
 
@@ -32,14 +33,14 @@ namespace MongoDB.Analyzer.Tests.Common
             string version = null,
             LinqVersion linqProvider = LinqVersion.V2,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
-            Location location = null)
+            Location[] locations = null)
         {
             RuleId = ruleId;
             Message = message;
             Version = version;
             LinqProvider = linqProvider;
             TargetFramework = targetFramework;
-            Location = location;
+            Locations = locations ?? new[] { Location.Empty };
         }
     }
 
@@ -53,12 +54,23 @@ namespace MongoDB.Analyzer.Tests.Common
     {
         public MQLAttribute(
             string message,
+            params int[] codeLines) :
+            this(message, null, LinqVersion.V2, DriverTargetFramework.All, codeLines)
+        {
+        }
+
+        public MQLAttribute(
+            string message,
             string version = null,
             LinqVersion linqProvider = LinqVersion.V2,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
-            int startLine = -1,
-            int endLine = -1) :
-            base(DiagnosticRulesConstants.MongoLinq2MQL, message, version, linqProvider, targetFramework)
+            params int[] codeLines) :
+            base(DiagnosticRulesConstants.MongoLinq2MQL,
+                message,
+                version,
+                linqProvider,
+                targetFramework,
+                codeLines.Any() ? codeLines.Select(l => new Location(l, -1)).ToArray() : null)
         {
         }
     }
@@ -107,8 +119,10 @@ namespace MongoDB.Analyzer.Tests.Common
 
     public sealed class BuildersMQLAttribute : DiagnosticRuleTestCaseAttribute
     {
-        public BuildersMQLAttribute(string message, int startLine = -1, int endLine = -1) :
-            base(DiagnosticRulesConstants.Builders2MQL, message, location: new Location(startLine, endLine))
+        public BuildersMQLAttribute(string message, params int[] codeLines) :
+            base(DiagnosticRulesConstants.Builders2MQL,
+                message,
+                locations: codeLines.Any() ? codeLines.Select(l => new Location(l, -1)).ToArray() : null)
         {
         }
     }

@@ -12,10 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace MongoDB.Analyzer.Tests.Infrastructure;
 
 public record DiagnosticTestCaseResult(
     string Name,
-    Diagnostic[] Diagnostics);
+    int TestCaseMethodStartLine,
+    Diagnostic[] Diagnostics)
+{
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"Name: {Name}");
+        sb.AppendLine($"Offset: {TestCaseMethodStartLine}");
+
+        foreach (var group in Diagnostics.GroupBy(d => d.GetMessage()))
+        {
+            sb.Append("\"");
+            sb.Append(group.Key);
+            sb.Append("\",");
+            sb.Append(string.Join(",", group.Select(d => d.Location.GetLineSpan().StartLinePosition.Line - TestCaseMethodStartLine)));
+            sb.Append(" a: ");
+            sb.Append(string.Join(",", group.Select(d => d.Location.GetLineSpan().StartLinePosition.Line)));
+            sb.AppendLine();
+        }
+
+        return sb.ToString();
+    }
+}

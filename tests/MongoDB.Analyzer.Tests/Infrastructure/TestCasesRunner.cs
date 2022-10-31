@@ -79,7 +79,13 @@ internal static class TestCasesRunner
             .GroupBy(pair => pair.MethodNode.Identifier.Text)
             .ToDictionary(
                 group => group.Key,
-                group => new DiagnosticTestCaseResult(group.Key, group.Select(pair => pair.Diagnostic).ToArray()));
+                group => new DiagnosticTestCaseResult(
+                    group.Key,
+                    GetMethodLocation(group.FirstOrDefault().MethodNode),
+                    group.Select(pair => pair.Diagnostic).ToArray()));
+
+        int GetMethodLocation(MethodDeclarationSyntax node) =>
+            node.DescendantNodes().OfType<BlockSyntax>().First().GetLocation().GetLineSpan().StartLinePosition.Line;
 
         return result;
     }
