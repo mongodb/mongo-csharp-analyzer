@@ -2,6 +2,9 @@
   // Default LINQ provider, for drivers supporting LINQ3 (2.14 and higher)
   "DefaultLinqVersion": "V2",
 
+  // Enables builders variables tracking and composition, enabled by default
+  "EnableVariableTracking": true,
+
   // Appends the driver version to MQL expression
   "OutputDriverVersion": false,
 
