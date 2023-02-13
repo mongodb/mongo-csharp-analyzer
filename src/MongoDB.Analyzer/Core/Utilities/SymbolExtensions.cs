@@ -16,7 +16,7 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SymbolExtensions
 {
-    private const string AssemblyMongDBDriver = "MongoDB.Driver";
+    private const string AssemblyMongoDBDriver = "MongoDB.Driver";
     private const string NamespaceMongoDBDriver = "MongoDB.Driver";
     private const string NamespaceMongoDBLinq = "MongoDB.Driver.Linq";
     private const string NamespaceSystemLinq = "System.Linq";
@@ -54,7 +54,7 @@ internal static class SymbolExtensions
         // as it can differ in different .net frameworks.
         return containingNamespace == NamespaceSystemLinq ||
             containingNamespace == NamespaceMongoDBLinq &&
-            symbol?.ContainingAssembly.Name == AssemblyMongDBDriver;
+            symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
     }
 
     public static bool IsBuilder(this ITypeSymbol typeSymbol) =>
@@ -104,7 +104,7 @@ internal static class SymbolExtensions
 
     public static bool IsFindOptions(this ITypeSymbol namedTypeSymbol) =>
        namedTypeSymbol?.Name == "FindOptions" &&
-       namedTypeSymbol?.ContainingAssembly.Name == AssemblyMongDBDriver;
+       namedTypeSymbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
 
     public static bool IsIMongoCollection(this ITypeSymbol typeSymbol) => ImplementsOrIsInterface(typeSymbol, NamespaceMongoDBDriver, "IMongoCollection");
 
