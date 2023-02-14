@@ -46,9 +46,7 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
 
         try
         {
-            telemetryService.AnalysisStarted(context, settings);
             logger.Log($"Analysis started, analyzer version: {Assembly.GetExecutingAssembly().GetName().Version}, file: {GetFilePath(context)}");
-
             telemetryService.AnalysisStarted(context, settings);
 
             flushTelemetry |= LinqAnalyzer.AnalyzeIMongoQueryable(mongoAnalyzerContext);
