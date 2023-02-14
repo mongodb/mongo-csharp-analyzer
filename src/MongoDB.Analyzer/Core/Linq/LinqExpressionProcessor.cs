@@ -76,9 +76,9 @@ internal static class LinqExpressionProcessor
             {
                 var methodSymbol = invocationNode.GetMethodSymbol(semanticModel);
 
-                if (!methodSymbol.IsDefinedInMongoLinq() ||
-                    !methodSymbol.ReceiverType.IsIMongoQueryable() ||
-                    !methodSymbol.ReturnType.IsIMongoQueryable())
+                if (!methodSymbol.IsDefinedInMongoLinqOrSystemLinq() ||
+                    !methodSymbol.ReceiverType.IsIQueryable() ||
+                    !methodSymbol.ReturnType.IsIQueryable())
                 {
                     continue;
                 }
@@ -86,7 +86,12 @@ internal static class LinqExpressionProcessor
                 deepestMongoQueryableNode = invocationNode
                     .NestedInvocations()
                     .FirstOrDefault(n =>
-                        n.GetMethodSymbol(semanticModel)?.ReducedFrom?.ReceiverType.IsMongoQueryable() != true);
+                        {
+                            var currentMethodSymbol = n.GetMethodSymbol(semanticModel);
+
+                            // Find the first method that is not receiving IQueryable or is not defined in System.Linq or MongoDB.Driver.Linq
+                            return !((currentMethodSymbol?.ReceiverType).IsIQueryable() && currentMethodSymbol.IsDefinedInMongoLinqOrSystemLinq());
+                        });
             }
             else
             {
@@ -245,6 +250,11 @@ internal static class LinqExpressionProcessor
 
                 var symbolInfo = semanticModel.GetSymbolInfo(identifierNode);
 
+                if (symbolInfo.Symbol == null)
+                {
+                    return default;
+                }
+
                 var rewriteResult = symbolInfo.Symbol.Kind switch
                 {
                     SymbolKind.Field => HandleField(rewriteContext, nodeToHandle, symbolInfo),
@@ -262,7 +272,7 @@ internal static class LinqExpressionProcessor
                         nodesRemapping[rewriteResult.NodeToReplace] = rewriteResult.NewNode;
                         break;
                     case RewriteAction.Invalid:
-                        return (null, null);
+                        return default;
                 }
             }
 
@@ -272,7 +282,7 @@ internal static class LinqExpressionProcessor
         }
         catch
         {
-            return (null, null);
+            return default;
         }
     }
 
@@ -359,8 +369,8 @@ internal static class LinqExpressionProcessor
         SymbolInfo symbolInfo)
     {
         var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
-        if (methodSymbol.ReceiverType.IsIMongoQueryable() ||
-           methodSymbol.ReturnType.IsIMongoQueryable() ||
+        if (methodSymbol.ReceiverType.IsIQueryable() ||
+           methodSymbol.ReturnType.IsIQueryable() ||
            methodSymbol.ReturnType == null ||
            IsChildOfLambdaOrQueryParameter(rewriteContext, identifierNode, symbolInfo))
         {

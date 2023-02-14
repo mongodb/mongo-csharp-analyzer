@@ -84,5 +84,31 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 where mixedDataMember.ProtectedInternalPropertyString == "str"
                 select mixedDataMember;
         }
+
+        [NoDiagnostics]
+        public void IQueryable_extensions_in_middle_or_prefix_should_be_ignored()
+        {
+            _ = GetMongoQueryable()
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                .Where(u => u.LastName.Length < 10)
+                .ApplyPagingIQueryable(1, 0)
+                .Where(u => u.LastName == "Smith");
+
+            _ = GetMongoQueryable()
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                .Where(u => u.LastName.Length < 10)
+                .ApplyPaging(1, 0)
+                .ApplyPagingIQueryable(1, 0)
+                .Where(u => u.LastName == "Smith");
+
+            _ = GetMongoQueryable()
+                .ApplyPagingIQueryable(1, 0)
+                .Where(u => u.LastName == "Smith");
+
+            _ = GetMongoQueryable()
+                .ApplyPaging(1, 0)
+                .ApplyPagingIQueryable(1, 0)
+                .Where(u => u.LastName == "Smith");
+        }
     }
 }

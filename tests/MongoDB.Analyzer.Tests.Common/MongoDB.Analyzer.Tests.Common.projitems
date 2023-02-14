@@ -28,6 +28,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DiagnosticTestCaseAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DriverTargetFramework.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DriverVersions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinqExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinqVersion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MongoDBProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestCasesBase.cs" />

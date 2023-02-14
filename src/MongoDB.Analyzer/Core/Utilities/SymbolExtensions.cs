@@ -16,6 +16,11 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SymbolExtensions
 {
+    private const string AssemblyMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceMongoDBLinq = "MongoDB.Driver.Linq";
+    private const string NamespaceSystemLinq = "System.Linq";
+
     private static readonly HashSet<string> s_supportedCollections = new()
     {
         "System.Collections.Generic.List<T>",
@@ -41,9 +46,16 @@ internal static class SymbolExtensions
             _ => symbol.IsContainedInLambda(parentNode)
         };
 
-    public static bool IsDefinedInMongoLinq(this ISymbol symbol) =>
-        symbol?.ContainingModule?.Name?.ToLowerInvariant() == "mongodb.driver.dll" &&
-        symbol?.ContainingNamespace?.Name == "Linq";
+    public static bool IsDefinedInMongoLinqOrSystemLinq(this ISymbol symbol)
+    {
+        var containingNamespace = symbol?.ContainingNamespace?.ToDisplayString();
+
+        // In case of system linq, the containing module is not validated for simplicity,
+        // as it can differ in different .net frameworks.
+        return containingNamespace == NamespaceSystemLinq ||
+            containingNamespace == NamespaceMongoDBLinq &&
+            symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
+    }
 
     public static bool IsBuilder(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
@@ -92,16 +104,16 @@ internal static class SymbolExtensions
 
     public static bool IsFindOptions(this ITypeSymbol namedTypeSymbol) =>
        namedTypeSymbol?.Name == "FindOptions" &&
-       namedTypeSymbol?.ContainingAssembly.Name == "MongoDB.Driver";
+       namedTypeSymbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
 
-    public static bool IsIMongoCollection(this ITypeSymbol typeSymbol) => ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver", "IMongoCollection");
+    public static bool IsIMongoCollection(this ITypeSymbol typeSymbol) => ImplementsOrIsInterface(typeSymbol, NamespaceMongoDBDriver, "IMongoCollection");
 
     public static bool IsIMongoQueryable(this ITypeSymbol typeSymbol) =>
-        ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IMongoQueryable") ||
-        ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IOrderedMongoQueryable");
+        ImplementsOrIsInterface(typeSymbol, NamespaceMongoDBLinq, "IMongoQueryable") ||
+        ImplementsOrIsInterface(typeSymbol, NamespaceMongoDBLinq, "IOrderedMongoQueryable");
 
-    public static bool IsLinqEnumerable(this ITypeSymbol typeSymbol) =>
-        typeSymbol?.Name == "Enumerable" && typeSymbol.ContainingNamespace.Name == "Linq";
+    public static bool IsIQueryable(this ITypeSymbol typeSymbol) =>
+        ImplementsOrIsInterface(typeSymbol, NamespaceSystemLinq, nameof(IQueryable));
 
     public static bool IsMongoQueryable(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name == "MongoQueryable";
@@ -132,11 +144,16 @@ internal static class SymbolExtensions
         namedType.TypeArguments.Length == 1 &&
         namedType.TypeArguments[0].IsSupportedMongoCollectionType();
 
-    private static bool ImplementsOrIsInterface(this ITypeSymbol typeSymbol, string @namespace, string interfaceName) =>
-        typeSymbol?.TypeKind switch
+    private static bool ImplementsOrIsInterface(this ITypeSymbol typeSymbol, string @namespace, string interfaceName)
+    {
+        if (typeSymbol == null)
         {
-            TypeKind.Class => typeSymbol.Interfaces.Any(i => i.Name == interfaceName && i.ContainingNamespace.ToDisplayString() == @namespace),
-            TypeKind.Interface => typeSymbol.Name == interfaceName && typeSymbol.ContainingNamespace.ToDisplayString() == @namespace,
-            _ => false
-        };
+            return false;
+        }
+
+        return IsType(typeSymbol) || typeSymbol.Interfaces.Any(IsType);
+
+        bool IsType(ITypeSymbol typeSymbol) =>
+            typeSymbol.Name == interfaceName && typeSymbol.ContainingNamespace.ToDisplayString() == @namespace;
+    }
 }

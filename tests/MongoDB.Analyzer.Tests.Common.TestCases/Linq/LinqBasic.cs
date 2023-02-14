@@ -475,7 +475,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoCollection<Tree>().AsQueryable().Where(t => t.Root.Data == doubleVariable1 + doubleVariable2);
             _ = GetMongoCollection<Vehicle>().AsQueryable().Where(v => v.VehicleType.MPG == doubleVariable1 + doubleVariable2);
             _ = GetMongoCollection<Person>().AsQueryable().Where(p => p.TicksSinceBirth == doubleVariable1 + doubleVariable2);
-
         }
     }
 }
