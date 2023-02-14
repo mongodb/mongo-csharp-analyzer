@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleApp_2.14.x", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleApp_2.18.x", "tests\SampleProjects\SampleConsoleApp_2.18.x\SampleConsoleApp_2.18.x.csproj", "{346C34CA-F60A-4227-8226-AC73366CAB89}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleApp_2.19.x", "tests\SampleProjects\SampleConsoleApp_2.19.x\SampleConsoleApp_2.19.x.csproj", "{A06C2C04-A0A0-47B0-90E3-E88F017B687A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{346C34CA-F60A-4227-8226-AC73366CAB89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{346C34CA-F60A-4227-8226-AC73366CAB89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{346C34CA-F60A-4227-8226-AC73366CAB89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A06C2C04-A0A0-47B0-90E3-E88F017B687A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A06C2C04-A0A0-47B0-90E3-E88F017B687A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A06C2C04-A0A0-47B0-90E3-E88F017B687A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A06C2C04-A0A0-47B0-90E3-E88F017B687A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +54,7 @@ Global
 		{3EE8845F-D215-4F4B-9CB9-137DC91EAE6E} = {47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}
 		{72B09EC6-A660-48D3-9F4E-98CDED49D107} = {47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}
 		{346C34CA-F60A-4227-8226-AC73366CAB89} = {47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}
+		{A06C2C04-A0A0-47B0-90E3-E88F017B687A} = {47C17CE2-3C86-411A-B6E5-8B9D5B8ABBA4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A8E1DFF-E447-45A0-A578-EDE0818F6B2D}
@@ -61,6 +68,8 @@ Global
 		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{4f59be68-9ab5-4dcc-8049-04ad7bb36ab6}*SharedItemsImports = 13
 		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{72b09ec6-a660-48d3-9f4e-98cded49d107}*SharedItemsImports = 5
 		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{72b09ec6-a660-48d3-9f4e-98cded49d107}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{a06c2c04-a0a0-47b0-90e3-e88f017b687a}*SharedItemsImports = 5
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{a06c2c04-a0a0-47b0-90e3-e88f017b687a}*SharedItemsImports = 5
 		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{b961de33-1bd0-4f7e-bc1d-7eb46c4ed720}*SharedItemsImports = 5
 		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{b961de33-1bd0-4f7e-bc1d-7eb46c4ed720}*SharedItemsImports = 5
 	EndGlobalSection

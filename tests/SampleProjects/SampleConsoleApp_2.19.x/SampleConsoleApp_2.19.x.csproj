@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp3.1;net472;net5.0;net6.0;net7.0</TargetFrameworks>
-    <RootNamespace>MongoAnalyzer.Tests.SampleConsoleApp_2_18_x</RootNamespace>
+    <RootNamespace>MongoAnalyzer.Tests.SampleConsoleApp_2_19_x</RootNamespace>
     <LangVersion>9</LangVersion>
   </PropertyGroup>
 
@@ -11,7 +11,7 @@
   <Import Project="..\..\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems" Label="Shared" />
 
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
     <PackageReference Include="MongoDB.Analyzer" Version="1.1.0" />
   </ItemGroup>
 
