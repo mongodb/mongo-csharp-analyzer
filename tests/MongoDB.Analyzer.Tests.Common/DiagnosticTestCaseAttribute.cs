@@ -125,12 +125,19 @@ namespace MongoDB.Analyzer.Tests.Common
                 locations: codeLines.Any() ? codeLines.Select(l => new Location(l, -1)).ToArray() : null)
         {
         }
+
+        public BuildersMQLAttribute(string message, string version) :
+            base(DiagnosticRulesConstants.Builders2MQL,
+                message,
+                version: version)
+        {
+        }
     }
 
     public sealed class NotSupportedBuildersAttribute : DiagnosticRuleTestCaseAttribute
     {
-        public NotSupportedBuildersAttribute(string message) :
-            base(DiagnosticRulesConstants.NotSupportedBuildersExpression, message)
+        public NotSupportedBuildersAttribute(string message, string version = null) :
+            base(DiagnosticRulesConstants.NotSupportedBuildersExpression, message, version: version)
         {
         }
     }

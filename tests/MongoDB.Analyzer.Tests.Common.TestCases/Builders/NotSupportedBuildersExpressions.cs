@@ -19,13 +19,15 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class NotSupportedBuildersExpressions : TestCasesBase
     {
-        [NotSupportedBuilders("Unable to determine the serialization information for u => ArrayLength(u.IntArray).")]
+        [NotSupportedBuilders("Unable to determine the serialization information for u => ArrayLength(u.IntArray).", DriverVersions.V2_18_AndLower)]
+        [NotSupportedBuilders("Expression not supported: ArrayLength(u.IntArray).", DriverVersions.V2_19_AndHigher)]
         public void Array_of_predefined_type_array_members_access()
         {
             _ = Builders<SimpleTypesArraysHolder>.Filter.Gt(u => u.IntArray.Length, 1);
         }
 
-        [NotSupportedBuilders("Unable to determine the serialization information for u => (u.SiblingsCount + 2).")]
+        [NotSupportedBuilders("Unable to determine the serialization information for u => (u.SiblingsCount + 2).", DriverVersions.V2_18_AndLower)]
+        [NotSupportedBuilders("Expression not supported: (u.SiblingsCount + 2).", DriverVersions.V2_19_AndHigher)]
         public void Binary_expression_in_field_getter()
         {
             _ = Builders<Person>.Filter.Eq(u => u.SiblingsCount + 2, 1);

@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MongoDB.Analyzer.Tests.Common
+using System;
+
+namespace MongoAnalyzer.Tests.SampleConsoleApp_2_19_x
 {
-    public static class DriverVersions
+    class Program
     {
-        public const string Linq3AndHigher = "[2.14.0-beta1,)";
-        public const string Linq2AndLower = "(,2.14.0-beta1)";
-        public const string V2_18_AndLower = "(, 2.19.0)";
-        public const string V2_19_AndHigher = "[2.19.0,)";
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello World!");
+        }
     }
 }
