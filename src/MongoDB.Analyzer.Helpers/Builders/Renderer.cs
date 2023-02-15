@@ -17,7 +17,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Analyzer.Helpers.Builders
 {
-    public static class Renderer
+    public static partial class Renderer
     {
         public static string Render<T>(FilterDefinition<T> filterDefinition)
         {

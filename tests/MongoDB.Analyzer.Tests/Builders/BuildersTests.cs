@@ -31,6 +31,10 @@ public sealed class BuildersTests : DiagnosticsTestCasesRunner
     public Task Arrays(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersAtlasSearch))]
+    public Task AtlasSearch(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersBasic))]
     public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 

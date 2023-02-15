@@ -47,7 +47,7 @@ namespace MongoDB.Analyzer.Tests.Common
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class NoDiagnosticsAttribute : DiagnosticRuleTestCaseAttribute
     {
-        public NoDiagnosticsAttribute() : base(DiagnosticRulesConstants.NoRule, null) { }
+        public NoDiagnosticsAttribute(string version = null) : base(DiagnosticRulesConstants.NoRule, null, version: version) { }
     }
 
     public class MQLAttribute : DiagnosticRuleTestCaseAttribute
@@ -126,9 +126,10 @@ namespace MongoDB.Analyzer.Tests.Common
         {
         }
 
-        public BuildersMQLAttribute(string message, string version) :
+        public BuildersMQLAttribute(string message, string version, params int[] codeLines) :
             base(DiagnosticRulesConstants.Builders2MQL,
                 message,
+                locations: codeLines.Any() ? codeLines.Select(l => new Location(l, -1)).ToArray() : null,
                 version: version)
         {
         }

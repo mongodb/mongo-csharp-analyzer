@@ -30,6 +30,7 @@ internal static class ResourceNames
     {
         public const string MqlGenerator = $"Builders.{nameof(MqlGenerator)}";
         public const string Renderer = $"Builders.{nameof(Renderer)}";
+        public const string Renderer_2_19_and_higher = $"Builders.{nameof(Renderer_2_19_and_higher)}";
     }
 
     public const string EmptyCursor = nameof(EmptyCursor);
