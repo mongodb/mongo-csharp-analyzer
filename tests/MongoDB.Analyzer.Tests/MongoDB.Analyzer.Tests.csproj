@@ -18,7 +18,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.MSTest" Version="1.1.0" />
     <PackageReference Include="NuGet.Versioning" Version="5.11.0" />
 
-    <PackageReference Include="MongoDB.Driver" Version="2.13.0">
+    <PackageReference Include="MongoDB.Driver" Version="2.19.0">
         <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="System.Text.Json" Version="5.0.2" />

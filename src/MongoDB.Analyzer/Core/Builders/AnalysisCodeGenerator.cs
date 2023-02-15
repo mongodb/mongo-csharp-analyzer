@@ -20,12 +20,14 @@ namespace MongoDB.Analyzer.Core.Builders;
 internal static class AnalysisCodeGenerator
 {
     private static readonly SyntaxTree[] s_helpersSyntaxTrees;
+    private static readonly SyntaxTree s_renderer_2_19_and_higher;
     private static readonly BuildersMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElements;
     private static readonly ParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
     {
         s_helpersSyntaxTrees = GetCommonCodeResources(ResourceNames.Builders.Renderer);
+        s_renderer_2_19_and_higher = GetCodeResource(ResourceNames.Builders.Renderer_2_19_and_higher);
 
         var mqlGeneratorSyntaxTree = GetCodeResource(ResourceNames.Builders.MqlGenerator);
         s_mqlGeneratorSyntaxElements = BuildersMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree);
@@ -49,6 +51,11 @@ internal static class AnalysisCodeGenerator
                 typesSyntaxTree,
                 mqlGeneratorSyntaxTree
             };
+
+        if (referencesContainer.Version >= BuildersAnalysisConstants.Version_2_19_and_higher)
+        {
+            syntaxTrees.Add(s_renderer_2_19_and_higher);
+        }
 
         var compilation = CSharpCompilation.Create(
             BuildersAnalysisConstants.AnalysisAssemblyName,

@@ -12,11 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MongoDB.Analyzer.Core.Builders;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Search;
 
-internal static class BuildersAnalysisConstants
+namespace MongoDB.Analyzer.Helpers.Builders
 {
-    public const string AnalysisAssemblyName = "DynamicProxyGenAssembly2";
-
-    public static readonly Version Version_2_19_and_higher = Version.Parse("2.19.0");
+    public static partial class Renderer
+    {
+        public static string Render<T>(SearchDefinition<T> searchDefinition)
+        {
+            var renderedBuildersDefinition = searchDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
+            return renderedBuildersDefinition.ToString();
+        }
+    }
 }
