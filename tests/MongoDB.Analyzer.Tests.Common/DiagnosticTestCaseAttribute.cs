@@ -33,14 +33,14 @@ namespace MongoDB.Analyzer.Tests.Common
             string version = null,
             LinqVersion linqProvider = LinqVersion.V2,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
-            Location[] locations = null)
+            int[] codeLines = null)
         {
             RuleId = ruleId;
             Message = message;
             Version = version;
             LinqProvider = linqProvider;
             TargetFramework = targetFramework;
-            Locations = locations ?? new[] { Location.Empty };
+            Locations = codeLines?.Any() == true ? codeLines.Select(l => new Location(l, -1)).ToArray() : new[] { Location.Empty };
         }
     }
 
@@ -70,7 +70,7 @@ namespace MongoDB.Analyzer.Tests.Common
                 version,
                 linqProvider,
                 targetFramework,
-                codeLines.Any() ? codeLines.Select(l => new Location(l, -1)).ToArray() : null)
+                codeLines)
         {
         }
     }
@@ -122,15 +122,15 @@ namespace MongoDB.Analyzer.Tests.Common
         public BuildersMQLAttribute(string message, params int[] codeLines) :
             base(DiagnosticRulesConstants.Builders2MQL,
                 message,
-                locations: codeLines.Any() ? codeLines.Select(l => new Location(l, -1)).ToArray() : null)
+                codeLines: codeLines)
         {
         }
 
         public BuildersMQLAttribute(string message, string version, params int[] codeLines) :
             base(DiagnosticRulesConstants.Builders2MQL,
                 message,
-                locations: codeLines.Any() ? codeLines.Select(l => new Location(l, -1)).ToArray() : null,
-                version: version)
+                version: version,
+                codeLines: codeLines)
         {
         }
     }
