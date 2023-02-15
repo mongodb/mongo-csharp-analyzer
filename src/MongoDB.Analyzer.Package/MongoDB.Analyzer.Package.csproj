@@ -10,14 +10,14 @@
 
   <PropertyGroup>
     <PackageId>MongoDB.Analyzer</PackageId>
-    <PackageVersion>1.1.0</PackageVersion>
+    <PackageVersion>1.2.0</PackageVersion>
     <Authors>MongoDB Inc.</Authors>
     <Title>MongoDB.Analyzer</Title>
     <PackageIcon>packageIcon.png</PackageIcon>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageProjectUrl>https://www.mongodb.com/docs/mongodb-analyzer/current/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mongodb/mongo-csharp-analyzer</RepositoryUrl>
-    <PackageReleaseNotes>https://github.com/mongodb/mongo-csharp-analyzer/releases/tag/v1.1.0</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/mongodb/mongo-csharp-analyzer/releases/tag/v1.2.0</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>MongoDB Roslyn analyzer for MongoDB .Net driver.</Description>
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
