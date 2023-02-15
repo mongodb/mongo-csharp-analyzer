@@ -44,7 +44,7 @@ internal static class ITelemetryServicExtensions
                 ("output_platform", (csharpOptions?.Platform)?.ToString() ?? "Unknown"),
                 ("lang_version", (csharpCompilation?.LanguageVersion)?.ToString() ?? "Unknown"),
                 ("syntax_tree_length", semanticModelAnalysisContext.SemanticModel.SyntaxTree.Length),
-                ("linq_version", settings.DefaultLinqVersion.ToString()),
+                ("linq_version", settings.DefaultLinqVersion?.ToString()),
                 ("logs_enabled", settings.OutputInternalLogsToFile),
                 ("analyzer_version", s_version)
         };

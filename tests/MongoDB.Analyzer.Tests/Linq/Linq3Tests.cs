@@ -23,6 +23,10 @@ namespace MongoDB.Analyzer.Tests.Linq;
 public sealed class Linq3Tests : DiagnosticsTestCasesRunner
 {
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(LinqDefaultVersionInference))]
+    public Task LinqDefaultVersionInference(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(NotSupportedLinq2))]
     public Task NotSupportedLinq2(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

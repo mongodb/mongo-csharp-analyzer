@@ -1,6 +1,7 @@
 {
   // Default LINQ provider, for drivers supporting LINQ3 (2.14 and higher)
-  "DefaultLinqVersion": "V2",
+  // Default value is V2 in [2.14, 2.18] versions and V3 in [2.19, ) versions
+  // "DefaultLinqVersion": "V2",
 
   // Enables builders variables tracking and composition, enabled by default
   "EnableVariableTracking": true,

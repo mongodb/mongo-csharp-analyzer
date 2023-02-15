@@ -58,10 +58,11 @@ internal static class DiagnosticsAnalyzer
             compilationOptions);
 
         var mongodbAnalyzer = new MongoDBDiagnosticAnalyzer();
+        var linqDefaultVersion = linqVersion == Common.LinqVersion.Undefined ? null : (LinqVersion?)linqVersion;
 
         var settings = new MongoDBAnalyzerSettings(
             OutputDriverVersion: true,
-            DefaultLinqVersion: (LinqVersion)linqVersion,
+            DefaultLinqVersion: linqDefaultVersion,
             SendTelemetry: false);
         var analyzerOptions = new AnalyzerOptions(ImmutableArray.Create<AdditionalText>(new AdditionalTextAnalyzerSettings(settings)));
 

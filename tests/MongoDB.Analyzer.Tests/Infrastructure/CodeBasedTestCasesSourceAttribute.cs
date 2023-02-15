@@ -49,8 +49,9 @@ public sealed class CodeBasedTestCasesSourceAttribute : Attribute, ITestDataSour
     public string GetDisplayName(MethodInfo methodInfo, object[] data)
     {
         var testCase = (DiagnosticTestCase)data[0];
+        var linqVersion = testCase.LinqVersion == Common.LinqVersion.V3 ? "V3" : testCase.LinqVersion == Common.LinqVersion.Undefined ? "U" : "";
 
-        return $"v{testCase.Version}_{(testCase.LinqVersion == Common.LinqVersion.V3 ? "V3" : "")}_{testCase.MethodName}";
+        return $"v{testCase.Version}_{linqVersion}_{testCase.MethodName}";
     }
 
     private DiagnosticTestCase[] CreateTestCases(MemberInfo memberInfo)
