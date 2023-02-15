@@ -111,8 +111,10 @@ namespace MongoDB.Analyzer.Tests.Common
     {
         public NotSupportedLinq2Attribute(
             string message,
-            DriverTargetFramework targetFramework = DriverTargetFramework.All) :
-            base(DiagnosticRulesConstants.NotSupportedLinq2Expression, message, DriverVersions.Linq3AndHigher, LinqVersion.V2, targetFramework)
+            DriverTargetFramework targetFramework = DriverTargetFramework.All,
+            string version = DriverVersions.Linq3AndHigher,
+            LinqVersion linqVersion = LinqVersion.V2) :
+            base(DiagnosticRulesConstants.NotSupportedLinq2Expression, message, version, linqVersion, targetFramework)
         {
         }
     }

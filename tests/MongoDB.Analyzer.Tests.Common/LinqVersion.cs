@@ -17,6 +17,7 @@ namespace MongoDB.Analyzer.Tests.Common
     public enum LinqVersion
     {
         V2,
-        V3
+        V3,
+        Undefined
     }
 }

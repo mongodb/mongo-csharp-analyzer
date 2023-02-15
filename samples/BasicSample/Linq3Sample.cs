@@ -25,10 +25,14 @@ namespace BasicSample
             var db = mongoClient.GetDatabase("testdb");
             var moviesCollection = db.GetCollection<Movie>("movies").AsQueryable();
 
-            // Trim() supported in LINQ3 but not in LINQ2 (analyzer provides warning and LINQ3 mql)
+            // Trim() supported in LINQ3 but not in LINQ2.
+            // In 2.18 and lower drivers, analyzer provides a warning and LINQ3 mql.
+            // In 2.19 and higher drivers,LINQ3 MQL is provided without warning.
             _ = moviesCollection.Where(m => m.Title.Trim() == "Avatar");
 
-            // Substring() supported in LINQ3 but not in LINQ2 (analyzer provides warning and LINQ3 mql)
+            // Substring() supported in LINQ3 but not in LINQ2.
+            // In 2.18 and lower drivers, analyzer provides a warning and LINQ3 mql.
+            // In 2.19 and higher drivers,LINQ3 MQL is provided without warning.
             _ = moviesCollection.Where(m => m.Producer.Substring(0, 6) == "Steven");
         }
     }

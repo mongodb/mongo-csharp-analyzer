@@ -18,6 +18,9 @@ namespace MongoDB.Analyzer.Tests.Common
     {
         public const string Linq3AndHigher = "[2.14.0-beta1,)";
         public const string Linq2AndLower = "(,2.14.0-beta1)";
+        public const string Linq3NonDefault = "[2.14.0-beta1, 2.19.0)";
+        public const string Linq3DefaultAndHigher = V2_19_AndHigher;
+        public const string Linq2DefaultAndLower = V2_18_AndLower;
         public const string V2_18_AndLower = "(, 2.19.0)";
         public const string V2_19_AndHigher = "[2.19.0,)";
     }
