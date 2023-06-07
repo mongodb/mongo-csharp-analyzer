@@ -101,8 +101,9 @@ namespace MongoDB.Analyzer.Tests.Common
     {
         public InvalidLinq3Attribute(
             string message,
+            string version = DriverVersions.Linq3AndHigher,
             DriverTargetFramework targetFramework = DriverTargetFramework.All) :
-            base(message, DriverVersions.Linq3AndHigher, LinqVersion.V3, targetFramework)
+            base(message, version, LinqVersion.V3, targetFramework)
         {
         }
     }

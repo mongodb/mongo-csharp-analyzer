@@ -101,5 +101,130 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 where person.Vehicle.VehicleType.Type == VehicleTypeEnum.Bus || person.Vehicle.VehicleType.Type == VehicleTypeEnum.Motorcylce
                 select person.Vehicle.LicenceNumber;
         }
+
+        [MQL("aggregate([{ \"$match\" : { \"Vehicle.VehicleType.Type\" : vehicleType } }, { \"$project\" : { \"LicenceNumber\" : \"$Vehicle.LicenceNumber\", \"_id\" : vehicleType } }])")]
+        public void Enum_single_variable()
+        {
+            var vehicleType = VehicleTypeEnum.Bus;
+
+            _ = GetMongoQueryable<Person>()
+                .Where(u => u.Vehicle.VehicleType.Type == vehicleType)
+                .Select(u => u.Vehicle.LicenceNumber);
+
+            VehicleTypeEnum? nullibleVehicleType = VehicleTypeEnum.Bus;
+
+            _ = GetMongoQueryable<Person>()
+                .Where(u => u.Vehicle.VehicleType.Type == nullibleVehicleType)
+                .Select(u => u.Vehicle.LicenceNumber);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Vehicle.VehicleType.Type\" : vehicleType } }, { \"$project\" : { \"LicenceNumber\" : \"$Vehicle.LicenceNumber\", \"_id\" : vehicleType } }])")]
+        public void Enum_single_variable_query_syntax()
+        {
+            var vehicleType = VehicleTypeEnum.Bus;
+
+            _ = from person in GetMongoQueryable<Person>()
+                where person.Vehicle.VehicleType.Type == vehicleType
+                select person.Vehicle.LicenceNumber;
+
+            VehicleTypeEnum? nullibleVehicleType = VehicleTypeEnum.Bus;
+
+            _ = from person in GetMongoQueryable<Person>()
+                where person.Vehicle.VehicleType.Type == nullibleVehicleType
+                select person.Vehicle.LicenceNumber;
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumUInt64\" : NumberLong(firstUnsignedEnum) }, { \"EnumUInt64\" : NumberLong(secondUnsignedEnum) }, { \"EnumUInt64\" : NumberLong(thirdUnsignedEnum) }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt64\" : NumberLong(firstSignedEnum) }, { \"EnumInt64\" : NumberLong(secondSignedEnum) }, { \"EnumInt64\" : NumberLong(thirdSignedEnum) }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Vehicle.VehicleType.Type\" : firstVehicleType }, { \"Vehicle.VehicleType.Type\" : secondVehicleType }] } }, { \"$project\" : { \"LicenceNumber\" : \"$Vehicle.LicenceNumber\", \"_id\" : firstVehicleType } }])")]
+        public void Enum_multiple_variables()
+        {
+            var firstUnsignedEnum = EnumUInt64.Value0;
+            var secondUnsignedEnum = EnumUInt64.Value999;
+            var thirdUnsignedEnum = EnumUInt64.MaxValue;
+
+            var firstSignedEnum = EnumInt64.Value0;
+            var secondSignedEnum = EnumInt64.Value999;
+            var thirdSignedEnum = EnumInt64.MaxValue;
+
+            var firstVehicleType = VehicleTypeEnum.Bus;
+            var secondVehicleType = VehicleTypeEnum.Motorcylce;
+
+            _ = GetMongoQueryable<EnumHolder>()
+                .Where(u => u.EnumUInt64 == firstUnsignedEnum || u.EnumUInt64 == secondUnsignedEnum || u.EnumUInt64 == thirdUnsignedEnum)
+                .Select(u => u);
+
+            _ = GetMongoQueryable<EnumHolder>()
+                .Where(u => u.EnumInt64 == firstSignedEnum || u.EnumInt64 == secondSignedEnum || u.EnumInt64 == thirdSignedEnum)
+                .Select(u => u);
+
+            _ = GetMongoQueryable<Person>()
+                .Where(u => u.Vehicle.VehicleType.Type == firstVehicleType || u.Vehicle.VehicleType.Type == secondVehicleType)
+                .Select(u => u.Vehicle.LicenceNumber);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumUInt64\" : NumberLong(firstUnsignedEnum) }, { \"EnumUInt64\" : NumberLong(secondUnsignedEnum) }, { \"EnumUInt64\" : NumberLong(thirdUnsignedEnum) }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt64\" : NumberLong(firstSignedEnum) }, { \"EnumInt64\" : NumberLong(secondSignedEnum) }, { \"EnumInt64\" : NumberLong(thirdSignedEnum) }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Vehicle.VehicleType.Type\" : firstVehicleType }, { \"Vehicle.VehicleType.Type\" : secondVehicleType }] } }, { \"$project\" : { \"LicenceNumber\" : \"$Vehicle.LicenceNumber\", \"_id\" : firstVehicleType } }])")]
+        public void Enum_multiple_variables_query_syntax()
+        {
+            var firstUnsignedEnum = EnumUInt64.Value0;
+            var secondUnsignedEnum = EnumUInt64.Value999;
+            var thirdUnsignedEnum = EnumUInt64.MaxValue;
+
+            var firstSignedEnum = EnumInt64.Value0;
+            var secondSignedEnum = EnumInt64.Value999;
+            var thirdSignedEnum = EnumInt64.MaxValue;
+
+            var firstVehicleType = VehicleTypeEnum.Bus;
+            var secondVehicleType = VehicleTypeEnum.Motorcylce;
+
+            _ = from enumHolder in GetMongoQueryable<EnumHolder>()
+                where enumHolder.EnumUInt64 == firstUnsignedEnum || enumHolder.EnumUInt64 == secondUnsignedEnum || enumHolder.EnumUInt64 == thirdUnsignedEnum
+                select enumHolder;
+
+            _ = from enumHolder in GetMongoQueryable<EnumHolder>()
+                where enumHolder.EnumInt64 == firstSignedEnum || enumHolder.EnumInt64 == secondSignedEnum || enumHolder.EnumInt64 == thirdSignedEnum
+                select enumHolder;
+
+            _ = from person in GetMongoQueryable<Person>()
+                where person.Vehicle.VehicleType.Type == firstVehicleType || person.Vehicle.VehicleType.Type == secondVehicleType
+                select person.Vehicle.LicenceNumber;
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"EnumInt8\" : 5 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"EnumInt8\" : -5 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"EnumInt16\" : 15 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"EnumInt16\" : -15 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"EnumInt32\" : 25 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"EnumInt32\" : -25 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"EnumInt64\" : NumberLong(35) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"EnumInt64\" : NumberLong(-35) } }])")]
+        public void Enum_arithmetic_operations()
+        {
+            _ = GetMongoQueryable<EnumHolder>()
+                .Where(u => u.EnumInt8 == EnumInt8.Value0 + 5);
+
+            _ = GetMongoQueryable<EnumHolder>()
+                .Where(u => u.EnumInt8 == EnumInt8.Value0 - 5);
+
+            _ = GetMongoQueryable<EnumHolder>()
+                .Where(u => u.EnumInt16 == EnumInt16.Value0 + 15);
+
+            _ = GetMongoQueryable<EnumHolder>()
+                .Where(u => u.EnumInt16 == EnumInt16.Value0 - 15);
+
+            _ = GetMongoQueryable<EnumHolder>()
+                .Where(u => u.EnumInt32 == EnumInt32.Value0 + 25);
+
+            _ = GetMongoQueryable<EnumHolder>()
+                .Where(u => u.EnumInt32 == EnumInt32.Value0 - 25);
+
+            _ = GetMongoQueryable<EnumHolder>()
+                .Where(u => u.EnumInt64 == EnumInt64.Value0 + 35);
+
+            _ = GetMongoQueryable<EnumHolder>()
+                .Where(u => u.EnumInt64 == EnumInt64.Value0 - 35);
+        }
     }
 }
