@@ -18,7 +18,7 @@ namespace MongoDB.Analyzer.Core.Builders;
 
 internal static class BuildersAnalyzer
 {
-    public static bool AnalyzeBuilders(MongoAnalyzerContext context)
+    public static bool AnalyzeBuilders(MongoAnalysisContext context)
     {
         var sw = Stopwatch.StartNew();
         var stats = AnalysisStats.Empty;
@@ -50,7 +50,7 @@ internal static class BuildersAnalyzer
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalyzerContext context, ExpressionsAnalysis buildersAnalysis)
+    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis buildersAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
         if (buildersAnalysis.AnalysisNodeContexts.EmptyOrNull())
