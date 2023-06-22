@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MongoDB.Analyzer.Core;
+using System.Collections.Generic;
+using MongoDB.Bson.Serialization.Attributes;
 
-internal record MongoAnalyzerContext(
-    SemanticModelAnalysisContext SemanticModelAnalysisContext,
-    MongoDBAnalyzerSettings Settings,
-    Logger Logger,
-    ITelemetryService Telemetry)
+namespace MongoDB.Analyzer.Tests.Common.DataModel
 {
-};
+    [BsonIgnoreExtraElementsAttribute(ignoreExtraElements: true)]
+    [BsonNoIdAttribute]
+    public class Flower
+    {
+        public string Name { get; set; }
+        public string Category { get; set; }
+        public double Price { get; set; }
+        public List<string> Season { get; set; }
+        public double Stock { get; set; }
+        public string Description { get; set; }
+    }
+}
+

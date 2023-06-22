@@ -19,17 +19,32 @@ internal static class SyntaxFactoryUtilities
     public static SyntaxNode NewFindOptionsArgument { get; } =
         SyntaxFactory.Argument(SyntaxFactory.ParseExpression("new FindOptions()"));
 
+    public static AttributeSyntax GetAttribute(string name, List<AttributeArgumentSyntax> arguments)
+    {
+        var separatedAttributeArgumentList = SyntaxFactory.SeparatedList<AttributeArgumentSyntax>(arguments);
+        var attributeArgumentListNode = SyntaxFactory.AttributeArgumentList(separatedAttributeArgumentList);
+
+        var nameSyntax = SyntaxFactory.ParseName(name);
+        var attributeNode = SyntaxFactory.Attribute(nameSyntax, attributeArgumentListNode);
+
+        return attributeNode;
+    }
+
+    public static ArrayCreationExpressionSyntax GetArrayCreationExpression(ArrayTypeSyntax arrayTypeSyntax, ExpressionSyntax[] expressions) =>
+        SyntaxFactory.ArrayCreationExpression(SyntaxFactory.Token(SyntaxKind.NewKeyword), arrayTypeSyntax,
+            SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, SyntaxFactory.SeparatedList<ExpressionSyntax>(expressions)));
+
     public static CastExpressionSyntax GetCastConstantExpression(string castToTypeName, object constantValue) =>
         SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(castToTypeName), GetConstantExpression(constantValue));
 
-    public static LiteralExpressionSyntax GetConstantExpression(object constantValue)
-    {
-        var syntaxToken = GetConstantValueToken(constantValue);
-        var expressionKind = constantValue is string ? SyntaxKind.StringLiteralExpression : SyntaxKind.NumericLiteralExpression;
-
-        return SyntaxFactory.LiteralExpression(expressionKind, syntaxToken);
-    }
-
+    public static LiteralExpressionSyntax GetConstantExpression(object constantValue) =>
+        constantValue switch
+        {
+            bool @bool => SyntaxFactory.LiteralExpression(@bool ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression),
+            string @string => SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, GetConstantValueToken(@string)),
+            _ => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, GetConstantValueToken(constantValue))
+        };
+    
     public static SyntaxToken GetConstantValueToken(object value) =>
         value switch
         {

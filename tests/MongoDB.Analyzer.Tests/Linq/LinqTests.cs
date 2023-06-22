@@ -31,6 +31,10 @@ public sealed class LinqTests : DiagnosticsTestCasesRunner
     public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(LinqBsonAttributes))]
+    public Task BsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(LinqCollections))]
     public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 

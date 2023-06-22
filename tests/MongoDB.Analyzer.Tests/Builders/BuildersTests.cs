@@ -39,6 +39,10 @@ public sealed class BuildersTests : DiagnosticsTestCasesRunner
     public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersBsonAttributes))]
+    public Task BsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersCollections))]
     public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 

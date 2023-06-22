@@ -18,6 +18,7 @@ using BsonDocumentCustom123 = MongoDB.Bson.BsonDocument;
 using BsonValueCustom123 = MongoDB.Bson.BsonValue;
 using BsonObjectIdCustom123 = MongoDB.Bson.BsonObjectId;
 using BsonTypeCustom123 = MongoDB.Bson.BsonType;
+using BsonTimeSpanCustom123 = MongoDB.Bson.Serialization.Options.TimeSpanUnits;
 
 namespace MongoDB.Analyzer.Helpers.Builders
 {
@@ -29,6 +30,7 @@ namespace MongoDB.Analyzer.Helpers.Builders
         private static readonly BsonValueCustom123 s_dummyRef2;
         private static readonly BsonObjectIdCustom123 s_dummyRef3;
         private static readonly BsonTypeCustom123 s_dummyRef4;
+        private static readonly BsonTimeSpanCustom123 s_dummyRef5;
 #pragma warning restore IDE0051 // The field is never used
 #pragma warning restore CS0169
 

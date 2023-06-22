@@ -18,7 +18,7 @@ namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class LinqAnalyzer
 {
-    public static bool AnalyzeIMongoQueryable(MongoAnalyzerContext context)
+    public static bool AnalyzeIMongoQueryable(MongoAnalysisContext context)
     {
         var sw = Stopwatch.StartNew();
         var stats = AnalysisStats.Empty;
@@ -51,7 +51,7 @@ internal static class LinqAnalyzer
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static void ReportInvalidExpressions(MongoAnalyzerContext context, ExpressionsAnalysis linqExpressionAnalysis)
+    private static void ReportInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
 
@@ -74,7 +74,7 @@ internal static class LinqAnalyzer
         }
     }
 
-    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalyzerContext context, ExpressionsAnalysis linqExpressionAnalysis)
+    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
 
@@ -108,16 +108,16 @@ internal static class LinqAnalyzer
             }
             else if (mqlResult.Exception != null)
             {
-                var isDriverException = mqlResult.Exception.InnerException?.Source?.Contains("MongoDB.Driver") == true;
+                var isDriverOrLinqException = IsDriverOrLinqException(mqlResult);
 
-                if (isDriverException || settings.OutputInternalExceptions)
+                if (isDriverOrLinqException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = LinqDiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression;
                     var decoratedMessage = DecorateMessage(mqlResult.Exception.InnerException?.Message ?? "Unsupported LINQ expression", driverVersion, settings);
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 
-                if (!isDriverException)
+                if (!isDriverOrLinqException)
                 {
                     context.Logger.Log($"Exception while analyzing {analysisContext.Node}: {mqlResult.Exception.InnerException?.Message}");
                     internalExceptionsCount++;
@@ -130,6 +130,13 @@ internal static class LinqAnalyzer
         }
 
         return new AnalysisStats(mqlCount, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
+    }
+
+    private static bool IsDriverOrLinqException(MQLResult mqlResult)
+    {
+        var source = mqlResult.Exception.InnerException?.Source;
+        return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
+            source.Contains("MongoDB.Bson") || source.Contains("System.Linq"));
     }
 
     private static string DecorateMessage(string message, string driverVersion, MongoDBAnalyzerSettings settings) =>

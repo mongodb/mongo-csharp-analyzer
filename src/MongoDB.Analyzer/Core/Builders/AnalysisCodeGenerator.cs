@@ -34,7 +34,7 @@ internal static class AnalysisCodeGenerator
         s_parseOptions = mqlGeneratorSyntaxTree.Options;
     }
 
-    public static CompilationResult Compile(MongoAnalyzerContext context, ExpressionsAnalysis buildersExpressionAnalysis)
+    public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis buildersExpressionAnalysis)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger);
