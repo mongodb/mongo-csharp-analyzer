@@ -18,7 +18,7 @@ namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class LinqAnalyzer
 {
-    public static bool AnalyzeIMongoQueryable(MongoAnalyzerContext context)
+    public static bool AnalyzeIMongoQueryable(MongoAnalysisContext context)
     {
         var sw = Stopwatch.StartNew();
         var stats = AnalysisStats.Empty;
@@ -51,7 +51,7 @@ internal static class LinqAnalyzer
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static void ReportInvalidExpressions(MongoAnalyzerContext context, ExpressionsAnalysis linqExpressionAnalysis)
+    private static void ReportInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
 
@@ -74,7 +74,7 @@ internal static class LinqAnalyzer
         }
     }
 
-    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalyzerContext context, ExpressionsAnalysis linqExpressionAnalysis)
+    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
 

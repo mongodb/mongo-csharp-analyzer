@@ -14,9 +14,10 @@
 
 namespace MongoDB.Analyzer.Core;
 
-internal record MongoAnalyzerContext(
+internal record MongoAnalysisContext(
     SemanticModelAnalysisContext SemanticModelAnalysisContext,
     MongoDBAnalyzerSettings Settings,
+    TypesProcessor TypesProcessor,
     Logger Logger,
     ITelemetryService Telemetry)
 {
