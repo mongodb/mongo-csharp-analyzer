@@ -26,8 +26,8 @@ namespace MongoDB.Analyzer.Tests.Common
         public const string V2_18_AndLower = "(, 2.19.0)";
         public const string V2_19_AndHigher = "[2.19.0,)";
 
-        public const string V2_14_Beta1 = "2.14.0-beta1";
-        public const string V2_18 = "2.18.0";
-        public const string V2_19 = "2.19.0";
+        public const string V2_14_Beta1 = "[2.14.0-beta1]";
+        public const string V2_18 = "[2.18.0]";
+        public const string V2_19 = "[2.19.0]";
     }
 }
