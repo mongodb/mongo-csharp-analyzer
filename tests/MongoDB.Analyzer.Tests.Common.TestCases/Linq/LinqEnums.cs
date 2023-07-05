@@ -110,12 +110,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<Person>()
                 .Where(u => u.Vehicle.VehicleType.Type == vehicleType)
                 .Select(u => u.Vehicle.LicenceNumber);
-
-            VehicleTypeEnum? nullibleVehicleType = VehicleTypeEnum.Bus;
-
-            _ = GetMongoQueryable<Person>()
-                .Where(u => u.Vehicle.VehicleType.Type == nullibleVehicleType)
-                .Select(u => u.Vehicle.LicenceNumber);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"Vehicle.VehicleType.Type\" : vehicleType } }, { \"$project\" : { \"LicenceNumber\" : \"$Vehicle.LicenceNumber\", \"_id\" : vehicleType } }])")]
@@ -126,36 +120,64 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = from person in GetMongoQueryable<Person>()
                 where person.Vehicle.VehicleType.Type == vehicleType
                 select person.Vehicle.LicenceNumber;
-
-            VehicleTypeEnum? nullibleVehicleType = VehicleTypeEnum.Bus;
-
-            _ = from person in GetMongoQueryable<Person>()
-                where person.Vehicle.VehicleType.Type == nullibleVehicleType
-                select person.Vehicle.LicenceNumber;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumUInt64\" : NumberLong(firstUnsignedEnum) }, { \"EnumUInt64\" : NumberLong(secondUnsignedEnum) }, { \"EnumUInt64\" : NumberLong(thirdUnsignedEnum) }] } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt64\" : NumberLong(firstSignedEnum) }, { \"EnumInt64\" : NumberLong(secondSignedEnum) }, { \"EnumInt64\" : NumberLong(thirdSignedEnum) }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumUInt64\" : NumberLong(firstEnumUInt64) }, { \"EnumUInt64\" : NumberLong(secondEnumUInt64) }, { \"EnumUInt64\" : NumberLong(thirdEnumUInt64) }, { \"EnumUInt64\" : NumberLong(fourthEnumUInt64) }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt64\" : NumberLong(firstEnumInt64) }, { \"EnumInt64\" : NumberLong(secondEnumInt64) }, { \"EnumInt64\" : NumberLong(thirdEnumInt64) }, { \"EnumInt64\" : NumberLong(fourthEnumInt64) }] } }, { \"$match\" : { \"$or\" : [{ \"EnumUInt32\" : firstEnumUInt32 }, { \"EnumUInt32\" : secondEnumUInt32 }, { \"EnumUInt32\" : thirdEnumUInt32 }, { \"EnumUInt32\" : fourthEnumUInt32 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : firstEnumInt32 }, { \"EnumInt32\" : secondEnumInt32 }, { \"EnumInt32\" : thirdEnumInt32 }, { \"EnumInt32\" : fourthEnumInt32 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumUInt16\" : firstEnumUInt16 }, { \"EnumUInt16\" : secondEnumUInt16 }, { \"EnumUInt16\" : thirdEnumUInt16 }, { \"EnumUInt16\" : fourthEnumUInt16 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt16\" : firstEnumInt16 }, { \"EnumInt16\" : secondEnumInt16 }, { \"EnumInt16\" : thirdEnumInt16 }, { \"EnumInt16\" : fourthEnumInt16 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumUInt8\" : firstEnumUInt8 }, { \"EnumUInt8\" : secondEnumUInt8 }, { \"EnumUInt8\" : thirdEnumUInt8 }, { \"EnumUInt8\" : fourthEnumUInt8 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt8\" : firstEnumInt8 }, { \"EnumInt8\" : secondEnumInt8 }, { \"EnumInt8\" : thirdEnumInt8 }, { \"EnumInt8\" : fourthEnumInt8 }] } }])")]
         [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Vehicle.VehicleType.Type\" : firstVehicleType }, { \"Vehicle.VehicleType.Type\" : secondVehicleType }] } }, { \"$project\" : { \"LicenceNumber\" : \"$Vehicle.LicenceNumber\", \"_id\" : firstVehicleType } }])")]
         public void Enum_multiple_variables()
         {
-            var firstUnsignedEnum = EnumUInt64.Value0;
-            var secondUnsignedEnum = EnumUInt64.Value999;
-            var thirdUnsignedEnum = EnumUInt64.MaxValue;
+            var firstEnumInt8 = EnumInt8.Value0;
+            var secondEnumInt8 = EnumInt8.Value1;
+            var thirdEnumInt8 = EnumInt8.Value9;
+            var fourthEnumInt8 = EnumInt8.MaxValue;
 
-            var firstSignedEnum = EnumInt64.Value0;
-            var secondSignedEnum = EnumInt64.Value999;
-            var thirdSignedEnum = EnumInt64.MaxValue;
+            var firstEnumUInt8 = EnumUInt8.Value0;
+            var secondEnumUInt8 = EnumUInt8.Value1;
+            var thirdEnumUInt8 = EnumUInt8.Value9;
+            var fourthEnumUInt8 = EnumUInt8.MaxValue;
+
+            var firstEnumInt16 = EnumInt16.Value0;
+            var secondEnumInt16 = EnumInt16.Value1;
+            var thirdEnumInt16 = EnumInt16.Value999;
+            var fourthEnumInt16 = EnumInt16.MaxValue;
+
+            var firstEnumUInt16 = EnumUInt16.Value0;
+            var secondEnumUInt16 = EnumUInt16.Value1;
+            var thirdEnumUInt16 = EnumUInt16.Value999;
+            var fourthEnumUInt16 = EnumUInt16.MaxValue;
+
+            var firstEnumInt32 = EnumInt32.Value0;
+            var secondEnumInt32 = EnumInt32.Value1;
+            var thirdEnumInt32 = EnumInt32.Value999;
+            var fourthEnumInt32 = EnumInt32.MaxValue;
+
+            var firstEnumUInt32 = EnumUInt32.Value0;
+            var secondEnumUInt32 = EnumUInt32.Value1;
+            var thirdEnumUInt32 = EnumUInt32.Value999;
+            var fourthEnumUInt32 = EnumUInt32.MaxValue;
+
+            var firstEnumInt64 = EnumInt64.Value0;
+            var secondEnumInt64 = EnumInt64.Value1;
+            var thirdEnumInt64 = EnumInt64.Value999;
+            var fourthEnumInt64 = EnumInt64.MaxValue;
+
+            var firstEnumUInt64 = EnumUInt64.Value0;
+            var secondEnumUInt64 = EnumUInt64.Value1;
+            var thirdEnumUInt64 = EnumUInt64.Value999;
+            var fourthEnumUInt64 = EnumUInt64.MaxValue;
 
             var firstVehicleType = VehicleTypeEnum.Bus;
             var secondVehicleType = VehicleTypeEnum.Motorcylce;
 
             _ = GetMongoQueryable<EnumHolder>()
-                .Where(u => u.EnumUInt64 == firstUnsignedEnum || u.EnumUInt64 == secondUnsignedEnum || u.EnumUInt64 == thirdUnsignedEnum)
-                .Select(u => u);
-
-            _ = GetMongoQueryable<EnumHolder>()
-                .Where(u => u.EnumInt64 == firstSignedEnum || u.EnumInt64 == secondSignedEnum || u.EnumInt64 == thirdSignedEnum)
+                .Where(u => u.EnumUInt64 == firstEnumUInt64 || u.EnumUInt64 == secondEnumUInt64 || u.EnumUInt64 == thirdEnumUInt64 || u.EnumUInt64 == fourthEnumUInt64)
+                .Where(u => u.EnumInt64 == firstEnumInt64 || u.EnumInt64 == secondEnumInt64 || u.EnumInt64 == thirdEnumInt64 || u.EnumInt64 == fourthEnumInt64)
+                .Where(u => u.EnumUInt32 == firstEnumUInt32 || u.EnumUInt32 == secondEnumUInt32 || u.EnumUInt32 == thirdEnumUInt32 || u.EnumUInt32 == fourthEnumUInt32)
+                .Where(u => u.EnumInt32 == firstEnumInt32 || u.EnumInt32 == secondEnumInt32 || u.EnumInt32 == thirdEnumInt32 || u.EnumInt32 == fourthEnumInt32)
+                .Where(u => u.EnumUInt16 == firstEnumUInt16 || u.EnumUInt16 == secondEnumUInt16 || u.EnumUInt16 == thirdEnumUInt16 || u.EnumUInt16 == fourthEnumUInt16)
+                .Where(u => u.EnumInt16 == firstEnumInt16 || u.EnumInt16 == secondEnumInt16 || u.EnumInt16 == thirdEnumInt16 || u.EnumInt16 == fourthEnumInt16)
+                .Where(u => u.EnumUInt8 == firstEnumUInt8 || u.EnumUInt8 == secondEnumUInt8 || u.EnumUInt8 == thirdEnumUInt8 || u.EnumUInt8 == fourthEnumUInt8)
+                .Where(u => u.EnumInt8 == firstEnumInt8 || u.EnumInt8 == secondEnumInt8 || u.EnumInt8 == thirdEnumInt8 || u.EnumInt8 == fourthEnumInt8)
                 .Select(u => u);
 
             _ = GetMongoQueryable<Person>()
@@ -163,28 +185,62 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => u.Vehicle.LicenceNumber);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumUInt64\" : NumberLong(firstUnsignedEnum) }, { \"EnumUInt64\" : NumberLong(secondUnsignedEnum) }, { \"EnumUInt64\" : NumberLong(thirdUnsignedEnum) }] } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt64\" : NumberLong(firstSignedEnum) }, { \"EnumInt64\" : NumberLong(secondSignedEnum) }, { \"EnumInt64\" : NumberLong(thirdSignedEnum) }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumUInt64\" : NumberLong(firstEnumUInt64) }, { \"EnumUInt64\" : NumberLong(secondEnumUInt64) }, { \"EnumUInt64\" : NumberLong(thirdEnumUInt64) }, { \"EnumUInt64\" : NumberLong(fourthEnumUInt64) }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt64\" : NumberLong(firstEnumInt64) }, { \"EnumInt64\" : NumberLong(secondEnumInt64) }, { \"EnumInt64\" : NumberLong(thirdEnumInt64) }, { \"EnumInt64\" : NumberLong(fourthEnumInt64) }] } }, { \"$match\" : { \"$or\" : [{ \"EnumUInt32\" : firstEnumUInt32 }, { \"EnumUInt32\" : secondEnumUInt32 }, { \"EnumUInt32\" : thirdEnumUInt32 }, { \"EnumUInt32\" : fourthEnumUInt32 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : firstEnumInt32 }, { \"EnumInt32\" : secondEnumInt32 }, { \"EnumInt32\" : thirdEnumInt32 }, { \"EnumInt32\" : fourthEnumInt32 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumUInt16\" : firstEnumUInt16 }, { \"EnumUInt16\" : secondEnumUInt16 }, { \"EnumUInt16\" : thirdEnumUInt16 }, { \"EnumUInt16\" : fourthEnumUInt16 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt16\" : firstEnumInt16 }, { \"EnumInt16\" : secondEnumInt16 }, { \"EnumInt16\" : thirdEnumInt16 }, { \"EnumInt16\" : fourthEnumInt16 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumUInt8\" : firstEnumUInt8 }, { \"EnumUInt8\" : secondEnumUInt8 }, { \"EnumUInt8\" : thirdEnumUInt8 }, { \"EnumUInt8\" : fourthEnumUInt8 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt8\" : firstEnumInt8 }, { \"EnumInt8\" : secondEnumInt8 }, { \"EnumInt8\" : thirdEnumInt8 }, { \"EnumInt8\" : fourthEnumInt8 }] } }])")]
         [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Vehicle.VehicleType.Type\" : firstVehicleType }, { \"Vehicle.VehicleType.Type\" : secondVehicleType }] } }, { \"$project\" : { \"LicenceNumber\" : \"$Vehicle.LicenceNumber\", \"_id\" : firstVehicleType } }])")]
         public void Enum_multiple_variables_query_syntax()
         {
-            var firstUnsignedEnum = EnumUInt64.Value0;
-            var secondUnsignedEnum = EnumUInt64.Value999;
-            var thirdUnsignedEnum = EnumUInt64.MaxValue;
+            var firstEnumInt8 = EnumInt8.Value0;
+            var secondEnumInt8 = EnumInt8.Value1;
+            var thirdEnumInt8 = EnumInt8.Value9;
+            var fourthEnumInt8 = EnumInt8.MaxValue;
 
-            var firstSignedEnum = EnumInt64.Value0;
-            var secondSignedEnum = EnumInt64.Value999;
-            var thirdSignedEnum = EnumInt64.MaxValue;
+            var firstEnumUInt8 = EnumUInt8.Value0;
+            var secondEnumUInt8 = EnumUInt8.Value1;
+            var thirdEnumUInt8 = EnumUInt8.Value9;
+            var fourthEnumUInt8 = EnumUInt8.MaxValue;
+
+            var firstEnumInt16 = EnumInt16.Value0;
+            var secondEnumInt16 = EnumInt16.Value1;
+            var thirdEnumInt16 = EnumInt16.Value999;
+            var fourthEnumInt16 = EnumInt16.MaxValue;
+
+            var firstEnumUInt16 = EnumUInt16.Value0;
+            var secondEnumUInt16 = EnumUInt16.Value1;
+            var thirdEnumUInt16 = EnumUInt16.Value999;
+            var fourthEnumUInt16 = EnumUInt16.MaxValue;
+
+            var firstEnumInt32 = EnumInt32.Value0;
+            var secondEnumInt32 = EnumInt32.Value1;
+            var thirdEnumInt32 = EnumInt32.Value999;
+            var fourthEnumInt32 = EnumInt32.MaxValue;
+
+            var firstEnumUInt32 = EnumUInt32.Value0;
+            var secondEnumUInt32 = EnumUInt32.Value1;
+            var thirdEnumUInt32 = EnumUInt32.Value999;
+            var fourthEnumUInt32 = EnumUInt32.MaxValue;
+
+            var firstEnumInt64 = EnumInt64.Value0;
+            var secondEnumInt64 = EnumInt64.Value1;
+            var thirdEnumInt64 = EnumInt64.Value999;
+            var fourthEnumInt64 = EnumInt64.MaxValue;
+
+            var firstEnumUInt64 = EnumUInt64.Value0;
+            var secondEnumUInt64 = EnumUInt64.Value1;
+            var thirdEnumUInt64 = EnumUInt64.Value999;
+            var fourthEnumUInt64 = EnumUInt64.MaxValue;
 
             var firstVehicleType = VehicleTypeEnum.Bus;
             var secondVehicleType = VehicleTypeEnum.Motorcylce;
 
             _ = from enumHolder in GetMongoQueryable<EnumHolder>()
-                where enumHolder.EnumUInt64 == firstUnsignedEnum || enumHolder.EnumUInt64 == secondUnsignedEnum || enumHolder.EnumUInt64 == thirdUnsignedEnum
-                select enumHolder;
-
-            _ = from enumHolder in GetMongoQueryable<EnumHolder>()
-                where enumHolder.EnumInt64 == firstSignedEnum || enumHolder.EnumInt64 == secondSignedEnum || enumHolder.EnumInt64 == thirdSignedEnum
+                where enumHolder.EnumUInt64 == firstEnumUInt64 || enumHolder.EnumUInt64 == secondEnumUInt64 || enumHolder.EnumUInt64 == thirdEnumUInt64 || enumHolder.EnumUInt64 == fourthEnumUInt64
+                where enumHolder.EnumInt64 == firstEnumInt64 || enumHolder.EnumInt64 == secondEnumInt64 || enumHolder.EnumInt64 == thirdEnumInt64 || enumHolder.EnumInt64 == fourthEnumInt64
+                where enumHolder.EnumUInt32 == firstEnumUInt32 || enumHolder.EnumUInt32 == secondEnumUInt32 || enumHolder.EnumUInt32 == thirdEnumUInt32 || enumHolder.EnumUInt32 == fourthEnumUInt32
+                where enumHolder.EnumInt32 == firstEnumInt32 || enumHolder.EnumInt32 == secondEnumInt32 || enumHolder.EnumInt32 == thirdEnumInt32 || enumHolder.EnumInt32 == fourthEnumInt32
+                where enumHolder.EnumUInt16 == firstEnumUInt16 || enumHolder.EnumUInt16 == secondEnumUInt16 || enumHolder.EnumUInt16 == thirdEnumUInt16 || enumHolder.EnumUInt16 == fourthEnumUInt16
+                where enumHolder.EnumInt16 == firstEnumInt16 || enumHolder.EnumInt16 == secondEnumInt16 || enumHolder.EnumInt16 == thirdEnumInt16 || enumHolder.EnumInt16 == fourthEnumInt16
+                where enumHolder.EnumUInt8 == firstEnumUInt8 || enumHolder.EnumUInt8 == secondEnumUInt8 || enumHolder.EnumUInt8 == thirdEnumUInt8 || enumHolder.EnumUInt8 == fourthEnumUInt8
+                where enumHolder.EnumInt8 == firstEnumInt8 || enumHolder.EnumInt8 == secondEnumInt8 || enumHolder.EnumInt8 == thirdEnumInt8 || enumHolder.EnumInt8 == fourthEnumInt8
                 select enumHolder;
 
             _ = from person in GetMongoQueryable<Person>()

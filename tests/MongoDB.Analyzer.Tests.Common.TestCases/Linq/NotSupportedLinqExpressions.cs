@@ -132,9 +132,9 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
         [InvalidLinq("Convert(Convert((Convert({document}{EnumInt16}, Int32) + 10), GenType_Enum_12), Int32) is not supported.")]
-        [InvalidLinq3("Cannot find serializer for Convert(u.EnumInt16, Int32).", version: "[2.14.0-beta1, 2.18.0)")]
-        [InvalidLinq3("Invalid toType: MongoDB.Analyzer.Helpers.Linq.GenType_Enum_12. (Parameter 'toType')", version: "[2.18.0]")]
-        [InvalidLinq3("Expression not supported: Convert((Convert(u.EnumInt16, Int32) + 10), GenType_Enum_12) because conversion to MongoDB.Analyzer.Helpers.Linq.GenType_Enum_12 is not supported.", version: "[2.19.0]")]
+        [InvalidLinq3("Cannot find serializer for Convert(u.EnumInt16, Int32).", version: DriverVersions.V2_14_Beta1_Till_V2_18)]
+        [InvalidLinq3("Invalid toType: MongoDB.Analyzer.Helpers.Linq.GenType_Enum_12. (Parameter 'toType')", version: DriverVersions.V2_18)]
+        [InvalidLinq3("Expression not supported: Convert((Convert(u.EnumInt16, Int32) + 10), GenType_Enum_12) because conversion to MongoDB.Analyzer.Helpers.Linq.GenType_Enum_12 is not supported.", version: DriverVersions.V2_19)]
         public void Unsupported_enum_operations()
         {
             _ = GetMongoQueryable<EnumHolder>()
