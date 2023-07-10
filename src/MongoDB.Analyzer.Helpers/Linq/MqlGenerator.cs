@@ -15,11 +15,20 @@
 using System;
 using System.Linq;
 using MongoDB.Driver.Linq;
+using BsonTypeCustom123 = MongoDB.Bson.BsonType;
+using BsonTimeSpanCustom123 = MongoDB.Bson.Serialization.Options.TimeSpanUnits;
 
 namespace MongoDB.Analyzer.Helpers.Linq
 {
     public static class MqlGenerator
     {
+#pragma warning disable CS0169 // The field is never used
+#pragma warning disable IDE0051
+        private static readonly BsonTypeCustom123 s_dummyRef1;
+        private static readonly BsonTimeSpanCustom123 s_dummyRef2;
+#pragma warning restore IDE0051 // The field is never used
+#pragma warning restore CS0169
+
         private sealed class MqlGeneratorTemplateType
         {
             public Tuple<int, int> Field { get; set; }

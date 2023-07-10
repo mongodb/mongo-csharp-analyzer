@@ -17,15 +17,45 @@ namespace MongoDB.Analyzer.Core;
 internal static class SymbolExtensions
 {
     private const string AssemblyMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceMongoDBBsonAttributes = "MongoDB.Bson.Serialization.Attributes";
     private const string NamespaceMongoDBDriver = "MongoDB.Driver";
     private const string NamespaceMongoDBLinq = "MongoDB.Driver.Linq";
+    private const string NamespaceSystem = "System";
     private const string NamespaceSystemLinq = "System.Linq";
 
     private static readonly HashSet<string> s_supportedCollections = new()
     {
-        "System.Collections.Generic.List<T>",
+        "System.Collections.Generic.IEnumerable<T>",
         "System.Collections.Generic.IList<T>",
-        "System.Collections.Generic.IEnumerable<T>"
+        "System.Collections.Generic.List<T>"
+    };
+
+    private static readonly HashSet<string> s_supportedBsonAttributes = new()
+    {
+        "BsonConstructorAttribute",
+        "BsonDateTimeOptionsAttribute",
+        "BsonDefaultValueAttribute",
+        "BsonDiscriminatorAttribute",
+        "BsonElementAttribute",
+        "BsonExtraElementsAttribute",
+        "BsonFactoryMethodAttribute",
+        "BsonIdAttribute",
+        "BsonIgnoreAttribute",
+        "BsonIgnoreExtraElementsAttribute",
+        "BsonIgnoreIfDefaultAttribute",
+        "BsonIgnoreIfNullAttribute",
+        "BsonKnownTypesAttribute",
+        "BsonNoIdAttribute",
+        "BsonRequiredAttribute",
+        "BsonTimeSpanOptionsAttribute"
+    };
+
+    private static readonly HashSet<string> s_supportedSystemTypes = new()
+    {
+        "System.DateTimeKind",
+        "System.DateTimeOffset",
+        "System.TimeSpan",
+        "System.Type"
     };
 
     public static IMethodSymbol GetMethodSymbol(this SyntaxNode node, SemanticModel semanticModel) =>
@@ -128,8 +158,16 @@ internal static class SymbolExtensions
         typeSymbol.TypeKind == TypeKind.Class &&
         !typeSymbol.IsAnonymousType;
 
+    public static bool IsSupportedBsonAttribute(this ITypeSymbol typeSymbol) =>
+        s_supportedBsonAttributes.Contains(typeSymbol?.Name) &&
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBsonAttributes;
+
     public static bool IsString(this ITypeSymbol typeSymbol) =>
         typeSymbol?.SpecialType == SpecialType.System_String;
+
+    public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol) =>
+        (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(typeSymbol.ToDisplayString())) &&
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
 
     public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
         typeSymbol?.TypeKind switch

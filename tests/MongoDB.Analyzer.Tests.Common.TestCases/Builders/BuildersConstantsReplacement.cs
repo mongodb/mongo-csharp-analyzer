@@ -15,6 +15,7 @@
 using System.Drawing;
 using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver;
+using MongoDB.Bson;
 
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
@@ -132,6 +133,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<ClassWithSystemTypes>.Filter.Eq(o => o.Nested.Nested.Point.X, Point.Empty.X) |
                 Builders<ClassWithSystemTypes>.Filter.Eq(o => o.Nested.Point.Y, 123) |
                 Builders<ClassWithSystemTypes>.Filter.Eq(o => o.Nested.Point.X, GetDrawingPoint().X);
+        }
+
+        [BuildersMQL("{ \"$or\" : [{ \"Nested.Nested.Nested.Nested.BsonType\" : GetBsonDocument().ElementCount }, { \"Nested.Nested.Nested.BsonDocument.ElementCount\" : BsonDocument.ElementCount }, { \"Nested.Nested.BsonDocument.ElementCount\" : GetBsonDocument().ElementCount }] }")]
+        public void Query_containing_bson_types()
+        {
+            _ = Builders<ClassWithBsonTypes>.Filter.Eq(o => o.Nested.Nested.Nested.Nested.BsonType, BsonType.Double) |
+                Builders<ClassWithBsonTypes>.Filter.Eq(o => o.Nested.Nested.Nested.BsonDocument.ElementCount, BsonDocument.ElementCount) |
+                Builders<ClassWithBsonTypes>.Filter.Eq(o => o.Nested.Nested.BsonDocument.ElementCount, GetBsonDocument().ElementCount);
         }
 
         [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : byteConstant }, { \"SiblingsCount\" : 0 }, { \"SiblingsCount\" : intConstant1 }, { \"SiblingsCount\" : 1 }, { \"SiblingsCount\" : intConstant2 }, { \"SiblingsCount\" : 2 }, { \"TicksSinceBirth\" : NumberLong(longConstant1) }, { \"TicksSinceBirth\" : NumberLong(3) }, { \"TicksSinceBirth\" : NumberLong(longConstant2) }, { \"Name\" : stringConstant1 }, { \"Name\" : \"s__5\" }, { \"Name\" : stringConstant2 }, { \"Name\" : \"s__6\" }] }")]
@@ -326,6 +335,9 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         private VehicleTypeEnum GetVehicleTypeEnum(VehicleTypeEnum vehicleTypeEnum) => VehicleTypeEnum.Motorcylce;
 
         private Point GetDrawingPoint() => new(1, 2);
+
+        private BsonDocument BsonDocument { get; } = new BsonDocument();
+        private BsonDocument GetBsonDocument() => new BsonDocument();
 
         private BuildersConstantsReplacement GetThis() => this;
 
