@@ -1,0 +1,79 @@
+﻿// Copyright 2021-present MongoDB Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License")
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using static MongoDB.Analyzer.Core.HelperResources.JsonSyntaxElements.Json;
+namespace MongoDB.Analyzer.Core.Json;
+
+internal sealed class JsonGeneratorTemplateBuilder
+{
+    internal record SyntaxElements(
+        SyntaxNode Root,
+        ClassDeclarationSyntax ClassDeclarationSyntax,
+        MethodDeclarationSyntax TestMethodNode,
+        LocalDeclarationStatementSyntax POCONode)
+    {
+        public SyntaxNode[] NodesToReplace { get; } = new[] { POCONode };
+    }
+
+    private readonly SyntaxElements _syntaxElements;
+
+    private ClassDeclarationSyntax _jsonGeneratorDeclarationSyntaxNew;
+    private int _nextTestMethodIndex;
+
+
+    public JsonGeneratorTemplateBuilder(SyntaxElements syntaxElements)
+    {
+        _syntaxElements = syntaxElements;
+        _jsonGeneratorDeclarationSyntaxNew = _syntaxElements.ClassDeclarationSyntax;
+    }
+
+    public string AddPOCO(ClassDeclarationSyntax POCO)
+    {
+        var POCOType = SyntaxFactory.ParseTypeName(POCO.Identifier.ValueText);
+        ObjectCreationExpressionSyntax objectCreationExpression = SyntaxFactory.ObjectCreationExpression(POCOType, SyntaxFactory.ArgumentList(new SeparatedSyntaxList<ArgumentSyntax>()), null);
+        EqualsValueClauseSyntax equalsValueClause = SyntaxFactory.EqualsValueClause(objectCreationExpression);
+
+        var lhsVariable = _syntaxElements.POCONode.Declaration.Variables.FirstOrDefault().Identifier;
+        var variableDeclaratorSyntax = SyntaxFactory.VariableDeclarator(lhsVariable, null, equalsValueClause);
+        var variableDeclarationSyntax = SyntaxFactory.VariableDeclaration(POCOType, SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(new[] { variableDeclaratorSyntax }));
+        var localDeclarationSyntax = SyntaxFactory.LocalDeclarationStatement(variableDeclarationSyntax);
+
+        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNodes(_syntaxElements.NodesToReplace, (n, _) =>
+            n switch
+            {
+                _ when n == _syntaxElements.POCONode => localDeclarationSyntax,
+                _ => throw new Exception($"Unrecognized node {n}")
+            });
+
+        var newJsonGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
+        newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newJsonGeneratorMethodName));
+
+        _jsonGeneratorDeclarationSyntaxNew = _jsonGeneratorDeclarationSyntaxNew.AddMembers(newMethodDeclaration);
+        return newJsonGeneratorMethodName;
+    }
+
+
+    public SyntaxTree GenerateSyntaxTree() =>
+        _syntaxElements.Root.ReplaceNode(_syntaxElements.ClassDeclarationSyntax, _jsonGeneratorDeclarationSyntaxNew).SyntaxTree;
+
+    public static SyntaxElements CreateSyntaxElements(SyntaxTree jsonGeneratorSyntaxTree)
+    {
+        var root = jsonGeneratorSyntaxTree.GetRoot();
+        var classDeclarationSyntax = root.GetSingleClassDeclaration(JsonGenerator);
+        var mainTestMethodNode = classDeclarationSyntax.GetSingleMethod(JsonGeneratorMainMethodName);
+        var POCONode = mainTestMethodNode.DescendantNodesAndSelf().OfType<LocalDeclarationStatementSyntax>().FirstOrDefault();
+
+        return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, POCONode);
+    }
+}

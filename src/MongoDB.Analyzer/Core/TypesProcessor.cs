@@ -36,6 +36,23 @@ internal sealed class TypesProcessor
         _processedTypes = new Dictionary<string, (string, MemberDeclarationSyntax)>();
     }
 
+    public MemberDeclarationSyntax GetTypeSymbolToMemberDeclarationMapping(ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol == null)
+        {
+            return null;
+        }
+
+        var fullTypeName = GetFullName(typeSymbol);
+
+        if (_processedTypes.TryGetValue(fullTypeName, out var result))
+        {
+            return result.NewDeclaration;
+        }
+
+        return null;
+    }
+
     public string GetTypeSymbolToGeneratedTypeMapping(ITypeSymbol typeSymbol) => GetGeneratedTypeMapping(typeSymbol).RemappedName;
 
     public string ProcessTypeSymbol(ITypeSymbol typeSymbol)

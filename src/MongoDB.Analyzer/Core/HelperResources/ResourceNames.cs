@@ -33,6 +33,11 @@ internal static class ResourceNames
         public const string Renderer_2_19_and_higher = $"Builders.{nameof(Renderer_2_19_and_higher)}";
     }
 
+    internal static class Json
+    {
+        public const string JsonGenerator = $"Json.{nameof(JsonGenerator)}";
+    }
+
     public const string EmptyCursor = nameof(EmptyCursor);
     public const string MongoClientMock = nameof(MongoClientMock);
     public const string MongoCollectionMock = nameof(MongoCollectionMock);

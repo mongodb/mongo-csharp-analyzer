@@ -25,6 +25,14 @@ internal enum LinqVersion
     V3
 }
 
+[JsonConverter(typeof(StringEnumConverter))]
+internal enum JsonAnalyzerVerbosity
+{
+    None,
+    Medium,
+    All
+}
+
 internal record MongoDBAnalyzerSettings(
     [DefaultValue(false)] bool OutputDriverVersion = false,
     [DefaultValue(false)] bool OutputInternalExceptions = false,
@@ -32,6 +40,7 @@ internal record MongoDBAnalyzerSettings(
     [DefaultValue(null)] string LogFileName = null,
     [DefaultValue(true)] bool SendTelemetry = true,
     [DefaultValue(null)] LinqVersion? DefaultLinqVersion = null,
+    [DefaultValue(JsonAnalyzerVerbosity.All)] JsonAnalyzerVerbosity JsonAnalyzerVerbosity = JsonAnalyzerVerbosity.All,
     [DefaultValue(true)] bool EnableVariableTracking = true)
 {
 }

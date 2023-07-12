@@ -12,5 +12,17 @@
     <Compile Include="$(MSBuildThisFileDirectory)Builders\*.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Jira\VS78.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonBasic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonBsonAttributes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonNestedTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonArrays.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonCollections.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonIgnoredBsonAttributes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonEnums.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonSystemTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json\NotSupportedJsonClassDeclarations.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Json\" />
   </ItemGroup>
 </Project>

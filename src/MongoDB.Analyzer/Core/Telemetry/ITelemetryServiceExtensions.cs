@@ -45,6 +45,7 @@ internal static class ITelemetryServicExtensions
                 ("lang_version", (csharpCompilation?.LanguageVersion)?.ToString() ?? "Unknown"),
                 ("syntax_tree_length", semanticModelAnalysisContext.SemanticModel.SyntaxTree.Length),
                 ("linq_version", settings.DefaultLinqVersion?.ToString()),
+                ("json_analyzer_verbosity", settings.JsonAnalyzerVerbosity.ToString()),
                 ("logs_enabled", settings.OutputInternalLogsToFile),
                 ("analyzer_version", s_version)
         };
@@ -57,4 +58,7 @@ internal static class ITelemetryServicExtensions
 
     public static void BuildersAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
         telemetryService.Event("Builders analyzed", analysisStatistics.ToKeyValues());
+
+    public static void JsonAnalysisResult(this ITelemetryService telemetryService, JsonAnalysisTelemetry analysisStatistics) =>
+        telemetryService.Event("JSON analyzed", analysisStatistics.ToKeyValues());
 }

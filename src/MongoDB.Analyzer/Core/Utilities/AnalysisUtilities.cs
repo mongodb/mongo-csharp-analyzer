@@ -31,4 +31,20 @@ internal static class AnalysisUtilities
             analysisStats.InternalExceptionsCount,
             sw.ElapsedMilliseconds);
     }
+
+    public static JsonAnalysisTelemetry GetJsonTelemetry(JsonExpressionAnalysis expressionsAnalysis, JsonAnalysisStats analysisStats, Stopwatch sw)
+    {
+        var expressionsCount = expressionsAnalysis?.AnalysisNodeContexts?.Length ?? 0;
+        var typesCount = 0;
+
+        return new JsonAnalysisTelemetry(
+            expressionsCount,
+            typesCount,
+            analysisStats.DriverVersion,
+            analysisStats.TargetFramework,
+            analysisStats.JsonCount,
+            analysisStats.DriverExceptionsCount,
+            analysisStats.InternalExceptionsCount,
+            sw.ElapsedMilliseconds);
+    }
 }

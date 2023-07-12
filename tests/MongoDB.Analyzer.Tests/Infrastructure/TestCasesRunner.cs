@@ -58,35 +58,51 @@ internal static class TestCasesRunner
 
     private static async Task<IDictionary<string, DiagnosticTestCaseResult>> ExecuteTestCases(TestsBundleKey testsBundleKey)
     {
+        var isJson = testsBundleKey.TestFileName.Contains("/tests/MongoDB.Analyzer.Tests.Common.TestCases/Json");
+
         var diagnostics = await DiagnosticsAnalyzer.Analyze(
             testsBundleKey.TestFileName,
             testsBundleKey.DriverVersion,
             testsBundleKey.LinqVersion);
 
         var diagnosticsAndMethodNodes = diagnostics
-            .Where(d => DiagnosticRulesConstants.AllRules.Contains(d.Descriptor.Id))
-            .Select(d =>
-                (Diagnostic: d,
-                 MethodNode: d.Location.SourceTree.GetRoot()
-                 .FindNode(d.Location.SourceSpan)
-                 .Ancestors()
-                 .OfType<MethodDeclarationSyntax>()
-                 .FirstOrDefault()))
-            .Where(d => d.MethodNode != null)
-            .ToArray();
+                                            .Where(d => DiagnosticRulesConstants.AllRules.Contains(d.Descriptor.Id))
+                                            .Select(d =>
+                                                (Diagnostic: d,
+                                                 MethodNode: FindMethodNode(d, isJson)))
+                                            .Where(d => d.MethodNode != null)
+                                            .ToArray();
 
         var result = diagnosticsAndMethodNodes
-            .GroupBy(pair => pair.MethodNode.Identifier.Text)
-            .ToDictionary(
-                group => group.Key,
-                group => new DiagnosticTestCaseResult(
-                    group.Key,
-                    GetMethodLocation(group.FirstOrDefault().MethodNode),
-                    group.Select(pair => pair.Diagnostic).ToArray()));
+                    .GroupBy(pair => pair.MethodNode.Identifier.Text)
+                    .ToDictionary(
+                        group => group.Key,
+                        group => new DiagnosticTestCaseResult(
+                            group.Key,
+                            GetMethodLocation(group.FirstOrDefault().MethodNode),
+                            group.Select(pair => pair.Diagnostic).ToArray()));
 
         int GetMethodLocation(MethodDeclarationSyntax node) =>
             node.DescendantNodes().OfType<BlockSyntax>().First().GetLocation().GetLineSpan().StartLinePosition.Line;
 
         return result;
+    }
+
+    private static MethodDeclarationSyntax FindMethodNode(Diagnostic diagnostic, bool isJsonTestCase)
+    {
+        if (isJsonTestCase)
+        {
+            var syntaxRoot = diagnostic.Location.SourceTree.GetRoot();
+            var classNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan) as ClassDeclarationSyntax;
+
+            var methodNode = syntaxRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault(method => method.Identifier.ValueText == classNode.Identifier.ValueText);
+            return methodNode;
+        }
+
+        return diagnostic.Location.SourceTree.GetRoot()
+                 .FindNode(diagnostic.Location.SourceSpan)
+                 .Ancestors()
+                 .OfType<MethodDeclarationSyntax>()
+                 .FirstOrDefault();
     }
 }

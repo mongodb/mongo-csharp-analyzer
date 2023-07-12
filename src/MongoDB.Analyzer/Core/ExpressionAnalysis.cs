@@ -18,7 +18,8 @@ internal enum AnalysisType
 {
     Unknown,
     Builders,
-    Linq
+    Linq,
+    Json
 }
 
 internal sealed class ExpressionsAnalysis
@@ -55,4 +56,36 @@ internal record AnalysisStats(
     string TargetFramework)
 {
     public static AnalysisStats Empty { get; } = new AnalysisStats(0, 0, 0, null, null);
+}
+
+internal sealed class JsonExpressionAnalysis
+{
+    public MemberDeclarationSyntax[] TypesDeclarations { get; set; }
+    public JsonExpressionAnalysisContext[] AnalysisNodeContexts { get; set; }
+}
+
+internal record JsonExpressionAnalysisContext(JsonExpressionAnalysisNode Node)
+{
+    public string EvaluationMethodName { get; set; }
+}
+
+internal abstract record JsonExpressionAnalysisNodeBase(ClassDeclarationSyntax POCO);
+
+internal record JsonExpressionAnalysisNode(
+    ClassDeclarationSyntax POCO,
+    ClassDeclarationSyntax RewrittenPOCO,
+    params Location[] Locations) :
+    JsonExpressionAnalysisNodeBase(POCO);
+
+internal record InvalidJsonExpressionAnalysisNode(ClassDeclarationSyntax POCO, params string[] Errors) :
+    JsonExpressionAnalysisNodeBase(POCO);
+
+internal record JsonAnalysisStats(
+    int JsonCount,
+    int InternalExceptionsCount,
+    int DriverExceptionsCount,
+    string DriverVersion,
+    string TargetFramework)
+{
+    public static JsonAnalysisStats Empty { get; } = new JsonAnalysisStats(0, 0, 0, null, null);
 }

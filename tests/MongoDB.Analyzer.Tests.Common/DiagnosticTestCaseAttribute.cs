@@ -14,6 +14,7 @@
 
 using System;
 using System.Linq;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Analyzer.Tests.Common
 {
@@ -141,6 +142,58 @@ namespace MongoDB.Analyzer.Tests.Common
     {
         public NotSupportedBuildersAttribute(string message, string version = null) :
             base(DiagnosticRulesConstants.NotSupportedBuildersExpression, message, version: version)
+        {
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class JsonDiagnosticTestCaseAttribute : Attribute
+    {
+        public string RuleId { get; }
+        public string Message { get; }
+        public string Version { get; }
+        public Location[] Locations { get; }
+        public DriverTargetFramework TargetFramework { get; }
+        public LinqVersion LinqProvider { get; }
+
+
+        public JsonDiagnosticTestCaseAttribute(
+            string ruleId,
+            string message,
+            string version = null,
+            DriverTargetFramework targetFramework = DriverTargetFramework.All,
+            int[] codeLines = null)
+        {
+            LinqProvider = LinqVersion.V2;
+            RuleId = ruleId;
+            Message = message;
+            Version = version;
+            TargetFramework = targetFramework;
+            Locations = codeLines?.Any() == true ? codeLines.Select(l => new Location(l, -1)).ToArray() : new[] { Location.Empty };
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class NoDiagnosticsJsonAttribute : JsonDiagnosticTestCaseAttribute
+    {
+        public NoDiagnosticsJsonAttribute(string version = null) : base(DiagnosticRulesConstants.NoRule, null, version: version) { }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public sealed class JsonAttribute : JsonDiagnosticTestCaseAttribute
+    {
+        public JsonAttribute(
+            string message) :
+            base(DiagnosticRulesConstants.Poco2Json, message, null, DriverTargetFramework.All, null)
+        {
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public sealed class NotSupportedJsonAttribute : JsonDiagnosticTestCaseAttribute
+    {
+        public NotSupportedJsonAttribute(string message, string version = null) :
+            base(DiagnosticRulesConstants.NotSupportedPOCO, message, version: version)
         {
         }
     }

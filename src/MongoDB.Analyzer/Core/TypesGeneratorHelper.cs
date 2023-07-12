@@ -32,6 +32,7 @@ internal static class TypesGeneratorHelper
 
     private static readonly NamespaceDeclarationSyntax s_namespaceDeclarationSyntaxBuilders = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(MqlGeneratorSyntaxElements.Builders.MqlGeneratorNamespace));
     private static readonly NamespaceDeclarationSyntax s_namespaceDeclarationSyntaxLinq = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(MqlGeneratorSyntaxElements.Linq.MqlGeneratorNamespace));
+    private static readonly NamespaceDeclarationSyntax s_namespaceDeclarationSyntaxJson = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(JsonSyntaxElements.Json.JsonGeneratorNamespace));
 
     public static SyntaxTree GenerateTypesSyntaxTree(
         AnalysisType analysisType,
@@ -42,6 +43,7 @@ internal static class TypesGeneratorHelper
         {
             AnalysisType.Builders => s_namespaceDeclarationSyntaxBuilders,
             AnalysisType.Linq => s_namespaceDeclarationSyntaxLinq,
+            AnalysisType.Json => s_namespaceDeclarationSyntaxJson,
             _ => throw new ArgumentOutOfRangeException(nameof(analysisType), analysisType, "Unsupported analysis type")
         };
 

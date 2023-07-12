@@ -15,6 +15,7 @@
 using MongoDB.Analyzer.Core;
 using MongoDB.Analyzer.Core.Builders;
 using MongoDB.Analyzer.Core.Linq;
+using MongoDB.Analyzer.Core.Json;
 
 namespace MongoDB.Analyzer;
 
@@ -23,7 +24,8 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => CollectionExtensions.CreateImmutableArray(
         LinqDiagnosticsRules.DiagnosticsRules,
-        BuidersDiagnosticsRules.DiagnosticsRules);
+        BuidersDiagnosticsRules.DiagnosticsRules,
+        JsonDiagnosticsRules.DiagnosticsRules);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -52,6 +54,7 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
 
             flushTelemetry |= LinqAnalyzer.AnalyzeIMongoQueryable(mongoAnalyzerContext);
             flushTelemetry |= BuildersAnalyzer.AnalyzeBuilders(mongoAnalyzerContext);
+            flushTelemetry |= JsonAnalyzer.AnalyzeJson(mongoAnalyzerContext);
         }
         catch (Exception ex)
         {
