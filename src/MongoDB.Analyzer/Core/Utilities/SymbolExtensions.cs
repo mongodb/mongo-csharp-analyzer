@@ -16,12 +16,22 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SymbolExtensions
 {
-    private const string AssemblyMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceMongoDBBson = "MongoDB.Bson";
     private const string NamespaceMongoDBBsonAttributes = "MongoDB.Bson.Serialization.Attributes";
+    private const string NamespaceMongoDBBsonSerializationOptions = "MongoDB.Bson.Serialization.Options";
+    private const string AssemblyMongoDBDriver = "MongoDB.Driver";
     private const string NamespaceMongoDBDriver = "MongoDB.Driver";
     private const string NamespaceMongoDBLinq = "MongoDB.Driver.Linq";
     private const string NamespaceSystem = "System";
     private const string NamespaceSystemLinq = "System.Linq";
+
+    private static readonly HashSet<string> s_supportedBsonTypes = new()
+    {
+        "MongoDB.Bson.BsonDocument",
+        "MongoDB.Bson.BsonValue",
+        "MongoDB.Bson.BsonObjectId",
+        "MongoDB.Bson.BsonType"
+    };
 
     private static readonly HashSet<string> s_supportedCollections = new()
     {
@@ -48,6 +58,11 @@ internal static class SymbolExtensions
         "BsonNoIdAttribute",
         "BsonRequiredAttribute",
         "BsonTimeSpanOptionsAttribute"
+    };
+
+    private static readonly HashSet<string> s_supportedBsonSerializationOptions = new()
+    {
+        "MongoDB.Bson.Serialization.Options.TimeSpanUnits"
     };
 
     private static readonly HashSet<string> s_supportedSystemTypes = new()
@@ -161,6 +176,14 @@ internal static class SymbolExtensions
     public static bool IsSupportedBsonAttribute(this ITypeSymbol typeSymbol) =>
         s_supportedBsonAttributes.Contains(typeSymbol?.Name) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBsonAttributes;
+
+    public static bool IsSupportedBsonSerializationOption(this ITypeSymbol typeSymbol) =>
+        s_supportedBsonSerializationOptions.Contains(typeSymbol.ToDisplayString()) &&
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBsonSerializationOptions;
+
+    public static bool IsSupportedBsonType(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBson &&
+        s_supportedBsonTypes.Contains(typeSymbol.ToDisplayString());
 
     public static bool IsString(this ITypeSymbol typeSymbol) =>
         typeSymbol?.SpecialType == SpecialType.System_String;

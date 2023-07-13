@@ -12,13 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Driver;
 using System.Linq;
-using BsonDocumentCustom123 = MongoDB.Bson.BsonDocument;
-using BsonValueCustom123 = MongoDB.Bson.BsonValue;
-using BsonObjectIdCustom123 = MongoDB.Bson.BsonObjectId;
-using BsonTypeCustom123 = MongoDB.Bson.BsonType;
-using BsonTimeSpanCustom123 = MongoDB.Bson.Serialization.Options.TimeSpanUnits;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Driver;
 
 namespace MongoDB.Analyzer.Helpers.Builders
 {
@@ -26,11 +23,8 @@ namespace MongoDB.Analyzer.Helpers.Builders
     {
 #pragma warning disable CS0169 // The field is never used
 #pragma warning disable IDE0051
-        private static readonly BsonDocumentCustom123 s_dummyRef1;
-        private static readonly BsonValueCustom123 s_dummyRef2;
-        private static readonly BsonObjectIdCustom123 s_dummyRef3;
-        private static readonly BsonTypeCustom123 s_dummyRef4;
-        private static readonly BsonTimeSpanCustom123 s_dummyRef5;
+        private static readonly BsonType s_dummyRef1;
+        private static readonly TimeSpanUnits s_dummyRef2;
 #pragma warning restore IDE0051 // The field is never used
 #pragma warning restore CS0169
 
