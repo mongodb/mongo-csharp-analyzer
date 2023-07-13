@@ -172,13 +172,9 @@ internal static class SymbolExtensions
         s_supportedBsonAttributes.Contains(typeSymbol?.Name) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBsonAttributes;
 
-    public static bool IsSupportedBsonSerializationOption(this ITypeSymbol typeSymbol) =>
-        s_supportedBsonSerializationOptions.Contains(typeSymbol.ToDisplayString()) &&
-        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBsonSerializationOptions;
-
-    public static bool IsSupportedBsonType(this ITypeSymbol typeSymbol) =>
-        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBson &&
-        s_supportedBsonTypes.Contains(typeSymbol.ToDisplayString());
+    public static bool IsSupportedBsonType(this ITypeSymbol typeSymbol, string fullTypeName = default) =>
+        typeSymbol?.ContainingNamespace?.ToDisplayString().StartsWith(NamespaceMongoDBBson) ?? false &&
+        (s_supportedBsonTypes.Contains(fullTypeName) || s_supportedBsonSerializationOptions.Contains(fullTypeName));
 
     public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
         typeSymbol?.TypeKind switch

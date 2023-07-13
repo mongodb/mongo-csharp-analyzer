@@ -22,11 +22,11 @@ namespace MongoDB.Analyzer.Helpers.Linq
 {
     public static class MqlGenerator
     {
-#pragma warning disable CS0169 // The field is never used
+#pragma warning disable CS0169 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning disable IDE0051
         private static readonly BsonType s_dummyRef1;
         private static readonly TimeSpanUnits s_dummyRef2;
-#pragma warning restore IDE0051 // The field is never used
+#pragma warning restore IDE0051 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning restore CS0169
 
         private sealed class MqlGeneratorTemplateType

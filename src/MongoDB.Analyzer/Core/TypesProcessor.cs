@@ -64,7 +64,7 @@ internal sealed class TypesProcessor
         }
 
         var fullTypeName = GetFullName(typeSymbol);
-        if (typeSymbol.IsSupportedBsonType() || typeSymbol.IsSupportedBsonSerializationOption())
+        if (typeSymbol.IsSupportedBsonType(fullTypeName))
         {
             return (typeSymbol.Name, fullTypeName);
         }
