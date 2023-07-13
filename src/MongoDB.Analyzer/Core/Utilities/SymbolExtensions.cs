@@ -19,7 +19,6 @@ internal static class SymbolExtensions
     private const string AssemblyMongoDBDriver = "MongoDB.Driver";
     private const string NamespaceMongoDBBson = "MongoDB.Bson";
     private const string NamespaceMongoDBBsonAttributes = "MongoDB.Bson.Serialization.Attributes";
-    private const string NamespaceMongoDBBsonSerializationOptions = "MongoDB.Bson.Serialization.Options";
     private const string NamespaceMongoDBDriver = "MongoDB.Driver";
     private const string NamespaceMongoDBLinq = "MongoDB.Driver.Linq";
     private const string NamespaceSystem = "System";
