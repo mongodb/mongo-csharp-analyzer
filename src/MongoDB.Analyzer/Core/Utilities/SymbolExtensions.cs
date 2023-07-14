@@ -17,18 +17,12 @@ namespace MongoDB.Analyzer.Core;
 internal static class SymbolExtensions
 {
     private const string AssemblyMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceMongoDBBson = "MongoDB.Bson";
     private const string NamespaceMongoDBBsonAttributes = "MongoDB.Bson.Serialization.Attributes";
     private const string NamespaceMongoDBDriver = "MongoDB.Driver";
     private const string NamespaceMongoDBLinq = "MongoDB.Driver.Linq";
     private const string NamespaceSystem = "System";
     private const string NamespaceSystemLinq = "System.Linq";
-
-    private static readonly HashSet<string> s_supportedCollections = new()
-    {
-        "System.Collections.Generic.IEnumerable<T>",
-        "System.Collections.Generic.IList<T>",
-        "System.Collections.Generic.List<T>"
-    };
 
     private static readonly HashSet<string> s_supportedBsonAttributes = new()
     {
@@ -48,6 +42,22 @@ internal static class SymbolExtensions
         "BsonNoIdAttribute",
         "BsonRequiredAttribute",
         "BsonTimeSpanOptionsAttribute"
+    };
+
+    private static readonly HashSet<string> s_supportedBsonTypes = new()
+    {
+        "MongoDB.Bson.BsonDocument",
+        "MongoDB.Bson.BsonObjectId",
+        "MongoDB.Bson.BsonType",
+        "MongoDB.Bson.BsonValue",
+        "MongoDB.Bson.Serialization.Options.TimeSpanUnits"
+    };
+
+    private static readonly HashSet<string> s_supportedCollections = new()
+    {
+        "System.Collections.Generic.IEnumerable<T>",
+        "System.Collections.Generic.IList<T>",
+        "System.Collections.Generic.List<T>"
     };
 
     private static readonly HashSet<string> s_supportedSystemTypes = new()
@@ -150,24 +160,16 @@ internal static class SymbolExtensions
     public static bool IsMongoQueryable(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name == "MongoQueryable";
 
-    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
-        typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-        s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString());
-
-    public static bool IsSupportedMongoCollectionType(this ITypeSymbol typeSymbol) =>
-        typeSymbol.TypeKind == TypeKind.Class &&
-        !typeSymbol.IsAnonymousType;
+    public static bool IsString(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.SpecialType == SpecialType.System_String;
 
     public static bool IsSupportedBsonAttribute(this ITypeSymbol typeSymbol) =>
         s_supportedBsonAttributes.Contains(typeSymbol?.Name) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBsonAttributes;
 
-    public static bool IsString(this ITypeSymbol typeSymbol) =>
-        typeSymbol?.SpecialType == SpecialType.System_String;
-
-    public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol) =>
-        (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(typeSymbol.ToDisplayString())) &&
-        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
+    public static bool IsSupportedBsonType(this ITypeSymbol typeSymbol, string fullTypeName) =>
+        s_supportedBsonTypes.Contains(fullTypeName) &&
+        (typeSymbol?.ContainingNamespace?.ToDisplayString().StartsWith(NamespaceMongoDBBson) ?? false);
 
     public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
         typeSymbol?.TypeKind switch
@@ -177,6 +179,18 @@ internal static class SymbolExtensions
             TypeKind.Struct => true,
             _ => false
         };
+
+    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
+        typeSymbol is INamedTypeSymbol namedTypeSymbol &&
+        s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString());
+
+    public static bool IsSupportedMongoCollectionType(this ITypeSymbol typeSymbol) =>
+        typeSymbol.TypeKind == TypeKind.Class &&
+        !typeSymbol.IsAnonymousType;
+
+    public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol, string fullTypeName) =>
+        (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
 
     public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
         typeSymbol.IsIMongoCollection() &&
