@@ -131,14 +131,47 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select person;
         }
 
-        [InvalidLinq("Convert(Convert((Convert({document}{EnumInt16}, Int32) + 10), GenType_Enum_12), Int32) is not supported.")]
-        [InvalidLinq3("Cannot find serializer for Convert(u.EnumInt16, Int32).", version: DriverVersions.V2_14_Beta1_Till_V2_18)]
-        [InvalidLinq3("Invalid toType: MongoDB.Analyzer.Helpers.Linq.GenType_Enum_12. (Parameter 'toType')", version: DriverVersions.V2_18)]
-        [InvalidLinq3("Expression not supported: Convert((Convert(u.EnumInt16, Int32) + 10), GenType_Enum_12) because conversion to MongoDB.Analyzer.Helpers.Linq.GenType_Enum_12 is not supported.", version: DriverVersions.V2_19)]
-        public void Unsupported_enum_operations()
+#if NET472
+        [InvalidLinq3("Unable to cast object of type 'System.Int32' to type 'MongoDB.Bson.BsonValue'.")]
+#else
+        [InvalidLinq("The binary operator Equal is not defined for the types 'MongoDB.Bson.BsonValue' and 'System.Int32'.")]
+        [InvalidLinq3("Unable to cast object of type 'System.Int32' to type 'MongoDB.Bson.BsonValue'.")]
+#endif
+        public void Unsupported_bson_types()
         {
-            _ = GetMongoQueryable<EnumHolder>()
-                .Where(u => u.EnumInt16 + 10 == EnumInt16.Value1);
+            _ = GetMongoQueryable<ClassWithBsonTypes>().Where(o => o.BsonDocument.ElementCount == 10);
+        }
+
+        [InvalidLinq("{document}.Quantity is not supported.")]
+        [InvalidLinq("{document}._AppleID is not supported.")]
+        public void Warnings_due_to_bson_ignore()
+        {
+            _ = GetMongoQueryable<Fruit>().Where(f => f.Quantity == 22);
+            _ = GetMongoQueryable<Apple>().Where(a => a._AppleID == "Apple ID");
+        }
+
+#if NET472
+        [InvalidLinq("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_16.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
+        [InvalidLinq("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_17.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
+        [InvalidLinq("Class System.TimeSpan cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_18.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
+#else
+        [InvalidLinq("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_16.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
+        [InvalidLinq("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_17.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
+        [InvalidLinq("Class System.TimeSpan cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_18.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
+#endif
+        public void Unsupported_type_for_bson_attribute_argument()
+        {
+            _ = GetMongoQueryable<GoldenApple>()
+                .Where(g => g.GoldenAppleCost == 22)
+                .Select(g => g);
+
+            _ = GetMongoQueryable<FujiApple>()
+                .Where(f => f.FujiAppleCost == 22)
+                .Select(f => f);
+
+            _ = GetMongoQueryable<YellowApple>()
+                .Where(y => y.YellowAppleCost == 22)
+                .Select(y => y);
         }
     }
 }

@@ -45,7 +45,7 @@ internal static class LinqExpressionProcessor
         public static RewriteResult Invalid = new(RewriteAction.Invalid, null, null);
     }
 
-    public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalyzerContext context)
+    public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var syntaxTree = semanticModel.SyntaxTree;
@@ -55,7 +55,7 @@ internal static class LinqExpressionProcessor
         var analysisContexts = new List<ExpressionAnalysisContext>();
         var invalidExpressionNodes = new List<InvalidExpressionAnalysisNode>();
 
-        var typesProcessor = new TypesProcessor();
+        var typesProcessor = context.TypesProcessor;
 
         foreach (var node in root.DescendantNodesWithSkipList(processedSyntaxNodes).OfType<ExpressionSyntax>())
         {

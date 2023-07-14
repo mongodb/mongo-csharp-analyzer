@@ -16,14 +16,6 @@ namespace MongoDB.Analyzer.Core;
 
 internal sealed class TypesProcessor
 {
-    private static readonly Dictionary<string, string> s_knownTypes = new()
-    {
-        { "MongoDB.Bson.BsonDocument", "BsonDocumentCustom123" },
-        { "MongoDB.Bson.BsonValue", "BsonValueCustom123" },
-        { "MongoDB.Bson.BsonObjectId", "BsonObjectIdCustom123" },
-        { "MongoDB.Bson.BsonType", "BsonTypeCustom123" }
-    };
-
     private readonly Dictionary<string, (string NewName, MemberDeclarationSyntax NewDeclaration)> _processedTypes;
 
     private int _nextTypeId = 0;
@@ -35,57 +27,59 @@ internal sealed class TypesProcessor
         _processedTypes = new Dictionary<string, (string, MemberDeclarationSyntax)>();
     }
 
-    public string GetTypeSymbolToGeneratedTypeMapping(ITypeSymbol typeSymbol)
-    {
-        if (typeSymbol == null)
-        {
-            return null;
-        }
-
-        var fullTypeName = GetFullName(typeSymbol);
-        if (s_knownTypes.TryGetValue(fullTypeName, out var knowTypeName))
-        {
-            return knowTypeName;
-        }
-
-        if (_processedTypes.TryGetValue(fullTypeName, out var result))
-        {
-            return result.NewName;
-        }
-
-        return null;
-    }
+    public string GetTypeSymbolToGeneratedTypeMapping(ITypeSymbol typeSymbol) => GetGeneratedTypeMapping(typeSymbol).RemappedName;
 
     public string ProcessTypeSymbol(ITypeSymbol typeSymbol)
     {
-        if (typeSymbol == null)
+        var (remappedName, fullTypeName) = GetGeneratedTypeMapping(typeSymbol);
+        if (fullTypeName == null)
         {
             return null;
         }
 
-        var fullTypeName = GetFullName(typeSymbol);
-        if (s_knownTypes.TryGetValue(fullTypeName, out var knowTypeName))
+        if (remappedName != null)
         {
-            return knowTypeName;
+            return remappedName;
         }
 
-        if (_processedTypes.TryGetValue(fullTypeName, out var pair))
-        {
-            return pair.NewName;
-        }
+        remappedName = GetNewNameForSymbol(typeSymbol);
+        _processedTypes[fullTypeName] = (remappedName, null); // Cache the name, for self referencing types
 
-        var newTypeName = GetNewNameForSymbol(typeSymbol);
-        _processedTypes[fullTypeName] = (newTypeName, null); // Cache the name, for self referencing types
-
-        var rewrittenDeclarationSyntax = GetSyntaxNodeFromSymbol(typeSymbol, newTypeName);
+        var rewrittenDeclarationSyntax = GetSyntaxNodeFromSymbol(typeSymbol, remappedName);
 
         var typeCode = rewrittenDeclarationSyntax.ToFullString();
         var newTypeDeclaration = SyntaxFactory.ParseMemberDeclaration(typeCode);
 
-        newTypeName = rewrittenDeclarationSyntax.Identifier.Text;
-        _processedTypes[fullTypeName] = (newTypeName, newTypeDeclaration);
+        remappedName = rewrittenDeclarationSyntax.Identifier.Text;
+        _processedTypes[fullTypeName] = (remappedName, newTypeDeclaration);
 
-        return newTypeName;
+        return remappedName;
+    }
+
+    private (string RemappedName, string FullTypeName) GetGeneratedTypeMapping(ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol == null)
+        {
+            return default;
+        }
+
+        var fullTypeName = GetFullName(typeSymbol);
+        if (typeSymbol.IsSupportedBsonType(fullTypeName))
+        {
+            return (typeSymbol.Name, fullTypeName);
+        }
+
+        if (_processedTypes.TryGetValue(fullTypeName, out var result))
+        {
+            return (result.NewName, fullTypeName);
+        }
+
+        if (typeSymbol.IsSupportedSystemType(fullTypeName))
+        {
+            return (fullTypeName, fullTypeName);
+        }
+
+        return (null, fullTypeName);
     }
 
     private BaseTypeDeclarationSyntax GetSyntaxNodeFromSymbol(ITypeSymbol typeSymbol, string newTypeName)
@@ -135,6 +129,12 @@ internal sealed class TypesProcessor
             var baseTypeNameGenerated = ProcessTypeSymbol(typeSymbol.BaseType);
 
             typeDeclaration = typeDeclaration.WithBaseList(GetBaseListSyntax(baseTypeNameGenerated));
+        }
+
+        var bsonAttributeList = GenerateBsonAttributeList(typeSymbol);
+        if (bsonAttributeList != null && bsonAttributeList.Attributes.AnySafe())
+        {
+            typeDeclaration = typeDeclaration.AddAttributeLists(bsonAttributeList);
         }
 
         return typeDeclaration;
@@ -197,6 +197,12 @@ internal sealed class TypesProcessor
                 propertyDeclaration = propertyDeclaration.AddAccessorListAccessors(SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
             }
 
+            var bsonAttributeList = GenerateBsonAttributeList(propertySymbol);
+            if (bsonAttributeList != null && bsonAttributeList.Attributes.AnySafe())
+            {
+                propertyDeclaration = propertyDeclaration.AddAttributeLists(bsonAttributeList);
+            }
+
             members.Add(propertyDeclaration);
         }
     }
@@ -217,8 +223,13 @@ internal sealed class TypesProcessor
 
             var variableDeclaration = SyntaxFactory.VariableDeclaration(typeSyntax, SyntaxFactory.SingletonSeparatedList(SyntaxFactory.VariableDeclarator(fieldSymbol.Name)));
 
+            var bsonAttributeList = GenerateBsonAttributeList(fieldSymbol);
+            var attributeLists = bsonAttributeList != null && bsonAttributeList.Attributes.AnySafe() ?
+                SyntaxFactory.List<AttributeListSyntax>(SyntaxFactory.SingletonSeparatedList<AttributeListSyntax>(bsonAttributeList)) :
+                SyntaxFactory.List<AttributeListSyntax>();
+
             var fieldDeclaration = SyntaxFactory.FieldDeclaration(
-                attributeLists: SyntaxFactory.List<AttributeListSyntax>(),
+                attributeLists: attributeLists,
                 modifiers: SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
                 declaration: variableDeclaration);
 
@@ -254,19 +265,16 @@ internal sealed class TypesProcessor
                 SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(new[] { underlyingTypeSyntax })));
 
             result = SyntaxFactory.QualifiedName(
-                    SyntaxFactory.QualifiedName(
                         SyntaxFactory.QualifiedName(
-                            SyntaxFactory.IdentifierName("System"),
-                            SyntaxFactory.IdentifierName("Collections")),
-                        SyntaxFactory.IdentifierName("Generic")),
-                    listSyntax);
+                            SyntaxFactory.QualifiedName(
+                                SyntaxFactory.IdentifierName("System"),
+                                SyntaxFactory.IdentifierName("Collections")),
+                            SyntaxFactory.IdentifierName("Generic")),
+                        listSyntax);
         }
         else
         {
-            var typeName = typeSymbol.SpecialType == SpecialType.None ?
-                ProcessTypeSymbol(typeSymbol) : typeSymbol.Name;
-
-            result = SyntaxFactory.ParseTypeName(typeName);
+            result = SyntaxFactory.ParseTypeName(ProcessTypeSymbol(typeSymbol));
         }
 
         return result;
@@ -283,4 +291,74 @@ internal sealed class TypesProcessor
 
     private string GetFullName(ITypeSymbol typeSymbol) =>
         typeSymbol.ToDisplayString();
+
+    private AttributeListSyntax GenerateBsonAttributeList(ISymbol symbol)
+    {
+        var bsonAttributes = symbol.GetAttributes().Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute());
+        if (bsonAttributes.EmptyOrNull())
+        {
+            return null;
+        }
+
+        var generatedBsonAttributes = new List<AttributeSyntax>();
+        foreach (var bsonAttribute in bsonAttributes)
+        {
+            var bsonAttributeArgumentList = new List<AttributeArgumentSyntax>();
+
+            bsonAttributeArgumentList.AddRange(bsonAttribute.ConstructorArguments
+                .Select(bsonAttributeArgument => GenerateBsonAttributeArgument(bsonAttributeArgument, false, null)));
+
+            bsonAttributeArgumentList.AddRange(bsonAttribute.NamedArguments
+                .Select(bsonAttributeArgument => GenerateBsonAttributeArgument(bsonAttributeArgument.Value, true, bsonAttributeArgument.Key)));
+
+            var bsonAttributeSyntaxNode = SyntaxFactoryUtilities.GetAttribute(bsonAttribute.AttributeClass.Name, bsonAttributeArgumentList);
+            generatedBsonAttributes.Add(bsonAttributeSyntaxNode);
+        }
+
+        var bsonAttributeList = SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList<AttributeSyntax>(generatedBsonAttributes));
+        return bsonAttributeList;
+    }
+
+    private AttributeArgumentSyntax GenerateBsonAttributeArgument(TypedConstant argumentValue, bool isNamed, string argumentKey)
+    {
+        var expressionSyntax = GenerateExpressionFromBsonAttributeArgumentInfo(argumentValue);
+        var attributeArgument = isNamed ? SyntaxFactory.AttributeArgument(SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName(argumentKey)), null, expressionSyntax) :
+            SyntaxFactory.AttributeArgument(expressionSyntax);
+
+        return attributeArgument;
+    }
+
+    private ExpressionSyntax GenerateExpressionFromBsonAttributeArgumentInfo(TypedConstant attributeArgumentInfo) =>
+        attributeArgumentInfo.Kind switch
+        {
+            TypedConstantKind.Enum => HandleEnumInBsonAttributeArgument(attributeArgumentInfo.Value, attributeArgumentInfo.Type),
+            TypedConstantKind.Primitive => HandlePrimitiveInBsonAttributeArgument(attributeArgumentInfo.Value),
+            TypedConstantKind.Array => HandleArrayInBsonAttributeArgument(attributeArgumentInfo.Values, attributeArgumentInfo.Type as IArrayTypeSymbol),
+            TypedConstantKind.Type => HandleTypeInBsonAttributeArgument(attributeArgumentInfo.Value),
+            _ => null
+        };
+
+    private ExpressionSyntax HandleEnumInBsonAttributeArgument(object value, ITypeSymbol typeSymbol) =>
+        SyntaxFactoryUtilities.GetCastConstantExpression(ProcessTypeSymbol(typeSymbol), value);
+
+    private LiteralExpressionSyntax HandlePrimitiveInBsonAttributeArgument(object value) =>
+        SyntaxFactoryUtilities.GetConstantExpression(value);
+
+    private ExpressionSyntax HandleArrayInBsonAttributeArgument(ImmutableArray<TypedConstant> argumentValues, IArrayTypeSymbol arrayTypeSymbol)
+    {
+        var ranksList = SyntaxFactory.SeparatedList(
+                Enumerable.Range(0, arrayTypeSymbol.Rank)
+                .Select(_ => (ExpressionSyntax)SyntaxFactory.OmittedArraySizeExpression()));
+
+        var arrayRankSpecifiers = SyntaxFactory.List(new[] { SyntaxFactory.ArrayRankSpecifier(ranksList) });
+        var arrayElementTypeName = ProcessTypeSymbol(arrayTypeSymbol.ElementType);
+
+        var arrayTypeSyntax = SyntaxFactory.ArrayType(SyntaxFactory.ParseTypeName(arrayElementTypeName), arrayRankSpecifiers);
+        var expressionList = argumentValues.Select(argumentValue => GenerateExpressionFromBsonAttributeArgumentInfo(argumentValue)).ToArray();
+
+        return SyntaxFactoryUtilities.GetArrayCreationExpression(arrayTypeSyntax, expressionList);
+    }
+
+    private ExpressionSyntax HandleTypeInBsonAttributeArgument(object argumentValue) =>
+        SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(ProcessTypeSymbol(argumentValue as INamedTypeSymbol)));
 }
