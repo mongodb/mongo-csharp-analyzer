@@ -23,11 +23,7 @@ internal static class TypesGeneratorHelper
             Using("System"),
             Using("MongoDB.Bson"),
             Using("MongoDB.Bson.Serialization.Attributes"),
-            Using("BsonTimeSpanCustom123", "MongoDB.Bson.Serialization.Options.TimeSpanUnits"),
-            Using("BsonTypeCustom123", "MongoDB.Bson.BsonType"),
-            Using("BsonDocumentCustom123", "MongoDB.Bson.BsonDocument"),
-            Using("BsonValueCustom123", "MongoDB.Bson.BsonValue"),
-            Using("BsonObjectIdCustom123", "MongoDB.Bson.BsonObjectId"));
+            Using("MongoDB.Bson.Serialization.Options"));
 
 
     private static readonly NamespaceDeclarationSyntax s_namespaceDeclarationSyntaxBuilders = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(MqlGeneratorSyntaxElements.Builders.MqlGeneratorNamespace));

@@ -16,15 +16,6 @@ namespace MongoDB.Analyzer.Core;
 
 internal sealed class TypesProcessor
 {
-    private static readonly Dictionary<string, string> s_knownBsonTypes = new()
-    {
-        { "MongoDB.Bson.BsonDocument", "BsonDocumentCustom123" },
-        { "MongoDB.Bson.BsonValue", "BsonValueCustom123" },
-        { "MongoDB.Bson.BsonObjectId", "BsonObjectIdCustom123" },
-        { "MongoDB.Bson.BsonType", "BsonTypeCustom123" },
-        { "MongoDB.Bson.Serialization.Options.TimeSpanUnits", "BsonTimeSpanCustom123" }
-    };
-
     private readonly Dictionary<string, (string NewName, MemberDeclarationSyntax NewDeclaration)> _processedTypes;
 
     private int _nextTypeId = 0;
@@ -90,9 +81,9 @@ internal sealed class TypesProcessor
         }
 
         var fullTypeName = GetFullName(typeSymbol);
-        if (s_knownBsonTypes.TryGetValue(fullTypeName, out var knowTypeName))
+        if (typeSymbol.IsSupportedBsonType(fullTypeName))
         {
-            return (knowTypeName, fullTypeName);
+            return (typeSymbol.Name, fullTypeName);
         }
 
         if (_processedTypes.TryGetValue(fullTypeName, out var result))
@@ -100,7 +91,7 @@ internal sealed class TypesProcessor
             return (result.NewName, fullTypeName);
         }
 
-        if (typeSymbol.IsSupportedSystemType())
+        if (typeSymbol.IsSupportedSystemType(fullTypeName))
         {
             return (fullTypeName, fullTypeName);
         }
@@ -253,7 +244,7 @@ internal sealed class TypesProcessor
             var attributeLists = bsonAttributeList != null && bsonAttributeList.Attributes.AnySafe() ?
                 SyntaxFactory.List<AttributeListSyntax>(SyntaxFactory.SingletonSeparatedList<AttributeListSyntax>(bsonAttributeList)) :
                 SyntaxFactory.List<AttributeListSyntax>();
-            
+
             var fieldDeclaration = SyntaxFactory.FieldDeclaration(
                 attributeLists: attributeLists,
                 modifiers: SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
@@ -366,7 +357,7 @@ internal sealed class TypesProcessor
 
     private ExpressionSyntax HandleEnumInBsonAttributeArgument(object value, ITypeSymbol typeSymbol) =>
         SyntaxFactoryUtilities.GetCastConstantExpression(ProcessTypeSymbol(typeSymbol), value);
-    
+
     private LiteralExpressionSyntax HandlePrimitiveInBsonAttributeArgument(object value) =>
         SyntaxFactoryUtilities.GetConstantExpression(value);
 
