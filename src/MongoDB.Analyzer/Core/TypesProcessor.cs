@@ -74,7 +74,7 @@ internal sealed class TypesProcessor
             return (result.NewName, fullTypeName);
         }
 
-        if (typeSymbol.IsSupportedSystemType())
+        if (typeSymbol.IsSupportedSystemType(fullTypeName))
         {
             return (fullTypeName, fullTypeName);
         }

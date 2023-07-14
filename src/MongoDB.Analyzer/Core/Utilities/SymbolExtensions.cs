@@ -44,17 +44,13 @@ internal static class SymbolExtensions
         "BsonTimeSpanOptionsAttribute"
     };
 
-    private static readonly HashSet<string> s_supportedBsonSerializationOptions = new()
-    {
-        "MongoDB.Bson.Serialization.Options.TimeSpanUnits"
-    };
-
     private static readonly HashSet<string> s_supportedBsonTypes = new()
     {
         "MongoDB.Bson.BsonDocument",
         "MongoDB.Bson.BsonValue",
         "MongoDB.Bson.BsonObjectId",
-        "MongoDB.Bson.BsonType"
+        "MongoDB.Bson.BsonType",
+        "MongoDB.Bson.Serialization.Options.TimeSpanUnits"
     };
 
     private static readonly HashSet<string> s_supportedCollections = new()
@@ -171,9 +167,9 @@ internal static class SymbolExtensions
         s_supportedBsonAttributes.Contains(typeSymbol?.Name) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBsonAttributes;
 
-    public static bool IsSupportedBsonType(this ITypeSymbol typeSymbol, string fullTypeName = default) =>
-        typeSymbol?.ContainingNamespace?.ToDisplayString().StartsWith(NamespaceMongoDBBson) ?? false &&
-        (s_supportedBsonTypes.Contains(fullTypeName) || s_supportedBsonSerializationOptions.Contains(fullTypeName));
+    public static bool IsSupportedBsonType(this ITypeSymbol typeSymbol, string fullTypeName) =>
+        s_supportedBsonTypes.Contains(fullTypeName) &&
+        (typeSymbol?.ContainingNamespace?.ToDisplayString().StartsWith(NamespaceMongoDBBson) ?? false);
 
     public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
         typeSymbol?.TypeKind switch
@@ -192,8 +188,8 @@ internal static class SymbolExtensions
         typeSymbol.TypeKind == TypeKind.Class &&
         !typeSymbol.IsAnonymousType;
 
-    public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol) =>
-        (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(typeSymbol.ToDisplayString())) &&
+    public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol, string fullTypeName) =>
+        (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
 
     public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
