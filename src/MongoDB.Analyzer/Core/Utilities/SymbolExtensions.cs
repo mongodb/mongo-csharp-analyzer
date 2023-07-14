@@ -47,9 +47,9 @@ internal static class SymbolExtensions
     private static readonly HashSet<string> s_supportedBsonTypes = new()
     {
         "MongoDB.Bson.BsonDocument",
-        "MongoDB.Bson.BsonValue",
         "MongoDB.Bson.BsonObjectId",
         "MongoDB.Bson.BsonType",
+        "MongoDB.Bson.BsonValue",
         "MongoDB.Bson.Serialization.Options.TimeSpanUnits"
     };
 
