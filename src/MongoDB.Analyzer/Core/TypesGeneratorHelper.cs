@@ -25,7 +25,6 @@ internal static class TypesGeneratorHelper
             Using("MongoDB.Bson.Serialization.Attributes"),
             Using("MongoDB.Bson.Serialization.Options"));
 
-
     private static readonly NamespaceDeclarationSyntax s_namespaceDeclarationSyntaxBuilders = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(MqlGeneratorSyntaxElements.Builders.MqlGeneratorNamespace));
     private static readonly NamespaceDeclarationSyntax s_namespaceDeclarationSyntaxLinq = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(MqlGeneratorSyntaxElements.Linq.MqlGeneratorNamespace));
     private static readonly NamespaceDeclarationSyntax s_namespaceDeclarationSyntaxJson = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(JsonSyntaxElements.Json.JsonGeneratorNamespace));
