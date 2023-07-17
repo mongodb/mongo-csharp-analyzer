@@ -35,6 +35,7 @@ internal static class ResourceNames
 
     internal static class Json
     {
+        public const string AttributeHandler = $"Json.{nameof(AttributeHandler)}";
         public const string JsonGenerator = $"Json.{nameof(JsonGenerator)}";
     }
 

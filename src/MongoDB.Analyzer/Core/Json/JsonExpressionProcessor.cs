@@ -16,13 +16,14 @@ namespace MongoDB.Analyzer.Core.Json;
 
 internal static class JsonExpressionProcessor
 {
-    public static JsonExpressionAnalysis ProcessSemanticModel(MongoAnalysisContext context)
+    public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var syntaxTree = semanticModel.SyntaxTree;
         var root = syntaxTree.GetRoot();
 
-        var analysisContexts = new List<JsonExpressionAnalysisContext>();
+        var analysisContexts = new List<ExpressionAnalysisContext>();
+        var invalidExpressionNodes = new List<InvalidExpressionAnalysisNode>();
         var classNodes = root.DescendantNodesAndSelf().OfType<ClassDeclarationSyntax>();
 
         var typesProcessor = context.TypesProcessor;
@@ -36,7 +37,7 @@ internal static class JsonExpressionProcessor
                     var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
                     var generatedClassName = typesProcessor.ProcessTypeSymbol(classSymbol);
                     var generatedClassNode = (ClassDeclarationSyntax)(typesProcessor.GetTypeSymbolToMemberDeclarationMapping(classSymbol));
-                    var expresionContext = new JsonExpressionAnalysisContext(new JsonExpressionAnalysisNode(classNode, generatedClassNode, classNode.GetLocation()));
+                    var expresionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(classNode, null, generatedClassNode, null, classNode.GetLocation()));
                     analysisContexts.Add(expresionContext);
                 }
                 catch (Exception ex)
@@ -46,9 +47,10 @@ internal static class JsonExpressionProcessor
             }
         }
 
-        var jsonAnalysis = new JsonExpressionAnalysis()
+        var jsonAnalysis = new ExpressionsAnalysis()
         {
             AnalysisNodeContexts = analysisContexts.ToArray(),
+            InvalidExpressionNodes = invalidExpressionNodes.ToArray(),
             TypesDeclarations = typesProcessor.TypesDeclarations
         };
 
@@ -73,14 +75,17 @@ internal static class JsonExpressionProcessor
         var classSymbol = semanticModel.GetDeclaredSymbol(classDeclarationSyntax);
 
         var classBsonAttributes = classSymbol.GetAttributes()
-            .Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute());
+            .Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute() ||
+            context.TypesProcessor.GetTypeSymbolToMemberDeclarationMapping(attribute.AttributeClass) != null);
 
         var propertyBsonAttributes = classSymbol.GetMembers().OfType<IPropertySymbol>()
-            .SelectMany(property => property.GetAttributes().Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute()));
+            .SelectMany(property => property.GetAttributes().Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute() ||
+            context.TypesProcessor.GetTypeSymbolToMemberDeclarationMapping(attribute.AttributeClass) != null));
 
         var fieldBsonAttributes = classSymbol.GetMembers().OfType<IFieldSymbol>()
-            .SelectMany(field => field.GetAttributes().Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute()));
+            .SelectMany(field => field.GetAttributes().Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute() ||
+            context.TypesProcessor.GetTypeSymbolToMemberDeclarationMapping(attribute.AttributeClass) != null));
 
-        return !classBsonAttributes.EmptyOrNull() || !propertyBsonAttributes.EmptyOrNull() || !fieldBsonAttributes.EmptyOrNull();
+        return classBsonAttributes.AnySafe() || propertyBsonAttributes.AnySafe() || fieldBsonAttributes.AnySafe();
     }
 }

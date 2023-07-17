@@ -39,7 +39,7 @@ internal static class TypesGeneratorHelper
         {
             AnalysisType.Builders => s_namespaceDeclarationSyntaxBuilders,
             AnalysisType.Linq => s_namespaceDeclarationSyntaxLinq,
-            AnalysisType.Json => s_namespaceDeclarationSyntaxJson,
+            AnalysisType.Poco => s_namespaceDeclarationSyntaxJson,
             _ => throw new ArgumentOutOfRangeException(nameof(analysisType), analysisType, "Unsupported analysis type")
         };
 
@@ -54,9 +54,4 @@ internal static class TypesGeneratorHelper
 
     private static UsingDirectiveSyntax Using(string namespaceName) =>
         SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(namespaceName));
-
-    private static UsingDirectiveSyntax Using(string typeNewName, string typeName) =>
-        SyntaxFactory.UsingDirective(
-                SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName(typeNewName)),
-                SyntaxFactory.ParseName(typeName));
 }

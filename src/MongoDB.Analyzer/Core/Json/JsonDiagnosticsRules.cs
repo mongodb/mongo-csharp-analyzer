@@ -22,7 +22,7 @@ public static class JsonDiagnosticsRules
 
     public static readonly DiagnosticDescriptor DiagnosticRuleJson = new(
         id: DiagnosticIdJson,
-        title: "POCO to Json",
+        title: "Poco to Json",
         messageFormat: "{0}",
         category: Category,
         defaultSeverity: DiagnosticSeverity.Info,
@@ -31,7 +31,7 @@ public static class JsonDiagnosticsRules
 
     public static readonly DiagnosticDescriptor DiagnosticRuleNotSupportedJson = new(
         id: DiagnosticIdNotSupportedJson,
-        title: "Not supported POCO",
+        title: "Not supported Poco",
         messageFormat: "{0}",
         category: Category,
         defaultSeverity: DiagnosticSeverity.Warning,

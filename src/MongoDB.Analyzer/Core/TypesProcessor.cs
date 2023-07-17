@@ -247,7 +247,7 @@ internal sealed class TypesProcessor
 
             var fieldDeclaration = SyntaxFactory.FieldDeclaration(
                 attributeLists: attributeLists,
-                modifiers: SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
+                modifiers: SyntaxFactory.TokenList(GetFieldModifiers(fieldSymbol)),
                 declaration: variableDeclaration);
 
             members.Add(fieldDeclaration);
@@ -378,4 +378,19 @@ internal sealed class TypesProcessor
 
     private ExpressionSyntax HandleTypeInBsonAttributeArgument(object argumentValue) =>
         SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(ProcessTypeSymbol(argumentValue as INamedTypeSymbol)));
+
+    private SyntaxToken[] GetFieldModifiers(IFieldSymbol fieldSymbol)
+    {
+        var syntaxTokens = new List<SyntaxToken>()
+        {
+            SyntaxFactory.Token(SyntaxKind.PublicKeyword)
+        };
+
+        if (fieldSymbol.IsReadOnly)
+        {
+            syntaxTokens.Add(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
+        }
+
+        return syntaxTokens.ToArray();
+    }
 }

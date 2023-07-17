@@ -104,7 +104,7 @@ internal static class BuildersAnalyzer
             }
         }
 
-        return new AnalysisStats(mqlCount, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
+        return new AnalysisStats(mqlCount, 0, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
     }
 
     private static bool IsDriverOrBsonException(MQLResult mqlResult)

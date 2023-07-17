@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using MongoDB.Analyzer.Core.Utilities;
+
 namespace MongoDB.Analyzer.Core.Json;
 
 internal static class JsonAnalyzer
@@ -20,8 +21,8 @@ internal static class JsonAnalyzer
     public static bool AnalyzeJson(MongoAnalysisContext context)
     {
         var sw = Stopwatch.StartNew();
-        var stats = JsonAnalysisStats.Empty;
-        JsonExpressionAnalysis jsonAnalysis = null;
+        var stats = AnalysisStats.Empty;
+        ExpressionsAnalysis jsonAnalysis = null;
 
         try
         {
@@ -39,27 +40,27 @@ internal static class JsonAnalyzer
             context.Logger.Log($"JSON analysis ended after {sw.ElapsedMilliseconds}ms with exception {ex}");
         }
 
-        var telemetry = AnalysisUtilities.GetJsonTelemetry(jsonAnalysis, stats, sw);
+        var telemetry = AnalysisUtilities.GetTelemetry(jsonAnalysis, stats, sw);
         if (telemetry.ExpressionsFound > 0)
         {
-            context.Telemetry.JsonAnalysisResult(AnalysisUtilities.GetJsonTelemetry(jsonAnalysis, stats, sw));
+            context.Telemetry.JsonAnalysisResult(AnalysisUtilities.GetTelemetry(jsonAnalysis, stats, sw));
         }
 
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static JsonAnalysisStats ReportJsonOrInvalidExpressions(MongoAnalysisContext context, JsonExpressionAnalysis jsonAnalysis)
+    private static AnalysisStats ReportJsonOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis jsonAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
         if (jsonAnalysis.AnalysisNodeContexts.EmptyOrNull())
         {
-            return JsonAnalysisStats.Empty;
+            return AnalysisStats.Empty;
         }
 
         var compilationResult = AnalysisCodeGenerator.Compile(context, jsonAnalysis);
         if (!compilationResult.Success)
         {
-            return JsonAnalysisStats.Empty;
+            return AnalysisStats.Empty;
         }
 
         var driverVersion = compilationResult.JsonTestCodeExecutor.DriverVersion;
@@ -103,7 +104,7 @@ internal static class JsonAnalyzer
             }
         }
 
-        return new JsonAnalysisStats(jsonCount, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
+        return new AnalysisStats(0, jsonCount, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
     }
 
     private static string DecorateMessage(string message, string driverVersion, MongoDBAnalyzerSettings settings) =>

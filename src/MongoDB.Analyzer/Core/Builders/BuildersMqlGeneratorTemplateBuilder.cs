@@ -28,7 +28,6 @@ internal sealed class BuildersMqlGeneratorTemplateBuilder
     }
 
     private readonly SyntaxElements _syntaxElements;
-
     private ClassDeclarationSyntax _mqlGeneratorDeclarationSyntaxNew;
     private int _nextTestMethodIndex;
 

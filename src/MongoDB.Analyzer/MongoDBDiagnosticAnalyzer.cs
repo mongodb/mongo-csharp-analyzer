@@ -14,8 +14,8 @@
 
 using MongoDB.Analyzer.Core;
 using MongoDB.Analyzer.Core.Builders;
-using MongoDB.Analyzer.Core.Linq;
 using MongoDB.Analyzer.Core.Json;
+using MongoDB.Analyzer.Core.Linq;
 
 namespace MongoDB.Analyzer;
 

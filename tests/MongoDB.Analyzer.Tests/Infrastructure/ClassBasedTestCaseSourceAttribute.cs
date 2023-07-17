@@ -40,22 +40,12 @@ public sealed class ClassBasedTestCasesSourceAttribute : Attribute, ITestDataSou
                 m.DeclaringType == _testCasesProviderType &&
                 m.GetCustomAttributes().Any(a => a is JsonDiagnosticTestCaseAttribute));
 
+        var fileName = PathUtilities.GetTestCaseFileFullPathFromName(_testCasesProviderType.FullName);
+
         var data = testCasesMethods.SelectMany(m =>
-            CreateTestCases(m).Select(t => new object[] { t }).ToArray()).ToArray();
+            CreateTestCases(m, fileName).Select(t => new object[] { t }).ToArray()).ToArray();
 
         return data;
-    }
-
-    public string GetHighestDeclaringType(MemberInfo memberInfo)
-    {
-        Type declaringType = memberInfo.DeclaringType;
-
-        while (declaringType.DeclaringType != null)
-        {
-            declaringType = declaringType.DeclaringType;
-        }
-
-        return declaringType.FullName;
     }
 
     public string GetDisplayName(MethodInfo methodInfo, object[] data)
@@ -65,13 +55,11 @@ public sealed class ClassBasedTestCasesSourceAttribute : Attribute, ITestDataSou
         return $"v{testCase.Version}_{linqVersion}_{testCase.MethodName}";
     }
 
-    private DiagnosticTestCase[] CreateTestCases(MemberInfo memberInfo)
+    private DiagnosticTestCase[] CreateTestCases(MemberInfo memberInfo, string fileName)
     {
         var testCasesAttributes = memberInfo
             .GetCustomAttributes()
             .OfType<JsonDiagnosticTestCaseAttribute>();
-
-        var fileName = PathUtilities.GetTestCaseFileFullPathFromName(GetHighestDeclaringType(memberInfo));
 
         var diagnosticsTestCases =
             from attribute in testCasesAttributes

@@ -18,7 +18,7 @@ namespace MongoDB.Analyzer.Core.Json;
 
 internal record JsonResult(string Json, Exception exception);
 
-internal sealed class JsonGeneratorExecutor
+internal sealed class JsonGeneratorExecutor : GeneratorExecutor
 {
     private readonly Type _testClassType;
     public string DriverVersion { get; }

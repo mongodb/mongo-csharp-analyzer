@@ -59,6 +59,6 @@ internal static class ITelemetryServicExtensions
     public static void BuildersAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
         telemetryService.Event("Builders analyzed", analysisStatistics.ToKeyValues());
 
-    public static void JsonAnalysisResult(this ITelemetryService telemetryService, JsonAnalysisTelemetry analysisStatistics) =>
+    public static void JsonAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
         telemetryService.Event("JSON analyzed", analysisStatistics.ToKeyValues());
 }

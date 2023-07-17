@@ -29,7 +29,6 @@ internal sealed class LinqMqlGeneratorTemplateBuilder
     }
 
     private readonly SyntaxElements _syntaxElements;
-
     private ClassDeclarationSyntax _mqlGeneratorDeclarationSyntaxNew;
     private int _nextTestMethodIndex;
 

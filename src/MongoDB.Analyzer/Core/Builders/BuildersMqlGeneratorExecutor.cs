@@ -18,7 +18,7 @@ namespace MongoDB.Analyzer.Core.Builders;
 
 internal record MQLResult(string Mql, Exception Exception);
 
-internal sealed class BuildersMqlGeneratorExecutor
+internal sealed class BuildersMqlGeneratorExecutor : GeneratorExecutor
 {
     private readonly Type _testClassType;
 
