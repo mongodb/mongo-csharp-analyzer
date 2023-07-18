@@ -19,17 +19,17 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
 {
     public sealed class JsonCollections : TestCasesBase
     {
-        [Json("{ \"IntList\" : [0], \"PesonsList\" : [{ \"Name\" : \"Name\", \"LastName\" : \"LastName\", \"Address\" : { \"City\" : \"City\", \"Province\" : \"Province\", \"ZipCode\" : \"ZipCode\" }, \"Vehicle\" : { \"LicenceNumber\" : \"LicenceNumber\", \"VehicleType\" : { \"VehicleMake\" : { \"Name\" : \"Name\" }, \"Type\" : 0, \"Category\" : \"Category\", \"MPG\" : 0.0 } }, \"SiblingsCount\" : 0, \"TicksSinceBirth\" : NumberLong(0), \"IsRetired\" : false }], \"StringList\" : [\"StringList\"], \"NestedListsHolderList\" : [{ \"IntList\" : null, \"PesonsList\" : null, \"StringList\" : null, \"NestedListsHolderList\" : null, \"IntIList\" : null, \"NestedListsHolderIList\" : null }], \"IntIList\" : [0], \"NestedListsHolderIList\" : [{ \"IntList\" : null, \"PesonsList\" : null, \"StringList\" : null, \"NestedListsHolderList\" : null, \"IntIList\" : null, \"NestedListsHolderIList\" : null }] }")]
+        [Json("{ \"IntList\" : [], \"PesonsList\" : [], \"StringList\" : [], \"NestedListsHolderList\" : [], \"IntIList\" : [], \"NestedListsHolderIList\" : [] }")]
         public void ListsHolder()
         {
         }
 
-        [Json("{ \"Enumerable1\" : [0], \"Enumerable2\" : [{ \"Enumerable1\" : null, \"Enumerable2\" : null }] }")]
+        [Json("{ \"Enumerable1\" : [], \"Enumerable2\" : [] }")]
         public void EnumerableHolder()
         {
         }
 
-        [Json("{ \"NestedIntList\" : [[0]], \"NestedStringList\" : [[\"NestedStringList\"]], \"ListOfIntArray\" : [[0, 0]], \"ListOfStringArray\" : [[\"ListOfStringArray\", \"ListOfStringArray\"]], \"NestedNestedIntList\" : [[[0]]], \"NestedIntIList\" : [[0]], \"NestedStringIList\" : [[\"NestedStringIList\"]], \"NestedIListIntArray\" : [[[0, 0]]], \"NestedIntIEnumerable\" : [[0]], \"NestedStringIEnumerable\" : [[\"NestedStringIEnumerable\"]], \"NestedIntArrayIEnumerable\" : [[[0, 0]]] }")]
+        [Json("{ \"NestedIntList\" : [], \"NestedStringList\" : [], \"ListOfIntArray\" : [], \"ListOfStringArray\" : [], \"NestedNestedIntList\" : [], \"NestedIntIList\" : [], \"NestedStringIList\" : [], \"NestedIListIntArray\" : [], \"NestedIntIEnumerable\" : [], \"NestedStringIEnumerable\" : [], \"NestedIntArrayIEnumerable\" : [] }")]
         public void NestedCollectionHolder()
         {
         }

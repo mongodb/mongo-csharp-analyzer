@@ -18,22 +18,22 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
 {
     public sealed class JsonArrays : TestCasesBase
     {
-        [Json("{ \"BooleanArray\" : [false, false], \"ByteArray\" : new BinData(0, \"AAA=\"), \"SByteArray\" : [0, 0], \"ShortArray\" : [0, 0], \"UShortArray\" : [0, 0], \"IntArray\" : [0, 0], \"UIntArray\" : [0, 0], \"LongArray\" : [NumberLong(0), NumberLong(0)], \"ULongArray\" : [NumberLong(0), NumberLong(0)], \"CharArray\" : [0, 0], \"DoubleArray\" : [0.0, 0.0], \"StringArray\" : [\"StringArray\", \"StringArray\"], \"FloatArray\" : [0.0, 0.0], \"ObjectArray\" : [{ }, { }], \"JaggedStringArray2\" : [[\"JaggedStringArray2\", \"JaggedStringArray2\"], [\"JaggedStringArray2\", \"JaggedStringArray2\"]], \"JaggedIntArray3\" : [[[0, 0], [0, 0]], [[0, 0], [0, 0]]], \"JaggedLongArray4\" : [[[[NumberLong(0), NumberLong(0)], [NumberLong(0), NumberLong(0)]], [[NumberLong(0), NumberLong(0)], [NumberLong(0), NumberLong(0)]]], [[[NumberLong(0), NumberLong(0)], [NumberLong(0), NumberLong(0)]], [[NumberLong(0), NumberLong(0)], [NumberLong(0), NumberLong(0)]]]], \"JaggedShortArray5\" : [[[[[0, 0], [0, 0]], [[0, 0], [0, 0]]], [[[0, 0], [0, 0]], [[0, 0], [0, 0]]]], [[[[0, 0], [0, 0]], [[0, 0], [0, 0]]], [[[0, 0], [0, 0]], [[0, 0], [0, 0]]]]] }")]
+        [Json("{ \"BooleanArray\" : [], \"ByteArray\" : new BinData(0, \"\"), \"SByteArray\" : [], \"ShortArray\" : [], \"UShortArray\" : [], \"IntArray\" : [], \"UIntArray\" : [], \"LongArray\" : [], \"ULongArray\" : [], \"CharArray\" : [], \"DoubleArray\" : [], \"StringArray\" : [], \"FloatArray\" : [], \"ObjectArray\" : [], \"JaggedStringArray2\" : [], \"JaggedIntArray3\" : [], \"JaggedLongArray4\" : [], \"JaggedShortArray5\" : [] }")]
         public void SimpleTypesArraysHolder()
         {
         }
 
-        [Json("{ \"Matrix2\" : [[0, 0], [0, 0]], \"Matrix3\" : [[[0, 0], [0, 0]], [[0, 0], [0, 0]]] }")]
+        [Json("{ \"Matrix2\" : [], \"Matrix3\" : [], \"Matrix4\" : [] }")]
         public void MultiDimensionalArrayHolder()
         {
         }
 
-        [Json("{ \"EnumArrayWithDimension1\" : [0, 0], \"JaggedEnumArray\" : [[0, 0], [0, 0]], \"TreeJaggedArray2\" : [[{ \"Root\" : { \"Data\" : 0, \"Left\" : { \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }, \"Right\" : { \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }, \"Tree\" : { \"Root\" : null } } }, { \"Root\" : { \"Data\" : 0, \"Left\" : { \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }, \"Right\" : { \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }, \"Tree\" : { \"Root\" : null } } }], [{ \"Root\" : null }, { \"Root\" : null }]], \"TreeNodeJaggedArray3\" : [[[{ \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }, { \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }], [{ \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }, { \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }]], [[{ \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }, { \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }], [{ \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }, { \"Data\" : 0, \"Left\" : null, \"Right\" : null, \"Tree\" : null }]]] }")]
+        [Json("{ \"EnumArrayWithDimension1\" : [], \"JaggedEnumArray\" : [], \"TreeJaggedArray2\" : [], \"TreeNodeJaggedArray3\" : [] }")]
         public void CustomTypesArraysHolder()
         {
         }
 
-        [Json("{ \"Data\" : 0, \"Children\" : [{ \"Data\" : 0, \"Children\" : null }, { \"Data\" : 0, \"Children\" : null }] }")]
+        [Json("{ \"Data\" : 0, \"Children\" : [] }")]
         public void NestedArrayHolder()
         {
         }
@@ -72,6 +72,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
             {
                 public int[,] Matrix2 { get; set; }
                 public int[,,] Matrix3 { get; set; }
+                public int[,][,] Matrix4 { get; set; }
             }
 
             public class CustomTypesArraysHolder
