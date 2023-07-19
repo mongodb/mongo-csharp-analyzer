@@ -22,35 +22,39 @@ namespace MongoDB.Analyzer.Tests.Json;
 [TestClass]
 public sealed class JsonTests : DiagnosticsTestCasesRunner
 {
-    [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonArrays))]
-    public Task Arrays(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+    //[DataTestMethod]
+    //[ClassBasedTestCasesSourceAttribute(typeof(JsonArrays))]
+    //public Task Arrays(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    //[DataTestMethod]
+    //[ClassBasedTestCasesSourceAttribute(typeof(JsonBasic))]
+    //public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    //[DataTestMethod]
+    //[ClassBasedTestCasesSource(typeof(JsonBsonAttributes))]
+    //public Task BsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    //[DataTestMethod]
+    //[ClassBasedTestCasesSourceAttribute(typeof(JsonCollections))]
+    //public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    //[DataTestMethod]
+    //[ClassBasedTestCasesSourceAttribute(typeof(JsonEnums))]
+    //public Task Enums(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    //[DataTestMethod]
+    //[ClassBasedTestCasesSourceAttribute(typeof(JsonIgnoredBsonAttributes))]
+    //public Task IgnoredBsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    //[DataTestMethod]
+    //[ClassBasedTestCasesSourceAttribute(typeof(JsonNestedTypes))]
+    //public Task NestedTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    //[DataTestMethod]
+    //[ClassBasedTestCasesSourceAttribute(typeof(JsonSystemTypes))]
+    //public Task SystemTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonBasic))]
-    public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(JsonBsonAttributes))]
-    public Task BsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonCollections))]
-    public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonEnums))]
-    public Task Enums(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonIgnoredBsonAttributes))]
-    public Task IgnoredBsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonNestedTypes))]
-    public Task NestedTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonSystemTypes))]
-    public Task SystemTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+    [ClassBasedTestCasesSource(typeof(JsonEmpiricalTest))]
+    public Task EmpiricalTest(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

@@ -44,6 +44,7 @@ internal static class TypesGeneratorHelper
         };
 
         var modifiedTypesDeclarations = analysisType == AnalysisType.Poco ? GenerateModifiedTypesDeclarations(typesDeclarations, 2) : typesDeclarations;
+        //var modifiedTypesDeclarations = typesDeclarations;
 
         var modifiedTypeNames = modifiedTypesDeclarations.OfType<ClassDeclarationSyntax>().Select(c => c.Identifier.ValueText);
         var generatedTypesCompilationUnit = s_generatedTypesCompliationUnit

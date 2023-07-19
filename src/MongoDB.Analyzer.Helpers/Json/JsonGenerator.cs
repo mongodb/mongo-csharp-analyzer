@@ -38,7 +38,7 @@ namespace MongoDB.Analyzer.Helpers.Json
         public static string GetJson()
         {
             var poco = new object();
-            //AttributeHandler.SetAttributes(poco, new List<string>());
+            //AttributeHandler.SetAttributes(poco, 0, 2);
             return poco.ToJson();
         }
     }

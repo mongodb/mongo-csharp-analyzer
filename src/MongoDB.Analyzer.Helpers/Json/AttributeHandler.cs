@@ -24,17 +24,10 @@ namespace MongoDB.Analyzer.Helpers.Json
     {
         private const string s_collectionNamespace = "System.Collections.Generic";
 
-        public static void SetAttributes(object poco, List<string> typesAnalyzed)
+        public static void SetAttributes(object poco, int depth, int depthLimit)
         {
             var pocoType = poco.GetType();
             var pocoMembers = pocoType.GetMembers();
-
-            if (typesAnalyzed.Contains(pocoType.Name))
-            {
-                return;
-            }
-
-            typesAnalyzed.Add(pocoType.Name);
 
             foreach (var memberInfo in pocoMembers)
             {
@@ -42,7 +35,7 @@ namespace MongoDB.Analyzer.Helpers.Json
                 {
                     try
                     {
-                        ProcessProperty(poco, memberInfo, typesAnalyzed);
+                        ProcessProperty(poco, memberInfo, depth, depthLimit);
                     }
                     catch
                     {
@@ -53,7 +46,7 @@ namespace MongoDB.Analyzer.Helpers.Json
                 {
                     try
                     {
-                        ProcessField(poco, memberInfo, typesAnalyzed);
+                        ProcessField(poco, memberInfo, depth, depthLimit);
                     }
                     catch
                     {
@@ -63,7 +56,7 @@ namespace MongoDB.Analyzer.Helpers.Json
             }
         }
 
-        private static void ProcessProperty(object poco, MemberInfo memberInfo, List<string> typesAnalyzed)
+        private static void ProcessProperty(object poco, MemberInfo memberInfo, int depth, int depthLimit)
         {
             var pocoType = poco.GetType();
             var memberName = memberInfo.Name;
@@ -80,15 +73,15 @@ namespace MongoDB.Analyzer.Helpers.Json
             }
             else if (propertyInfo.PropertyType.GetTypeInfo().IsArray)
             {
-                propertyInfo.SetValue(poco, HandleArray(propertyInfo.PropertyType, memberInfo, typesAnalyzed));
+                propertyInfo.SetValue(poco, HandleArray(propertyInfo.PropertyType));
             }
-            else if (propertyInfo.PropertyType.GetTypeInfo().IsClass)
+            else if (propertyInfo.PropertyType.GetTypeInfo().IsClass && depth <= depthLimit)
             {
-                propertyInfo.SetValue(poco, HandleClass(propertyInfo.PropertyType, memberInfo, typesAnalyzed));
+                propertyInfo.SetValue(poco, HandleClass(propertyInfo.PropertyType, depth, depthLimit));
             }
         }
 
-        private static void ProcessField(object poco, MemberInfo memberInfo, List<string> typesAnalyzed)
+        private static void ProcessField(object poco, MemberInfo memberInfo, int depth, int depthLimit)
         {
             var pocoType = poco.GetType();
             var memberName = memberInfo.Name;
@@ -105,11 +98,11 @@ namespace MongoDB.Analyzer.Helpers.Json
             }
             else if (fieldInfo.FieldType.GetTypeInfo().IsArray)
             {
-                fieldInfo.SetValue(poco, HandleArray(fieldInfo.FieldType, memberInfo, typesAnalyzed));
+                fieldInfo.SetValue(poco, HandleArray(fieldInfo.FieldType));
             }
-            else if (fieldInfo.FieldType.GetTypeInfo().IsClass)
+            else if (fieldInfo.FieldType.GetTypeInfo().IsClass && depth <= depthLimit)
             {
-                fieldInfo.SetValue(poco, HandleClass(fieldInfo.FieldType, memberInfo, typesAnalyzed));
+                fieldInfo.SetValue(poco, HandleClass(fieldInfo.FieldType, depth, depthLimit));
             }
         }
 
@@ -131,11 +124,10 @@ namespace MongoDB.Analyzer.Helpers.Json
             return parameterValues;
         }
 
-        private static Array HandleArray(Type arrayType, MemberInfo memberInfo, List<string> typesAnalyzed) =>
-            arrayType.GetArrayRank() > 1 ? HandleMultiDimensionalArray(arrayType, memberInfo, typesAnalyzed) :
-            HandleSingleDimensionalArray(arrayType, memberInfo, typesAnalyzed);
+        private static Array HandleArray(Type arrayType) =>
+            arrayType.GetArrayRank() > 1 ? HandleMultiDimensionalArray(arrayType) : HandleSingleDimensionalArray(arrayType);
 
-        private static object HandleClass(Type memberType, MemberInfo memberInfo, List<string> typesAnalyzed)
+        private static object HandleClass(Type memberType, int depth, int depthLimit)
         {
             var containingNamespace = memberType.Namespace;
             object classObject;
@@ -145,119 +137,31 @@ namespace MongoDB.Analyzer.Helpers.Json
             {
                 var elementType = memberType.GenericTypeArguments.First();
                 classObject = Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType));
-                AddToCollection(classObject, memberInfo, typesAnalyzed);
             }
             else
             {
                 classObject = Activator.CreateInstance(memberType, GetArgumentList(memberType).ToArray());
-                SetAttributes(classObject, typesAnalyzed);
+                SetAttributes(classObject, depth + 1, depthLimit);
             }
 
             return classObject;
         }
 
-        private static Array HandleMultiDimensionalArray(Type arrayType, MemberInfo memberInfo, List<string> typesAnalyzed)
+        private static Array HandleMultiDimensionalArray(Type arrayType)
         {
-            var arrayLength = 2;
             var arrayRank = arrayType.GetArrayRank();
             var elementType = arrayType.GetElementType();
 
-            int[] dimensionLengths = Enumerable.Repeat(arrayLength, arrayRank).ToArray();
-            int[] indices = new int[dimensionLengths.Length];
-
+            int[] dimensionLengths = Enumerable.Repeat(0, arrayRank).ToArray();
             Array array = Array.CreateInstance(elementType, dimensionLengths);
-
-            if (elementType == typeof(string))
-            {
-                var arrayObject = memberInfo.Name;
-                PopulateMultiDimensionalArray(arrayObject, dimensionLengths, 0, indices, array);
-            }
-            else if (elementType.IsClass)
-            {
-                var arrayObject = Activator.CreateInstance(elementType, GetArgumentList(elementType).ToArray());
-                SetAttributes(arrayObject, typesAnalyzed);
-                PopulateMultiDimensionalArray(arrayObject, dimensionLengths, 0, indices, array);
-            }
-
             return array;
         }
 
-        private static void PopulateMultiDimensionalArray(object obj, int[] dimensions, int dimensionIndex, int[] indices, Array array)
-        {
-            if (dimensionIndex == dimensions.Length)
-            {
-                array.SetValue(obj, indices);
-            }
-            else
-            {
-                var currentDimensionSize = dimensions[dimensionIndex];
-                for (int i = 0; i < currentDimensionSize; i++)
-                {
-                    indices[dimensionIndex] = i;
-                    PopulateMultiDimensionalArray(obj, dimensions, dimensionIndex + 1, indices, array);
-                }
-            }
-        }
-
-        private static Array HandleSingleDimensionalArray(Type arrayType, MemberInfo memberInfo, List<string> typesAnalyzed)
+        private static Array HandleSingleDimensionalArray(Type arrayType)
         {
             var elementType = arrayType.GetElementType();
-            var array = Array.CreateInstance(elementType, 2);
-
-            if (!elementType.IsArray)
-            {
-                if (elementType == typeof(string))
-                {
-                    array.SetValue(memberInfo.Name, 0);
-                    array.SetValue(memberInfo.Name, 1);
-                }
-                else if (elementType.IsClass)
-                {
-                    var elementObject = Activator.CreateInstance(elementType, GetArgumentList(elementType).ToArray());
-                    SetAttributes(elementObject, typesAnalyzed);
-                    array.SetValue(elementObject, 0);
-                    array.SetValue(elementObject, 1);
-                }
-
-                return array;
-            }
-
-            array.SetValue(HandleSingleDimensionalArray(elementType, memberInfo, typesAnalyzed), 0);
-            array.SetValue(HandleSingleDimensionalArray(elementType, memberInfo, typesAnalyzed), 1);
+            var array = Array.CreateInstance(elementType, 0);
             return array;
-        }
-
-        private static void AddToCollection(object collectionObject, MemberInfo memberInfo, List<string> typesAnalyzed)
-        {
-            var listType = collectionObject.GetType();
-            var elementType = listType.GenericTypeArguments.First();
-
-            if (elementType == typeof(string))
-            {
-                listType.GetMethod("Add").Invoke(collectionObject, new[] { memberInfo.Name as object });
-            }
-            else if (elementType.IsArray)
-            {
-                listType.GetMethod("Add").Invoke(collectionObject, new[] { HandleArray(elementType, memberInfo, typesAnalyzed) });
-            }
-            else if (elementType.Namespace == s_collectionNamespace &&
-                     elementType.GenericTypeArguments.Length == 1)
-            {
-                var subElementType = elementType.GenericTypeArguments.First();
-                var subCollectionObject = Activator.CreateInstance(typeof(List<>).MakeGenericType(subElementType));
-                AddToCollection(subCollectionObject, memberInfo, typesAnalyzed);
-                listType.GetMethod("Add").Invoke(collectionObject, new[] { subCollectionObject });
-            }
-            else if (elementType.IsClass)
-            {
-                var classObject = Activator.CreateInstance(elementType, GetArgumentList(elementType).ToArray());
-                SetAttributes(classObject, typesAnalyzed);
-                listType.GetMethod("Add").Invoke(collectionObject, new[] { classObject });
-            }
-            else if (elementType.IsValueType)
-            {
-                listType.GetMethod("Add").Invoke(collectionObject, new[] { Activator.CreateInstance(elementType) });
-            }
         }
     }
 }
