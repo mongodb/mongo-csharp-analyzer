@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using BsonDocumentCustom123 = MongoDB.Bson.BsonDocument;
@@ -38,7 +37,7 @@ namespace MongoDB.Analyzer.Helpers.Json
         public static string GetJson()
         {
             var poco = new object();
-            //AttributeHandler.SetAttributes(poco, 0, 2);
+            PropertyAndFieldHandler.SetAttributes(poco, 0, 2);
             return poco.ToJson();
         }
     }

@@ -22,7 +22,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
 {
     public sealed class JsonIgnoredBsonAttributes : TestCasesBase
     {
-        [Json("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"DictionaryField\" : { }, \"Name\" : \"Name\", \"InStock\" : false, \"Price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 0, \"Width\" : 0, \"SaleTime\" : \"00:00:00\" }")]
+        [Json("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"DictionaryField\" : { }, \"Name\" : \"Name\", \"InStock\" : true, \"Price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"00:00:00\" }")]
         public void UnsupportedBsonAttributes()
         {
         }

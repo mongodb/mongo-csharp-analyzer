@@ -27,10 +27,12 @@ internal static class JsonExpressionProcessor
         var classNodes = root.DescendantNodesAndSelf().OfType<ClassDeclarationSyntax>();
 
         var typesProcessor = context.TypesProcessor;
+        var pocoLimit = context.Settings.PocoLimit;
+        var pocosAnalyzed = 0;
 
         foreach (var classNode in classNodes)
         {
-            if (PreanalyzeClassDeclaration(classNode, context))
+            if (PreanalyzeClassDeclaration(classNode, context) && pocosAnalyzed < pocoLimit)
             {
                 try
                 {
@@ -39,6 +41,7 @@ internal static class JsonExpressionProcessor
                     var generatedClassNode = (ClassDeclarationSyntax)(typesProcessor.GetTypeSymbolToMemberDeclarationMapping(classSymbol));
                     var expresionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(classNode, null, generatedClassNode, null, classNode.GetLocation()));
                     analysisContexts.Add(expresionContext);
+                    pocosAnalyzed++;
                 }
                 catch (Exception ex)
                 {

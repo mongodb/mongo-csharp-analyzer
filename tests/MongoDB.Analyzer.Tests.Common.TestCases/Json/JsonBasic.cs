@@ -26,7 +26,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
         {
         }
 
-        [Json("{ \"Make\" : \"Make\", \"Model\" : \"Model\", \"Year\" : 0 }")]
+        [Json("{ \"Make\" : \"Make\", \"Model\" : \"Model\", \"Year\" : 4 }")]
         public void Car()
         {
         }
@@ -36,7 +36,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
         {
         }
 
-        [Json("{ \"BooleanValue\" : false, \"ByteValue\" : 0, \"SByteValue\" : 0, \"ShortValue\" : 0, \"UShortValue\" : 0, \"IntValue\" : 0, \"UIntValue\" : 0, \"LongValue\" : NumberLong(0), \"ULongValue\" : NumberLong(0), \"CharValue\" : 0, \"DoubleValue\" : 0.0, \"StringValue\" : \"StringValue\", \"FloatValue\" : 0.0 }")]
+        [Json("{ \"BooleanValue\" : true, \"ByteValue\" : 0, \"SByteValue\" : 0, \"ShortValue\" : 0, \"UShortValue\" : 0, \"IntValue\" : 8, \"UIntValue\" : 0, \"LongValue\" : NumberLong(9), \"ULongValue\" : NumberLong(0), \"CharValue\" : 0, \"DoubleValue\" : 1.0, \"StringValue\" : \"StringValue\", \"FloatValue\" : 0.0 }")]
         public void PrimitiveTypeHolder()
         {
         }

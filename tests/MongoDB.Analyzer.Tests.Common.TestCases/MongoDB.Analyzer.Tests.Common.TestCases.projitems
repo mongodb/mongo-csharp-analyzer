@@ -21,7 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Json\JsonEnums.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\JsonSystemTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\NotSupportedJsonClassDeclarations.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Json\JsonEmpiricalTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Json\" />

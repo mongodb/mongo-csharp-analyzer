@@ -21,22 +21,22 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
 {
     public sealed class JsonBsonAttributes : TestCasesBase
     {
-        [Json("{ \"Style\" : \"Style\", \"year_built\" : 0, \"_id\" : \"Identifier\" }")]
+        [Json("{ \"Style\" : \"Style\", \"year_built\" : 9, \"_id\" : \"Identifier\" }")]
         public void House()
         {
         }
 
-        [Json("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"Name\" : \"Name\", \"InStock\" : false, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 0, \"Width\" : 0, \"SaleTime\" : \"00:00:00\" }")]
+        [Json("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"Name\" : \"Name\", \"InStock\" : true, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"00:00:00\" }")]
         public void Clothing()
         {
         }
 
-        [JsonAttribute("{ \"VegetableCost\" : 0.0 }")]
+        [JsonAttribute("{ \"VegetableCost\" : 3.0 }")]
         public void Vegetable()
         {
         }
 
-        [JsonAttribute("{ \"ComputerCost\" : 0.0 }")]
+        [JsonAttribute("{ \"ComputerCost\" : 2.0 }")]
         public void Computer()
         {
         }

@@ -25,7 +25,7 @@ internal static class AnalysisCodeGenerator
 
     static AnalysisCodeGenerator()
     {
-        s_helpersSyntaxTrees = GetCommonCodeResources(ResourceNames.Json.AttributeHandler);
+        s_helpersSyntaxTrees = GetCommonCodeResources();
         var jsonGeneratorSyntaxTree = GetCodeResource(ResourceNames.Json.JsonGenerator);
         s_jsonGeneratorSyntaxElements = JsonGeneratorTemplateBuilder.CreateSyntaxElements(jsonGeneratorSyntaxTree);
         s_parseOptions = jsonGeneratorSyntaxTree.Options;
@@ -49,7 +49,7 @@ internal static class AnalysisCodeGenerator
                 jsonGeneratorSyntaxTree
             };
 
-        var jsonCodeExecutor = (JsonGeneratorExecutor)AnalysisCodeGeneratorUtilities.GetCodeExecutor(context, AnalysisType.Poco, syntaxTrees.ToArray());
+        var jsonCodeExecutor = AnalysisCodeGeneratorUtilities.GetCodeExecutor<JsonGeneratorExecutor>(context, AnalysisType.Poco, syntaxTrees.ToArray());
 
         var result = new CompilationResult(
             jsonCodeExecutor != null,

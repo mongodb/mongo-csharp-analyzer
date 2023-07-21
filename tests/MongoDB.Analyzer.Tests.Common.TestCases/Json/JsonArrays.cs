@@ -33,7 +33,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
         {
         }
 
-        [Json("{ \"Data\" : 0, \"Children\" : [] }")]
+        [Json("{ \"Data\" : 4, \"Children\" : [] }")]
         public void NestedArrayHolder()
         {
         }

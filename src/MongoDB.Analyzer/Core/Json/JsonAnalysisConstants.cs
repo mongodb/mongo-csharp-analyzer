@@ -17,4 +17,5 @@ namespace MongoDB.Analyzer.Core.Json;
 internal static class JsonAnalysisConstants
 {
     public const string AnalysisAssemblyName = "DynamicProxyGenAssembly2";
+    public const string PropertyAndFieldHandlerAssemblyName = "PropertyAndFieldHandler";
 }

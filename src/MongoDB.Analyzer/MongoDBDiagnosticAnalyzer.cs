@@ -55,23 +55,6 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
             flushTelemetry |= LinqAnalyzer.AnalyzeIMongoQueryable(mongoAnalyzerContext);
             flushTelemetry |= BuildersAnalyzer.AnalyzeBuilders(mongoAnalyzerContext);
             flushTelemetry |= JsonAnalyzer.AnalyzeJson(mongoAnalyzerContext);
-
-            //RUNNING TRIALS
-            var trials = 10;
-            long cumulativeTime = 0;
-
-            for (var trial = 0; trial < trials; trial++)
-            {
-                var stopwatch = Stopwatch.StartNew();
-                JsonAnalyzer.AnalyzeJson(mongoAnalyzerContext);
-                stopwatch.Stop();
-
-                cumulativeTime += stopwatch.ElapsedMilliseconds;
-            }
-
-            double averageTime = ((double) cumulativeTime) / ((double)trials);
-            Console.WriteLine($"Average Execution Time: {averageTime}");
-            //
         }
         catch (Exception ex)
         {

@@ -21,8 +21,8 @@ namespace MongoDB.Analyzer.Tests.Json;
 [TestClass]
 public sealed class JsonNotSupportedClassesTests : DiagnosticsTestCasesRunner
 {
-    //[DataTestMethod]
-    //[ClassBasedTestCasesSource(typeof(NotSupportedJsonClassDeclarations))]
-    //public Task NotSupportedClassDeclarations(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+    [DataTestMethod]
+    [ClassBasedTestCasesSource(typeof(NotSupportedJsonClassDeclarations))]
+    public Task NotSupportedClassDeclarations(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }
 

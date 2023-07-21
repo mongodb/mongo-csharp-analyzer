@@ -68,6 +68,17 @@ internal static class SymbolExtensions
         "System.Type"
     };
 
+
+    public static SyntaxToken[] GetFieldModifiers(this IFieldSymbol fieldSymbol) =>
+        fieldSymbol.IsReadOnly ? new SyntaxToken[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword) } : new SyntaxToken[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) };
+
+    public static AccessorDeclarationSyntax[] GetPropertyAccessors(this IPropertySymbol propertySymbol) =>
+        propertySymbol.IsReadOnly ? new AccessorDeclarationSyntax[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) } : (propertySymbol.IsWriteOnly ? new AccessorDeclarationSyntax[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) } : new AccessorDeclarationSyntax[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)), SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) });
+    
     public static IMethodSymbol GetMethodSymbol(this SyntaxNode node, SemanticModel semanticModel) =>
         semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
 

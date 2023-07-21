@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Analyzer.Core.Builders;
 using MongoDB.Analyzer.Core.Utilities;
-using static MongoDB.Analyzer.Core.HelperResources.MqlGeneratorSyntaxElements.Linq;
 using static MongoDB.Analyzer.Core.HelperResources.ResourcesUtilities;
 
 namespace MongoDB.Analyzer.Core.Linq;
@@ -62,7 +60,7 @@ internal static class AnalysisCodeGenerator
                 mqlGeneratorSyntaxTree
             };
 
-        var linqTestCodeExecutor = (LinqMqlGeneratorExecutor)AnalysisCodeGeneratorUtilities.GetCodeExecutor(context, AnalysisType.Linq, syntaxTrees.ToArray());
+        var linqTestCodeExecutor = AnalysisCodeGeneratorUtilities.GetCodeExecutor<LinqMqlGeneratorExecutor>(context, AnalysisType.Linq, syntaxTrees.ToArray());
 
         var result = new CompilationResult(
             linqTestCodeExecutor != null,

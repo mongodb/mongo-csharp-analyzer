@@ -202,17 +202,8 @@ internal sealed class TypesProcessor
 
             var propertyDeclaration = SyntaxFactory.PropertyDeclaration(typeSyntax, propertySymbol.Name);
 
-            propertyDeclaration = propertyDeclaration.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-
-            if (propertySymbol.GetMethod != null)
-            {
-                propertyDeclaration = propertyDeclaration.AddAccessorListAccessors(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
-            }
-
-            if (propertySymbol.SetMethod != null)
-            {
-                propertyDeclaration = propertyDeclaration.AddAccessorListAccessors(SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
-            }
+            propertyDeclaration = propertyDeclaration.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                .AddAccessorListAccessors(propertySymbol.GetPropertyAccessors());
 
             var bsonAttributeList = GenerateBsonAttributeList(propertySymbol);
             if (bsonAttributeList != null && bsonAttributeList.Attributes.AnySafe())
@@ -247,7 +238,7 @@ internal sealed class TypesProcessor
 
             var fieldDeclaration = SyntaxFactory.FieldDeclaration(
                 attributeLists: attributeLists,
-                modifiers: SyntaxFactory.TokenList(GetFieldModifiers(fieldSymbol)),
+                modifiers: SyntaxFactory.TokenList(fieldSymbol.GetFieldModifiers()),
                 declaration: variableDeclaration);
 
             members.Add(fieldDeclaration);
@@ -378,19 +369,4 @@ internal sealed class TypesProcessor
 
     private ExpressionSyntax HandleTypeInBsonAttributeArgument(object argumentValue) =>
         SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(ProcessTypeSymbol(argumentValue as INamedTypeSymbol)));
-
-    private SyntaxToken[] GetFieldModifiers(IFieldSymbol fieldSymbol)
-    {
-        var syntaxTokens = new List<SyntaxToken>()
-        {
-            SyntaxFactory.Token(SyntaxKind.PublicKeyword)
-        };
-
-        if (fieldSymbol.IsReadOnly)
-        {
-            syntaxTokens.Add(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
-        }
-
-        return syntaxTokens.ToArray();
-    }
 }

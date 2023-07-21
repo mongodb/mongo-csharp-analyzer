@@ -26,7 +26,7 @@ namespace MongoDB.Analyzer.Core.Utilities
             bool IsLinq3Default,
             LinqVersion DefaultLinqVersion);
 
-        public static GeneratorExecutor GetCodeExecutor(MongoAnalysisContext context, AnalysisType analysisType, SyntaxTree[] syntaxTrees)
+        public static T GetCodeExecutor<T>(MongoAnalysisContext context, AnalysisType analysisType, SyntaxTree[] syntaxTrees) where T : GeneratorExecutor
         {
             var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
             var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger);
@@ -50,14 +50,14 @@ namespace MongoDB.Analyzer.Core.Utilities
                 memoryStream.Seek(0, SeekOrigin.Begin);
 
                 var generatorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, GetGeneratorFullName(analysisType));
-                codeExecutor = GetGeneratorExecutor(analysisType, linqContext, generatorType);
+                codeExecutor = GetGeneratorExecutor<T>(analysisType, linqContext, generatorType);
             }
             else
             {
                 context.Logger.Log($"Compilation failed with: {string.Join(Environment.NewLine, emitResult.Diagnostics)}");
             }
 
-            return codeExecutor;
+            return (T)codeExecutor;
         }
 
         private static LinqContext GenerateLinqContext(MongoAnalysisContext context)
@@ -81,7 +81,7 @@ namespace MongoDB.Analyzer.Core.Utilities
                 _ => throw new Exception("Unsupported Analysis Type")
             };
 
-        private static GeneratorExecutor GetGeneratorExecutor(AnalysisType analysisType, LinqContext linqContext, Type generatorType) =>
+        private static GeneratorExecutor GetGeneratorExecutor<T>(AnalysisType analysisType, LinqContext linqContext, Type generatorType) where T : GeneratorExecutor =>
             analysisType switch
             {
                 AnalysisType.Builders => new BuildersMqlGeneratorExecutor(generatorType),

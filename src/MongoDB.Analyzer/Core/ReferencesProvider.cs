@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.Json;
+
 namespace MongoDB.Analyzer.Core;
 
 internal static class ReferencesProvider
 {
     private const string Netstandard20 = "netstandard2.0";
     private const string NetstandardDll = "netstandard.dll";
+    private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..", "..");
+    public static string JsonAnalysisAssemblyPath { get; } = GetFullPathRelativeToParent("src", "MongoDB.Analyzer.Helpers", "Json", "PropertyAndFieldHandler.cs");
 
     private static readonly string[] s_additionalDependencies = new[] { "System.Runtime.dll" };
 
@@ -98,6 +102,8 @@ internal static class ReferencesProvider
             TryAddingAssembly(dependency);
         }
 
+        CompileJsonAnalysisCode(resultReferences);
+
         void TryAddingAssembly(string assemblyName)
         {
             var assemblyPath = Path.Combine(baseDir, assemblyName);
@@ -171,6 +177,27 @@ internal static class ReferencesProvider
 
         return (version, nameToPathMapping, null);
     }
+
+    private static void CompileJsonAnalysisCode(List<MetadataReference> metadataReferences)
+    {
+        var staticCompilationReferences = new List<MetadataReference>(metadataReferences);
+        var staticCompilation = CSharpCompilation.Create(
+            JsonAnalysisConstants.PropertyAndFieldHandlerAssemblyName,
+            new List<SyntaxTree>() { CSharpSyntaxTree.ParseText(File.ReadAllText(JsonAnalysisAssemblyPath)) },
+            staticCompilationReferences,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        MemoryStream memoryStream = new MemoryStream();
+        staticCompilation.Emit(memoryStream);
+        metadataReferences.Add(MetadataReference.CreateFromImage(memoryStream.ToArray()));
+
+        AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
+            new AssemblyName(args.Name).Name == JsonAnalysisConstants.PropertyAndFieldHandlerAssemblyName ?
+            Assembly.Load(memoryStream.ToArray()) : null;
+    }
+
+    private static string GetFullPathRelativeToParent(params string[] pathComponents) =>
+        Path.GetFullPath(Path.Combine(s_projectParentFolderPrefix, pathComponents.Length == 1 ? pathComponents[0] : Path.Combine(pathComponents)));
 
     public static string GetDriverVersion(Assembly assembly) =>
         assembly.GetReferencedAssemblies().FirstOrDefault(a => a.Name.Contains("MongoDB"))?.Version?.ToString();
