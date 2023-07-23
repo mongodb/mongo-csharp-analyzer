@@ -41,7 +41,7 @@ internal static class AnalysisCodeGenerator
     public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
-        var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger);
+        var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger, AnalysisType.Linq);
         if (referencesContainer == null)
         {
             return CompilationResult.Failure;
@@ -60,7 +60,7 @@ internal static class AnalysisCodeGenerator
                 mqlGeneratorSyntaxTree
             };
 
-        var linqTestCodeExecutor = AnalysisCodeGeneratorUtilities.GetCodeExecutor<LinqMqlGeneratorExecutor>(context, AnalysisType.Linq, syntaxTrees.ToArray());
+        var linqTestCodeExecutor = AnalysisCodeGeneratorUtilities.GetCodeExecutor<LinqMqlGeneratorExecutor>(context, referencesContainer, syntaxTrees.ToArray(), AnalysisType.Linq);
 
         var result = new CompilationResult(
             linqTestCodeExecutor != null,

@@ -21,7 +21,7 @@ internal static class ReferencesProvider
     private const string Netstandard20 = "netstandard2.0";
     private const string NetstandardDll = "netstandard.dll";
     private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..", "..");
-    public static string JsonAnalysisAssemblyPath { get; } = GetFullPathRelativeToParent("src", "MongoDB.Analyzer.Helpers", "Json", "PropertyAndFieldHandler.cs");
+    private static string JsonAnalysisAssemblyPath { get; } = GetFullPathRelativeToParent("src", "MongoDB.Analyzer.Helpers", "Json", "PropertyAndFieldHandler.cs");
 
     private static readonly string[] s_additionalDependencies = new[] { "System.Runtime.dll" };
 
@@ -47,7 +47,7 @@ internal static class ReferencesProvider
         return null;
     }
 
-    public static ReferencesContainer GetReferences(IEnumerable<MetadataReference> metadataReferences, Logger logger)
+    public static ReferencesContainer GetReferences(IEnumerable<MetadataReference> metadataReferences, Logger logger, AnalysisType analysisType)
     {
         var resultReferences = new List<MetadataReference>();
 
@@ -102,7 +102,10 @@ internal static class ReferencesProvider
             TryAddingAssembly(dependency);
         }
 
-        CompileJsonAnalysisCode(resultReferences);
+        if (analysisType == AnalysisType.Poco)
+        {
+            CompileJsonAnalysisCode(resultReferences);
+        }
 
         void TryAddingAssembly(string assemblyName)
         {

@@ -26,18 +26,15 @@ namespace MongoDB.Analyzer.Core.Utilities
             bool IsLinq3Default,
             LinqVersion DefaultLinqVersion);
 
-        public static T GetCodeExecutor<T>(MongoAnalysisContext context, AnalysisType analysisType, SyntaxTree[] syntaxTrees) where T : GeneratorExecutor
+        public static T GetCodeExecutor<T>(MongoAnalysisContext context, ReferencesContainer referencesContainer, SyntaxTree[] syntaxTrees, AnalysisType analysisType) where T : GeneratorExecutor
         {
-            var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
-            var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger);
-
             var compilation = CSharpCompilation.Create(
                 GetAnalysisAssemblyName(analysisType),
                 syntaxTrees,
                 referencesContainer.References,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-            var linqContext = analysisType == AnalysisType.Linq ? GenerateLinqContext(context) : null;
+            var linqContext = analysisType == AnalysisType.Linq ? GenerateLinqContext(context, referencesContainer) : null;
 
             using var memoryStream = new MemoryStream();
             var emitResult = compilation.Emit(memoryStream);
@@ -60,11 +57,8 @@ namespace MongoDB.Analyzer.Core.Utilities
             return (T)codeExecutor;
         }
 
-        private static LinqContext GenerateLinqContext(MongoAnalysisContext context)
+        private static LinqContext GenerateLinqContext(MongoAnalysisContext context, ReferencesContainer referencesContainer)
         {
-            var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
-            var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger);
-
             var isLinq3 = referencesContainer.Version >= LinqAnalysisConstants.MinLinq3Version;
             var isLinq3Default = referencesContainer.Version >= LinqAnalysisConstants.DefaultLinq3Version;
             var defaultLinqVersion = context.Settings.DefaultLinqVersion ?? (isLinq3Default ? LinqVersion.V3 : LinqVersion.V2);

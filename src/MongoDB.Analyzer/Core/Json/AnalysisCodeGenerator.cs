@@ -34,7 +34,7 @@ internal static class AnalysisCodeGenerator
     public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis jsonExpressionAnalysis)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
-        var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger);
+        var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger, AnalysisType.Poco);
         if (referencesContainer == null)
         {
             return CompilationResult.Failure;
@@ -49,7 +49,7 @@ internal static class AnalysisCodeGenerator
                 jsonGeneratorSyntaxTree
             };
 
-        var jsonCodeExecutor = AnalysisCodeGeneratorUtilities.GetCodeExecutor<JsonGeneratorExecutor>(context, AnalysisType.Poco, syntaxTrees.ToArray());
+        var jsonCodeExecutor = AnalysisCodeGeneratorUtilities.GetCodeExecutor<JsonGeneratorExecutor>(context, referencesContainer, syntaxTrees.ToArray(), AnalysisType.Poco);
 
         var result = new CompilationResult(
             jsonCodeExecutor != null,

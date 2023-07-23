@@ -37,7 +37,7 @@ internal static class AnalysisCodeGenerator
     public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis buildersExpressionAnalysis)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
-        var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger);
+        var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger, AnalysisType.Builders);
         if (referencesContainer == null)
         {
             return CompilationResult.Failure;
@@ -57,7 +57,7 @@ internal static class AnalysisCodeGenerator
             syntaxTrees.Add(s_renderer_2_19_and_higher);
         }
 
-        var buildersMqlCodeExecutor = AnalysisCodeGeneratorUtilities.GetCodeExecutor<BuildersMqlGeneratorExecutor>(context, AnalysisType.Builders, syntaxTrees.ToArray());
+        var buildersMqlCodeExecutor = AnalysisCodeGeneratorUtilities.GetCodeExecutor<BuildersMqlGeneratorExecutor>(context, referencesContainer, syntaxTrees.ToArray(), AnalysisType.Builders);
 
         var result = new CompilationResult(
             buildersMqlCodeExecutor != null,
