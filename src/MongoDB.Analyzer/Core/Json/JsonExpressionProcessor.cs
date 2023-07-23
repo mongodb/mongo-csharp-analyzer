@@ -27,12 +27,10 @@ internal static class JsonExpressionProcessor
         var classNodes = root.DescendantNodesAndSelf().OfType<ClassDeclarationSyntax>();
 
         var typesProcessor = context.TypesProcessor;
-        var pocoLimit = context.Settings.PocoLimit;
-        var pocosAnalyzed = 0;
 
         foreach (var classNode in classNodes)
         {
-            if (PreanalyzeClassDeclaration(classNode, context) && pocosAnalyzed < pocoLimit)
+            if (PreanalyzeClassDeclaration(classNode, context, analysisContexts))
             {
                 try
                 {
@@ -41,7 +39,6 @@ internal static class JsonExpressionProcessor
                     var generatedClassNode = (ClassDeclarationSyntax)(typesProcessor.GetTypeSymbolToMemberDeclarationMapping(classSymbol));
                     var expresionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(classNode, null, generatedClassNode, null, classNode.GetLocation()));
                     analysisContexts.Add(expresionContext);
-                    pocosAnalyzed++;
                 }
                 catch (Exception ex)
                 {
@@ -61,9 +58,14 @@ internal static class JsonExpressionProcessor
         return jsonAnalysis;
     }
 
-    private static bool PreanalyzeClassDeclaration(ClassDeclarationSyntax classDeclarationSyntax, MongoAnalysisContext context)
+    private static bool PreanalyzeClassDeclaration(ClassDeclarationSyntax classDeclarationSyntax, MongoAnalysisContext context, List<ExpressionAnalysisContext> analysisContexts)
     {
         var verbosity = context.Settings.JsonAnalyzerVerbosity;
+
+        if (analysisContexts.Count == context.Settings.PocoLimit)
+        {
+            return false;
+        }
 
         if (verbosity == JsonAnalyzerVerbosity.All)
         {
