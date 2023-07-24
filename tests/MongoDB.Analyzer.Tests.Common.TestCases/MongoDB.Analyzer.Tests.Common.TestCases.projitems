@@ -12,16 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Builders\*.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Jira\VS78.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\*.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Json\*.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Poco\PocoEnums.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Poco\PocoArrays.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Poco\PocoNestedTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Poco\PocoBsonTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Poco\PocoCollections.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Poco\NotSupportedPocoClassDeclarations.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Poco\PocoBasic.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Poco\PocoSystemTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Poco\PocoIgnoredBsonAttributes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Poco\PocoBsonAttributes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Poco\*.cs" />
   </ItemGroup>
 </Project>

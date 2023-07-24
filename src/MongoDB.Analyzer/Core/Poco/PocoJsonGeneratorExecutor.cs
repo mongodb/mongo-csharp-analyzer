@@ -18,7 +18,7 @@ namespace MongoDB.Analyzer.Core.Poco;
 
 internal record JsonResult(string Json, Exception exception);
 
-internal sealed class PocoJsonGeneratorExecutor : GeneratorExecutor
+internal sealed class PocoJsonGeneratorExecutor : MqlOrJsonGeneratorExecutor
 {
     private readonly Type _testClassType;
     public string DriverVersion { get; }

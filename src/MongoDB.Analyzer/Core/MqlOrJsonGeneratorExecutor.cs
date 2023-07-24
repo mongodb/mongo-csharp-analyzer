@@ -14,6 +14,6 @@
 
 namespace MongoDB.Analyzer.Core;
 
-public interface GeneratorExecutor
+public interface MqlOrJsonGeneratorExecutor
 {
 }

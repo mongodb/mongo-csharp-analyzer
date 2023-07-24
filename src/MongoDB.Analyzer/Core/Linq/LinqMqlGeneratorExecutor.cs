@@ -18,7 +18,7 @@ namespace MongoDB.Analyzer.Core.Linq;
 
 internal record MQLResult(string Mql, bool Linq3Only, Exception Exception);
 
-internal sealed class LinqMqlGeneratorExecutor : GeneratorExecutor
+internal sealed class LinqMqlGeneratorExecutor : MqlOrJsonGeneratorExecutor
 {
     private readonly Type _testClassType;
     private readonly bool _isLinq3Driver;

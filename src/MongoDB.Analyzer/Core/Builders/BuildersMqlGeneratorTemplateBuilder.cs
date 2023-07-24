@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using static MongoDB.Analyzer.Core.HelperResources.MqlGeneratorSyntaxElements.Builders;
+
 namespace MongoDB.Analyzer.Core.Builders;
 
 internal sealed class BuildersMqlGeneratorTemplateBuilder

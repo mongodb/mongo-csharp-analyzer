@@ -14,8 +14,8 @@
 
 using MongoDB.Analyzer.Core.Builders;
 using MongoDB.Analyzer.Core.HelperResources;
-using MongoDB.Analyzer.Core.Poco;
 using MongoDB.Analyzer.Core.Linq;
+using MongoDB.Analyzer.Core.Poco;
 
 namespace MongoDB.Analyzer.Core.Utilities
 {
@@ -26,7 +26,7 @@ namespace MongoDB.Analyzer.Core.Utilities
             bool IsLinq3Default,
             LinqVersion DefaultLinqVersion);
 
-        public static T GetCodeExecutor<T>(MongoAnalysisContext context, ReferencesContainer referencesContainer, SyntaxTree[] syntaxTrees, AnalysisType analysisType) where T : GeneratorExecutor
+        public static T GetCodeExecutor<T>(MongoAnalysisContext context, ReferencesContainer referencesContainer, SyntaxTree[] syntaxTrees, AnalysisType analysisType) where T : MqlOrJsonGeneratorExecutor
         {
             var compilation = CSharpCompilation.Create(
                 GetAnalysisAssemblyName(analysisType),
@@ -38,7 +38,7 @@ namespace MongoDB.Analyzer.Core.Utilities
 
             using var memoryStream = new MemoryStream();
             var emitResult = compilation.Emit(memoryStream);
-            GeneratorExecutor codeExecutor = null;
+            MqlOrJsonGeneratorExecutor codeExecutor = null;
 
             if (emitResult.Success)
             {
@@ -75,7 +75,7 @@ namespace MongoDB.Analyzer.Core.Utilities
                 _ => throw new Exception("Unsupported Analysis Type")
             };
 
-        private static GeneratorExecutor GetGeneratorExecutor<T>(AnalysisType analysisType, LinqContext linqContext, Type generatorType) where T : GeneratorExecutor =>
+        private static MqlOrJsonGeneratorExecutor GetGeneratorExecutor<T>(AnalysisType analysisType, LinqContext linqContext, Type generatorType) where T : MqlOrJsonGeneratorExecutor =>
             analysisType switch
             {
                 AnalysisType.Builders => new BuildersMqlGeneratorExecutor(generatorType),

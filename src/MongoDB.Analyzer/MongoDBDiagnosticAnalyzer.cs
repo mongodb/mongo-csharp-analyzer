@@ -14,8 +14,8 @@
 
 using MongoDB.Analyzer.Core;
 using MongoDB.Analyzer.Core.Builders;
-using MongoDB.Analyzer.Core.Poco;
 using MongoDB.Analyzer.Core.Linq;
+using MongoDB.Analyzer.Core.Poco;
 
 namespace MongoDB.Analyzer;
 
@@ -23,8 +23,8 @@ namespace MongoDB.Analyzer;
 public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => CollectionExtensions.CreateImmutableArray(
-        LinqDiagnosticsRules.DiagnosticsRules,
         BuidersDiagnosticsRules.DiagnosticsRules,
+        LinqDiagnosticsRules.DiagnosticsRules,
         PocoDiagnosticRules.DiagnosticsRules);
 
     public override void Initialize(AnalysisContext context)
