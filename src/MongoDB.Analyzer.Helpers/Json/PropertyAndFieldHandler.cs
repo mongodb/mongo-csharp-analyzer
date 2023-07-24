@@ -30,14 +30,7 @@ namespace MongoDB.Analyzer.Helpers.Json
             {
                 try
                 {
-                    if (memberInfo.MemberType == MemberTypes.Property)
-                    {
-                        ProcessProperty(poco, memberInfo, depth, depthLimit);
-                    }
-                    else if (memberInfo.MemberType == MemberTypes.Field)
-                    {
-                        ProcessField(poco, memberInfo, depth, depthLimit);
-                    }
+                    ProcessMember(poco, memberInfo, depth, depthLimit);
                 }
                 catch
                 {
@@ -48,6 +41,29 @@ namespace MongoDB.Analyzer.Helpers.Json
 
         private static IEnumerable<object> GetArgumentList(Type type) =>
             type.GetConstructors().FirstOrDefault()?.GetParameters().Select(parameter => parameter.DefaultValue);
+
+        private static object GetMemberValue(MemberInfo memberInfo, Type memberType, int depth, int depthLimit)
+        {
+            var memberName = memberInfo.Name;
+            if (memberType.IsPrimitive)
+            {
+                return Convert.ChangeType(memberName.Length % 10, memberType);
+            }
+            else if (memberType.IsString())
+            {
+                return memberName;
+            }
+            else if (memberType.IsArray)
+            {
+                return HandleArray(memberType);
+            }
+            else if (memberType.IsClass && !memberType.IsAbstract && depth <= depthLimit)
+            {
+                return HandleClass(memberType, depth, depthLimit);
+            }
+
+            return null;
+        }
 
         private static Array HandleArray(Type arrayType) =>
             arrayType.GetArrayRank() > 1 ? HandleMultiDimensionalArray(arrayType) : HandleSingleDimensionalArray(arrayType);
@@ -78,72 +94,23 @@ namespace MongoDB.Analyzer.Helpers.Json
         private static Array HandleSingleDimensionalArray(Type arrayType) =>
             Array.CreateInstance(arrayType.GetElementType(), 0);
 
-        private static void ProcessField(object poco, MemberInfo memberInfo, int depth, int depthLimit)
+        private static bool IsString(this Type type) =>
+            type == typeof(string);
+
+        private static void ProcessMember(object poco, MemberInfo memberInfo, int depth, int depthLimit)
         {
-            var pocoType = poco.GetType();
-            var memberName = memberInfo.Name;
-            var fieldInfo = pocoType.GetField(memberName);
-            var fieldType = fieldInfo.FieldType;
-
-            if (fieldType.IsPrimitive)
+            if (memberInfo.MemberType == MemberTypes.Property)
             {
-                var typeCode = Type.GetTypeCode(fieldType);
-
-                if (typeCode == TypeCode.Boolean)
-                {
-                    fieldInfo.SetValue(poco, true);
-                }
-                else
-                {
-                    fieldInfo.SetValue(poco, memberName.Length % 10);
-                }
+                var propertyInfo = poco.GetType().GetProperty(memberInfo.Name);
+                var memberValue = GetMemberValue(memberInfo, propertyInfo.PropertyType, depth, depthLimit);
+                propertyInfo.SetValue(poco, memberValue);
             }
-            else if (fieldType.IsString())
+            else if (memberInfo.MemberType == MemberTypes.Field)
             {
-                fieldInfo.SetValue(poco, memberName);
-            }
-            else if (fieldType.IsArray)
-            {
-                fieldInfo.SetValue(poco, HandleArray(fieldType));
-            }
-            else if (fieldType.IsClass && !fieldType.IsAbstract && depth <= depthLimit)
-            {
-                fieldInfo.SetValue(poco, HandleClass(fieldType, depth, depthLimit));
+                var fieldInfo = poco.GetType().GetField(memberInfo.Name);
+                var memberValue = GetMemberValue(memberInfo, fieldInfo.FieldType, depth, depthLimit);
+                fieldInfo.SetValue(poco, memberValue);
             }
         }
-
-        private static void ProcessProperty(object poco, MemberInfo memberInfo, int depth, int depthLimit)
-        {
-            var propertyInfo = poco.GetType().GetProperty(memberInfo.Name);
-            var propertyType = propertyInfo.PropertyType;
-
-            if (propertyType.IsPrimitive)
-            {
-                var typeCode = Type.GetTypeCode(propertyType);
-
-                if (typeCode == TypeCode.Boolean)
-                {
-                    propertyInfo.SetValue(poco, true);
-                }
-                else
-                {
-                    propertyInfo.SetValue(poco, memberInfo.Name.Length % 10);
-                }
-            }
-            else if (propertyType.IsString())
-            {
-                propertyInfo.SetValue(poco, memberInfo.Name);
-            }
-            else if (propertyType.IsArray)
-            {
-                propertyInfo.SetValue(poco, HandleArray(propertyType));
-            }
-            else if (propertyType.IsClass && !propertyType.IsAbstract && depth <= depthLimit)
-            {
-                propertyInfo.SetValue(poco, HandleClass(propertyType, depth, depthLimit));
-            }
-        }
-
-        private static bool IsString(this Type type) => type == typeof(string);
     }
 }
