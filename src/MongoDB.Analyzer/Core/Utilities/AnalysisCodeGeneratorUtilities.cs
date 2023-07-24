@@ -47,7 +47,7 @@ namespace MongoDB.Analyzer.Core.Utilities
                 memoryStream.Seek(0, SeekOrigin.Begin);
 
                 var generatorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, GetGeneratorFullName(analysisType));
-                codeExecutor = GetGeneratorExecutor<T>(analysisType, linqContext, generatorType);
+                codeExecutor = GetGeneratorExecutor(analysisType, linqContext, generatorType);
             }
             else
             {
@@ -75,7 +75,7 @@ namespace MongoDB.Analyzer.Core.Utilities
                 _ => throw new Exception("Unsupported Analysis Type")
             };
 
-        private static MqlOrJsonGeneratorExecutor GetGeneratorExecutor<T>(AnalysisType analysisType, LinqContext linqContext, Type generatorType) where T : MqlOrJsonGeneratorExecutor =>
+        private static MqlOrJsonGeneratorExecutor GetGeneratorExecutor(AnalysisType analysisType, LinqContext linqContext, Type generatorType) =>
             analysisType switch
             {
                 AnalysisType.Builders => new BuildersMqlGeneratorExecutor(generatorType),
