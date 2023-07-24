@@ -14,7 +14,4 @@
     <Compile Include="$(MSBuildThisFileDirectory)Linq\*.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json\*.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Json\" />
-  </ItemGroup>
 </Project>
