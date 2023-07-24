@@ -35,6 +35,10 @@ public sealed class JsonTests : DiagnosticsTestCasesRunner
     public Task BsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [ClassBasedTestCasesSource(typeof(JsonBsonTypes))]
+    public Task BsonTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [ClassBasedTestCasesSourceAttribute(typeof(JsonCollections))]
     public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 

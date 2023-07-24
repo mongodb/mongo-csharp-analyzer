@@ -39,8 +39,8 @@ namespace MongoDB.Analyzer.Helpers.Json
             }
         }
 
-        private static IEnumerable<object> GetArgumentList(Type type) =>
-            type.GetConstructors().FirstOrDefault()?.GetParameters().Select(parameter => parameter.DefaultValue);
+        private static object[] GetArgumentList(Type type) =>
+            type.GetConstructors().FirstOrDefault()?.GetParameters().Select(parameter => parameter.DefaultValue).ToArray();
 
         private static object GetMemberValue(MemberInfo memberInfo, Type memberType, int depth, int depthLimit)
         {
@@ -81,7 +81,7 @@ namespace MongoDB.Analyzer.Helpers.Json
             }
             else
             {
-                classObject = Activator.CreateInstance(memberType, GetArgumentList(memberType).ToArray());
+                classObject = Activator.CreateInstance(memberType, GetArgumentList(memberType));
                 SetAttributes(classObject, depth + 1, depthLimit);
             }
 
