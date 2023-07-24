@@ -23,15 +23,15 @@ namespace MongoDB.Analyzer.Helpers.Json
 {
     public static class JsonGenerator
     {
-#pragma warning disable CS0169 // The field is never used
+#pragma warning disable CS0169 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning disable IDE0051
         private static readonly BsonDocumentCustom123 s_dummyRef1;
         private static readonly BsonValueCustom123 s_dummyRef2;
         private static readonly BsonObjectIdCustom123 s_dummyRef3;
         private static readonly BsonTypeCustom123 s_dummyRef4;
-#pragma warning restore IDE0051 // The field is never used
+#pragma warning restore IDE0051 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning restore CS0169
-        
+
         public static string GetDriverVersion() => typeof(Builders<>).Assembly.GetName().Version.ToString(3);
 
         public static string GetJson()
