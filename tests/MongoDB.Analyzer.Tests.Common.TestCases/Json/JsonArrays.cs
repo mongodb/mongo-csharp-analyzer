@@ -23,7 +23,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
         {
         }
 
-        [Json("{ \"Matrix2\" : [], \"Matrix3\" : [], \"Matrix4\" : [] }")]
+        [Json("{ \"Matrix2\" : [], \"Matrix3\" : [], \"Matrix4\" : [], \"Matrix5\" : [], \"Matrix6\" : [] }")]
         public void MultiDimensionalArrayHolder()
         {
         }
@@ -73,6 +73,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
                 public int[,] Matrix2 { get; set; }
                 public int[,,] Matrix3 { get; set; }
                 public int[,][,] Matrix4 { get; set; }
+                public int[][,][,] Matrix5 { get; set; }
+                public int[,][,][][] Matrix6 { get; set; }
             }
 
             public class CustomTypesArraysHolder
