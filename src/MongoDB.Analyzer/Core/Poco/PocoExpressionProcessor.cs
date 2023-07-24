@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MongoDB.Analyzer.Core.Json;
+namespace MongoDB.Analyzer.Core.Poco;
 
-internal static class JsonExpressionProcessor
+internal static class PocoExpressionProcessor
 {
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
     {
@@ -47,15 +47,15 @@ internal static class JsonExpressionProcessor
             }
         }
 
-        var jsonAnalysis = new ExpressionsAnalysis()
+        var pocoAnalysis = new ExpressionsAnalysis()
         {
             AnalysisNodeContexts = analysisContexts.ToArray(),
             InvalidExpressionNodes = invalidExpressionNodes.ToArray(),
             TypesDeclarations = typesProcessor.TypesDeclarations
         };
 
-        context.Logger.Log($"JSON: Found {jsonAnalysis.AnalysisNodeContexts.Length} expressions.");
-        return jsonAnalysis;
+        context.Logger.Log($"JSON: Found {pocoAnalysis.AnalysisNodeContexts.Length} expressions.");
+        return pocoAnalysis;
     }
 
     private static bool PreanalyzeClassDeclaration(ClassDeclarationSyntax classDeclarationSyntax, MongoAnalysisContext context, List<ExpressionAnalysisContext> analysisContexts)

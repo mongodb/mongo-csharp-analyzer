@@ -33,9 +33,9 @@ internal static class ResourceNames
         public const string Renderer_2_19_and_higher = $"Builders.{nameof(Renderer_2_19_and_higher)}";
     }
 
-    internal static class Json
+    internal static class Poco
     {
-        public const string JsonGenerator = $"Json.{nameof(JsonGenerator)}";
+        public const string JsonGenerator = $"Poco.{nameof(JsonGenerator)}";
     }
 
     public const string EmptyCursor = nameof(EmptyCursor);

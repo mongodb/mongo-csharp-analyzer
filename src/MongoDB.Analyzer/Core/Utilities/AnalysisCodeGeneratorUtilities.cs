@@ -14,7 +14,7 @@
 
 using MongoDB.Analyzer.Core.Builders;
 using MongoDB.Analyzer.Core.HelperResources;
-using MongoDB.Analyzer.Core.Json;
+using MongoDB.Analyzer.Core.Poco;
 using MongoDB.Analyzer.Core.Linq;
 
 namespace MongoDB.Analyzer.Core.Utilities
@@ -71,7 +71,7 @@ namespace MongoDB.Analyzer.Core.Utilities
             {
                 AnalysisType.Builders => BuildersAnalysisConstants.AnalysisAssemblyName,
                 AnalysisType.Linq => LinqAnalysisConstants.AnalysisAssemblyName,
-                AnalysisType.Poco => JsonAnalysisConstants.AnalysisAssemblyName,
+                AnalysisType.Poco => PocoAnalysisConstants.AnalysisAssemblyName,
                 _ => throw new Exception("Unsupported Analysis Type")
             };
 
@@ -80,7 +80,7 @@ namespace MongoDB.Analyzer.Core.Utilities
             {
                 AnalysisType.Builders => new BuildersMqlGeneratorExecutor(generatorType),
                 AnalysisType.Linq => new LinqMqlGeneratorExecutor(generatorType, linqContext.IsLinq3 ? LinqVersion.V3 : LinqVersion.V2, linqContext.DefaultLinqVersion),
-                AnalysisType.Poco => new JsonGeneratorExecutor(generatorType),
+                AnalysisType.Poco => new PocoJsonGeneratorExecutor(generatorType),
                 _ => throw new Exception("Unsupported Analysis Type")
             };
 
@@ -89,7 +89,7 @@ namespace MongoDB.Analyzer.Core.Utilities
             {
                 AnalysisType.Builders => MqlGeneratorSyntaxElements.Builders.MqlGeneratorFullName,
                 AnalysisType.Linq => MqlGeneratorSyntaxElements.Linq.MqlGeneratorFullName,
-                AnalysisType.Poco => JsonSyntaxElements.Json.JsonGeneratorFullName,
+                AnalysisType.Poco => JsonSyntaxElements.Poco.JsonGeneratorFullName,
                 _ => throw new Exception("Unsupported Analysis Type")
             };
     }

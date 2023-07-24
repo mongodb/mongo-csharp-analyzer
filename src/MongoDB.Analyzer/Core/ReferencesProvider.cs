@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Analyzer.Core.Json;
+using MongoDB.Analyzer.Core.Poco;
 
 namespace MongoDB.Analyzer.Core;
 
@@ -21,7 +21,7 @@ internal static class ReferencesProvider
     private const string Netstandard20 = "netstandard2.0";
     private const string NetstandardDll = "netstandard.dll";
     private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..", "..");
-    private static string JsonAnalysisAssemblyPath { get; } = GetFullPathRelativeToParent("src", "MongoDB.Analyzer.Helpers", "Json", "PropertyAndFieldHandler.cs");
+    private static string PocoAnalysisAssemblyPath { get; } = GetFullPathRelativeToParent("src", "MongoDB.Analyzer.Helpers", "Poco", "PropertyAndFieldHandler.cs");
 
     private static readonly string[] s_additionalDependencies = new[] { "System.Runtime.dll" };
 
@@ -104,7 +104,7 @@ internal static class ReferencesProvider
 
         if (analysisType == AnalysisType.Poco)
         {
-            CompileJsonAnalysisCode(resultReferences);
+            CompilePocoAnalysisCode(resultReferences);
         }
 
         void TryAddingAssembly(string assemblyName)
@@ -181,12 +181,12 @@ internal static class ReferencesProvider
         return (version, nameToPathMapping, null);
     }
 
-    private static void CompileJsonAnalysisCode(List<MetadataReference> metadataReferences)
+    private static void CompilePocoAnalysisCode(List<MetadataReference> metadataReferences)
     {
         var staticCompilationReferences = new List<MetadataReference>(metadataReferences);
         var staticCompilation = CSharpCompilation.Create(
-            JsonAnalysisConstants.PropertyAndFieldHandlerAssemblyName,
-            new List<SyntaxTree>() { CSharpSyntaxTree.ParseText(File.ReadAllText(JsonAnalysisAssemblyPath)) },
+            PocoAnalysisConstants.PropertyAndFieldHandlerAssemblyName,
+            new List<SyntaxTree>() { CSharpSyntaxTree.ParseText(File.ReadAllText(PocoAnalysisAssemblyPath)) },
             staticCompilationReferences,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
@@ -195,7 +195,7 @@ internal static class ReferencesProvider
         metadataReferences.Add(MetadataReference.CreateFromImage(memoryStream.ToArray()));
 
         AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
-            new AssemblyName(args.Name).Name == JsonAnalysisConstants.PropertyAndFieldHandlerAssemblyName ?
+            new AssemblyName(args.Name).Name == PocoAnalysisConstants.PropertyAndFieldHandlerAssemblyName ?
             Assembly.Load(memoryStream.ToArray()) : null;
     }
 

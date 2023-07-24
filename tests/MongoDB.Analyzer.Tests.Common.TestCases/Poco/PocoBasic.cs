@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
+namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
-    public sealed class JsonBasic : TestCasesBase
+    public sealed class PocoBasic : TestCasesBase
     {
         [Json("{ \"City\" : \"City\", \"Province\" : \"Province\", \"ZipCode\" : \"ZipCode\" }")]
         public void Address()

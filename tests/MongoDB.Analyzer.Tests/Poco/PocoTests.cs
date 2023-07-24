@@ -14,47 +14,47 @@
 
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MongoDB.Analyzer.Tests.Common.TestCases.Json;
+using MongoDB.Analyzer.Tests.Common.TestCases.Poco;
 using MongoDB.Analyzer.Tests.Infrastructure;
 
-namespace MongoDB.Analyzer.Tests.Json;
+namespace MongoDB.Analyzer.Tests.Poco;
 
 [TestClass]
-public sealed class JsonTests : DiagnosticsTestCasesRunner
+public sealed class PocoTests : DiagnosticsTestCasesRunner
 {
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonArrays))]
+    [ClassBasedTestCasesSourceAttribute(typeof(PocoArrays))]
     public Task Arrays(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonBasic))]
+    [ClassBasedTestCasesSourceAttribute(typeof(PocoBasic))]
     public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(JsonBsonAttributes))]
+    [ClassBasedTestCasesSource(typeof(PocoBsonAttributes))]
     public Task BsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(JsonBsonTypes))]
+    [ClassBasedTestCasesSource(typeof(PocoBsonTypes))]
     public Task BsonTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonCollections))]
+    [ClassBasedTestCasesSourceAttribute(typeof(PocoCollections))]
     public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonEnums))]
+    [ClassBasedTestCasesSourceAttribute(typeof(PocoEnums))]
     public Task Enums(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonIgnoredBsonAttributes))]
+    [ClassBasedTestCasesSourceAttribute(typeof(PocoIgnoredBsonAttributes))]
     public Task IgnoredBsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonNestedTypes))]
+    [ClassBasedTestCasesSourceAttribute(typeof(PocoNestedTypes))]
     public Task NestedTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(JsonSystemTypes))]
+    [ClassBasedTestCasesSourceAttribute(typeof(PocoSystemTypes))]
     public Task SystemTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

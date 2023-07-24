@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -25,6 +26,8 @@ namespace MongoDB.Analyzer.Tests.Infrastructure;
 
 internal static class TestCasesRunner
 {
+    private static readonly string s_poco2JsonTestPath = Path.Combine("tests", "MongoDB.Analyzer.Tests.Common.TestCases", "Poco");
+
     private record TestsBundleKey(string TestFileName, string DriverVersion, LinqVersion LinqVersion);
 
     private static readonly IDictionary<TestsBundleKey, IDictionary<string, DiagnosticTestCaseResult>>
@@ -58,7 +61,7 @@ internal static class TestCasesRunner
 
     private static async Task<IDictionary<string, DiagnosticTestCaseResult>> ExecuteTestCases(TestsBundleKey testsBundleKey)
     {
-        var isJson = testsBundleKey.TestFileName.Contains("/tests/MongoDB.Analyzer.Tests.Common.TestCases/Json");
+        var isPoco2JsonTest = testsBundleKey.TestFileName.Contains(s_poco2JsonTestPath);
 
         var diagnostics = await DiagnosticsAnalyzer.Analyze(
             testsBundleKey.TestFileName,
@@ -69,7 +72,7 @@ internal static class TestCasesRunner
                                             .Where(d => DiagnosticRulesConstants.AllRules.Contains(d.Descriptor.Id))
                                             .Select(d =>
                                                 (Diagnostic: d,
-                                                 MethodNode: FindMethodNode(d, isJson)))
+                                                 MethodNode: FindMethodNode(d, isPoco2JsonTest)))
                                             .Where(d => d.MethodNode != null)
                                             .ToArray();
 
@@ -88,9 +91,9 @@ internal static class TestCasesRunner
         return result;
     }
 
-    private static MethodDeclarationSyntax FindMethodNode(Diagnostic diagnostic, bool isJsonTestCase)
+    private static MethodDeclarationSyntax FindMethodNode(Diagnostic diagnostic, bool isPoco2JsonTest)
     {
-        if (isJsonTestCase)
+        if (isPoco2JsonTest)
         {
             var syntaxRoot = diagnostic.Location.SourceTree.GetRoot();
             var classNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan) as ClassDeclarationSyntax;

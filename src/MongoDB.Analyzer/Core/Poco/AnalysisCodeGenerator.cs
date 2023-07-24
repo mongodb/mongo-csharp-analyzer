@@ -15,23 +15,23 @@
 using MongoDB.Analyzer.Core.Utilities;
 using static MongoDB.Analyzer.Core.HelperResources.ResourcesUtilities;
 
-namespace MongoDB.Analyzer.Core.Json;
+namespace MongoDB.Analyzer.Core.Poco;
 
 internal static class AnalysisCodeGenerator
 {
     private static readonly SyntaxTree[] s_helpersSyntaxTrees;
-    private static readonly JsonGeneratorTemplateBuilder.SyntaxElements s_jsonGeneratorSyntaxElements;
+    private static readonly PocoJsonGeneratorTemplateBuilder.SyntaxElements s_jsonGeneratorSyntaxElements;
     private static readonly ParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
     {
         s_helpersSyntaxTrees = GetCommonCodeResources();
-        var jsonGeneratorSyntaxTree = GetCodeResource(ResourceNames.Json.JsonGenerator);
-        s_jsonGeneratorSyntaxElements = JsonGeneratorTemplateBuilder.CreateSyntaxElements(jsonGeneratorSyntaxTree);
+        var jsonGeneratorSyntaxTree = GetCodeResource(ResourceNames.Poco.JsonGenerator);
+        s_jsonGeneratorSyntaxElements = PocoJsonGeneratorTemplateBuilder.CreateSyntaxElements(jsonGeneratorSyntaxTree);
         s_parseOptions = jsonGeneratorSyntaxTree.Options;
     }
 
-    public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis jsonExpressionAnalysis)
+    public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis pocoExpressionAnalysis)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger, AnalysisType.Poco);
@@ -40,8 +40,8 @@ internal static class AnalysisCodeGenerator
             return CompilationResult.Failure;
         }
 
-        var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Poco, jsonExpressionAnalysis.TypesDeclarations, s_parseOptions);
-        var jsonGeneratorSyntaxTree = GenerateJsonGeneratorSyntaxTree(jsonExpressionAnalysis);
+        var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Poco, pocoExpressionAnalysis.TypesDeclarations, s_parseOptions);
+        var jsonGeneratorSyntaxTree = GenerateJsonGeneratorSyntaxTree(pocoExpressionAnalysis);
 
         var syntaxTrees = new List<SyntaxTree>(s_helpersSyntaxTrees)
             {
@@ -49,23 +49,23 @@ internal static class AnalysisCodeGenerator
                 jsonGeneratorSyntaxTree
             };
 
-        var jsonCodeExecutor = AnalysisCodeGeneratorUtilities.GetCodeExecutor<JsonGeneratorExecutor>(context, referencesContainer, syntaxTrees.ToArray(), AnalysisType.Poco);
+        var pocoTestCodeExecutor = AnalysisCodeGeneratorUtilities.GetCodeExecutor<PocoJsonGeneratorExecutor>(context, referencesContainer, syntaxTrees.ToArray(), AnalysisType.Poco);
 
         var result = new CompilationResult(
-            jsonCodeExecutor != null,
-            jsonCodeExecutor,
+            pocoTestCodeExecutor != null,
+            pocoTestCodeExecutor,
             referencesContainer.Version);
 
         return result;
     }
 
-    public static SyntaxTree GenerateJsonGeneratorSyntaxTree(ExpressionsAnalysis jsonExpressionAnalysis)
+    public static SyntaxTree GenerateJsonGeneratorSyntaxTree(ExpressionsAnalysis pocoExpressionAnalysis)
     {
-        var testCodeBuilder = new JsonGeneratorTemplateBuilder(s_jsonGeneratorSyntaxElements);
+        var testCodeBuilder = new PocoJsonGeneratorTemplateBuilder(s_jsonGeneratorSyntaxElements);
 
-        foreach (var jsonContext in jsonExpressionAnalysis.AnalysisNodeContexts)
+        foreach (var pocoContext in pocoExpressionAnalysis.AnalysisNodeContexts)
         {
-            jsonContext.EvaluationMethodName = testCodeBuilder.AddPoco(jsonContext.Node.RewrittenExpression as ClassDeclarationSyntax);
+            pocoContext.EvaluationMethodName = testCodeBuilder.AddPoco(pocoContext.Node.RewrittenExpression as ClassDeclarationSyntax);
         }
 
         return testCodeBuilder.GenerateSyntaxTree();

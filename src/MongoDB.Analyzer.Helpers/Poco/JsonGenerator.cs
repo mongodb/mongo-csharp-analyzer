@@ -19,7 +19,7 @@ using BsonObjectIdCustom123 = MongoDB.Bson.BsonObjectId;
 using BsonTypeCustom123 = MongoDB.Bson.BsonType;
 using BsonValueCustom123 = MongoDB.Bson.BsonValue;
 
-namespace MongoDB.Analyzer.Helpers.Json
+namespace MongoDB.Analyzer.Helpers.Poco
 {
     public static class JsonGenerator
     {

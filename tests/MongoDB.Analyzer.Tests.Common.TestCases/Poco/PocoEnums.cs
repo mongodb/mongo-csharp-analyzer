@@ -14,9 +14,9 @@
 
 using MongoDB.Analyzer.Tests.Common.DataModel;
 
-namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
+namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
-    public sealed class JsonEnums : TestCasesBase
+    public sealed class PocoEnums : TestCasesBase
     {
         [Json("{ \"EnumInt8\" : 0, \"EnumUInt8\" : 0, \"EnumInt16\" : 0, \"EnumUInt16\" : 0, \"EnumInt32\" : 0, \"EnumUInt32\" : 0, \"EnumInt64\" : NumberLong(0), \"EnumUInt64\" : NumberLong(0) }")]
         public void EnumHolder()

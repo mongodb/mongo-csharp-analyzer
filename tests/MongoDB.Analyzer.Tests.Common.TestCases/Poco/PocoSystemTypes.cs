@@ -14,9 +14,9 @@
 
 using System;
 
-namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
+namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
-    public sealed class JsonSystemTypes : TestCasesBase
+    public sealed class PocoSystemTypes : TestCasesBase
     {
         [Json("{ \"DateTimeKindField\" : 0, \"DateTimeOffsetField\" : [NumberLong(0), 0], \"TimeSpanField\" : \"00:00:00\", \"TypeField\" : null }")]
         public void SystemTypeContainer()

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using static MongoDB.Analyzer.Core.HelperResources.JsonSyntaxElements.Json;
+using static MongoDB.Analyzer.Core.HelperResources.JsonSyntaxElements.Poco;
 
-namespace MongoDB.Analyzer.Core.Json;
+namespace MongoDB.Analyzer.Core.Poco;
 
-internal sealed class JsonGeneratorTemplateBuilder
+internal sealed class PocoJsonGeneratorTemplateBuilder
 {
     internal record SyntaxElements(
         SyntaxNode Root,
@@ -31,7 +31,7 @@ internal sealed class JsonGeneratorTemplateBuilder
     private ClassDeclarationSyntax _jsonGeneratorDeclarationSyntaxNew;
     private int _nextTestMethodIndex;
 
-    public JsonGeneratorTemplateBuilder(SyntaxElements syntaxElements)
+    public PocoJsonGeneratorTemplateBuilder(SyntaxElements syntaxElements)
     {
         _syntaxElements = syntaxElements;
         _jsonGeneratorDeclarationSyntaxNew = _syntaxElements.ClassDeclarationSyntax;

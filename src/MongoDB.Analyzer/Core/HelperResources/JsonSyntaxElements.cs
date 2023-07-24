@@ -16,13 +16,13 @@ namespace MongoDB.Analyzer.Core.HelperResources;
 
 internal static class JsonSyntaxElements
 {
-    internal static class Json
+    internal static class Poco
     {
         public const string GetDriverVersion = nameof(GetDriverVersion);
         public const string JsonGenerator = nameof(JsonGenerator);
         public const string JsonGeneratorFullName = JsonGeneratorNamespace + "." + JsonGenerator;
         public const string JsonGeneratorMainMethodName = "GetJson";
-        public const string JsonGeneratorNamespace = "MongoDB.Analyzer.Helpers.Json";
+        public const string JsonGeneratorNamespace = "MongoDB.Analyzer.Helpers.Poco";
         public const string JsonGeneratorTemplateType = nameof(JsonGeneratorTemplateType);
     }
 }

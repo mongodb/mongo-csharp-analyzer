@@ -18,7 +18,7 @@ using System.Linq;
 using System.Reflection;
 using MongoDB.Driver;
 
-namespace MongoDB.Analyzer.Helpers.Json
+namespace MongoDB.Analyzer.Helpers.Poco
 {
     public static class PropertyAndFieldHandler
     {

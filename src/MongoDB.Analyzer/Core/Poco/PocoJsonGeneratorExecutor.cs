@@ -14,16 +14,16 @@
 
 using MongoDB.Analyzer.Core.HelperResources;
 
-namespace MongoDB.Analyzer.Core.Json;
+namespace MongoDB.Analyzer.Core.Poco;
 
 internal record JsonResult(string Json, Exception exception);
 
-internal sealed class JsonGeneratorExecutor : GeneratorExecutor
+internal sealed class PocoJsonGeneratorExecutor : GeneratorExecutor
 {
     private readonly Type _testClassType;
     public string DriverVersion { get; }
 
-    public JsonGeneratorExecutor(Type testClassType)
+    public PocoJsonGeneratorExecutor(Type testClassType)
     {
         _testClassType = testClassType;
         DriverVersion = GetDriverVersion();
@@ -33,7 +33,7 @@ internal sealed class JsonGeneratorExecutor : GeneratorExecutor
     {
         try
         {
-            return (string)_testClassType.GetMethod(JsonSyntaxElements.Json.GetDriverVersion).Invoke(null, new object[] { });
+            return (string)_testClassType.GetMethod(JsonSyntaxElements.Poco.GetDriverVersion).Invoke(null, new object[] { });
         }
         catch { }
 

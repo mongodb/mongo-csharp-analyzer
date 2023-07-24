@@ -15,9 +15,9 @@
 using System.Collections.Generic;
 using MongoDB.Analyzer.Tests.Common.DataModel;
 
-namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
+namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
-    public sealed class JsonCollections : TestCasesBase
+    public sealed class PocoCollections : TestCasesBase
     {
         [Json("{ \"IntList\" : [], \"PesonsList\" : [], \"StringList\" : [], \"NestedListsHolderList\" : [], \"IntIList\" : [], \"NestedListsHolderIList\" : [] }")]
         public void ListsHolder()

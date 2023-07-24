@@ -12,17 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MongoDB.Analyzer.Tests.Common.TestCases.Json;
-using MongoDB.Analyzer.Tests.Infrastructure;
-namespace MongoDB.Analyzer.Tests.Json;
+namespace MongoDB.Analyzer.Core.Poco;
 
-[TestClass]
-public sealed class JsonNotSupportedClassesTests : DiagnosticsTestCasesRunner
+internal record CompilationResult(
+    bool Success,
+    PocoJsonGeneratorExecutor PocoTestCodeExecutor,
+    Version MongoDBDriverVersion)
 {
-    [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(NotSupportedJsonClassDeclarations))]
-    public Task NotSupportedClassDeclarations(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+    public static CompilationResult Failure { get; } = new CompilationResult(false, null, null);
 }
-

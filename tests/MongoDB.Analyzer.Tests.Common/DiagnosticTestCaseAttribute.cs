@@ -193,7 +193,7 @@ namespace MongoDB.Analyzer.Tests.Common
     public sealed class NotSupportedJsonAttribute : JsonDiagnosticTestCaseAttribute
     {
         public NotSupportedJsonAttribute(string message, string version = null) :
-            base(DiagnosticRulesConstants.NotSupportedPOCO, message, version: version)
+            base(DiagnosticRulesConstants.NotSupportedPoco, message, version: version)
         {
         }
     }

@@ -17,9 +17,9 @@ using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
+namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
-    public sealed class JsonBsonAttributes : TestCasesBase
+    public sealed class PocoBsonAttributes : TestCasesBase
     {
         [Json("{ \"Style\" : \"Style\", \"year_built\" : 9, \"_id\" : \"Identifier\" }")]
         public void House()

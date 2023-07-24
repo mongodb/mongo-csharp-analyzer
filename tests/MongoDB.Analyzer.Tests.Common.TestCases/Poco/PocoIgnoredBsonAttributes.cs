@@ -18,53 +18,32 @@ using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
+namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
-    public sealed class NotSupportedJsonClassDeclarations : TestCasesBase
+    public sealed class PocoIgnoredBsonAttributes : TestCasesBase
     {
-        [NotSupportedJson("A serializer of type 'BooleanSerializer' is not configurable using an attribute of type 'BsonTimeSpanOptionsAttribute'.")]
-        public void ClassTimeSpan()
-        {
-        }
-
-        [NotSupportedJson("A serializer of type 'DecimalSerializer' is not configurable using an attribute of type 'BsonDateTimeOptionsAttribute'.")]
-        public void ClassDateTime()
+        [Json("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"DictionaryField\" : { }, \"Name\" : \"Name\", \"InStock\" : true, \"Price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"00:00:00\" }")]
+        public void UnsupportedBsonAttributes()
         {
         }
 
         public class TestClasses
         {
-            public class ClassTimeSpan
-            {
-                public string Name { get; set; }
-
-                [BsonTimeSpanOptions(representation: BsonType.Array, Units = Bson.Serialization.Options.TimeSpanUnits.Hours)]
-                public bool InStock { get; set; }
-
-                public decimal Price { get; set; }
-                public Pair Pair { get; set; }
-                public DateTime ExpiryDate;
-                public int Length { get; set; }
-
-                public int Width { get; set; }
-                public TimeSpan SaleTime { get; set; }
-                public Dictionary<string, string> DictionaryField;
-            }
-
-            public class ClassDateTime
+            public class UnsupportedBsonAttributes
             {
                 public string Name { get; set; }
                 public bool InStock { get; set; }
 
-                [BsonDateTimeOptions(DateOnly = true, Kind = DateTimeKind.Local)]
+                [BsonRepresentation(BsonType.Double)]
                 public decimal Price { get; set; }
 
                 public Pair Pair { get; set; }
                 public DateTime ExpiryDate;
                 public int Length { get; set; }
-
                 public int Width { get; set; }
                 public TimeSpan SaleTime { get; set; }
+
+                [BsonDictionaryOptions(Bson.Serialization.Options.DictionaryRepresentation.Document)]
                 public Dictionary<string, string> DictionaryField;
             }
         }

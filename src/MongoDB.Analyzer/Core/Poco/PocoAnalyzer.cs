@@ -14,22 +14,22 @@
 
 using MongoDB.Analyzer.Core.Utilities;
 
-namespace MongoDB.Analyzer.Core.Json;
+namespace MongoDB.Analyzer.Core.Poco;
 
-internal static class JsonAnalyzer
+internal static class PocoAnalyzer
 {
-    public static bool AnalyzeJson(MongoAnalysisContext context)
+    public static bool AnalyzePoco(MongoAnalysisContext context)
     {
         var sw = Stopwatch.StartNew();
         var stats = AnalysisStats.Empty;
-        ExpressionsAnalysis jsonAnalysis = null;
+        ExpressionsAnalysis pocoAnalysis = null;
 
         try
         {
             context.Logger.Log("Started JSON analysis");
 
-            jsonAnalysis = JsonExpressionProcessor.ProcessSemanticModel(context);
-            stats = ReportJsonOrInvalidExpressions(context, jsonAnalysis);
+            pocoAnalysis = PocoExpressionProcessor.ProcessSemanticModel(context);
+            stats = ReportJsonOrInvalidExpressions(context, pocoAnalysis);
 
             sw.Stop();
             context.Logger.Log($"JSON analysis ended: with {stats.JsonCount} JSON translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}.");
@@ -40,42 +40,42 @@ internal static class JsonAnalyzer
             context.Logger.Log($"JSON analysis ended after {sw.ElapsedMilliseconds}ms with exception {ex}");
         }
 
-        var telemetry = AnalysisUtilities.GetTelemetry(jsonAnalysis, stats, sw);
+        var telemetry = AnalysisUtilities.GetTelemetry(pocoAnalysis, stats, sw);
         if (telemetry.ExpressionsFound > 0)
         {
-            context.Telemetry.JsonAnalysisResult(AnalysisUtilities.GetTelemetry(jsonAnalysis, stats, sw));
+            context.Telemetry.PocoAnalysisResult(AnalysisUtilities.GetTelemetry(pocoAnalysis, stats, sw));
         }
 
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static AnalysisStats ReportJsonOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis jsonAnalysis)
+    private static AnalysisStats ReportJsonOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis pocoAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
-        if (jsonAnalysis.AnalysisNodeContexts.EmptyOrNull())
+        if (pocoAnalysis.AnalysisNodeContexts.EmptyOrNull())
         {
             return AnalysisStats.Empty;
         }
 
-        var compilationResult = AnalysisCodeGenerator.Compile(context, jsonAnalysis);
+        var compilationResult = AnalysisCodeGenerator.Compile(context, pocoAnalysis);
         if (!compilationResult.Success)
         {
             return AnalysisStats.Empty;
         }
 
-        var driverVersion = compilationResult.JsonTestCodeExecutor.DriverVersion;
+        var driverVersion = compilationResult.PocoTestCodeExecutor.DriverVersion;
         var settings = context.Settings;
         int jsonCount = 0, internalExceptionsCount = 0, driverExceptionsCount = 0;
 
-        foreach (var analysisContext in jsonAnalysis.AnalysisNodeContexts)
+        foreach (var analysisContext in pocoAnalysis.AnalysisNodeContexts)
         {
-            var jsonResult = compilationResult.JsonTestCodeExecutor.GenerateJson(analysisContext.EvaluationMethodName);
+            var jsonResult = compilationResult.PocoTestCodeExecutor.GenerateJson(analysisContext.EvaluationMethodName);
             var locations = analysisContext.Node.Locations;
 
             if (jsonResult.Json != null)
             {
                 var json = jsonResult.Json;
-                var diagnosticDescriptor = JsonDiagnosticsRules.DiagnosticRuleJson;
+                var diagnosticDescriptor = PocoDiagnosticRules.DiagnosticRulePoco2Json;
                 var decoratedMessage = DecorateMessage(json, driverVersion, context.Settings);
                 semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 jsonCount++;
@@ -87,8 +87,8 @@ internal static class JsonAnalyzer
 
                 if (isBsonException || isDriverException || settings.OutputInternalExceptions)
                 {
-                    var diagnosticDescriptor = JsonDiagnosticsRules.DiagnosticRuleNotSupportedJson;
-                    var decoratedMessage = DecorateMessage(jsonResult.exception.InnerException?.Message ?? "Unsupported JSON expression", driverVersion, context.Settings);
+                    var diagnosticDescriptor = PocoDiagnosticRules.DiagnosticRuleNotSupportedPoco;
+                    var decoratedMessage = DecorateMessage(jsonResult.exception.InnerException?.Message ?? "Unsupported Poco expression", driverVersion, context.Settings);
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 

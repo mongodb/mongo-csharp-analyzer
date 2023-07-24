@@ -23,8 +23,8 @@ namespace MongoDB.Analyzer.Tests.Common
         public const string Builders2MQL = "MABuilders1001";
         public const string NotSupportedBuildersExpression = "MABuilders2001";
 
-        public const string Poco2Json = "MAJson1001";
-        public const string NotSupportedPOCO = "MAJson2001";
+        public const string Poco2Json = "MAPoco1001";
+        public const string NotSupportedPoco = "MAPoco2001";
 
         public const string NoRule = nameof(NoRule);
 
@@ -36,7 +36,7 @@ namespace MongoDB.Analyzer.Tests.Common
             Builders2MQL,
             NotSupportedBuildersExpression,
             Poco2Json,
-            NotSupportedPOCO,
+            NotSupportedPoco,
             NoRule
         };
     }

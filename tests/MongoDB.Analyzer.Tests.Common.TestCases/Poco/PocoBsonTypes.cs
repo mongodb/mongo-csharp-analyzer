@@ -14,9 +14,9 @@
 
 using MongoDB.Bson;
 
-namespace MongoDB.Analyzer.Tests.Common.TestCases.Json
+namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
-    public class JsonBsonTypes : TestCasesBase
+    public class PocoBsonTypes : TestCasesBase
     {
         [Json("{ \"BsonDocumentField\" : { }, \"BsonObjectIdField\" : { \"_csharpnull\" : true }, \"BsonTypeField\" : 0, \"BsonValueField\" : { \"_csharpnull\" : true }, \"TimeSpanUnitsField\" : 0 }")]
         public void BsonTypeContainer()

@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MongoDB.Analyzer.Core.Json;
+namespace MongoDB.Analyzer.Core.Poco;
 
-public static class JsonDiagnosticsRules
+public static class PocoDiagnosticRules
 {
-    private const string DiagnosticIdJson = "MAJson1001";
-    private const string DiagnosticIdNotSupportedJson = "MAJson2001";
-    private const string Category = "MongoDB.Analyzer.Json";
+    private const string DiagnosticIdPoco2Json = "MAPoco1001";
+    private const string DiagnosticIdNotSupportedPoco = "MAPoco2001";
+    private const string Category = "MongoDB.Analyzer.Poco";
 
-    public static readonly DiagnosticDescriptor DiagnosticRuleJson = new(
-        id: DiagnosticIdJson,
+    public static readonly DiagnosticDescriptor DiagnosticRulePoco2Json = new(
+        id: DiagnosticIdPoco2Json,
         title: "Poco to Json",
         messageFormat: "{0}",
         category: Category,
@@ -29,8 +29,8 @@ public static class JsonDiagnosticsRules
         isEnabledByDefault: true,
         helpLinkUri: "");
 
-    public static readonly DiagnosticDescriptor DiagnosticRuleNotSupportedJson = new(
-        id: DiagnosticIdNotSupportedJson,
+    public static readonly DiagnosticDescriptor DiagnosticRuleNotSupportedPoco = new(
+        id: DiagnosticIdNotSupportedPoco,
         title: "Not supported Poco",
         messageFormat: "{0}",
         category: Category,
@@ -41,7 +41,7 @@ public static class JsonDiagnosticsRules
 
     public static DiagnosticDescriptor[] DiagnosticsRules { get; } = new[]
     {
-        DiagnosticRuleJson,
-        DiagnosticRuleNotSupportedJson
+        DiagnosticRulePoco2Json,
+        DiagnosticRuleNotSupportedPoco
     };
 }
