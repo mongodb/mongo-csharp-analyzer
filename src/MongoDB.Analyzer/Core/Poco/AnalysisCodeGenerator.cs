@@ -83,11 +83,10 @@ internal static class AnalysisCodeGenerator
     {
         if (s_pocoPopulationMetadataReference == null)
         {
-            var staticCompilationReferences = new List<MetadataReference>(metadataReferences);
             var staticCompilation = CSharpCompilation.Create(
                 PocoAnalysisConstants.PropertyAndFieldHandlerAssemblyName,
                 new List<SyntaxTree>() { CSharpSyntaxTree.ParseText(File.ReadAllText(PocoAnalysisAssemblyPath)) },
-                staticCompilationReferences,
+                new List<MetadataReference>(metadataReferences),
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
             var memoryStream = new MemoryStream();
