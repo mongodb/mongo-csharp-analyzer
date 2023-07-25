@@ -23,6 +23,9 @@ internal static class AnalysisCodeGenerator
     private static readonly PocoJsonGeneratorTemplateBuilder.SyntaxElements s_jsonGeneratorSyntaxElements;
     private static readonly ParseOptions s_parseOptions;
 
+    private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..", "..");
+    private static string PocoAnalysisAssemblyPath { get; } = GetFullPathRelativeToParent("src", "MongoDB.Analyzer.Helpers", "Poco", "PropertyAndFieldHandler.cs");
+
     static AnalysisCodeGenerator()
     {
         s_helpersSyntaxTrees = GetCommonCodeResources();
@@ -34,11 +37,15 @@ internal static class AnalysisCodeGenerator
     public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis pocoExpressionAnalysis)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
-        var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger, AnalysisType.Poco);
+        var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger);
         if (referencesContainer == null)
         {
             return CompilationResult.Failure;
         }
+
+        var metadataReferences = referencesContainer.References.ToList();
+        CompilePocoAnalysisCode(metadataReferences);
+        referencesContainer = new ReferencesContainer(metadataReferences.ToArray(), referencesContainer.DriverPaths, referencesContainer.Version);
 
         var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Poco, pocoExpressionAnalysis.TypesDeclarations, s_parseOptions);
         var jsonGeneratorSyntaxTree = GenerateJsonGeneratorSyntaxTree(pocoExpressionAnalysis);
@@ -70,4 +77,40 @@ internal static class AnalysisCodeGenerator
 
         return testCodeBuilder.GenerateSyntaxTree();
     }
+
+    private static void CompilePocoAnalysisCode(List<MetadataReference> metadataReferences)
+    {
+        var currentAppDomain = AppDomain.CurrentDomain;
+        var rawAssemblyData = currentAppDomain.GetData("RawAssembly");
+        if (rawAssemblyData == null)
+        {
+            var staticCompilationReferences = new List<MetadataReference>(metadataReferences);
+            var staticCompilation = CSharpCompilation.Create(
+                PocoAnalysisConstants.PropertyAndFieldHandlerAssemblyName,
+                new List<SyntaxTree>() { CSharpSyntaxTree.ParseText(File.ReadAllText(PocoAnalysisAssemblyPath)) },
+                staticCompilationReferences,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            var memoryStream = new MemoryStream();
+            var emitResult = staticCompilation.Emit(memoryStream);
+
+            if (emitResult.Success)
+            {
+                var rawAssembly = memoryStream.ToArray();
+                metadataReferences.Add(MetadataReference.CreateFromImage(rawAssembly));
+                currentAppDomain.SetData("RawAssembly", rawAssembly);
+                currentAppDomain.AssemblyResolve += (sender, args) =>
+                    new AssemblyName(args.Name).Name == PocoAnalysisConstants.PropertyAndFieldHandlerAssemblyName ?
+                    Assembly.Load(rawAssembly) : null;
+            }
+        }
+        else
+        {
+            var rawAssembly = (byte[]) rawAssemblyData;
+            metadataReferences.Add(MetadataReference.CreateFromImage(rawAssembly));
+        }
+    }
+
+    private static string GetFullPathRelativeToParent(params string[] pathComponents) =>
+        Path.GetFullPath(Path.Combine(s_projectParentFolderPrefix, pathComponents.Length == 1 ? pathComponents[0] : Path.Combine(pathComponents)));
 }

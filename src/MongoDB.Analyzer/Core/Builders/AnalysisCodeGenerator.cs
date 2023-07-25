@@ -37,7 +37,7 @@ internal static class AnalysisCodeGenerator
     public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis buildersExpressionAnalysis)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
-        var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger, AnalysisType.Builders);
+        var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger);
         if (referencesContainer == null)
         {
             return CompilationResult.Failure;

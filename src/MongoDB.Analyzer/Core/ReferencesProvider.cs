@@ -12,17 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Analyzer.Core.Poco;
-
 namespace MongoDB.Analyzer.Core;
 
 internal static class ReferencesProvider
 {
     private const string Netstandard20 = "netstandard2.0";
     private const string NetstandardDll = "netstandard.dll";
-    private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..", "..");
-    private static string PocoAnalysisAssemblyPath { get; } = GetFullPathRelativeToParent("src", "MongoDB.Analyzer.Helpers", "Poco", "PropertyAndFieldHandler.cs");
-
     private static readonly string[] s_additionalDependencies = new[] { "System.Runtime.dll" };
 
     private static readonly HashSet<string> s_mongodbDriverAssemblies = new(new[]
@@ -47,7 +42,7 @@ internal static class ReferencesProvider
         return null;
     }
 
-    public static ReferencesContainer GetReferences(IEnumerable<MetadataReference> metadataReferences, Logger logger, AnalysisType analysisType)
+    public static ReferencesContainer GetReferences(IEnumerable<MetadataReference> metadataReferences, Logger logger)
     {
         var resultReferences = new List<MetadataReference>();
 
@@ -100,11 +95,6 @@ internal static class ReferencesProvider
         foreach (var dependency in s_additionalDependencies)
         {
             TryAddingAssembly(dependency);
-        }
-
-        if (analysisType == AnalysisType.Poco)
-        {
-            CompilePocoAnalysisCode(resultReferences);
         }
 
         void TryAddingAssembly(string assemblyName)
@@ -180,27 +170,6 @@ internal static class ReferencesProvider
 
         return (version, nameToPathMapping, null);
     }
-
-    private static void CompilePocoAnalysisCode(List<MetadataReference> metadataReferences)
-    {
-        var staticCompilationReferences = new List<MetadataReference>(metadataReferences);
-        var staticCompilation = CSharpCompilation.Create(
-            PocoAnalysisConstants.PropertyAndFieldHandlerAssemblyName,
-            new List<SyntaxTree>() { CSharpSyntaxTree.ParseText(File.ReadAllText(PocoAnalysisAssemblyPath)) },
-            staticCompilationReferences,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-        MemoryStream memoryStream = new MemoryStream();
-        staticCompilation.Emit(memoryStream);
-        metadataReferences.Add(MetadataReference.CreateFromImage(memoryStream.ToArray()));
-
-        AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
-            new AssemblyName(args.Name).Name == PocoAnalysisConstants.PropertyAndFieldHandlerAssemblyName ?
-            Assembly.Load(memoryStream.ToArray()) : null;
-    }
-
-    private static string GetFullPathRelativeToParent(params string[] pathComponents) =>
-        Path.GetFullPath(Path.Combine(s_projectParentFolderPrefix, pathComponents.Length == 1 ? pathComponents[0] : Path.Combine(pathComponents)));
 
     public static string GetDriverVersion(Assembly assembly) =>
         assembly.GetReferencedAssemblies().FirstOrDefault(a => a.Name.Contains("MongoDB"))?.Version?.ToString();
