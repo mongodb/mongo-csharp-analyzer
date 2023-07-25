@@ -25,7 +25,7 @@ internal static class AnalysisCodeGenerator
 
     private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..", "..");
     private static string PocoAnalysisAssemblyPath { get; } = GetFullPathRelativeToParent("src", "MongoDB.Analyzer.Helpers", "Poco", "PropertyAndFieldHandler.cs");
-    private static MetadataReference s_pocoPopulationMetadataReference;
+    private static MetadataReference s_pocoPopulationMetadataReference { get; set; }
 
     static AnalysisCodeGenerator()
     {
