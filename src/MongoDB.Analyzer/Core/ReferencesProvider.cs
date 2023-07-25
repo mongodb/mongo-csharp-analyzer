@@ -18,6 +18,7 @@ internal static class ReferencesProvider
 {
     private const string Netstandard20 = "netstandard2.0";
     private const string NetstandardDll = "netstandard.dll";
+
     private static readonly string[] s_additionalDependencies = new[] { "System.Runtime.dll" };
 
     private static readonly HashSet<string> s_mongodbDriverAssemblies = new(new[]
