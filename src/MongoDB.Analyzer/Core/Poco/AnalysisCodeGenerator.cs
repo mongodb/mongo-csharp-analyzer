@@ -25,6 +25,7 @@ internal static class AnalysisCodeGenerator
 
     private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..", "..");
     private static string PocoAnalysisAssemblyPath { get; } = GetFullPathRelativeToParent("src", "MongoDB.Analyzer.Helpers", "Poco", "PropertyAndFieldHandler.cs");
+    private static MetadataReference s_pocoPopulationMetadataReference;
 
     static AnalysisCodeGenerator()
     {
@@ -44,7 +45,7 @@ internal static class AnalysisCodeGenerator
         }
 
         var metadataReferences = referencesContainer.References.ToList();
-        CompilePocoAnalysisCode(metadataReferences);
+        CompilePocoPopulationCode(metadataReferences);
         referencesContainer = new ReferencesContainer(metadataReferences.ToArray(), referencesContainer.DriverPaths, referencesContainer.Version);
 
         var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Poco, pocoExpressionAnalysis.TypesDeclarations, s_parseOptions);
@@ -78,11 +79,9 @@ internal static class AnalysisCodeGenerator
         return testCodeBuilder.GenerateSyntaxTree();
     }
 
-    private static void CompilePocoAnalysisCode(List<MetadataReference> metadataReferences)
+    private static void CompilePocoPopulationCode(List<MetadataReference> metadataReferences)
     {
-        var currentAppDomain = AppDomain.CurrentDomain;
-        var rawAssemblyData = currentAppDomain.GetData("RawAssembly");
-        if (rawAssemblyData == null)
+        if (s_pocoPopulationMetadataReference == null)
         {
             var staticCompilationReferences = new List<MetadataReference>(metadataReferences);
             var staticCompilation = CSharpCompilation.Create(
@@ -97,17 +96,16 @@ internal static class AnalysisCodeGenerator
             if (emitResult.Success)
             {
                 var rawAssembly = memoryStream.ToArray();
-                metadataReferences.Add(MetadataReference.CreateFromImage(rawAssembly));
-                currentAppDomain.SetData("RawAssembly", rawAssembly);
-                currentAppDomain.AssemblyResolve += (sender, args) =>
+                s_pocoPopulationMetadataReference = MetadataReference.CreateFromImage(rawAssembly);
+                metadataReferences.Add(s_pocoPopulationMetadataReference);
+                AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
                     new AssemblyName(args.Name).Name == PocoAnalysisConstants.PropertyAndFieldHandlerAssemblyName ?
                     Assembly.Load(rawAssembly) : null;
             }
         }
         else
         {
-            var rawAssembly = (byte[]) rawAssemblyData;
-            metadataReferences.Add(MetadataReference.CreateFromImage(rawAssembly));
+            metadataReferences.Add(s_pocoPopulationMetadataReference);
         }
     }
 
