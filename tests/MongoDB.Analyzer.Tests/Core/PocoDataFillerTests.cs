@@ -16,12 +16,11 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Analyzer.Core.Poco;
 using MongoDB.Analyzer.Tests.Common.DataModel;
-using MongoDB.Analyzer.Tests.Infrastructure;
 
 namespace MongoDB.Analyzer.Tests.Core;
 
 [TestClass]
-public sealed class PocoDataFillerTests : DiagnosticsTestCasesRunner
+public sealed class PocoDataFillerTests
 {
     [DataTestMethod]
     public void TestSimplePoco()
