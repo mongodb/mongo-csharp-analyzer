@@ -64,7 +64,7 @@ public sealed class CodeBasedTestCasesSourceAttribute : Attribute, ITestDataSour
 
         var diagnosticsTestCases =
             from attribute in testCasesAttributes
-            where EnvironmentUtilities.IsDriverTargetFrameworkSupported((Core.DriverTargetFramework)(int)attribute.TargetFramework)
+            where EnvironmentUtilities.IsDriverTargetFrameworkSupported((Analyzer.Core.DriverTargetFramework)(int)attribute.TargetFramework)
             from version in DriverVersionHelper.FilterVersionForRange(attribute.Version)
             from location in attribute.Locations
             orderby

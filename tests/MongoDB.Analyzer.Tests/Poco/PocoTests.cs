@@ -39,22 +39,26 @@ public sealed class PocoTests : DiagnosticsTestCasesRunner
     public Task BsonTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(PocoCollections))]
+    [ClassBasedTestCasesSource(typeof(PocoCollections))]
     public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(PocoEnums))]
+    [ClassBasedTestCasesSource(typeof(PocoEnums))]
     public Task Enums(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(PocoIgnoredBsonAttributes))]
+    [ClassBasedTestCasesSource(typeof(PocoFields))]
+    public Task Fields(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
+    [ClassBasedTestCasesSource(typeof(PocoIgnoredBsonAttributes))]
     public Task IgnoredBsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(PocoNestedTypes))]
+    [ClassBasedTestCasesSource(typeof(PocoNestedTypes))]
     public Task NestedTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(PocoSystemTypes))]
+    [ClassBasedTestCasesSource(typeof(PocoSystemTypes))]
     public Task SystemTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

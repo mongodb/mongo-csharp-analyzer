@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MongoDB.Analyzer.Core.Poco;
+namespace MongoDB.Analyzer.Core;
 
-internal static class PocoAnalysisConstants
+public interface IMqlOrJsonGeneratorExecutor
 {
-    public const string AnalysisAssemblyName = "DynamicProxyGenAssembly2";
-    public const string PropertyAndFieldHandlerAssemblyName = "PropertyAndFieldHandler";
 }

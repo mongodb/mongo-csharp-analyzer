@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using BsonDocumentCustom123 = MongoDB.Bson.BsonDocument;
@@ -34,10 +35,10 @@ namespace MongoDB.Analyzer.Helpers.Poco
 
         public static string GetDriverVersion() => typeof(Builders<>).Assembly.GetName().Version.ToString(3);
 
-        public static string GetJson()
+        public static string GetJson(Action<object> populatePoco)
         {
             var poco = new object();
-            PropertyAndFieldHandler.SetAttributes(poco, 0, 2);
+            populatePoco(poco);
             return poco.ToJson();
         }
     }

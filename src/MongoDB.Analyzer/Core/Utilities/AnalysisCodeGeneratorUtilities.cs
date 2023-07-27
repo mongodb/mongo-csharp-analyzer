@@ -12,86 +12,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Analyzer.Core.Builders;
 using MongoDB.Analyzer.Core.HelperResources;
-using MongoDB.Analyzer.Core.Linq;
-using MongoDB.Analyzer.Core.Poco;
 
-namespace MongoDB.Analyzer.Core.Utilities
+namespace MongoDB.Analyzer.Core.Utilities;
+
+internal static class AnalysisCodeGeneratorUtilities
 {
-    internal static class AnalysisCodeGeneratorUtilities
+    private const string AnalysisAssemblyName = "DynamicProxyGenAssembly2";
+
+    public static Type CompileAndGetGeneratorType(MongoAnalysisContext context, ReferencesContainer referencesContainer, SyntaxTree[] syntaxTrees, AnalysisType analysisType)
     {
-        private record LinqContext(
-            bool IsLinq3,
-            bool IsLinq3Default,
-            LinqVersion DefaultLinqVersion);
+        var compilation = CSharpCompilation.Create(
+            AnalysisAssemblyName,
+            syntaxTrees,
+            referencesContainer.References,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-        public static T GetCodeExecutor<T>(MongoAnalysisContext context, ReferencesContainer referencesContainer, SyntaxTree[] syntaxTrees, AnalysisType analysisType) where T : MqlOrJsonGeneratorExecutor
+        using var memoryStream = new MemoryStream();
+        var emitResult = compilation.Emit(memoryStream);
+        Type generatorType = null;
+
+        if (emitResult.Success)
         {
-            var compilation = CSharpCompilation.Create(
-                GetAnalysisAssemblyName(analysisType),
-                syntaxTrees,
-                referencesContainer.References,
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            context.Logger.Log("Compilation successful");
 
-            var linqContext = analysisType == AnalysisType.Linq ? GenerateLinqContext(context, referencesContainer) : null;
+            memoryStream.Seek(0, SeekOrigin.Begin);
 
-            using var memoryStream = new MemoryStream();
-            var emitResult = compilation.Emit(memoryStream);
-            MqlOrJsonGeneratorExecutor codeExecutor = null;
-
-            if (emitResult.Success)
-            {
-                context.Logger.Log("Compilation successful");
-
-                memoryStream.Seek(0, SeekOrigin.Begin);
-
-                var generatorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, GetGeneratorFullName(analysisType));
-                codeExecutor = GetGeneratorExecutor(analysisType, linqContext, generatorType);
-            }
-            else
-            {
-                context.Logger.Log($"Compilation failed with: {string.Join(Environment.NewLine, emitResult.Diagnostics)}");
-            }
-
-            return (T)codeExecutor;
+            generatorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, GetGeneratorFullName(analysisType));
+        }
+        else
+        {
+            context.Logger.Log($"Compilation failed with: {string.Join(Environment.NewLine, emitResult.Diagnostics)}");
         }
 
-        private static LinqContext GenerateLinqContext(MongoAnalysisContext context, ReferencesContainer referencesContainer)
-        {
-            var isLinq3 = referencesContainer.Version >= LinqAnalysisConstants.MinLinq3Version;
-            var isLinq3Default = referencesContainer.Version >= LinqAnalysisConstants.DefaultLinq3Version;
-            var defaultLinqVersion = context.Settings.DefaultLinqVersion ?? (isLinq3Default ? LinqVersion.V3 : LinqVersion.V2);
-
-            return new LinqContext(isLinq3, isLinq3Default, defaultLinqVersion); 
-        }
-
-        private static string GetAnalysisAssemblyName(AnalysisType analysisType) =>
-            analysisType switch
-            {
-                AnalysisType.Builders => BuildersAnalysisConstants.AnalysisAssemblyName,
-                AnalysisType.Linq => LinqAnalysisConstants.AnalysisAssemblyName,
-                AnalysisType.Poco => PocoAnalysisConstants.AnalysisAssemblyName,
-                _ => throw new Exception("Unsupported Analysis Type")
-            };
-
-        private static MqlOrJsonGeneratorExecutor GetGeneratorExecutor(AnalysisType analysisType, LinqContext linqContext, Type generatorType) =>
-            analysisType switch
-            {
-                AnalysisType.Builders => new BuildersMqlGeneratorExecutor(generatorType),
-                AnalysisType.Linq => new LinqMqlGeneratorExecutor(generatorType, linqContext.IsLinq3 ? LinqVersion.V3 : LinqVersion.V2, linqContext.DefaultLinqVersion),
-                AnalysisType.Poco => new PocoJsonGeneratorExecutor(generatorType),
-                _ => throw new Exception("Unsupported Analysis Type")
-            };
-
-        private static string GetGeneratorFullName(AnalysisType analysisType) =>
-            analysisType switch
-            {
-                AnalysisType.Builders => MqlGeneratorSyntaxElements.Builders.MqlGeneratorFullName,
-                AnalysisType.Linq => MqlGeneratorSyntaxElements.Linq.MqlGeneratorFullName,
-                AnalysisType.Poco => JsonSyntaxElements.Poco.JsonGeneratorFullName,
-                _ => throw new Exception("Unsupported Analysis Type")
-            };
+        return generatorType;
     }
+
+    private static string GetGeneratorFullName(AnalysisType analysisType) =>
+        analysisType switch
+        {
+            AnalysisType.Builders => MqlGeneratorSyntaxElements.Builders.MqlGeneratorFullName,
+            AnalysisType.Linq => MqlGeneratorSyntaxElements.Linq.MqlGeneratorFullName,
+            AnalysisType.Poco => JsonSyntaxElements.Poco.JsonGeneratorFullName,
+            _ => throw new ArgumentOutOfRangeException(nameof(analysisType), "Unsupported analysis type")
+        };
 }
 

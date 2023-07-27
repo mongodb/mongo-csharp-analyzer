@@ -18,7 +18,7 @@ namespace MongoDB.Analyzer.Core.Poco;
 
 internal record JsonResult(string Json, Exception exception);
 
-internal sealed class PocoJsonGeneratorExecutor : MqlOrJsonGeneratorExecutor
+internal sealed class PocoJsonGeneratorExecutor : IMqlOrJsonGeneratorExecutor
 {
     private readonly Type _testClassType;
     public string DriverVersion { get; }
@@ -49,7 +49,7 @@ internal sealed class PocoJsonGeneratorExecutor : MqlOrJsonGeneratorExecutor
         {
             var jsonMethod = _testClassType.GetMethod(methodName);
 
-            var executeResult = jsonMethod.Invoke(null, new object[] { });
+            var executeResult = jsonMethod.Invoke(null, new object[] { PocoDataFiller.PopulatePoco });
 
             if (executeResult is string executeResultString)
             {

@@ -16,9 +16,7 @@ namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class LinqAnalysisConstants
 {
-    public const string AnalysisAssemblyName = "DynamicProxyGenAssembly2";
     public const string GeneratedTypeName = "GenType";
-
     public static readonly Version DefaultLinq3Version = Version.Parse("2.19");
     public static readonly Version MinLinq3Version = Version.Parse("2.14");
 }
