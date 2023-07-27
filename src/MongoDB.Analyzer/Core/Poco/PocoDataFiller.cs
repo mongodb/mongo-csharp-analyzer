@@ -22,10 +22,7 @@ namespace MongoDB.Analyzer.Core.Poco
         public static void PopulatePoco(object poco) =>
             SetPropertiesAndFields(poco, LevelsLeft);
 
-        private static object[] GetArgumentList(Type type) =>
-            type.GetConstructors().FirstOrDefault()?.GetParameters().Select(parameter => parameter.DefaultValue).ToArray();
-
-        private static object GetMemberValue(Type memberType, string memberName, int levelsLeft)
+        private static object GetPropertyOrFieldValue(Type memberType, string memberName, int levelsLeft)
         {
             if (memberType.IsPrimitive)
             {
@@ -44,7 +41,7 @@ namespace MongoDB.Analyzer.Core.Poco
                 return Activator.CreateInstance(typeof(List<>)
                     .MakeGenericType(memberType.GenericTypeArguments.First()));
             }
-            else if (memberType.IsClass && !memberType.IsAbstract && levelsLeft > 0)
+            else if (memberType.IsClass && levelsLeft > 0)
             {
                 return HandleClass(memberType, levelsLeft);
             }
@@ -57,7 +54,7 @@ namespace MongoDB.Analyzer.Core.Poco
 
         private static object HandleClass(Type memberType, int levelsLeft)
         {
-            var classObject = Activator.CreateInstance(memberType, GetArgumentList(memberType));
+            var classObject = Activator.CreateInstance(memberType);
             SetPropertiesAndFields(classObject, levelsLeft - 1);
             return classObject;
         }
@@ -83,11 +80,12 @@ namespace MongoDB.Analyzer.Core.Poco
             {
                 try
                 {
-                    var memberValue = GetMemberValue(propertyInfo.PropertyType, propertyInfo.Name, levelsLeft);
+                    var memberValue = GetPropertyOrFieldValue(propertyInfo.PropertyType, propertyInfo.Name, levelsLeft);
                     propertyInfo.SetValue(poco, memberValue);
                 }
                 catch
                 {
+                    continue;
                 }
             }
 
@@ -95,11 +93,12 @@ namespace MongoDB.Analyzer.Core.Poco
             {
                 try
                 {
-                    var memberValue = GetMemberValue(fieldInfo.FieldType, fieldInfo.Name, levelsLeft);
+                    var memberValue = GetPropertyOrFieldValue(fieldInfo.FieldType, fieldInfo.Name, levelsLeft);
                     fieldInfo.SetValue(poco, memberValue);
                 }
                 catch
                 {
+                    continue;
                 }
             }
         }
