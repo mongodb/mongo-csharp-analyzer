@@ -33,7 +33,7 @@ internal static class BuildersAnalyzer
             stats = ReportMqlOrInvalidExpressions(context, buildersAnalysis);
 
             sw.Stop();
-            context.Logger.Log($"Builders analysis ended: with {stats.MqlCount} mql translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}.");
+            context.Logger.Log($"Builders analysis ended: with {stats.MqlCount} mql translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}ms.");
         }
         catch (Exception ex)
         {

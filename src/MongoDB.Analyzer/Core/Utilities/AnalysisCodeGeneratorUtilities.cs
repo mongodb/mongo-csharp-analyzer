@@ -20,7 +20,7 @@ internal static class AnalysisCodeGeneratorUtilities
 {
     private const string AnalysisAssemblyName = "DynamicProxyGenAssembly2";
 
-    public static Type CompileAndGetGeneratorType(MongoAnalysisContext context, ReferencesContainer referencesContainer, SyntaxTree[] syntaxTrees, AnalysisType analysisType)
+    public static Type CompileAndGetGeneratorType(AnalysisType analysisType, MongoAnalysisContext context, ReferencesContainer referencesContainer, IEnumerable<SyntaxTree> syntaxTrees)
     {
         var compilation = CSharpCompilation.Create(
             AnalysisAssemblyName,

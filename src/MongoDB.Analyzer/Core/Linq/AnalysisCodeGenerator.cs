@@ -52,7 +52,6 @@ internal static class AnalysisCodeGenerator
         var defaultLinqVersion = context.Settings.DefaultLinqVersion ?? (isLinq3Default ? LinqVersion.V3 : LinqVersion.V2);
 
         var linqProviderSyntaxTree = isLinq3 ? s_linqProviderV3SyntaxTree : s_linqProviderV2SyntaxTree;
-
         var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Linq, linqExpressionAnalysis.TypesDeclarations, s_parseOptions);
         var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(linqExpressionAnalysis, isLinq3);
 
@@ -63,17 +62,15 @@ internal static class AnalysisCodeGenerator
                 mqlGeneratorSyntaxTree
             };
 
-        var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(context, referencesContainer, syntaxTrees.ToArray(), AnalysisType.Linq);
+        var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(AnalysisType.Linq, context, referencesContainer, syntaxTrees);
         if (generatorType == null)
         {
             return CompilationResult.Failure;
         }
 
-        var linqTestCodeExecutor = new LinqMqlGeneratorExecutor(generatorType, isLinq3 ? LinqVersion.V3 : LinqVersion.V2, defaultLinqVersion);
-
         var result = new CompilationResult(
-            linqTestCodeExecutor != null,
-            linqTestCodeExecutor,
+            true,
+            new LinqMqlGeneratorExecutor(generatorType, isLinq3 ? LinqVersion.V3 : LinqVersion.V2, defaultLinqVersion),
             referencesContainer.Version);
 
         return result;

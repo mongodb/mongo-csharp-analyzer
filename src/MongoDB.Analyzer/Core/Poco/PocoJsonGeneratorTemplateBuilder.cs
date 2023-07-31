@@ -39,13 +39,7 @@ internal sealed class PocoJsonGeneratorTemplateBuilder
 
     public string AddPoco(ClassDeclarationSyntax poco)
     {
-        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNodes(_syntaxElements.NodesToReplace, (n, _) =>
-            n switch
-            {
-                _ when n == _syntaxElements.PredefinedTypeNode => SyntaxFactory.IdentifierName(poco.Identifier.ValueText),
-                _ => throw new Exception($"Unrecognized node {n}")
-            });
-
+        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNode(_syntaxElements.PredefinedTypeNode, SyntaxFactory.IdentifierName(poco.Identifier.ValueText));
         var newJsonGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
         newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newJsonGeneratorMethodName));
 

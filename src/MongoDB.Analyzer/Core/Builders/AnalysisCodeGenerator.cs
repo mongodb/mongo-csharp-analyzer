@@ -57,17 +57,15 @@ internal static class AnalysisCodeGenerator
             syntaxTrees.Add(s_renderer_2_19_and_higher);
         }
 
-        var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(context, referencesContainer, syntaxTrees.ToArray(), AnalysisType.Builders);
+        var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(AnalysisType.Builders, context, referencesContainer, syntaxTrees);
         if (generatorType == null)
         {
             return CompilationResult.Failure;
         }
 
-        var buildersMqlCodeExecutor = new BuildersMqlGeneratorExecutor(generatorType);
-
         var result = new CompilationResult(
-            buildersMqlCodeExecutor != null,
-            buildersMqlCodeExecutor,
+            true,
+            new BuildersMqlGeneratorExecutor(generatorType),
             referencesContainer.Version);
 
         return result;

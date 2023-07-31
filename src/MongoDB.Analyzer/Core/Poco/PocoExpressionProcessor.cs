@@ -18,6 +18,11 @@ internal static class PocoExpressionProcessor
 {
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
     {
+        if (context.Settings.JsonAnalyzerVerbosity == JsonAnalyzerVerbosity.None)
+        {
+            return default;
+        }
+
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var syntaxTree = semanticModel.SyntaxTree;
         var root = syntaxTree.GetRoot();
@@ -60,24 +65,17 @@ internal static class PocoExpressionProcessor
 
     private static bool PreanalyzeClassDeclaration(ClassDeclarationSyntax classDeclarationSyntax, MongoAnalysisContext context, List<ExpressionAnalysisContext> analysisContexts)
     {
-        var verbosity = context.Settings.JsonAnalyzerVerbosity;
-
         if (analysisContexts.Count == context.Settings.PocoLimit)
         {
             return false;
         }
 
-        if (verbosity == JsonAnalyzerVerbosity.All)
+        if (context.Settings.JsonAnalyzerVerbosity == JsonAnalyzerVerbosity.All)
         {
             return true;
         }
-        else if (verbosity == JsonAnalyzerVerbosity.None)
-        {
-            return false;
-        }
 
-        var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
-        var classSymbol = semanticModel.GetDeclaredSymbol(classDeclarationSyntax);
+        var classSymbol = context.SemanticModelAnalysisContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax);
 
         var classBsonAttributes = classSymbol.GetAttributes()
             .Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute() ||

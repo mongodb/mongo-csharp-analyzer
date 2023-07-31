@@ -49,17 +49,15 @@ internal static class AnalysisCodeGenerator
                 jsonGeneratorSyntaxTree
             };
 
-        var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(context, referencesContainer, syntaxTrees.ToArray(), AnalysisType.Poco);
+        var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(AnalysisType.Poco, context, referencesContainer, syntaxTrees);
         if (generatorType == null)
         {
             return CompilationResult.Failure;
         }
 
-        var pocoTestCodeExecutor = new PocoJsonGeneratorExecutor(generatorType);
-
         var result = new CompilationResult(
-            pocoTestCodeExecutor != null,
-            pocoTestCodeExecutor,
+            true,
+            new PocoJsonGeneratorExecutor(generatorType),
             referencesContainer.Version);
 
         return result;

@@ -16,9 +16,9 @@ using MongoDB.Analyzer.Core.HelperResources;
 
 namespace MongoDB.Analyzer.Core.Poco;
 
-internal record JsonResult(string Json, Exception exception);
+internal record JsonResult(string Json, Exception Exception);
 
-internal sealed class PocoJsonGeneratorExecutor : IMqlOrJsonGeneratorExecutor
+internal sealed class PocoJsonGeneratorExecutor
 {
     private readonly Type _testClassType;
     public string DriverVersion { get; }

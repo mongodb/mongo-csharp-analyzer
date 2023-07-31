@@ -38,7 +38,6 @@ public static class PocoDiagnosticRules
         isEnabledByDefault: true,
         helpLinkUri: "");
 
-
     public static DiagnosticDescriptor[] DiagnosticsRules { get; } = new[]
     {
         DiagnosticRulePoco2Json,

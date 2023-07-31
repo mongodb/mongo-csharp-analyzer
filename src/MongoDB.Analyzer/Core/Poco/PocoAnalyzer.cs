@@ -32,7 +32,7 @@ internal static class PocoAnalyzer
             stats = ReportJsonOrInvalidExpressions(context, pocoAnalysis);
 
             sw.Stop();
-            context.Logger.Log($"JSON analysis ended: with {stats.JsonCount} JSON translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}.");
+            context.Logger.Log($"JSON analysis ended: with {stats.JsonCount} JSON translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}ms.");
         }
         catch (Exception ex)
         {
@@ -52,7 +52,7 @@ internal static class PocoAnalyzer
     private static AnalysisStats ReportJsonOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis pocoAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
-        if (pocoAnalysis.AnalysisNodeContexts.EmptyOrNull())
+        if ((pocoAnalysis?.AnalysisNodeContexts).EmptyOrNull())
         {
             return AnalysisStats.Empty;
         }
@@ -74,27 +74,23 @@ internal static class PocoAnalyzer
 
             if (jsonResult.Json != null)
             {
-                var json = jsonResult.Json;
-                var diagnosticDescriptor = PocoDiagnosticRules.DiagnosticRulePoco2Json;
-                var decoratedMessage = DecorateMessage(json, driverVersion, context.Settings);
-                semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
+                var decoratedMessage = DecorateMessage(jsonResult.Json, driverVersion, context.Settings);
+                semanticContext.ReportDiagnostics(PocoDiagnosticRules.DiagnosticRulePoco2Json, decoratedMessage, locations);
                 jsonCount++;
             }
-            else if (jsonResult.exception != null)
+            else if (jsonResult.Exception != null)
             {
-                var isDriverException = jsonResult.exception.InnerException?.Source?.Contains("MongoDB.Driver") == true;
-                var isBsonException = jsonResult.exception.InnerException?.Source?.Contains("MongoDB.Bson") == true;
-
-                if (isBsonException || isDriverException || settings.OutputInternalExceptions)
+                var isDriverOrBsonException = IsDriverOrBsonException(jsonResult);
+                if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = PocoDiagnosticRules.DiagnosticRuleNotSupportedPoco;
-                    var decoratedMessage = DecorateMessage(jsonResult.exception.InnerException?.Message ?? "Unsupported Poco expression", driverVersion, context.Settings);
+                    var decoratedMessage = DecorateMessage(jsonResult.Exception.InnerException?.Message ?? "Unsupported Poco expression", driverVersion, context.Settings);
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 
-                if (!isDriverException)
+                if (!isDriverOrBsonException)
                 {
-                    context.Logger.Log($"Exception while analyzing {analysisContext.Node}: {jsonResult.exception.InnerException?.Message}");
+                    context.Logger.Log($"Exception while analyzing {analysisContext.Node}: {jsonResult.Exception.InnerException?.Message}");
                     internalExceptionsCount++;
                 }
                 else
@@ -105,6 +101,13 @@ internal static class PocoAnalyzer
         }
 
         return new AnalysisStats(0, jsonCount, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
+    }
+
+    private static bool IsDriverOrBsonException(JsonResult jsonResult)
+    {
+        var source = jsonResult.Exception.InnerException?.Source;
+        return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
+            source.Contains("MongoDB.Bson"));
     }
 
     private static string DecorateMessage(string message, string driverVersion, MongoDBAnalyzerSettings settings) =>
