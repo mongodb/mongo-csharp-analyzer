@@ -16,27 +16,27 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoBasic : TestCasesBase
     {
-        [Json("{ \"City\" : \"City\", \"Province\" : \"Province\", \"ZipCode\" : \"ZipCode\" }")]
+        [Json("{ \"City\" : \"City_val\", \"Province\" : \"Province_val\", \"ZipCode\" : \"ZipCode_val\" }")]
         public void Address()
         {
         }
 
-        [Json("{ \"AirportName\" : \"AirportName\", \"AirportCode\" : \"AirportCode\" }")]
+        [Json("{ \"AirportName\" : \"AirportName_val\", \"AirportCode\" : \"AirportCode_val\" }")]
         public void Airport()
         {
         }
 
-        [Json("{ \"Make\" : \"Make\", \"Model\" : \"Model\", \"Year\" : 4 }")]
+        [Json("{ \"Make\" : \"Make_val\", \"Model\" : \"Model_val\", \"Year\" : 4 }")]
         public void Car()
         {
         }
 
-        [Json("{ \"CustomerID\" : 0, \"Name\" : \"Name\", \"Address\" : \"Address\" }")]
+        [Json("{ \"CustomerID\" : 0, \"Name\" : \"Name_val\", \"Address\" : \"Address_val\" }")]
         public void Customer()
         {
         }
 
-        [Json("{ \"BooleanValue\" : true, \"ByteValue\" : 9, \"SByteValue\" : 0, \"ShortValue\" : 0, \"UShortValue\" : 1, \"IntValue\" : 8, \"UIntValue\" : 9, \"LongValue\" : NumberLong(9), \"ULongValue\" : NumberLong(0), \"CharValue\" : 9, \"DoubleValue\" : 1.0, \"StringValue\" : \"StringValue\", \"FloatValue\" : 0.0 }")]
+        [Json("{ \"BooleanValue\" : true, \"ByteValue\" : 9, \"SByteValue\" : 0, \"ShortValue\" : 0, \"UShortValue\" : 1, \"IntValue\" : 8, \"UIntValue\" : 9, \"LongValue\" : NumberLong(9), \"ULongValue\" : NumberLong(0), \"CharValue\" : 9, \"DoubleValue\" : 1.0, \"StringValue\" : \"StringValue_val\", \"FloatValue\" : 0.0 }")]
         public void PrimitiveTypeHolder()
         {
         }

@@ -28,7 +28,8 @@ internal static class DiagnosticsAnalyzer
     public static async Task<ImmutableArray<Diagnostic>> Analyze(
         string testCodeFilename,
         string driverVersion,
-        Common.LinqVersion linqVersion)
+        Common.LinqVersion linqVersion,
+        Common.JsonAnalyzerVerbosity jsonAnalyzerVerbosity)
     {
         PathUtilities.VerifyTestDataModelAssembly();
 
@@ -59,11 +60,13 @@ internal static class DiagnosticsAnalyzer
 
         var mongodbAnalyzer = new MongoDBDiagnosticAnalyzer();
         var linqDefaultVersion = linqVersion == Common.LinqVersion.Undefined ? null : (LinqVersion?)linqVersion;
+        jsonAnalyzerVerbosity = jsonAnalyzerVerbosity == Common.JsonAnalyzerVerbosity.Undefined ? Common.JsonAnalyzerVerbosity.None : jsonAnalyzerVerbosity;
 
         var settings = new MongoDBAnalyzerSettings(
             OutputDriverVersion: true,
             DefaultLinqVersion: linqDefaultVersion,
-            SendTelemetry: false);
+            SendTelemetry: false,
+            JsonAnalyzerVerbosity: (JsonAnalyzerVerbosity)jsonAnalyzerVerbosity);
         var analyzerOptions = new AnalyzerOptions(ImmutableArray.Create<AdditionalText>(new AdditionalTextAnalyzerSettings(settings)));
 
         var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(mongodbAnalyzer), analyzerOptions);

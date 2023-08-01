@@ -49,7 +49,7 @@ internal sealed class PocoJsonGeneratorExecutor
         {
             var jsonMethod = _testClassType.GetMethod(methodName);
 
-            var executeResult = jsonMethod.Invoke(null, new object[] { PocoDataFiller.PopulatePoco });
+            var executeResult = jsonMethod.Invoke(null, new[] { (object)PocoDataFiller.PopulatePoco });
 
             if (executeResult is string executeResultString)
             {

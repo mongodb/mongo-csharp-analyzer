@@ -28,7 +28,7 @@ internal static class TestCasesRunner
 {
     private static readonly string s_poco2JsonTestPath = Path.Combine("tests", "MongoDB.Analyzer.Tests.Common.TestCases", "Poco");
 
-    private record TestsBundleKey(string TestFileName, string DriverVersion, LinqVersion LinqVersion);
+    private record TestsBundleKey(string TestFileName, string DriverVersion, LinqVersion LinqVersion, JsonAnalyzerVerbosity JsonAnalyzerVerbosity);
 
     private static readonly IDictionary<TestsBundleKey, IDictionary<string, DiagnosticTestCaseResult>>
         s_testResults = new Dictionary<TestsBundleKey, IDictionary<string, DiagnosticTestCaseResult>>();
@@ -46,7 +46,7 @@ internal static class TestCasesRunner
 
     public static async Task<DiagnosticTestCaseResult> RunTestCase(DiagnosticTestCase diagnosticTestCase)
     {
-        var testCollectionKey = new TestsBundleKey(diagnosticTestCase.FileName, diagnosticTestCase.Version, diagnosticTestCase.LinqVersion);
+        var testCollectionKey = new TestsBundleKey(diagnosticTestCase.FileName, diagnosticTestCase.Version, diagnosticTestCase.LinqVersion, diagnosticTestCase.JsonAnalyzerVerbosity);
 
         if (!s_testResults.TryGetValue(testCollectionKey, out var testCasesResults))
         {
@@ -66,24 +66,25 @@ internal static class TestCasesRunner
         var diagnostics = await DiagnosticsAnalyzer.Analyze(
             testsBundleKey.TestFileName,
             testsBundleKey.DriverVersion,
-            testsBundleKey.LinqVersion);
+            testsBundleKey.LinqVersion,
+            testsBundleKey.JsonAnalyzerVerbosity);
 
         var diagnosticsAndMethodNodes = diagnostics
-                                            .Where(d => DiagnosticRulesConstants.AllRules.Contains(d.Descriptor.Id))
-                                            .Select(d =>
-                                                (Diagnostic: d,
-                                                 MethodNode: FindMethodNode(d, isPoco2JsonTest)))
-                                            .Where(d => d.MethodNode != null)
-                                            .ToArray();
+            .Where(d => DiagnosticRulesConstants.AllRules.Contains(d.Descriptor.Id))
+            .Select(d =>
+                (Diagnostic: d,
+                MethodNode: FindMethodNode(d, isPoco2JsonTest)))
+            .Where(d => d.MethodNode != null)
+            .ToArray();
 
         var result = diagnosticsAndMethodNodes
-                    .GroupBy(pair => pair.MethodNode.Identifier.Text)
-                    .ToDictionary(
-                        group => group.Key,
-                        group => new DiagnosticTestCaseResult(
-                            group.Key,
-                            GetMethodLocation(group.FirstOrDefault().MethodNode),
-                            group.Select(pair => pair.Diagnostic).ToArray()));
+            .GroupBy(pair => pair.MethodNode.Identifier.Text)
+            .ToDictionary(
+                group => group.Key,
+                group => new DiagnosticTestCaseResult(
+                    group.Key,
+                    GetMethodLocation(group.FirstOrDefault().MethodNode),
+                    group.Select(pair => pair.Diagnostic).ToArray()));
 
         int GetMethodLocation(MethodDeclarationSyntax node) =>
             node.DescendantNodes().OfType<BlockSyntax>().First().GetLocation().GetLineSpan().StartLinePosition.Line;
@@ -93,19 +94,15 @@ internal static class TestCasesRunner
 
     private static MethodDeclarationSyntax FindMethodNode(Diagnostic diagnostic, bool isPoco2JsonTest)
     {
+        var syntaxRoot = diagnostic.Location.SourceTree.GetRoot();
+        var diagnosticLocationSyntaxNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
+
         if (isPoco2JsonTest)
         {
-            var syntaxRoot = diagnostic.Location.SourceTree.GetRoot();
-            var classNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan) as ClassDeclarationSyntax;
-
-            var methodNode = syntaxRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault(method => method.Identifier.ValueText == classNode.Identifier.ValueText);
-            return methodNode;
+            var classNode = diagnosticLocationSyntaxNode as ClassDeclarationSyntax;
+            return syntaxRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault(method => method.Identifier.ValueText == classNode.Identifier.ValueText);
         }
 
-        return diagnostic.Location.SourceTree.GetRoot()
-                 .FindNode(diagnostic.Location.SourceSpan)
-                 .Ancestors()
-                 .OfType<MethodDeclarationSyntax>()
-                 .FirstOrDefault();
+        return diagnosticLocationSyntaxNode.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
     }
 }

@@ -12,94 +12,93 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MongoDB.Analyzer.Core.Poco
+namespace MongoDB.Analyzer.Core.Poco;
+
+public static class PocoDataFiller
 {
-    public static class PocoDataFiller
+    private const string CollectionNamespace = "System.Collections.Generic";
+    private const int MaxDepth = 3;
+
+    public static void PopulatePoco(object poco) =>
+        SetPropertiesAndFields(poco, MaxDepth);
+
+    private static object GetPropertyOrFieldValue(Type memberType, string memberName, int levelsLeft)
     {
-        private const string CollectionNamespace = "System.Collections.Generic";
-        private const int LevelsLeft = 3;
-
-        public static void PopulatePoco(object poco) =>
-            SetPropertiesAndFields(poco, LevelsLeft);
-
-        private static object GetPropertyOrFieldValue(Type memberType, string memberName, int levelsLeft)
+        if (memberType.IsPrimitive)
         {
-            if (memberType.IsPrimitive)
-            {
-                return Convert.ChangeType(memberName.Length % 10, memberType);
-            }
-            else if (memberType.IsString())
-            {
-                return memberName;
-            }
-            else if (memberType.IsArray)
-            {
-                return HandleArray(memberType);
-            }
-            else if (memberType.IsSupportedCollection())
-            {
-                return Activator.CreateInstance(typeof(List<>)
-                    .MakeGenericType(memberType.GenericTypeArguments.First()));
-            }
-            else if (memberType.IsClass && levelsLeft > 0)
-            {
-                return HandleClass(memberType, levelsLeft);
-            }
-
-            return null;
+            return Convert.ChangeType(memberName.Length % 10, memberType);
+        }
+        else if (memberType.IsString())
+        {
+            return $"{memberName}_val";
+        }
+        else if (memberType.IsArray)
+        {
+            return HandleArray(memberType);
+        }
+        else if (memberType.IsSupportedCollection())
+        {
+            return Activator.CreateInstance(typeof(List<>)
+                .MakeGenericType(memberType.GenericTypeArguments.First()));
+        }
+        else if (memberType.IsClass && levelsLeft > 0)
+        {
+            return HandleClass(memberType, levelsLeft);
         }
 
-        private static Array HandleArray(Type arrayType) =>
-            arrayType.GetArrayRank() > 1 ? HandleMultiDimensionalArray(arrayType) : HandleSingleDimensionalArray(arrayType);
+        return null;
+    }
 
-        private static object HandleClass(Type memberType, int levelsLeft)
+    private static Array HandleArray(Type arrayType) =>
+        arrayType.GetArrayRank() > 1 ? HandleMultiDimensionalArray(arrayType) : HandleSingleDimensionalArray(arrayType);
+
+    private static object HandleClass(Type memberType, int levelsLeft)
+    {
+        var classObject = Activator.CreateInstance(memberType);
+        SetPropertiesAndFields(classObject, levelsLeft - 1);
+        return classObject;
+    }
+
+    private static Array HandleMultiDimensionalArray(Type arrayType) =>
+        Array.CreateInstance(arrayType.GetElementType(), Enumerable.Repeat(0, arrayType.GetArrayRank()).ToArray());
+
+    private static Array HandleSingleDimensionalArray(Type arrayType) =>
+        Array.CreateInstance(arrayType.GetElementType(), 0);
+
+    private static bool IsString(this Type type) =>
+        type == typeof(string);
+
+    private static bool IsSupportedCollection(this Type type) =>
+        CollectionNamespace == type.Namespace &&
+        type.GenericTypeArguments.Length == 1;
+
+    private static void SetPropertiesAndFields(object poco, int levelsLeft)
+    {
+        var pocoType = poco.GetType();
+
+        foreach (var propertyInfo in pocoType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
         {
-            var classObject = Activator.CreateInstance(memberType);
-            SetPropertiesAndFields(classObject, levelsLeft - 1);
-            return classObject;
+            try
+            {
+                var memberValue = GetPropertyOrFieldValue(propertyInfo.PropertyType, propertyInfo.Name, levelsLeft);
+                propertyInfo.SetValue(poco, memberValue);
+            }
+            catch
+            {
+                continue;
+            }
         }
 
-        private static Array HandleMultiDimensionalArray(Type arrayType) =>
-            Array.CreateInstance(arrayType.GetElementType(), Enumerable.Repeat(0, arrayType.GetArrayRank()).ToArray());
-
-        private static Array HandleSingleDimensionalArray(Type arrayType) =>
-            Array.CreateInstance(arrayType.GetElementType(), 0);
-
-        private static bool IsString(this Type type) =>
-            type == typeof(string);
-
-        private static bool IsSupportedCollection(this Type type) =>
-            CollectionNamespace == type.Namespace &&
-            type.GenericTypeArguments.Length == 1;
-
-        private static void SetPropertiesAndFields(object poco, int levelsLeft)
+        foreach (var fieldInfo in pocoType.GetFields(BindingFlags.Instance | BindingFlags.Public))
         {
-            var pocoType = poco.GetType();
-
-            foreach (var propertyInfo in pocoType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            try
             {
-                try
-                {
-                    var memberValue = GetPropertyOrFieldValue(propertyInfo.PropertyType, propertyInfo.Name, levelsLeft);
-                    propertyInfo.SetValue(poco, memberValue);
-                }
-                catch
-                {
-                    continue;
-                }
+                var memberValue = GetPropertyOrFieldValue(fieldInfo.FieldType, fieldInfo.Name, levelsLeft);
+                fieldInfo.SetValue(poco, memberValue);
             }
-
-            foreach (var fieldInfo in pocoType.GetFields(BindingFlags.Instance | BindingFlags.Public))
+            catch
             {
-                try
-                {
-                    var memberValue = GetPropertyOrFieldValue(fieldInfo.FieldType, fieldInfo.Name, levelsLeft);
-                    fieldInfo.SetValue(poco, memberValue);
-                }
-                catch
-                {
-                    continue;
-                }
+                continue;
             }
         }
     }

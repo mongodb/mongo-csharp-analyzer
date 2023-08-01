@@ -68,16 +68,11 @@ internal static class SymbolExtensions
         "System.Type"
     };
 
-
     public static SyntaxToken[] GetFieldModifiers(this IFieldSymbol fieldSymbol) =>
-        fieldSymbol.IsReadOnly ? new SyntaxToken[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword) } : new SyntaxToken[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) };
+        fieldSymbol.IsReadOnly ? GetReadOnlyPublicFieldModifiers() : GetPublicFieldModifiers();
 
     public static AccessorDeclarationSyntax[] GetPropertyAccessors(this IPropertySymbol propertySymbol) =>
-        propertySymbol.IsReadOnly ? new AccessorDeclarationSyntax[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) } : (propertySymbol.IsWriteOnly ? new AccessorDeclarationSyntax[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) } : new AccessorDeclarationSyntax[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)), SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) });
+        propertySymbol.IsReadOnly ? GetReadOnlyPropertyAccessors() : (propertySymbol.IsWriteOnly ? GetWriteOnlyPropertyAccessors() : GetReadWritePropertyAccessors());
     
     public static IMethodSymbol GetMethodSymbol(this SyntaxNode node, SemanticModel semanticModel) =>
         semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
@@ -208,6 +203,25 @@ internal static class SymbolExtensions
         typeSymbol is INamedTypeSymbol namedType &&
         namedType.TypeArguments.Length == 1 &&
         namedType.TypeArguments[0].IsSupportedMongoCollectionType();
+
+    private static SyntaxToken[] GetPublicFieldModifiers() =>
+        new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) };
+
+    private static SyntaxToken[] GetReadOnlyPublicFieldModifiers() =>
+        new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword) };
+
+    private static AccessorDeclarationSyntax[] GetReadOnlyPropertyAccessors() =>
+        new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
+
+    private static AccessorDeclarationSyntax[] GetReadWritePropertyAccessors() =>
+        new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)), SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
+
+    private static AccessorDeclarationSyntax[] GetWriteOnlyPropertyAccessors() =>
+        new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
 
     private static bool ImplementsOrIsInterface(this ITypeSymbol typeSymbol, string @namespace, string interfaceName)
     {

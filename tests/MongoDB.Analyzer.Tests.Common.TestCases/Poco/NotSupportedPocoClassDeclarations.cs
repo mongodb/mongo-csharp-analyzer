@@ -13,8 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
-using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -36,36 +34,18 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
             public class ClassTimeSpan
             {
-                public string Name { get; set; }
-
                 [BsonTimeSpanOptions(representation: BsonType.Array, Units = Bson.Serialization.Options.TimeSpanUnits.Hours)]
                 public bool InStock { get; set; }
 
-                public decimal Price { get; set; }
-                public Pair Pair { get; set; }
-                public DateTime ExpiryDate;
-                public int Length { get; set; }
-
                 public int Width { get; set; }
-                public TimeSpan SaleTime { get; set; }
-                public Dictionary<string, string> DictionaryField;
             }
 
             public class ClassDateTime
             {
-                public string Name { get; set; }
-                public bool InStock { get; set; }
-
                 [BsonDateTimeOptions(DateOnly = true, Kind = DateTimeKind.Local)]
                 public decimal Price { get; set; }
 
-                public Pair Pair { get; set; }
-                public DateTime ExpiryDate;
-                public int Length { get; set; }
-
                 public int Width { get; set; }
-                public TimeSpan SaleTime { get; set; }
-                public Dictionary<string, string> DictionaryField;
             }
         }
     }

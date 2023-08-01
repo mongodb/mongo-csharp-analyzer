@@ -12,24 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using MongoDB.Analyzer.Tests.Common;
-
-namespace MongoDB.Analyzer.Tests.Infrastructure;
-
-[Serializable]
-public record DiagnosticRule(
-    string RuleId,
-    string Message,
-    Location Location);
-
-[Serializable]
-public record DiagnosticTestCase(
-    string FileName,
-    string MethodName,
-    string Version,
-    LinqVersion LinqVersion,
-    JsonAnalyzerVerbosity JsonAnalyzerVerbosity,
-    DiagnosticRule[] DiagnosticRules)
+namespace MongoDB.Analyzer.Tests.Common
 {
+    public enum JsonAnalyzerVerbosity
+    {
+        None,
+        Medium,
+        All,
+        Undefined
+    }
 }
+

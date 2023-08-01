@@ -18,7 +18,8 @@ internal static class PocoExpressionProcessor
 {
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
     {
-        if (context.Settings.JsonAnalyzerVerbosity == JsonAnalyzerVerbosity.None)
+        if (context.Settings.JsonAnalyzerVerbosity == JsonAnalyzerVerbosity.None ||
+            context.Settings.PocoLimit <= 0)
         {
             return default;
         }
@@ -35,20 +36,25 @@ internal static class PocoExpressionProcessor
 
         foreach (var classNode in classNodes)
         {
-            if (PreanalyzeClassDeclaration(classNode, context, analysisContexts))
+            if (analysisContexts.Count == context.Settings.PocoLimit)
             {
-                try
+                break;
+            }
+
+            try
+            {
+                var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
+                if (PreanalyzeClassDeclaration(context, classSymbol))
                 {
-                    var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
                     var generatedClassName = typesProcessor.ProcessTypeSymbol(classSymbol);
                     var generatedClassNode = (ClassDeclarationSyntax)(typesProcessor.GetTypeSymbolToMemberDeclarationMapping(classSymbol));
                     var expresionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(classNode, null, generatedClassNode, null, classNode.GetLocation()));
                     analysisContexts.Add(expresionContext);
                 }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Failed analyzing {classNode.NormalizeWhitespace()} with {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed analyzing {classNode.NormalizeWhitespace()} with {ex.Message}");
             }
         }
 
@@ -63,32 +69,19 @@ internal static class PocoExpressionProcessor
         return pocoAnalysis;
     }
 
-    private static bool PreanalyzeClassDeclaration(ClassDeclarationSyntax classDeclarationSyntax, MongoAnalysisContext context, List<ExpressionAnalysisContext> analysisContexts)
-    {
-        if (analysisContexts.Count == context.Settings.PocoLimit)
-        {
-            return false;
-        }
+    private static bool ContainsBsonAttributes(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
+        classSymbol?.GetAttributes().Where(attribute => IsValidBsonAttribute(context, attribute)).AnySafe() ?? false;
 
-        if (context.Settings.JsonAnalyzerVerbosity == JsonAnalyzerVerbosity.All)
-        {
-            return true;
-        }
+    private static bool ContainsPropertiesWithBsonAttributes(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
+        classSymbol?.GetMembers().OfType<IPropertySymbol>().SelectMany(property => property.GetAttributes().Where(attribute => IsValidBsonAttribute(context, attribute))).AnySafe() ?? false;
 
-        var classSymbol = context.SemanticModelAnalysisContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax);
+    private static bool ContainsFieldsWithBsonAttributes(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
+        classSymbol?.GetMembers().OfType<IFieldSymbol>().SelectMany(field => field.GetAttributes().Where(attribute => IsValidBsonAttribute(context, attribute))).AnySafe() ?? false;
 
-        var classBsonAttributes = classSymbol.GetAttributes()
-            .Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute() ||
-            context.TypesProcessor.GetTypeSymbolToMemberDeclarationMapping(attribute.AttributeClass) != null);
+    private static bool IsValidBsonAttribute(MongoAnalysisContext context, AttributeData attribute) =>
+        attribute.AttributeClass.IsSupportedBsonAttribute() || context.TypesProcessor.GetTypeSymbolToMemberDeclarationMapping(attribute.AttributeClass) != null;
 
-        var propertyBsonAttributes = classSymbol.GetMembers().OfType<IPropertySymbol>()
-            .SelectMany(property => property.GetAttributes().Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute() ||
-            context.TypesProcessor.GetTypeSymbolToMemberDeclarationMapping(attribute.AttributeClass) != null));
-
-        var fieldBsonAttributes = classSymbol.GetMembers().OfType<IFieldSymbol>()
-            .SelectMany(field => field.GetAttributes().Where(attribute => attribute.AttributeClass.IsSupportedBsonAttribute() ||
-            context.TypesProcessor.GetTypeSymbolToMemberDeclarationMapping(attribute.AttributeClass) != null));
-
-        return classBsonAttributes.AnySafe() || propertyBsonAttributes.AnySafe() || fieldBsonAttributes.AnySafe();
-    }
+    private static bool PreanalyzeClassDeclaration(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
+        context.Settings.JsonAnalyzerVerbosity == JsonAnalyzerVerbosity.All || ContainsBsonAttributes(context, classSymbol) ||
+        ContainsPropertiesWithBsonAttributes(context, classSymbol) || ContainsFieldsWithBsonAttributes(context, classSymbol);
 }

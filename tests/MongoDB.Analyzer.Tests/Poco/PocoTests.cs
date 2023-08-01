@@ -61,4 +61,8 @@ public sealed class PocoTests : DiagnosticsTestCasesRunner
     [DataTestMethod]
     [ClassBasedTestCasesSource(typeof(PocoSystemTypes))]
     public Task SystemTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
+    [ClassBasedTestCasesSource(typeof(PocoVerbosity))]
+    public Task Verbosity(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

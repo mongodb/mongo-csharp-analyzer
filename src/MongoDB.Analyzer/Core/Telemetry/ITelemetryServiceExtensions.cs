@@ -46,6 +46,7 @@ internal static class ITelemetryServicExtensions
                 ("syntax_tree_length", semanticModelAnalysisContext.SemanticModel.SyntaxTree.Length),
                 ("linq_version", settings.DefaultLinqVersion?.ToString()),
                 ("json_analyzer_verbosity", settings.JsonAnalyzerVerbosity.ToString()),
+                ("poco_limit", settings.PocoLimit.ToString()),
                 ("logs_enabled", settings.OutputInternalLogsToFile),
                 ("analyzer_version", s_version)
         };

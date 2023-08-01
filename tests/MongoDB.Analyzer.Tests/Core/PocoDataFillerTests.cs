@@ -27,9 +27,9 @@ public sealed class PocoDataFillerTests
     {
         var poco = new Address();
         PocoDataFiller.PopulatePoco(poco);
-        Assert.AreEqual(poco.City, "City");
-        Assert.AreEqual(poco.Province, "Province");
-        Assert.AreEqual(poco.ZipCode, "ZipCode");
+        Assert.AreEqual(poco.City, "City_val");
+        Assert.AreEqual(poco.Province, "Province_val");
+        Assert.AreEqual(poco.ZipCode, "ZipCode_val");
     }
 
     [DataTestMethod]
@@ -37,16 +37,16 @@ public sealed class PocoDataFillerTests
     {
         var poco = new Person();
         PocoDataFiller.PopulatePoco(poco);
-        Assert.AreEqual(poco.Name, "Name");
-        Assert.AreEqual(poco.LastName, "LastName");
-        Assert.AreEqual(poco.Address.City, "City");
-        Assert.AreEqual(poco.Address.Province, "Province");
-        Assert.AreEqual(poco.Address.ZipCode, "ZipCode");
-        Assert.AreEqual(poco.Vehicle.LicenceNumber, "LicenceNumber");
-        Assert.AreEqual(poco.Vehicle.VehicleType.Category, "Category");
+        Assert.AreEqual(poco.Name, "Name_val");
+        Assert.AreEqual(poco.LastName, "LastName_val");
+        Assert.AreEqual(poco.Address.City, "City_val");
+        Assert.AreEqual(poco.Address.Province, "Province_val");
+        Assert.AreEqual(poco.Address.ZipCode, "ZipCode_val");
+        Assert.AreEqual(poco.Vehicle.LicenceNumber, "LicenceNumber_val");
+        Assert.AreEqual(poco.Vehicle.VehicleType.Category, "Category_val");
         Assert.AreEqual(poco.Vehicle.VehicleType.MPG, 3.0);
         Assert.AreEqual(poco.Vehicle.VehicleType.Type, VehicleTypeEnum.Bus);
-        Assert.AreEqual(poco.Vehicle.VehicleType.VehicleMake.Name, "Name");
+        Assert.AreEqual(poco.Vehicle.VehicleType.VehicleMake.Name, "Name_val");
     }
 
     [DataTestMethod]
@@ -102,7 +102,7 @@ public sealed class PocoDataFillerTests
         Assert.AreEqual(poco.ULongValue, (ulong)0);
         Assert.AreEqual(poco.CharValue, 9);
         Assert.AreEqual(poco.DoubleValue, 1.0);
-        Assert.AreEqual(poco.StringValue, "StringValue");
+        Assert.AreEqual(poco.StringValue, "StringValue_val");
         Assert.AreEqual(poco.FloatValue, 0.0);
     }
 
@@ -111,11 +111,57 @@ public sealed class PocoDataFillerTests
     {
         var poco = new Fruit();
         PocoDataFiller.PopulatePoco(poco);
-        Assert.AreEqual(poco.Name, "Name");
+        Assert.AreEqual(poco.Name, "Name_val");
         Assert.AreEqual(poco.Weight, 6.0);
-        Assert.AreEqual(poco.Color, "Color");
+        Assert.AreEqual(poco.Color, "Color_val");
         Assert.AreEqual(poco.Quantity, 8);
         Assert.AreEqual(poco.TotalCost, 9.0);
         Assert.AreEqual(poco.Volume, 6.0);
+    }
+
+    [DataTestMethod]
+    public void TestSelfReferencingPoco()
+    {
+        var poco = new TreeNode();
+        PocoDataFiller.PopulatePoco(poco);
+
+        Assert.AreEqual(poco.Data, 4);
+        Assert.AreEqual(poco.Left.Data, 4);
+        Assert.AreEqual(poco.Left.Left.Data, 4);
+        Assert.AreEqual(poco.Left.Left.Left.Data, 4);
+        Assert.AreEqual(poco.Left.Left.Right.Data, 4);
+
+        Assert.AreEqual(poco.Left.Left.Left.Left, null);
+        Assert.AreEqual(poco.Left.Left.Left.Right, null);
+        Assert.AreEqual(poco.Left.Left.Right.Left, null);
+        Assert.AreEqual(poco.Left.Left.Right.Right, null);
+
+        Assert.AreEqual(poco.Left.Right.Data, 4);
+        Assert.AreEqual(poco.Left.Right.Left.Data, 4);
+        Assert.AreEqual(poco.Left.Right.Right.Data, 4);
+
+        Assert.AreEqual(poco.Left.Right.Left.Left, null);
+        Assert.AreEqual(poco.Left.Right.Left.Right, null);
+        Assert.AreEqual(poco.Left.Right.Right.Left, null);
+        Assert.AreEqual(poco.Left.Right.Right.Right, null);
+
+        Assert.AreEqual(poco.Right.Data, 4);
+        Assert.AreEqual(poco.Right.Left.Data, 4);
+        Assert.AreEqual(poco.Right.Left.Left.Data, 4);
+        Assert.AreEqual(poco.Right.Left.Right.Data, 4);
+
+        Assert.AreEqual(poco.Right.Left.Left.Left, null);
+        Assert.AreEqual(poco.Right.Left.Left.Right, null);
+        Assert.AreEqual(poco.Right.Left.Right.Left, null);
+        Assert.AreEqual(poco.Right.Left.Right.Right, null);
+
+        Assert.AreEqual(poco.Right.Right.Data, 4);
+        Assert.AreEqual(poco.Right.Right.Left.Data, 4);
+        Assert.AreEqual(poco.Right.Right.Right.Data, 4);
+
+        Assert.AreEqual(poco.Right.Right.Left.Left, null);
+        Assert.AreEqual(poco.Right.Right.Left.Right, null);
+        Assert.AreEqual(poco.Right.Right.Right.Left, null);
+        Assert.AreEqual(poco.Right.Right.Right.Right, null);
     }
 }

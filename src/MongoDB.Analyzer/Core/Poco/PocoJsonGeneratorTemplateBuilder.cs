@@ -59,6 +59,6 @@ internal sealed class PocoJsonGeneratorTemplateBuilder
         var localDeclaration = mainTestMethodNode.DescendantNodes().OfType<LocalDeclarationStatementSyntax>().FirstOrDefault();
         var predefinedType = localDeclaration.DescendantNodes().OfType<PredefinedTypeSyntax>().FirstOrDefault();
 
-        return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, predefinedType);
+        return new(root, classDeclarationSyntax, mainTestMethodNode, predefinedType);
     }
 }

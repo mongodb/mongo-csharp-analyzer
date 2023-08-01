@@ -154,37 +154,37 @@ namespace MongoDB.Analyzer.Tests.Common
         public string Version { get; }
         public Location[] Locations { get; }
         public DriverTargetFramework TargetFramework { get; }
-        public LinqVersion LinqProvider { get; }
-
+        public JsonAnalyzerVerbosity JsonAnalyzerVerbosity { get; }
 
         public JsonDiagnosticTestCaseAttribute(
             string ruleId,
             string message,
             string version = null,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
+            JsonAnalyzerVerbosity jsonAnalyzerVerbosity = JsonAnalyzerVerbosity.All,
             int[] codeLines = null)
         {
-            LinqProvider = LinqVersion.V2;
             RuleId = ruleId;
             Message = message;
             Version = version;
             TargetFramework = targetFramework;
             Locations = codeLines?.Any() == true ? codeLines.Select(l => new Location(l, -1)).ToArray() : new[] { Location.Empty };
+            JsonAnalyzerVerbosity = jsonAnalyzerVerbosity;
         }
     }
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class NoDiagnosticsJsonAttribute : JsonDiagnosticTestCaseAttribute
+    public sealed class NoDiagnosticsJsonAttribute : JsonDiagnosticTestCaseAttribute
     {
-        public NoDiagnosticsJsonAttribute(string version = null) : base(DiagnosticRulesConstants.NoRule, null, version: version) { }
+        public NoDiagnosticsJsonAttribute(string version = null, JsonAnalyzerVerbosity jsonAnalyzerVerbosity = JsonAnalyzerVerbosity.All) : base(DiagnosticRulesConstants.NoRule, null, version: version, jsonAnalyzerVerbosity: jsonAnalyzerVerbosity) { }
     }
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class JsonAttribute : JsonDiagnosticTestCaseAttribute
     {
         public JsonAttribute(
-            string message) :
-            base(DiagnosticRulesConstants.Poco2Json, message, null, DriverTargetFramework.All, null)
+            string message, JsonAnalyzerVerbosity jsonAnalyzerVerbosity = JsonAnalyzerVerbosity.All) :
+            base(DiagnosticRulesConstants.Poco2Json, message, null, DriverTargetFramework.All, jsonAnalyzerVerbosity, null)
         {
         }
     }
@@ -192,8 +192,8 @@ namespace MongoDB.Analyzer.Tests.Common
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class NotSupportedJsonAttribute : JsonDiagnosticTestCaseAttribute
     {
-        public NotSupportedJsonAttribute(string message, string version = null) :
-            base(DiagnosticRulesConstants.NotSupportedPoco, message, version: version)
+        public NotSupportedJsonAttribute(string message, string version = null, JsonAnalyzerVerbosity jsonAnalyzerVerbosity = JsonAnalyzerVerbosity.All) :
+            base(DiagnosticRulesConstants.NotSupportedPoco, message, version: version, jsonAnalyzerVerbosity: jsonAnalyzerVerbosity)
         {
         }
     }

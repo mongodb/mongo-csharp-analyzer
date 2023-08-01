@@ -40,7 +40,7 @@ internal record MongoDBAnalyzerSettings(
     [DefaultValue(null)] string LogFileName = null,
     [DefaultValue(true)] bool SendTelemetry = true,
     [DefaultValue(null)] LinqVersion? DefaultLinqVersion = null,
-    [DefaultValue(JsonAnalyzerVerbosity.Medium)] JsonAnalyzerVerbosity JsonAnalyzerVerbosity = JsonAnalyzerVerbosity.All,
+    [DefaultValue(JsonAnalyzerVerbosity.Medium)] JsonAnalyzerVerbosity JsonAnalyzerVerbosity = JsonAnalyzerVerbosity.Medium,
     [DefaultValue(500)] int PocoLimit = 500,
     [DefaultValue(true)] bool EnableVariableTracking = true)
 {

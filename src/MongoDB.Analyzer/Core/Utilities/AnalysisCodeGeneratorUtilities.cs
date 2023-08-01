@@ -54,7 +54,7 @@ internal static class AnalysisCodeGeneratorUtilities
             AnalysisType.Builders => MqlGeneratorSyntaxElements.Builders.MqlGeneratorFullName,
             AnalysisType.Linq => MqlGeneratorSyntaxElements.Linq.MqlGeneratorFullName,
             AnalysisType.Poco => JsonSyntaxElements.Poco.JsonGeneratorFullName,
-            _ => throw new ArgumentOutOfRangeException(nameof(analysisType), "Unsupported analysis type")
+            _ => throw new ArgumentOutOfRangeException(nameof(analysisType), analysisType, "Unsupported analysis type")
         };
 }
 
