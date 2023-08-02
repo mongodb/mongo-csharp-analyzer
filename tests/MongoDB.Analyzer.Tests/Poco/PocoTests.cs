@@ -23,11 +23,11 @@ namespace MongoDB.Analyzer.Tests.Poco;
 public sealed class PocoTests : DiagnosticsTestCasesRunner
 {
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(PocoArrays))]
+    [ClassBasedTestCasesSource(typeof(PocoArrays))]
     public Task Arrays(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSourceAttribute(typeof(PocoBasic))]
+    [ClassBasedTestCasesSource(typeof(PocoBasic))]
     public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]

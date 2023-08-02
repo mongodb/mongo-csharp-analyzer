@@ -31,12 +31,12 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [JsonAttribute("{ \"VegetableCost\" : 3.0 }")]
+        [Json("{ \"VegetableCost\" : 3.0 }")]
         public void Vegetable()
         {
         }
 
-        [JsonAttribute("{ \"ComputerCost\" : 2.0 }")]
+        [Json("{ \"ComputerCost\" : 2.0 }")]
         public void Computer()
         {
         }
