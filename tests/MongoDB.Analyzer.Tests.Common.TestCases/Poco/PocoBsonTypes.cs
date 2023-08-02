@@ -18,7 +18,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public class PocoBsonTypes : TestCasesBase
     {
-        [Json("{ \"BsonDocumentField\" : { }, \"BsonObjectIdField\" : { \"_csharpnull\" : true }, \"BsonTypeField\" : 0, \"BsonValueField\" : { \"_csharpnull\" : true }, \"TimeSpanUnitsField\" : 0 }")]
+        [PocoJson("{ \"BsonDocumentField\" : { }, \"BsonObjectIdField\" : { \"_csharpnull\" : true }, \"BsonTypeField\" : 0, \"BsonValueField\" : { \"_csharpnull\" : true }, \"TimeSpanUnitsField\" : 0 }")]
         public void BsonTypeContainer()
         {
         }

@@ -23,46 +23,46 @@ namespace MongoDB.Analyzer.Tests.Poco;
 public sealed class PocoTests : DiagnosticsTestCasesRunner
 {
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoArrays))]
+    [CodeBasedTestCasesSource(typeof(PocoArrays))]
     public Task Arrays(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoBasic))]
+    [CodeBasedTestCasesSource(typeof(PocoBasic))]
     public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoBsonAttributes))]
+    [CodeBasedTestCasesSource(typeof(PocoBsonAttributes))]
     public Task BsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoBsonTypes))]
+    [CodeBasedTestCasesSource(typeof(PocoBsonTypes))]
     public Task BsonTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoCollections))]
+    [CodeBasedTestCasesSource(typeof(PocoCollections))]
     public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoEnums))]
+    [CodeBasedTestCasesSource(typeof(PocoEnums))]
     public Task Enums(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoFields))]
+    [CodeBasedTestCasesSource(typeof(PocoFields))]
     public Task Fields(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoIgnoredBsonAttributes))]
+    [CodeBasedTestCasesSource(typeof(PocoIgnoredBsonAttributes))]
     public Task IgnoredBsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoNestedTypes))]
+    [CodeBasedTestCasesSource(typeof(PocoNestedTypes))]
     public Task NestedTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoSystemTypes))]
+    [CodeBasedTestCasesSource(typeof(PocoSystemTypes))]
     public Task SystemTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(PocoVerbosity))]
+    [CodeBasedTestCasesSource(typeof(PocoVerbosity))]
     public Task Verbosity(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

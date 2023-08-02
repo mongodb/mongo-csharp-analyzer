@@ -71,9 +71,7 @@ internal static class TestCasesRunner
 
         var diagnosticsAndMethodNodes = diagnostics
             .Where(d => DiagnosticRulesConstants.AllRules.Contains(d.Descriptor.Id))
-            .Select(d =>
-                (Diagnostic: d,
-                MethodNode: FindMethodNode(d, isPoco2JsonTest)))
+            .Select(d => (Diagnostic: d, MethodNode: FindMethodNode(d, isPoco2JsonTest)))
             .Where(d => d.MethodNode != null)
             .ToArray();
 

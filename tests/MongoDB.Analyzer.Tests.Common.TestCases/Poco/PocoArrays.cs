@@ -18,22 +18,22 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoArrays : TestCasesBase
     {
-        [Json("{ \"BooleanArray\" : [], \"ByteArray\" : new BinData(0, \"\"), \"SByteArray\" : [], \"ShortArray\" : [], \"UShortArray\" : [], \"IntArray\" : [], \"UIntArray\" : [], \"LongArray\" : [], \"ULongArray\" : [], \"CharArray\" : [], \"DoubleArray\" : [], \"StringArray\" : [], \"FloatArray\" : [], \"ObjectArray\" : [], \"JaggedStringArray2\" : [], \"JaggedIntArray3\" : [], \"JaggedLongArray4\" : [], \"JaggedShortArray5\" : [] }")]
+        [PocoJson("{ \"BooleanArray\" : [], \"ByteArray\" : new BinData(0, \"\"), \"SByteArray\" : [], \"ShortArray\" : [], \"UShortArray\" : [], \"IntArray\" : [], \"UIntArray\" : [], \"LongArray\" : [], \"ULongArray\" : [], \"CharArray\" : [], \"DoubleArray\" : [], \"StringArray\" : [], \"FloatArray\" : [], \"ObjectArray\" : [], \"JaggedStringArray2\" : [], \"JaggedIntArray3\" : [], \"JaggedLongArray4\" : [], \"JaggedShortArray5\" : [] }")]
         public void SimpleTypesArraysHolder()
         {
         }
 
-        [Json("{ \"Matrix2\" : [], \"Matrix3\" : [], \"Matrix4\" : [], \"Matrix5\" : [], \"Matrix6\" : [] }")]
+        [PocoJson("{ \"Matrix2\" : [], \"Matrix3\" : [], \"Matrix4\" : [], \"Matrix5\" : [], \"Matrix6\" : [] }")]
         public void MultiDimensionalArrayHolder()
         {
         }
 
-        [Json("{ \"EnumArrayWithDimension1\" : [], \"JaggedEnumArray\" : [], \"TreeJaggedArray2\" : [], \"TreeNodeJaggedArray3\" : [] }")]
+        [PocoJson("{ \"EnumArrayWithDimension1\" : [], \"JaggedEnumArray\" : [], \"TreeJaggedArray2\" : [], \"TreeNodeJaggedArray3\" : [] }")]
         public void CustomTypesArraysHolder()
         {
         }
 
-        [Json("{ \"Data\" : 4, \"Children\" : [] }")]
+        [PocoJson("{ \"Data\" : 4, \"Children\" : [] }")]
         public void NestedArrayHolder()
         {
         }

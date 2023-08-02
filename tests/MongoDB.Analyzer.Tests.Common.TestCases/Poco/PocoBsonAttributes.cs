@@ -21,22 +21,22 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoBsonAttributes : TestCasesBase
     {
-        [Json("{ \"Style\" : \"Style_val\", \"year_built\" : 9, \"_id\" : \"Identifier_val\" }")]
+        [PocoJson("{ \"Style\" : \"Style_val\", \"year_built\" : 9, \"_id\" : \"Identifier_val\" }")]
         public void House()
         {
         }
 
-        [Json("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"Name\" : \"Name_val\", \"InStock\" : true, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"00:00:00\" }")]
+        [PocoJson("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"Name\" : \"Name_val\", \"InStock\" : true, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"00:00:00\" }")]
         public void Clothing()
         {
         }
 
-        [Json("{ \"VegetableCost\" : 3.0 }")]
+        [PocoJson("{ \"VegetableCost\" : 3.0 }")]
         public void Vegetable()
         {
         }
 
-        [Json("{ \"ComputerCost\" : 2.0 }")]
+        [PocoJson("{ \"ComputerCost\" : 2.0 }")]
         public void Computer()
         {
         }
@@ -99,7 +99,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
             }
 
             [BsonIgnoreExtraElements]
-            [BsonDiscriminatorAttribute("Carrot")]
+            [BsonDiscriminator("Carrot")]
             public class Vegetable
             {
                 public double VegetableCost { get; set; }

@@ -20,12 +20,12 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class NotSupportedPocoClassDeclarations : TestCasesBase
     {
-        [NotSupportedJson("A serializer of type 'BooleanSerializer' is not configurable using an attribute of type 'BsonTimeSpanOptionsAttribute'.")]
+        [NotSupportedPoco("A serializer of type 'BooleanSerializer' is not configurable using an attribute of type 'BsonTimeSpanOptionsAttribute'.")]
         public void ClassTimeSpan()
         {
         }
 
-        [NotSupportedJson("A serializer of type 'DecimalSerializer' is not configurable using an attribute of type 'BsonDateTimeOptionsAttribute'.")]
+        [NotSupportedPoco("A serializer of type 'DecimalSerializer' is not configurable using an attribute of type 'BsonDateTimeOptionsAttribute'.")]
         public void ClassDateTime()
         {
         }

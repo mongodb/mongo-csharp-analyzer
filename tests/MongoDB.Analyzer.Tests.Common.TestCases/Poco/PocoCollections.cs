@@ -19,17 +19,17 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoCollections : TestCasesBase
     {
-        [Json("{ \"IntList\" : [], \"PesonsList\" : [], \"StringList\" : [], \"NestedListsHolderList\" : [], \"IntIList\" : [], \"NestedListsHolderIList\" : [] }")]
+        [PocoJson("{ \"IntList\" : [], \"PesonsList\" : [], \"StringList\" : [], \"NestedListsHolderList\" : [], \"IntIList\" : [], \"NestedListsHolderIList\" : [] }")]
         public void ListsHolder()
         {
         }
 
-        [Json("{ \"Enumerable1\" : [], \"Enumerable2\" : [] }")]
+        [PocoJson("{ \"Enumerable1\" : [], \"Enumerable2\" : [] }")]
         public void EnumerableHolder()
         {
         }
 
-        [Json("{ \"NestedIntList\" : [], \"NestedStringList\" : [], \"ListOfIntArray\" : [], \"ListOfStringArray\" : [], \"NestedNestedIntList\" : [], \"NestedIntIList\" : [], \"NestedStringIList\" : [], \"NestedIListIntArray\" : [], \"NestedIntIEnumerable\" : [], \"NestedStringIEnumerable\" : [], \"NestedIntArrayIEnumerable\" : [] }")]
+        [PocoJson("{ \"NestedIntList\" : [], \"NestedStringList\" : [], \"ListOfIntArray\" : [], \"ListOfStringArray\" : [], \"NestedNestedIntList\" : [], \"NestedIntIList\" : [], \"NestedStringIList\" : [], \"NestedIListIntArray\" : [], \"NestedIntIEnumerable\" : [], \"NestedStringIEnumerable\" : [], \"NestedIntArrayIEnumerable\" : [] }")]
         public void NestedCollectionHolder()
         {
         }

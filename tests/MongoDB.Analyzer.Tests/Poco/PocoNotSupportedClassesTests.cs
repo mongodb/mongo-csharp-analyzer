@@ -22,7 +22,7 @@ namespace MongoDB.Analyzer.Tests.Poco;
 public sealed class PocoNotSupportedClassesTests : DiagnosticsTestCasesRunner
 {
     [DataTestMethod]
-    [ClassBasedTestCasesSource(typeof(NotSupportedPocoClassDeclarations))]
+    [CodeBasedTestCasesSource(typeof(NotSupportedPocoClassDeclarations))]
     public Task NotSupportedClassDeclarations(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }
 
