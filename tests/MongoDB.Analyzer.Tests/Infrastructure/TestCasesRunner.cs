@@ -75,12 +75,12 @@ internal static class TestCasesRunner
 
     private static MethodDeclarationSyntax FindMethodNode(Diagnostic diagnostic)
     {
-        var syntaxRoot = diagnostic.Location.SourceTree.GetRoot();
-        var diagnosticLocationSyntaxNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
+        var syntaxTreeRoot = diagnostic.Location.SourceTree.GetRoot();
+        var diagnosticLocationSyntaxNode = syntaxTreeRoot.FindNode(diagnostic.Location.SourceSpan);
 
         if (diagnosticLocationSyntaxNode is ClassDeclarationSyntax poco)
         {
-            return syntaxRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault(method => method.Identifier.ValueText == poco.Identifier.ValueText);
+            return syntaxTreeRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault(method => method.Identifier.ValueText == poco.Identifier.ValueText);
         }
 
         return diagnosticLocationSyntaxNode.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
