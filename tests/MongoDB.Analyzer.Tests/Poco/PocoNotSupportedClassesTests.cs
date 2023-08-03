@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Analyzer.Tests.Common.TestCases.Poco;
 using MongoDB.Analyzer.Tests.Infrastructure;
+
 namespace MongoDB.Analyzer.Tests.Poco;
 
 [TestClass]
@@ -25,4 +26,3 @@ public sealed class PocoNotSupportedClassesTests : DiagnosticsTestCasesRunner
     [CodeBasedTestCasesSource(typeof(NotSupportedPocoClassDeclarations))]
     public Task NotSupportedClassDeclarations(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }
-
