@@ -24,29 +24,33 @@ namespace MongoDB.Analyzer.Tests.Infrastructure;
 
 internal static class TestCasesRunner
 {
-    private static readonly IDictionary<DiagnosticTestCase, IDictionary<string, DiagnosticTestCaseResult>>
-        s_testResults = new Dictionary<DiagnosticTestCase, IDictionary<string, DiagnosticTestCaseResult>>();
+    private record TestsBundleKey(string TestFileName, string DriverVersion, LinqVersion LinqVersion, JsonAnalyzerVerbosity JsonAnalyzerVerbosity);
+
+    private static readonly IDictionary<TestsBundleKey, IDictionary<string, DiagnosticTestCaseResult>>
+        s_testResults = new Dictionary<TestsBundleKey, IDictionary<string, DiagnosticTestCaseResult>>();
 
     public static async Task<DiagnosticTestCaseResult> RunTestCase(DiagnosticTestCase diagnosticTestCase)
     {
-        if (!s_testResults.TryGetValue(diagnosticTestCase, out var testCasesResults))
-        {
-            testCasesResults = await ExecuteTestCases(diagnosticTestCase);
+        var testCollectionKey = new TestsBundleKey(diagnosticTestCase.FileName, diagnosticTestCase.Version, diagnosticTestCase.LinqVersion, diagnosticTestCase.JsonAnalyzerVerbosity);
 
-            s_testResults[diagnosticTestCase] = testCasesResults;
+        if (!s_testResults.TryGetValue(testCollectionKey, out var testCasesResults))
+        {
+            testCasesResults = await ExecuteTestCases(testCollectionKey);
+
+            s_testResults[testCollectionKey] = testCasesResults;
         }
 
         testCasesResults.TryGetValue(diagnosticTestCase.MethodName, out var result);
         return result;
     }
 
-    private static async Task<IDictionary<string, DiagnosticTestCaseResult>> ExecuteTestCases(DiagnosticTestCase diagnosticTestCase)
+    private static async Task<IDictionary<string, DiagnosticTestCaseResult>> ExecuteTestCases(TestsBundleKey testsBundleKey)
     {
         var diagnostics = await DiagnosticsAnalyzer.Analyze(
-            diagnosticTestCase.FileName,
-            diagnosticTestCase.Version,
-            diagnosticTestCase.LinqVersion,
-            diagnosticTestCase.JsonAnalyzerVerbosity);
+            testsBundleKey.TestFileName,
+            testsBundleKey.DriverVersion,
+            testsBundleKey.LinqVersion,
+            testsBundleKey.JsonAnalyzerVerbosity);
 
         var diagnosticsAndMethodNodes = diagnostics
             .Where(d => DiagnosticRulesConstants.AllRules.Contains(d.Descriptor.Id))
@@ -71,12 +75,12 @@ internal static class TestCasesRunner
 
     private static MethodDeclarationSyntax FindMethodNode(Diagnostic diagnostic)
     {
-        var syntaxTreeRoot = diagnostic.Location.SourceTree.GetRoot();
-        var diagnosticLocationSyntaxNode = syntaxTreeRoot.FindNode(diagnostic.Location.SourceSpan);
+        var syntaxRoot = diagnostic.Location.SourceTree.GetRoot();
+        var diagnosticLocationSyntaxNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
 
-        if (diagnosticLocationSyntaxNode is ClassDeclarationSyntax classDeclarationSyntax)
+        if (diagnosticLocationSyntaxNode is ClassDeclarationSyntax poco)
         {
-            return syntaxTreeRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault(method => method.Identifier.ValueText == classDeclarationSyntax.Identifier.ValueText);
+            return syntaxRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault(method => method.Identifier.ValueText == poco.Identifier.ValueText);
         }
 
         return diagnosticLocationSyntaxNode.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
