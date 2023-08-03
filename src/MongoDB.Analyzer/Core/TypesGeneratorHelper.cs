@@ -25,9 +25,9 @@ internal static class TypesGeneratorHelper
             Using("MongoDB.Bson.Serialization.Attributes"),
             Using("MongoDB.Bson.Serialization.Options"));
 
-
     private static readonly NamespaceDeclarationSyntax s_namespaceDeclarationSyntaxBuilders = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(MqlGeneratorSyntaxElements.Builders.MqlGeneratorNamespace));
     private static readonly NamespaceDeclarationSyntax s_namespaceDeclarationSyntaxLinq = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(MqlGeneratorSyntaxElements.Linq.MqlGeneratorNamespace));
+    private static readonly NamespaceDeclarationSyntax s_namespaceDeclarationSyntaxJson = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(JsonSyntaxElements.Poco.JsonGeneratorNamespace));
 
     public static SyntaxTree GenerateTypesSyntaxTree(
         AnalysisType analysisType,
@@ -38,6 +38,7 @@ internal static class TypesGeneratorHelper
         {
             AnalysisType.Builders => s_namespaceDeclarationSyntaxBuilders,
             AnalysisType.Linq => s_namespaceDeclarationSyntaxLinq,
+            AnalysisType.Poco => s_namespaceDeclarationSyntaxJson,
             _ => throw new ArgumentOutOfRangeException(nameof(analysisType), analysisType, "Unsupported analysis type")
         };
 
@@ -52,9 +53,4 @@ internal static class TypesGeneratorHelper
 
     private static UsingDirectiveSyntax Using(string namespaceName) =>
         SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(namespaceName));
-
-    private static UsingDirectiveSyntax Using(string typeNewName, string typeName) =>
-        SyntaxFactory.UsingDirective(
-                SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName(typeNewName)),
-                SyntaxFactory.ParseName(typeName));
 }

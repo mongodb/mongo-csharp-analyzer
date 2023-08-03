@@ -38,7 +38,7 @@ public sealed class CodeBasedTestCasesSourceAttribute : Attribute, ITestDataSour
             .GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
             .Where(m => m.MemberType == MemberTypes.Method &&
                 m.DeclaringType == _testCasesProdiverType &&
-                m.GetCustomAttributes().Any(a => a is DiagnosticRuleTestCaseAttribute));
+                m.GetCustomAttributes().OfType<DiagnosticRuleTestCaseAttribute>().Any());
 
         var data = testCasesMethods.SelectMany(m =>
             CreateTestCases(m).Select(t => new object[] { t }).ToArray()).ToArray();
@@ -64,15 +64,15 @@ public sealed class CodeBasedTestCasesSourceAttribute : Attribute, ITestDataSour
 
         var diagnosticsTestCases =
             from attribute in testCasesAttributes
-            where EnvironmentUtilities.IsDriverTargetFrameworkSupported((Core.DriverTargetFramework)(int)attribute.TargetFramework)
+            where EnvironmentUtilities.IsDriverTargetFrameworkSupported((Analyzer.Core.DriverTargetFramework)(int)attribute.TargetFramework)
             from version in DriverVersionHelper.FilterVersionForRange(attribute.Version)
             from location in attribute.Locations
             orderby
                 location.StartLine >= 0 ? location.StartLine : 0,
                 location.StartLine >= 0 ? attribute.Message : null
             group new DiagnosticRule(attribute.RuleId, $"{attribute.Message}_v{version.ToString("V", new VersionFormatter())}", location)
-                by new { version, attribute.LinqProvider } into g
-            select new DiagnosticTestCase(fileName, memberInfo.Name, g.Key.version.ToString(), g.Key.LinqProvider, g.ToArray());
+                by new { version, attribute.LinqProvider, attribute.JsonAnalyzerVerbosity } into g
+            select new DiagnosticTestCase(fileName, memberInfo.Name, g.Key.version.ToString(), g.Key.LinqProvider, g.Key.JsonAnalyzerVerbosity, g.ToArray());
 
         return diagnosticsTestCases.ToArray();
     }

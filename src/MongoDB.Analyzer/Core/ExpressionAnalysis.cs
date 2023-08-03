@@ -18,7 +18,8 @@ internal enum AnalysisType
 {
     Unknown,
     Builders,
-    Linq
+    Linq,
+    Poco
 }
 
 internal sealed class ExpressionsAnalysis
@@ -49,10 +50,11 @@ internal record InvalidExpressionAnalysisNode(SyntaxNode OriginalExpression, par
 
 internal record AnalysisStats(
     int MqlCount,
+    int JsonCount,
     int InternalExceptionsCount,
     int DriverExceptionsCount,
     string DriverVersion,
     string TargetFramework)
 {
-    public static AnalysisStats Empty { get; } = new AnalysisStats(0, 0, 0, null, null);
+    public static AnalysisStats Empty { get; } = new AnalysisStats(0, 0, 0, 0, null, null);
 }

@@ -27,6 +27,23 @@ internal sealed class TypesProcessor
         _processedTypes = new Dictionary<string, (string, MemberDeclarationSyntax)>();
     }
 
+    public MemberDeclarationSyntax GetTypeSymbolToMemberDeclarationMapping(ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol == null)
+        {
+            return null;
+        }
+
+        var fullTypeName = GetFullName(typeSymbol);
+
+        if (_processedTypes.TryGetValue(fullTypeName, out var result))
+        {
+            return result.NewDeclaration;
+        }
+
+        return null;
+    }
+
     public string GetTypeSymbolToGeneratedTypeMapping(ITypeSymbol typeSymbol) => GetGeneratedTypeMapping(typeSymbol).RemappedName;
 
     public string ProcessTypeSymbol(ITypeSymbol typeSymbol)
@@ -185,17 +202,8 @@ internal sealed class TypesProcessor
 
             var propertyDeclaration = SyntaxFactory.PropertyDeclaration(typeSyntax, propertySymbol.Name);
 
-            propertyDeclaration = propertyDeclaration.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-
-            if (propertySymbol.GetMethod != null)
-            {
-                propertyDeclaration = propertyDeclaration.AddAccessorListAccessors(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
-            }
-
-            if (propertySymbol.SetMethod != null)
-            {
-                propertyDeclaration = propertyDeclaration.AddAccessorListAccessors(SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
-            }
+            propertyDeclaration = propertyDeclaration.AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                .AddAccessorListAccessors(propertySymbol.GetPropertyAccessors());
 
             var bsonAttributeList = GenerateBsonAttributeList(propertySymbol);
             if (bsonAttributeList != null && bsonAttributeList.Attributes.AnySafe())
@@ -230,7 +238,7 @@ internal sealed class TypesProcessor
 
             var fieldDeclaration = SyntaxFactory.FieldDeclaration(
                 attributeLists: attributeLists,
-                modifiers: SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
+                modifiers: SyntaxFactory.TokenList(fieldSymbol.GetFieldModifiers()),
                 declaration: variableDeclaration);
 
             members.Add(fieldDeclaration);

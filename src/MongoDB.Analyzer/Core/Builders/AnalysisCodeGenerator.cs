@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using static MongoDB.Analyzer.Core.HelperResources.MqlGeneratorSyntaxElements.Builders;
+using MongoDB.Analyzer.Core.Utilities;
 using static MongoDB.Analyzer.Core.HelperResources.ResourcesUtilities;
 
 namespace MongoDB.Analyzer.Core.Builders;
@@ -57,35 +57,15 @@ internal static class AnalysisCodeGenerator
             syntaxTrees.Add(s_renderer_2_19_and_higher);
         }
 
-        var compilation = CSharpCompilation.Create(
-            BuildersAnalysisConstants.AnalysisAssemblyName,
-            syntaxTrees,
-            referencesContainer.References,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-        using var memoryStream = new MemoryStream();
-        var emitResult = compilation.Emit(memoryStream);
-
-        BuildersMqlGeneratorExecutor buildersMqlCodeExecutor = null;
-
-        if (emitResult.Success)
+        var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(AnalysisType.Builders, context, referencesContainer, syntaxTrees);
+        if (generatorType == null)
         {
-            context.Logger.Log("Compilation successful");
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-            var mqlGeneratorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, MqlGeneratorFullName);
-
-            buildersMqlCodeExecutor = mqlGeneratorType != null ? new BuildersMqlGeneratorExecutor(mqlGeneratorType) : null;
-        }
-        else
-        {
-            context.Logger.Log($"Compilation failed with: {string.Join(Environment.NewLine, emitResult.Diagnostics)}");
+            return CompilationResult.Failure;
         }
 
         var result = new CompilationResult(
-            buildersMqlCodeExecutor != null,
-            buildersMqlCodeExecutor,
+            true,
+            new BuildersMqlGeneratorExecutor(generatorType),
             referencesContainer.Version);
 
         return result;

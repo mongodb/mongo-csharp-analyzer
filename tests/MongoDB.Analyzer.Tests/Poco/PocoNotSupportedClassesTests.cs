@@ -12,24 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using MongoDB.Analyzer.Tests.Common;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MongoDB.Analyzer.Tests.Common.TestCases.Poco;
+using MongoDB.Analyzer.Tests.Infrastructure;
 
-namespace MongoDB.Analyzer.Tests.Infrastructure;
+namespace MongoDB.Analyzer.Tests.Poco;
 
-[Serializable]
-public record DiagnosticRule(
-    string RuleId,
-    string Message,
-    Location Location);
-
-[Serializable]
-public record DiagnosticTestCase(
-    string FileName,
-    string MethodName,
-    string Version,
-    LinqVersion LinqVersion,
-    JsonAnalyzerVerbosity JsonAnalyzerVerbosity,
-    DiagnosticRule[] DiagnosticRules)
+[TestClass]
+public sealed class PocoNotSupportedClassesTests : DiagnosticsTestCasesRunner
 {
+    [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(NotSupportedPocoClassDeclarations))]
+    public Task NotSupportedClassDeclarations(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

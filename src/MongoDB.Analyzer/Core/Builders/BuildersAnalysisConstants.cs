@@ -16,7 +16,5 @@ namespace MongoDB.Analyzer.Core.Builders;
 
 internal static class BuildersAnalysisConstants
 {
-    public const string AnalysisAssemblyName = "DynamicProxyGenAssembly2";
-
     public static readonly Version Version_2_19_and_higher = Version.Parse("2.19.0");
 }

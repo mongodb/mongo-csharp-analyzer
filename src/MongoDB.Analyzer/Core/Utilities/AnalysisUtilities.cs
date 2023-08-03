@@ -27,6 +27,7 @@ internal static class AnalysisUtilities
             analysisStats.DriverVersion,
             analysisStats.TargetFramework,
             analysisStats.MqlCount,
+            analysisStats.JsonCount,
             analysisStats.DriverExceptionsCount,
             analysisStats.InternalExceptionsCount,
             sw.ElapsedMilliseconds);

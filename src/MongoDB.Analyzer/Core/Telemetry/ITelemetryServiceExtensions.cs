@@ -45,6 +45,8 @@ internal static class ITelemetryServicExtensions
                 ("lang_version", (csharpCompilation?.LanguageVersion)?.ToString() ?? "Unknown"),
                 ("syntax_tree_length", semanticModelAnalysisContext.SemanticModel.SyntaxTree.Length),
                 ("linq_version", settings.DefaultLinqVersion?.ToString()),
+                ("json_analyzer_verbosity", settings.JsonAnalyzerVerbosity.ToString()),
+                ("poco_limit", settings.PocoLimit.ToString()),
                 ("logs_enabled", settings.OutputInternalLogsToFile),
                 ("analyzer_version", s_version)
         };
@@ -57,4 +59,7 @@ internal static class ITelemetryServicExtensions
 
     public static void BuildersAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
         telemetryService.Event("Builders analyzed", analysisStatistics.ToKeyValues());
+
+    public static void PocoAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
+        telemetryService.Event("Pocos analyzed", analysisStatistics.ToKeyValues());
 }

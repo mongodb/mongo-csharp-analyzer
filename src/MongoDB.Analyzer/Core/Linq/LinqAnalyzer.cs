@@ -34,7 +34,7 @@ internal static class LinqAnalyzer
             stats = ReportMqlOrInvalidExpressions(context, linqAnalysis);
 
             sw.Stop();
-            context.Logger.Log($"LINQ analysis ended: with {stats.MqlCount} mql translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}.");
+            context.Logger.Log($"LINQ analysis ended: with {stats.MqlCount} mql translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}ms.");
         }
         catch (Exception ex)
         {
@@ -129,7 +129,7 @@ internal static class LinqAnalyzer
             }
         }
 
-        return new AnalysisStats(mqlCount, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
+        return new AnalysisStats(mqlCount, 0, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
     }
 
     private static bool IsDriverOrLinqException(MQLResult mqlResult)

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using static MongoDB.Analyzer.Core.HelperResources.MqlGeneratorSyntaxElements.Linq;
+using MongoDB.Analyzer.Core.Utilities;
 using static MongoDB.Analyzer.Core.HelperResources.ResourcesUtilities;
 
 namespace MongoDB.Analyzer.Core.Linq;
@@ -49,9 +49,9 @@ internal static class AnalysisCodeGenerator
 
         var isLinq3 = referencesContainer.Version >= LinqAnalysisConstants.MinLinq3Version;
         var isLinq3Default = referencesContainer.Version >= LinqAnalysisConstants.DefaultLinq3Version;
-        var linqProviderSyntaxTree = isLinq3 ? s_linqProviderV3SyntaxTree : s_linqProviderV2SyntaxTree;
         var defaultLinqVersion = context.Settings.DefaultLinqVersion ?? (isLinq3Default ? LinqVersion.V3 : LinqVersion.V2);
 
+        var linqProviderSyntaxTree = isLinq3 ? s_linqProviderV3SyntaxTree : s_linqProviderV2SyntaxTree;
         var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Linq, linqExpressionAnalysis.TypesDeclarations, s_parseOptions);
         var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(linqExpressionAnalysis, isLinq3);
 
@@ -62,36 +62,15 @@ internal static class AnalysisCodeGenerator
                 mqlGeneratorSyntaxTree
             };
 
-        var compilation = CSharpCompilation.Create(
-            LinqAnalysisConstants.AnalysisAssemblyName,
-            syntaxTrees,
-            referencesContainer.References,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-        using var memoryStream = new MemoryStream();
-        var emitResult = compilation.Emit(memoryStream);
-
-        LinqMqlGeneratorExecutor linqTestCodeExecutor = null;
-
-        if (emitResult.Success)
+        var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(AnalysisType.Linq, context, referencesContainer, syntaxTrees);
+        if (generatorType == null)
         {
-            context.Logger.Log("Compilation successful");
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-            var mqlGeneratorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, MqlGeneratorFullName);
-
-            linqTestCodeExecutor = mqlGeneratorType != null ?
-                new LinqMqlGeneratorExecutor(mqlGeneratorType, isLinq3 ? LinqVersion.V3 : LinqVersion.V2, defaultLinqVersion) : null;
-        }
-        else
-        {
-            context.Logger.Log($"Compilation failed with: {string.Join(Environment.NewLine, emitResult.Diagnostics)}");
+            return CompilationResult.Failure;
         }
 
         var result = new CompilationResult(
-            linqTestCodeExecutor != null,
-            linqTestCodeExecutor,
+            true,
+            new LinqMqlGeneratorExecutor(generatorType, isLinq3 ? LinqVersion.V3 : LinqVersion.V2, defaultLinqVersion),
             referencesContainer.Version);
 
         return result;

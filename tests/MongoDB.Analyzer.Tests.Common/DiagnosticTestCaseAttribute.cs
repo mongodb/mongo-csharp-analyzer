@@ -26,6 +26,7 @@ namespace MongoDB.Analyzer.Tests.Common
         public Location[] Locations { get; }
         public DriverTargetFramework TargetFramework { get; }
         public LinqVersion LinqProvider { get; }
+        public JsonAnalyzerVerbosity JsonAnalyzerVerbosity { get; }
 
         public DiagnosticRuleTestCaseAttribute(
             string ruleId,
@@ -33,6 +34,7 @@ namespace MongoDB.Analyzer.Tests.Common
             string version = null,
             LinqVersion linqProvider = LinqVersion.V2,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
+            JsonAnalyzerVerbosity jsonAnalyzerVerbosity = JsonAnalyzerVerbosity.All,
             int[] codeLines = null)
         {
             RuleId = ruleId;
@@ -41,13 +43,14 @@ namespace MongoDB.Analyzer.Tests.Common
             LinqProvider = linqProvider;
             TargetFramework = targetFramework;
             Locations = codeLines?.Any() == true ? codeLines.Select(l => new Location(l, -1)).ToArray() : new[] { Location.Empty };
+            JsonAnalyzerVerbosity = jsonAnalyzerVerbosity;
         }
     }
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class NoDiagnosticsAttribute : DiagnosticRuleTestCaseAttribute
     {
-        public NoDiagnosticsAttribute(string version = null) : base(DiagnosticRulesConstants.NoRule, null, version: version) { }
+        public NoDiagnosticsAttribute(string version = null, JsonAnalyzerVerbosity jsonAnalyzerVerbosity = JsonAnalyzerVerbosity.All) : base(DiagnosticRulesConstants.NoRule, null, version, jsonAnalyzerVerbosity: jsonAnalyzerVerbosity) { }
     }
 
     public class MQLAttribute : DiagnosticRuleTestCaseAttribute
@@ -70,7 +73,7 @@ namespace MongoDB.Analyzer.Tests.Common
                 version,
                 linqProvider,
                 targetFramework,
-                codeLines)
+                codeLines: codeLines)
         {
         }
     }
@@ -131,7 +134,7 @@ namespace MongoDB.Analyzer.Tests.Common
         public BuildersMQLAttribute(string message, string version, params int[] codeLines) :
             base(DiagnosticRulesConstants.Builders2MQL,
                 message,
-                version: version,
+                version,
                 codeLines: codeLines)
         {
         }
@@ -140,7 +143,26 @@ namespace MongoDB.Analyzer.Tests.Common
     public sealed class NotSupportedBuildersAttribute : DiagnosticRuleTestCaseAttribute
     {
         public NotSupportedBuildersAttribute(string message, string version = null) :
-            base(DiagnosticRulesConstants.NotSupportedBuildersExpression, message, version: version)
+            base(DiagnosticRulesConstants.NotSupportedBuildersExpression, message, version)
+        {
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public sealed class PocoJsonAttribute : DiagnosticRuleTestCaseAttribute
+    {
+        public PocoJsonAttribute(
+            string message, JsonAnalyzerVerbosity jsonAnalyzerVerbosity = JsonAnalyzerVerbosity.All) :
+            base(DiagnosticRulesConstants.Poco2Json, message, null, targetFramework: DriverTargetFramework.All, jsonAnalyzerVerbosity: jsonAnalyzerVerbosity, codeLines: null)
+        {
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public sealed class NotSupportedPocoAttribute : DiagnosticRuleTestCaseAttribute
+    {
+        public NotSupportedPocoAttribute(string message, string version = null, JsonAnalyzerVerbosity jsonAnalyzerVerbosity = JsonAnalyzerVerbosity.All) :
+            base(DiagnosticRulesConstants.NotSupportedPoco, message, version, jsonAnalyzerVerbosity: jsonAnalyzerVerbosity)
         {
         }
     }

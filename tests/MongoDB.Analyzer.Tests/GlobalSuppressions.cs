@@ -17,6 +17,7 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE0161:Convert to file-scoped namespace", Justification = "Compatibility With Samples Projects", Scope = "namespace", Target = "~N:MongoDB.Analyzer.Tests.Common.TestCases.Builders")]
 [assembly: SuppressMessage("Style", "IDE0161:Convert to file-scoped namespace", Justification = "Compatibility With Samples Projects", Scope = "namespace", Target = "~N:MongoDB.Analyzer.Tests.Common.TestCases.Jira")]
 [assembly: SuppressMessage("Style", "IDE0161:Convert to file-scoped namespace", Justification = "Compatibility With Samples Projects", Scope = "namespace", Target = "~N:MongoDB.Analyzer.Tests.Common.TestCases.Linq")]
+[assembly: SuppressMessage("Style", "IDE0161:Convert to file-scoped namespace", Justification = "Compatibility With Samples Projects", Scope = "namespace", Target = "~N:MongoDB.Analyzer.Tests.Common.TestCases.Poco")]
 [assembly: SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "Test code", Scope = "namespaceanddescendants", Target = "~N:MongoDB.Analyzer.Tests.Common.TestCases.Builders")]
 [assembly: SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "Test code", Scope = "namespaceanddescendants", Target = "~N:MongoDB.Analyzer.Tests.Common.TestCases.Linq")]
 [assembly: SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Test code", Scope = "namespaceanddescendants", Target = "~N:MongoDB.Analyzer.Tests.Common.TestCases.Builders")]

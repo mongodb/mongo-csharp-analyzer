@@ -12,24 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using MongoDB.Analyzer.Tests.Common;
+namespace MongoDB.Analyzer.Core.Poco;
 
-namespace MongoDB.Analyzer.Tests.Infrastructure;
-
-[Serializable]
-public record DiagnosticRule(
-    string RuleId,
-    string Message,
-    Location Location);
-
-[Serializable]
-public record DiagnosticTestCase(
-    string FileName,
-    string MethodName,
-    string Version,
-    LinqVersion LinqVersion,
-    JsonAnalyzerVerbosity JsonAnalyzerVerbosity,
-    DiagnosticRule[] DiagnosticRules)
+internal record CompilationResult(
+    bool Success,
+    PocoJsonGeneratorExecutor PocoTestCodeExecutor,
+    Version MongoDBDriverVersion)
 {
+    public static CompilationResult Failure { get; } = new CompilationResult(false, null, null);
 }
