@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
 using MongoDB.Analyzer.Core.Utilities;
 
 namespace MongoDB.Analyzer.Core.Linq;
@@ -113,7 +114,9 @@ internal static class LinqAnalyzer
                 if (isDriverOrLinqException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = LinqDiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression;
-                    var decoratedMessage = DecorateMessage(mqlResult.Exception.InnerException?.Message ?? "Unsupported LINQ expression", driverVersion, settings);
+                    var typesMapper = new TypesMapper(MqlGeneratorSyntaxElements.Linq.MqlGeneratorNamespace, context.TypesProcessor);
+                    var message = typesMapper.RemapTypes(mqlResult.Exception.InnerException?.Message ?? "Unsupported LINQ expression");
+                    var decoratedMessage = DecorateMessage(message, driverVersion, context.Settings);
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 

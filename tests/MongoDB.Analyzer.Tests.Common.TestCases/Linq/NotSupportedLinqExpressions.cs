@@ -151,13 +151,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
 #if NET472
-        [InvalidLinq("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_16.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
-        [InvalidLinq("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_17.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
-        [InvalidLinq("Class System.TimeSpan cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_18.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
+        [InvalidLinq("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.GoldenApple.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
+        [InvalidLinq("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.FujiApple.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
+        [InvalidLinq("Class System.TimeSpan cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.YellowApple.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
 #else
-        [InvalidLinq("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_16.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
-        [InvalidLinq("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_17.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
-        [InvalidLinq("Class System.TimeSpan cannot be assigned to Class MongoDB.Analyzer.Helpers.Linq.GenType_Class_18.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
+        [InvalidLinq("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.GoldenApple.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
+        [InvalidLinq("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.FujiApple.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
+        [InvalidLinq("Class System.TimeSpan cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.YellowApple.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
 #endif
         public void Unsupported_type_for_bson_attribute_argument()
         {

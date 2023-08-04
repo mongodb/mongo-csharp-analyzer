@@ -22,6 +22,8 @@ internal sealed class TypesProcessor
 
     public MemberDeclarationSyntax[] TypesDeclarations => _processedTypes.Values.Select(p => p.NewDeclaration).ToArray();
 
+    public IEnumerable<(string NewName, string PreviousName)> GeneratedTypeToOriginalTypeMapping => _processedTypes.Select(pair => (pair.Value.NewName, pair.Key));
+
     public TypesProcessor()
     {
         _processedTypes = new Dictionary<string, (string, MemberDeclarationSyntax)>();
