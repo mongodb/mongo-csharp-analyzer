@@ -21,7 +21,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"AirportName\" : \"AirportName_val\", \"AirportCode\" : \"AirportCode_val\" }")]
+        [PocoJson("{ \"AirportName\" : \"Jomo Kenyatta International Airport\", \"AirportCode\" : \"Jomo Kenyatta International Airport\" }")]
         public void Airport()
         {
         }

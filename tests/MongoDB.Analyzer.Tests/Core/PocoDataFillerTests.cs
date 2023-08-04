@@ -38,7 +38,7 @@ public sealed class PocoDataFillerTests
         var poco = new Person();
         PocoDataFiller.PopulatePoco(poco);
         Assert.AreEqual(poco.Name, "Sophia");
-        Assert.AreEqual(poco.LastName, "Jackson");
+        Assert.AreEqual(poco.LastName, "Mia");
         Assert.AreEqual(poco.Address.City, "Phoenix");
         Assert.AreEqual(poco.Address.Province, "Jalisco");
         Assert.AreEqual(poco.Address.ZipCode, "92101");

@@ -81,7 +81,7 @@ public static class PocoDataFiller
             foreach (var jObject in s_jsonData)
             {
                 if (jObject.First is JProperty jProperty &&
-                    jProperty.Name.ToLower().Contains(caseInsensitiveMember))
+                    caseInsensitiveMember.Contains(jProperty.Name.ToLower()))
                 {
                     var values = ((JArray)jProperty.Value).ToObject<string[]>();
                     return values[memberName.Length % values.Length];
@@ -106,7 +106,7 @@ public static class PocoDataFiller
     {
         try
         {
-            return Directory.GetFiles(Path.GetFullPath(Path.Combine("..", "..", "..", "..", "..", "src", "MongoDB.Analyzer", "Core", "Data")))
+            return Directory.GetFiles(Path.GetFullPath(Path.Combine("..", "..", "..", "..", "..", "src", "MongoDB.Analyzer", "Core", "Poco", "Data")))
                 .Select(file => JObject.Parse(File.ReadAllText(file))).ToList();
         }
         catch (Exception ex)
