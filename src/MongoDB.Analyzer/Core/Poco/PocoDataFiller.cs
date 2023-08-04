@@ -116,7 +116,7 @@ public static class PocoDataFiller
     private static object HandleSystemType(Type systemType, string memberName) =>
         systemType.FullName switch
         {
-            "System.DateTime" => new DateTime(memberName.Length * 100, memberName.Length % 12, memberName.Length % 30),
+            "System.DateTime" => new DateTime(1900 + memberName.Length % 150, memberName.Length % 12, memberName.Length % 28, 0, 0, 0, 0, DateTimeKind.Utc),
             "System.TimeSpan" => new TimeSpan(memberName.Length % 24, memberName.Length % 60, memberName.Length % 60),
             _ => throw new ArgumentOutOfRangeException(nameof(systemType), systemType, "Unsupported system type")
         };

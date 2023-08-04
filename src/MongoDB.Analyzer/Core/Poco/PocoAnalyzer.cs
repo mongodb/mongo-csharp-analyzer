@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
 using MongoDB.Analyzer.Core.Utilities;
 
 namespace MongoDB.Analyzer.Core.Poco;
@@ -84,7 +85,18 @@ internal static class PocoAnalyzer
                 if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = PocoDiagnosticRules.DiagnosticRuleNotSupportedPoco;
-                    var decoratedMessage = DecorateMessage(jsonResult.Exception.InnerException?.Message ?? "Unsupported Poco expression", driverVersion, context.Settings);
+                    var message = jsonResult.Exception.InnerException?.Message;
+
+                    if (message == null)
+                    {
+                        message = "Unsupported POCO";
+                    }
+                    else
+                    {
+                        message = context.TypesMapper.RemapTypes(JsonSyntaxElements.Poco.JsonGeneratorNamespace, context.TypesProcessor, message);
+                    }
+
+                    var decoratedMessage = DecorateMessage(message, driverVersion, context.Settings);
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 

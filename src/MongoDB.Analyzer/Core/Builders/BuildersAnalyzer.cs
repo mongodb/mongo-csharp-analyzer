@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
 using MongoDB.Analyzer.Core.Utilities;
 
 namespace MongoDB.Analyzer.Core.Builders;
@@ -88,7 +89,18 @@ internal static class BuildersAnalyzer
                 if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = BuidersDiagnosticsRules.DiagnosticRuleNotSupportedBuilderExpression;
-                    var decoratedMessage = DecorateMessage(mqlResult.Exception.InnerException?.Message ?? "Unsupported builders expression", driverVersion, context.Settings);
+                    var message = mqlResult.Exception.InnerException?.Message;
+
+                    if (message == null)
+                    {
+                        message = "Unsupported Builders expression";
+                    }
+                    else
+                    {
+                        message = context.TypesMapper.RemapTypes(MqlGeneratorSyntaxElements.Builders.MqlGeneratorNamespace, context.TypesProcessor, message);
+                    }
+
+                    var decoratedMessage = DecorateMessage(message, driverVersion, context.Settings);
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 
