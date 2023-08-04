@@ -16,7 +16,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoBasic : TestCasesBase
     {
-        [PocoJson("{ \"City\" : \"City_val\", \"Province\" : \"Province_val\", \"ZipCode\" : \"ZipCode_val\" }")]
+        [PocoJson("{ \"City\" : \"Phoenix\", \"Province\" : \"Jalisco\", \"ZipCode\" : \"92101\" }")]
         public void Address()
         {
         }
@@ -31,7 +31,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"CustomerID\" : 0, \"Name\" : \"Name_val\", \"Address\" : \"Address_val\" }")]
+        [PocoJson("{ \"CustomerID\" : 0, \"Name\" : \"Sophia\", \"Address\" : \"111 Sycamore Court, Woodland, WA 98674\" }")]
         public void Customer()
         {
         }

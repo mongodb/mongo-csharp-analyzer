@@ -27,9 +27,9 @@ public sealed class PocoDataFillerTests
     {
         var poco = new Address();
         PocoDataFiller.PopulatePoco(poco);
-        Assert.AreEqual(poco.City, "City_val");
-        Assert.AreEqual(poco.Province, "Province_val");
-        Assert.AreEqual(poco.ZipCode, "ZipCode_val");
+        Assert.AreEqual(poco.City, "Phoenix");
+        Assert.AreEqual(poco.Province, "Jalisco");
+        Assert.AreEqual(poco.ZipCode, "92101");
     }
 
     [DataTestMethod]
@@ -37,16 +37,16 @@ public sealed class PocoDataFillerTests
     {
         var poco = new Person();
         PocoDataFiller.PopulatePoco(poco);
-        Assert.AreEqual(poco.Name, "Name_val");
-        Assert.AreEqual(poco.LastName, "LastName_val");
-        Assert.AreEqual(poco.Address.City, "City_val");
-        Assert.AreEqual(poco.Address.Province, "Province_val");
-        Assert.AreEqual(poco.Address.ZipCode, "ZipCode_val");
-        Assert.AreEqual(poco.Vehicle.LicenceNumber, "LicenceNumber_val");
+        Assert.AreEqual(poco.Name, "Sophia");
+        Assert.AreEqual(poco.LastName, "Jackson");
+        Assert.AreEqual(poco.Address.City, "Phoenix");
+        Assert.AreEqual(poco.Address.Province, "Jalisco");
+        Assert.AreEqual(poco.Address.ZipCode, "92101");
+        Assert.AreEqual(poco.Vehicle.LicenceNumber, "M47-NOP");
         Assert.AreEqual(poco.Vehicle.VehicleType.Category, "Category_val");
         Assert.AreEqual(poco.Vehicle.VehicleType.MPG, 3.0);
         Assert.AreEqual(poco.Vehicle.VehicleType.Type, VehicleTypeEnum.Bus);
-        Assert.AreEqual(poco.Vehicle.VehicleType.VehicleMake.Name, "Name_val");
+        Assert.AreEqual(poco.Vehicle.VehicleType.VehicleMake.Name, "Sophia");
     }
 
     [DataTestMethod]
@@ -111,9 +111,9 @@ public sealed class PocoDataFillerTests
     {
         var poco = new Fruit();
         PocoDataFiller.PopulatePoco(poco);
-        Assert.AreEqual(poco.Name, "Name_val");
+        Assert.AreEqual(poco.Name, "Sophia");
         Assert.AreEqual(poco.Weight, 6.0);
-        Assert.AreEqual(poco.Color, "Color_val");
+        Assert.AreEqual(poco.Color, "Purple");
         Assert.AreEqual(poco.Quantity, 8);
         Assert.AreEqual(poco.TotalCost, 9.0);
         Assert.AreEqual(poco.Volume, 6.0);

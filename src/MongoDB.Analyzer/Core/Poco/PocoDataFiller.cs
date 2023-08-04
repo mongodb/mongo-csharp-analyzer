@@ -12,12 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Newtonsoft.Json.Linq;
+
 namespace MongoDB.Analyzer.Core.Poco;
 
 public static class PocoDataFiller
 {
     private const string CollectionNamespace = "System.Collections.Generic";
     private const int MaxDepth = 3;
+    private static readonly List<JObject> s_jsonData;
+
+    static PocoDataFiller()
+    {
+        s_jsonData = LoadJsonData();
+    }
 
     public static void PopulatePoco(object poco) =>
         SetPropertiesAndFields(poco, MaxDepth);
@@ -30,7 +38,7 @@ public static class PocoDataFiller
         }
         else if (memberType.IsString())
         {
-            return $"{memberName}_val";
+            return HandleString(memberName);
         }
         else if (memberType.IsArray)
         {
@@ -65,12 +73,47 @@ public static class PocoDataFiller
     private static Array HandleSingleDimensionalArray(Type arrayType) =>
         Array.CreateInstance(arrayType.GetElementType(), 0);
 
+    private static object HandleString(string memberName)
+    {
+        try
+        {
+            var caseInsensitiveMember = memberName.ToLower();
+            foreach (var jObject in s_jsonData)
+            {
+                if (jObject.First is JProperty jProperty &&
+                    jProperty.Name.ToLower().Contains(caseInsensitiveMember))
+                {
+                    var values = ((JArray)jProperty.Value).ToObject<string[]>();
+                    return values[memberName.Length % values.Length];
+                }
+            }
+        }
+        catch
+        {
+        }
+
+        return $"{memberName}_val";
+    }
+
     private static bool IsString(this Type type) =>
         type == typeof(string);
 
     private static bool IsSupportedCollection(this Type type) =>
         CollectionNamespace == type.Namespace &&
         type.GenericTypeArguments.Length == 1;
+
+    private static List<JObject> LoadJsonData()
+    {
+        try
+        {
+            return Directory.GetFiles(Path.GetFullPath(Path.Combine("..", "..", "..", "..", "..", "src", "MongoDB.Analyzer", "Core", "Data")))
+                .Select(file => JObject.Parse(File.ReadAllText(file))).ToList();
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+    }
 
     private static void SetPropertiesAndFields(object poco, int levelsLeft)
     {

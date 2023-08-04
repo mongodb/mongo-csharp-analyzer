@@ -26,7 +26,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"Name\" : \"Name_val\", \"InStock\" : true, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"00:00:00\" }")]
+        [PocoJson("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"Name\" : \"Sophia\", \"InStock\" : true, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"00:00:00\" }")]
         public void Clothing()
         {
         }
