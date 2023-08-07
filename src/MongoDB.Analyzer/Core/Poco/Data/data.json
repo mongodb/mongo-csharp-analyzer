@@ -1,5 +1,5 @@
 ﻿{
-    "Addresses": [
+    "Address": [
         "101 Pine Street, Meadowville, TX 75001",
         "111 Sycamore Court, Woodland, WA 98674",
         "123 Elm Street, Springfield, IL 62701",
@@ -21,7 +21,7 @@
         "9876 Juniper Drive, Hillside, NJ 07003",
         "999 Birch Road, Timberland, MI 48201"
     ],
-    "Airlines": [
+    "Airline": [
         "AeroJet Express",
         "Aurora Airlines",
         "AzureAir",
@@ -43,7 +43,7 @@
         "TranquilSky",
         "Unity Airways"
     ],
-    "AirportCodes": [
+    "AirportCode": [
         "AMS",
         "CDG",
         "CPT",
@@ -65,7 +65,7 @@
         "SYD",
         "YYZ"
     ],
-    "Airports": [
+    "Airport": [
         "Beijing Capital International Airport",
         "Benito Juárez International Airport",
         "Cairo International Airport",
@@ -87,7 +87,7 @@
         "Tokyo Haneda Airport",
         "Toronto Pearson International Airport"
     ],
-    "Cities": [
+    "City": [
         "Austin",
         "Charlotte",
         "Chicago",
@@ -109,7 +109,7 @@
         "Seattle",
         "Washington D.C."
     ],
-    "Colors": [
+    "Color": [
         "Black",
         "Blue",
         "Brown",
@@ -131,7 +131,29 @@
         "White",
         "Yellow"
     ],
-    "Counties": [
+    "ConfirmationNumber": [
+        "109876543",
+        "123456789",
+        "210987654",
+        "234567890",
+        "321098765",
+        "345678901",
+        "432109876",
+        "456789012",
+        "543210987",
+        "567890123",
+        "678901234",
+        "765432109",
+        "765432109",
+        "789012345",
+        "876543210",
+        "876543210",
+        "890123456",
+        "901234567",
+        "987654321",
+        "987654322"
+    ],
+    "County": [
         "Amberwood County",
         "Autumn Ridge County",
         "Bluewater County",
@@ -153,7 +175,7 @@
         "Willowbrook County",
         "Windhaven County"
     ],
-    "Countries": [
+    "Country": [
         "Argentina",
         "Australia",
         "Brazil",
@@ -175,7 +197,73 @@
         "United Kingdom",
         "United States"
     ],
-    "Emails": [
+    "CustomerId": [
+        "123456",
+        "123789",
+        "234567",
+        "234890",
+        "345678",
+        "345901",
+        "456123",
+        "456789",
+        "567123",
+        "567890",
+        "678234",
+        "678345",
+        "678901",
+        "789201",
+        "890123",
+        "890456",
+        "890567",
+        "901234",
+        "901456",
+        "987654"
+    ],
+    "Date": [
+        "01/15/2023",
+        "03/07/2023",
+        "04/22/2023",
+        "05/09/2023",
+        "06/30/2023",
+        "07/18/2023",
+        "08/03/2023",
+        "09/25/2023",
+        "10/12/2023",
+        "11/08/2023",
+        "12/19/2023",
+        "01/04/2024",
+        "02/14/2024",
+        "03/29/2024",
+        "04/07/2024",
+        "05/22/2024",
+        "06/11/2024",
+        "07/27/2024",
+        "08/16/2024",
+        "09/09/2024"
+    ],
+    "DateOfBirth": [
+        "01/22/2023",
+        "03/08/2023",
+        "04/17/2023",
+        "05/05/2023",
+        "06/29/2023",
+        "07/15/2023",
+        "08/02/2023",
+        "09/21/2023",
+        "10/14/2023",
+        "11/07/2023",
+        "12/18/2023",
+        "01/05/2024",
+        "02/09/2024",
+        "03/27/2024",
+        "04/09/2024",
+        "05/25/2024",
+        "06/08/2024",
+        "07/22/2024",
+        "08/17/2024",
+        "09/06/2024"
+    ],
+    "Email": [
         "adventureseeker19@email.org",
         "artlover58@email.net",
         "aspiringwriter55@email.net",
@@ -197,7 +285,7 @@
         "travelbug22@example.net",
         "wanderlust2023@email.com"
     ],
-    "Fruits": [
+    "Fruit": [
         "Apple",
         "Banana",
         "Blackberry",
@@ -219,7 +307,7 @@
         "Strawberry",
         "Watermelon"
     ],
-    "LastNames": [
+    "LastName": [
         "Anderson",
         "Brown",
         "Davis",
@@ -241,7 +329,7 @@
         "Williams",
         "Wilson"
     ],
-    "LicenceNumbers": [
+    "LicenceNumber": [
         "A22-BCD",
         "B32-CDE",
         "C42-DEF",
@@ -263,7 +351,7 @@
         "S53-STU",
         "T54-TUV"
     ],
-    "Movies": [
+    "Movie": [
         "Arcane Alchemy",
         "Celestial Chronicles",
         "Chroma Conundrum",
@@ -285,7 +373,7 @@
         "Velvet Twilight",
         "Whispers in the Wind"
     ],
-    "Names": [
+    "Name": [
         "Alexander",
         "Amelia",
         "Annelise",
@@ -307,7 +395,42 @@
         "Sophia",
         "William"
     ],
-    "Provinces": [
+    "OrderNumber": [
+        "1234567",
+        "1237890",
+        "2345678",
+        "2348901",
+        "3456789",
+        "3459012",
+        "4561234",
+        "4567890",
+        "5671234",
+        "5678901",
+        "6782345",
+        "6783456",
+        "6789012",
+        "8901234",
+        "8904567",
+        "8905678",
+        "8912345",
+        "9012345",
+        "9014567",
+        "9876543"
+    ],
+    "Phone": [
+        "+1 209-294-4667",
+        "+1 220-393-9288",
+        "+1 312-553-5030",
+        "+1 402-218-6823",
+        "+1 414-806-1104",
+        "+1 505-472-2045",
+        "+1 505-519-1491",
+        "+1 505-644-2702",
+        "+1 505-644-9529",
+        "+1 507-691-6938",
+        "+1 606-883-8329"
+    ],
+    "Province": [
         "Alberta",
         "British Columbia",
         "Buenos Aires",
@@ -329,7 +452,7 @@
         "Upper Austria",
         "Western Cape"
     ],
-    "Restaurants": [
+    "Restaurant": [
         "Bamboo Garden Oasis",
         "Bella Italia Trattoria",
         "Blue Mesa Cantina",
@@ -351,7 +474,7 @@
         "Urban Spice Junction",
         "Wholesome Kitchenette"
     ],
-    "States": [
+    "State": [
         "Arizona",
         "California",
         "Carolina",
@@ -376,7 +499,7 @@
         "Wisconsin",
         "York"
     ],
-    "Stocks": [
+    "Stock": [
         "FAST",
         "FLEX",
         "FLYR",
@@ -398,7 +521,7 @@
         "XYZA",
         "ZOOM"
     ],
-    "StreetNames": [
+    "StreetName": [
         "Acorn Avenue",
         "Birchwood Terrace",
         "Cedarhill Way",
@@ -420,7 +543,29 @@
         "Walnut Ridge Road",
         "Willowcrest Street"
     ],
-    "Vegetables": [
+    "TrackingNumber": [
+        "10987654",
+        "12345678",
+        "21098765",
+        "23456789",
+        "32109876",
+        "34567890",
+        "43210987",
+        "45678901",
+        "54321098",
+        "54321098",
+        "56789012",
+        "67890123",
+        "76543210",
+        "76543210",
+        "78901234",
+        "87654321",
+        "87654321",
+        "89012345",
+        "90123456",
+        "98765432"
+    ],
+    "Vegetable": [
         "Asparagus",
         "Bell Pepper",
         "Broccoli",
@@ -442,7 +587,7 @@
         "Tomato",
         "Zucchini"
     ],
-    "ZipCodes": [
+    "ZipCode": [
         "10001",
         "19101",
         "20001",

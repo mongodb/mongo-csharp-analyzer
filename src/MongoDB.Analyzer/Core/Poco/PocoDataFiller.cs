@@ -53,7 +53,7 @@ public static class PocoDataFiller
         }
         else if (memberType.IsSupportedSystemType())
         {
-            return HandleSystemType(memberType);
+            return HandleSystemType(memberType, memberName);
         }
         else if (memberType.IsSupportedCollection())
         {
@@ -104,11 +104,11 @@ public static class PocoDataFiller
         return $"{memberName}_val";
     }
 
-    private static object HandleSystemType(Type systemType) =>
+    private static object HandleSystemType(Type systemType, string memberName) =>
         systemType.FullName switch
         {
-            "System.DateTime" => DateTime.Now,
-            "System.TimeSpan" => DateTime.Now.TimeOfDay,
+            "System.DateTime" => new DateTime(memberName.Length * 100 % int.MaxValue, memberName.Length % 12, memberName.Length % 30, memberName.Length % 24, memberName.Length % 60, memberName.Length % 60),
+            "System.TimeSpan" => new TimeSpan(memberName.Length % 24, memberName.Length % 60, memberName.Length % 60),
             _ => throw new ArgumentOutOfRangeException("Unsupported system type")
         };
 

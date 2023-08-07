@@ -62,6 +62,7 @@ internal static class SymbolExtensions
 
     private static readonly HashSet<string> s_supportedSystemTypes = new()
     {
+        "System.DateTime",
         "System.DateTimeKind",
         "System.DateTimeOffset",
         "System.TimeSpan",
