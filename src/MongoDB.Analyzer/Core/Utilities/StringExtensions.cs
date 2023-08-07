@@ -21,4 +21,7 @@ internal static class StringExtensions
 
     public static bool IsNotEmpty(this string str) =>
         !string.IsNullOrWhiteSpace(str);
+
+    public static bool Contains(this string source, string target, StringComparison comp) =>
+        source != null && target != null && source.IndexOf(target, comp) >= 0;
 }

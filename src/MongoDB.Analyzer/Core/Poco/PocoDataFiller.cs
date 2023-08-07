@@ -19,8 +19,15 @@ namespace MongoDB.Analyzer.Core.Poco;
 public static class PocoDataFiller
 {
     private const string CollectionNamespace = "System.Collections.Generic";
+    private const string JsonData = "MongoDB.Analyzer.Core.Poco.Data.Data.json";
     private const int MaxDepth = 3;
-    private static readonly List<JObject> s_jsonData;
+
+    private static readonly JObject s_jsonData;
+    private static readonly HashSet<string> s_supportedSystemTypes = new()
+    {
+        "System.DateTime",
+        "System.TimeSpan"
+    };
 
     static PocoDataFiller()
     {
@@ -43,6 +50,10 @@ public static class PocoDataFiller
         else if (memberType.IsArray)
         {
             return HandleArray(memberType);
+        }
+        else if (memberType.IsSupportedSystemType())
+        {
+            return HandleSystemType(memberType);
         }
         else if (memberType.IsSupportedCollection())
         {
@@ -75,25 +86,31 @@ public static class PocoDataFiller
 
     private static object HandleString(string memberName)
     {
-        try
+        if (s_jsonData == null)
         {
-            var caseInsensitiveMember = memberName.ToLower();
-            foreach (var jObject in s_jsonData)
-            {
-                if (jObject.First is JProperty jProperty &&
-                    caseInsensitiveMember.Contains(jProperty.Name.ToLower()))
-                {
-                    var values = ((JArray)jProperty.Value).ToObject<string[]>();
-                    return values[memberName.Length % values.Length];
-                }
-            }
+            return $"{memberName}_val";
         }
-        catch
+
+        foreach (var pair in s_jsonData)
         {
+            var key = pair.Key;
+            if (memberName.Contains(key, StringComparison.InvariantCultureIgnoreCase))
+            {
+                var data = ((JArray)pair.Value).ToObject<string[]>();
+                return data[memberName.Length % data.Length];
+            }
         }
 
         return $"{memberName}_val";
     }
+
+    private static object HandleSystemType(Type systemType) =>
+        systemType.FullName switch
+        {
+            "System.DateTime" => DateTime.Now,
+            "System.TimeSpan" => DateTime.Now.TimeOfDay,
+            _ => throw new ArgumentOutOfRangeException("Unsupported system type")
+        };
 
     private static bool IsString(this Type type) =>
         type == typeof(string);
@@ -102,16 +119,15 @@ public static class PocoDataFiller
         CollectionNamespace == type.Namespace &&
         type.GenericTypeArguments.Length == 1;
 
-    private static List<JObject> LoadJsonData()
+    private static bool IsSupportedSystemType(this Type type) =>
+        s_supportedSystemTypes.Contains(type.FullName);
+
+    private static JObject LoadJsonData()
     {
-        try
+        using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(JsonData))
+        using (var streamReader = new StreamReader(resourceStream))
         {
-            return Directory.GetFiles(Path.GetFullPath(Path.Combine("..", "..", "..", "..", "..", "src", "MongoDB.Analyzer", "Core", "Poco", "Data")))
-                .Select(file => JObject.Parse(File.ReadAllText(file))).ToList();
-        }
-        catch (Exception ex)
-        {
-            return null;
+            return JObject.Parse(streamReader.ReadToEnd());
         }
     }
 
