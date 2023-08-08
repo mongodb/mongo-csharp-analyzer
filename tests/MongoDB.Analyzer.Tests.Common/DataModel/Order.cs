@@ -16,9 +16,9 @@ namespace MongoDB.Analyzer.Tests.Common.DataModel
 {
     public class Order
     {
-        public string OrderNumber { get; set; }
-        public string TrackingNumber { get; set; }
-        public string ConfirmationNumber { get; set; }
+        public int OrderNumber { get; set; }
+        public int TrackingNumber { get; set; }
+        public int ConfirmationNumber { get; set; }
         public Customer Customer { get; set; }
         public string Date { get; set; }
     }
@@ -26,7 +26,7 @@ namespace MongoDB.Analyzer.Tests.Common.DataModel
     public class Customer
     {
         public string Name { get; set; }
-        public string CustomerId { get; set; }
+        public int CustomerId { get; set; }
         public string DateOfBirth { get; set; }
         public string Email { get; set; }
         public string LastName { get; set; }

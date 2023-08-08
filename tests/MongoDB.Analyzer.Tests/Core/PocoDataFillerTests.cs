@@ -166,20 +166,20 @@ public sealed class PocoDataFillerTests
     }
 
     [DataTestMethod]
-    public void TestStringDataFaking()
+    public void TestStringAndPrimitiveDataFaking()
     {
         var poco = new Order();
         PocoDataFiller.PopulatePoco(poco);
 
-        Assert.AreEqual(poco.ConfirmationNumber, "987654321");
-        Assert.AreEqual(poco.Customer.CustomerId, "678234");
+        Assert.AreEqual(poco.ConfirmationNumber, 987654321);
+        Assert.AreEqual(poco.Customer.CustomerId, 678234);
         Assert.AreEqual(poco.Customer.DateOfBirth, "01/04/2024");
         Assert.AreEqual(poco.Customer.Email, "curiousmind42@email.net");
         Assert.AreEqual(poco.Customer.LastName, "Martin");
         Assert.AreEqual(poco.Customer.Name, "Benjamin");
 
         Assert.AreEqual(poco.Date, "06/30/2023");
-        Assert.AreEqual(poco.OrderNumber, "6783456");
-        Assert.AreEqual(poco.TrackingNumber, "78901234");
+        Assert.AreEqual(poco.OrderNumber, 6783456);
+        Assert.AreEqual(poco.TrackingNumber, 78901234);
     }
 }

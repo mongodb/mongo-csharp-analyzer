@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace MongoDB.Analyzer.Core.Poco;
 
@@ -22,7 +23,8 @@ public static class PocoDataFiller
     private const string JsonData = "MongoDB.Analyzer.Core.Poco.Data.Data.json";
     private const int MaxDepth = 3;
 
-    private static readonly JObject s_jsonData;
+    private static readonly Dictionary<string, string[]> s_jsonData;
+    private static readonly string s_jsonRegexPattern;
     private static readonly HashSet<string> s_supportedSystemTypes = new()
     {
         "System.DateTime",
@@ -32,6 +34,7 @@ public static class PocoDataFiller
     static PocoDataFiller()
     {
         s_jsonData = LoadJsonData();
+        s_jsonRegexPattern = string.Join("|", s_jsonData.Keys);
     }
 
     public static void PopulatePoco(object poco) =>
@@ -41,7 +44,7 @@ public static class PocoDataFiller
     {
         if (memberType.IsPrimitive)
         {
-            return Convert.ChangeType(memberName.Length % 10, memberType);
+            return HandlePrimitive(memberName, memberType);
         }
         else if (memberType.IsString())
         {
@@ -81,24 +84,28 @@ public static class PocoDataFiller
     private static Array HandleMultiDimensionalArray(Type arrayType) =>
         Array.CreateInstance(arrayType.GetElementType(), Enumerable.Repeat(0, arrayType.GetArrayRank()).ToArray());
 
+    private static object HandlePrimitive(string memberName, Type memberType)
+    {
+        var match = Regex.Match(memberName, s_jsonRegexPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        if (match.Success)
+        {
+            var data = s_jsonData[match.Value];
+            return Convert.ChangeType(data[memberName.Length % data.Length], memberType);
+        }
+
+        return Convert.ChangeType(memberName.Length % 10, memberType);
+    }
+
     private static Array HandleSingleDimensionalArray(Type arrayType) =>
         Array.CreateInstance(arrayType.GetElementType(), 0);
 
     private static object HandleString(string memberName)
     {
-        if (s_jsonData == null)
+        var match = Regex.Match(memberName, s_jsonRegexPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        if (match.Success)
         {
-            return $"{memberName}_val";
-        }
-
-        foreach (var pair in s_jsonData)
-        {
-            var key = pair.Key;
-            if (memberName.Contains(key, StringComparison.InvariantCultureIgnoreCase))
-            {
-                var data = ((JArray)pair.Value).ToObject<string[]>();
-                return data[memberName.Length % data.Length];
-            }
+            var data = s_jsonData[match.Value];
+            return data[memberName.Length % data.Length];
         }
 
         return $"{memberName}_val";
@@ -107,9 +114,9 @@ public static class PocoDataFiller
     private static object HandleSystemType(Type systemType, string memberName) =>
         systemType.FullName switch
         {
-            "System.DateTime" => new DateTime(memberName.Length * 100 % int.MaxValue, memberName.Length % 12, memberName.Length % 30, memberName.Length % 24, memberName.Length % 60, memberName.Length % 60),
+            "System.DateTime" => new DateTime(memberName.Length * 100, memberName.Length % 12, memberName.Length % 30),
             "System.TimeSpan" => new TimeSpan(memberName.Length % 24, memberName.Length % 60, memberName.Length % 60),
-            _ => throw new ArgumentOutOfRangeException("Unsupported system type")
+            _ => throw new ArgumentOutOfRangeException(nameof(systemType), systemType, "Unsupported system type")
         };
 
     private static bool IsString(this Type type) =>
@@ -122,12 +129,12 @@ public static class PocoDataFiller
     private static bool IsSupportedSystemType(this Type type) =>
         s_supportedSystemTypes.Contains(type.FullName);
 
-    private static JObject LoadJsonData()
+    private static Dictionary<string, string[]> LoadJsonData()
     {
         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(JsonData))
         using (var streamReader = new StreamReader(resourceStream))
         {
-            return JObject.Parse(streamReader.ReadToEnd());
+            return JsonConvert.DeserializeObject<Dictionary<string, string[]>>(streamReader.ReadToEnd());
         }
     }
 

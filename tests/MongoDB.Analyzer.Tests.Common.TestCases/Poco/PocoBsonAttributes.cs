@@ -26,12 +26,12 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"ExpiryDate\" : ISODate(\"1000-10-10T15:07:10Z\"), \"Name\" : \"Benjamin\", \"InStock\" : true, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"08:08:08\" }")]
+        [PocoJson("{ \"ExpiryDate\" : ISODate(\"1000-10-10T04:57:00Z\"), \"Name\" : \"Benjamin\", \"InStock\" : false, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"08:08:08\" }")]
         public void Clothing()
         {
         }
 
-        [PocoJson("{ \"VegetableCost\" : 3.0 }")]
+        [PocoJson("{ \"VegetableCost\" : 0.0 }")]
         public void Vegetable()
         {
         }
