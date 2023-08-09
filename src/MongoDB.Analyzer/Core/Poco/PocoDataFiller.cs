@@ -20,7 +20,7 @@ namespace MongoDB.Analyzer.Core.Poco;
 public static class PocoDataFiller
 {
     private const string CollectionNamespace = "System.Collections.Generic";
-    private const string JsonData = "MongoDB.Analyzer.Core.Poco.Data.Data.json";
+    private const string JsonDataResource = "MongoDB.Analyzer.Core.Poco.Data.Data.json";
     private const int MaxDepth = 3;
 
     private static readonly ConcurrentDictionary<string, string[]> s_jsonData;
@@ -131,7 +131,7 @@ public static class PocoDataFiller
 
     private static ConcurrentDictionary<string, string[]> LoadJsonData()
     {
-        using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(JsonData))
+        using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(JsonDataResource))
         using (var streamReader = new StreamReader(resourceStream))
         {
             return JsonConvert.DeserializeObject<ConcurrentDictionary<string, string[]>>(streamReader.ReadToEnd());
