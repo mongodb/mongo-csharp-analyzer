@@ -23,8 +23,8 @@ public static class PocoDataFiller
     private const string JsonData = "MongoDB.Analyzer.Core.Poco.Data.Data.json";
     private const int MaxDepth = 3;
 
-    private static readonly Dictionary<string, string[]> s_jsonData;
-    private static readonly string s_jsonRegexPattern;
+    private static readonly ConcurrentDictionary<string, string[]> s_jsonData;
+    private static readonly Regex s_jsonDataRegexPattern;
     private static readonly HashSet<string> s_supportedSystemTypes = new()
     {
         "System.DateTime",
@@ -34,7 +34,7 @@ public static class PocoDataFiller
     static PocoDataFiller()
     {
         s_jsonData = LoadJsonData();
-        s_jsonRegexPattern = string.Join("|", s_jsonData.Keys);
+        s_jsonDataRegexPattern = new Regex(string.Join("|", s_jsonData.Keys.OrderBy(key => key)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 
     public static void PopulatePoco(object poco) =>
@@ -86,7 +86,7 @@ public static class PocoDataFiller
 
     private static object HandlePrimitive(string memberName, Type memberType)
     {
-        var match = Regex.Match(memberName, s_jsonRegexPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        var match = s_jsonDataRegexPattern.Match(memberName);
         if (match.Success)
         {
             var data = s_jsonData[match.Value];
@@ -101,7 +101,7 @@ public static class PocoDataFiller
 
     private static object HandleString(string memberName)
     {
-        var match = Regex.Match(memberName, s_jsonRegexPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        var match = s_jsonDataRegexPattern.Match(memberName);
         if (match.Success)
         {
             var data = s_jsonData[match.Value];
@@ -129,12 +129,12 @@ public static class PocoDataFiller
     private static bool IsSupportedSystemType(this Type type) =>
         s_supportedSystemTypes.Contains(type.FullName);
 
-    private static Dictionary<string, string[]> LoadJsonData()
+    private static ConcurrentDictionary<string, string[]> LoadJsonData()
     {
         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(JsonData))
         using (var streamReader = new StreamReader(resourceStream))
         {
-            return JsonConvert.DeserializeObject<Dictionary<string, string[]>>(streamReader.ReadToEnd());
+            return JsonConvert.DeserializeObject<ConcurrentDictionary<string, string[]>>(streamReader.ReadToEnd());
         }
     }
 
