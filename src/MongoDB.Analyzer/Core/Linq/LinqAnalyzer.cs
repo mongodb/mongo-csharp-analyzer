@@ -114,8 +114,17 @@ internal static class LinqAnalyzer
                 if (isDriverOrLinqException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = LinqDiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression;
-                    var typesMapper = new TypesMapper(MqlGeneratorSyntaxElements.Linq.MqlGeneratorNamespace, context.TypesProcessor);
-                    var message = typesMapper.RemapTypes(mqlResult.Exception.InnerException?.Message ?? "Unsupported LINQ expression");
+                    var message = mqlResult.Exception.InnerException?.Message;
+
+                    if (message == null)
+                    {
+                        message = "Unsupported LINQ expression";
+                    }
+                    else
+                    {
+                        message = context.TypesMapper.RemapTypes(MqlGeneratorSyntaxElements.Linq.MqlGeneratorNamespace, context.TypesProcessor, message);
+                    }
+
                     var decoratedMessage = DecorateMessage(message, driverVersion, context.Settings);
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }

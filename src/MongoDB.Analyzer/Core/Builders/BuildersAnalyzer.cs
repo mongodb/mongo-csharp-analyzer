@@ -89,8 +89,17 @@ internal static class BuildersAnalyzer
                 if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = BuidersDiagnosticsRules.DiagnosticRuleNotSupportedBuilderExpression;
-                    var typesMapper = new TypesMapper(MqlGeneratorSyntaxElements.Builders.MqlGeneratorNamespace, context.TypesProcessor);
-                    var message = typesMapper.RemapTypes(mqlResult.Exception.InnerException?.Message ?? "Unsupported Builders expression");
+                    var message = mqlResult.Exception.InnerException?.Message;
+
+                    if (message == null)
+                    {
+                        message = "Unsupported Builders expression";
+                    }
+                    else
+                    {
+                        message = context.TypesMapper.RemapTypes(MqlGeneratorSyntaxElements.Builders.MqlGeneratorNamespace, context.TypesProcessor, message);
+                    }
+
                     var decoratedMessage = DecorateMessage(message, driverVersion, context.Settings);
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }

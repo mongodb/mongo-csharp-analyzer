@@ -85,8 +85,17 @@ internal static class PocoAnalyzer
                 if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = PocoDiagnosticRules.DiagnosticRuleNotSupportedPoco;
-                    var typesMapper = new TypesMapper(JsonSyntaxElements.Poco.JsonGeneratorNamespace, context.TypesProcessor);
-                    var message = typesMapper.RemapTypes(jsonResult.Exception.InnerException?.Message ?? "Unsupported POCO");
+                    var message = jsonResult.Exception.InnerException?.Message;
+
+                    if (message == null)
+                    {
+                        message = "Unsupported POCO";
+                    }
+                    else
+                    {
+                        message = context.TypesMapper.RemapTypes(JsonSyntaxElements.Poco.JsonGeneratorNamespace, context.TypesProcessor, message);
+                    }
+
                     var decoratedMessage = DecorateMessage(message, driverVersion, context.Settings);
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }

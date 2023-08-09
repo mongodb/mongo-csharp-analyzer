@@ -23,19 +23,17 @@ internal sealed class TypesMapper
 
     private IDictionary<string, string> _typesRemapping;
 
-    public TypesMapper(string mqlGeneratorNamespace, TypesProcessor typesProcessor)
+    public TypesMapper()
     {
-        AddMappings(mqlGeneratorNamespace, typesProcessor);
+        _typesRemapping = new Dictionary<string, string>();
     }
 
-    public string RemapTypes(string expression)
+    public string RemapTypes(string sourceNamespace, TypesProcessor typesProcessor, string expression)
     {
-        if (_typesRemapping != null)
+        AddMappings(sourceNamespace, typesProcessor);
+        foreach (var pair in _typesRemapping)
         {
-            foreach (var pair in _typesRemapping)
-            {
-                expression = Regex.Replace(expression, pair.Key, pair.Value);
-            }
+            expression = Regex.Replace(expression, pair.Key, pair.Value);
         }
 
         return expression;
@@ -43,11 +41,6 @@ internal sealed class TypesMapper
 
     private void AddMappings(string sourceNamespace, TypesProcessor typesProcessor)
     {
-        if (_typesRemapping == null)
-        {
-            _typesRemapping = new Dictionary<string, string>();
-        }
-
         foreach (var pair in typesProcessor.GeneratedTypeToOriginalTypeMapping)
         {
             _typesRemapping[$"{RegexLookbehind}{sourceNamespace}.{pair.NewName}{RegexLookahead}"] = pair.PreviousName;
