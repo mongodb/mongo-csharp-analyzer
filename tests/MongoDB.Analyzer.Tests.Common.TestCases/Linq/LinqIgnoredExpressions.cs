@@ -110,5 +110,25 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .ApplyPagingIQueryable(1, 0)
                 .Where(u => u.LastName == "Smith");
         }
+
+        [NoDiagnostics]
+        public void Nullables()
+        {
+            VehicleTypeEnum? nullibleVehicleType = VehicleTypeEnum.Bus;
+
+            _ = GetMongoQueryable<Person>()
+                .Where(u => u.Vehicle.VehicleType.Type == nullibleVehicleType)
+                .Select(u => u.Vehicle.LicenceNumber);
+        }
+
+        [NoDiagnostics]
+        public void Nullables_with_query_syntax()
+        {
+            VehicleTypeEnum? nullableVehicleType = VehicleTypeEnum.Bus;
+
+            _ = from person in GetMongoQueryable<Person>()
+                where person.Vehicle.VehicleType.Type == nullableVehicleType
+                select person.Vehicle.LicenceNumber;
+        }
     }
 }
