@@ -34,7 +34,7 @@ public static class PocoDataFiller
     static PocoDataFiller()
     {
         s_jsonData = LoadJsonData();
-        s_jsonDataRegexPattern = new Regex(string.Join("|", s_jsonData.Keys), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        s_jsonDataRegexPattern = new Regex(string.Join("|", s_jsonData.Keys.OrderBy(key => key)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 
     public static void PopulatePoco(object poco) =>
