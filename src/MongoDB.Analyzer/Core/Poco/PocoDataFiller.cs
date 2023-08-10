@@ -23,8 +23,7 @@ public static class PocoDataFiller
     private const string JsonDataResource = "MongoDB.Analyzer.Core.Poco.Data.Data.json";
     private const int MaxDepth = 3;
 
-    private static readonly string[][] s_jsonCategoryData;
-    private static readonly string[] s_jsonCategoryKeys;
+    private static readonly ConcurrentDictionary<string, string[]> s_jsonData;
     private static readonly Regex s_jsonDataRegexPattern;
     private static readonly HashSet<string> s_supportedSystemTypes = new()
     {
@@ -34,8 +33,8 @@ public static class PocoDataFiller
 
     static PocoDataFiller()
     {
-        (s_jsonCategoryKeys, s_jsonCategoryData) = LoadJsonData();
-        s_jsonDataRegexPattern = new Regex(string.Join("|", s_jsonCategoryKeys), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        s_jsonData = LoadJsonData();
+        s_jsonDataRegexPattern = new Regex(string.Join("|", s_jsonData.Keys), RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 
     public static void PopulatePoco(object poco) =>
@@ -90,7 +89,7 @@ public static class PocoDataFiller
         var match = s_jsonDataRegexPattern.Match(memberName);
         if (match.Success)
         {
-            var data = s_jsonCategoryData[Array.BinarySearch(s_jsonCategoryKeys, match.Value)];
+            var data = s_jsonData[match.Value];
             return Convert.ChangeType(data[memberName.Length % data.Length], memberType);
         }
 
@@ -105,7 +104,7 @@ public static class PocoDataFiller
         var match = s_jsonDataRegexPattern.Match(memberName);
         if (match.Success)
         {
-            var data = s_jsonCategoryData[Array.BinarySearch(s_jsonCategoryKeys, match.Value)];
+            var data = s_jsonData[match.Value];
             return data[memberName.Length % data.Length];
         }
 
@@ -130,15 +129,12 @@ public static class PocoDataFiller
     private static bool IsSupportedSystemType(this Type type) =>
         s_supportedSystemTypes.Contains(type.FullName);
 
-    private static (string[] categoryKeys, string[][] categoryValues) LoadJsonData()
+    private static ConcurrentDictionary<string, string[]> LoadJsonData()
     {
         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(JsonDataResource))
         using (var streamReader = new StreamReader(resourceStream))
         {
-            var jsonData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string[]>>(streamReader.ReadToEnd());
-            var categoryKeys = jsonData.Keys.OrderBy(key => key).ToArray();
-            var categoryValues = categoryKeys.Select(categoryKey => jsonData[categoryKey]).ToArray();
-            return (categoryKeys, categoryValues);
+            return JsonConvert.DeserializeObject<ConcurrentDictionary<string, string[]>>(streamReader.ReadToEnd());
         }
     }
 
