@@ -40,6 +40,18 @@ public static class PocoDataFiller
     public static void PopulatePoco(object poco) =>
         SetPropertiesAndFields(poco, MaxDepth);
 
+    private static string GetJsonDataValue(string memberName)
+    {
+        var match = s_jsonDataRegexPattern.Match(memberName);
+        if (match.Success)
+        {
+            var jsonData = s_jsonData[match.Value];
+            return jsonData[memberName.Length % jsonData.Length];
+        }
+
+        return null;
+    }
+
     private static object GetPropertyOrFieldValue(Type memberType, string memberName, int levelsLeft)
     {
         if (memberType.IsPrimitive)
@@ -86,11 +98,10 @@ public static class PocoDataFiller
 
     private static object HandlePrimitive(string memberName, Type memberType)
     {
-        var match = s_jsonDataRegexPattern.Match(memberName);
-        if (match.Success)
+        var jsonDataValue = GetJsonDataValue(memberName);
+        if (jsonDataValue != null)
         {
-            var data = s_jsonData[match.Value];
-            return Convert.ChangeType(data[memberName.Length % data.Length], memberType);
+            return Convert.ChangeType(jsonDataValue, memberType);
         }
 
         return Convert.ChangeType(memberName.Length % 10, memberType);
@@ -99,17 +110,8 @@ public static class PocoDataFiller
     private static Array HandleSingleDimensionalArray(Type arrayType) =>
         Array.CreateInstance(arrayType.GetElementType(), 0);
 
-    private static object HandleString(string memberName)
-    {
-        var match = s_jsonDataRegexPattern.Match(memberName);
-        if (match.Success)
-        {
-            var data = s_jsonData[match.Value];
-            return data[memberName.Length % data.Length];
-        }
-
-        return $"{memberName}_val";
-    }
+    private static object HandleString(string memberName) =>
+        GetJsonDataValue(memberName) ?? $"{memberName}_val";
 
     private static object HandleSystemType(Type systemType, string memberName) =>
         systemType.FullName switch
