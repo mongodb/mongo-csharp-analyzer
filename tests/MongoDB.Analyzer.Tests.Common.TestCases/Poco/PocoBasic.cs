@@ -16,12 +16,12 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoBasic : TestCasesBase
     {
-        [PocoJson("{ \"City\" : \"City_val\", \"Province\" : \"Province_val\", \"ZipCode\" : \"ZipCode_val\" }")]
+        [PocoJson("{ \"City\" : \"Dallas\", \"Province\" : \"Lombardy\", \"ZipCode\" : \"60601\" }")]
         public void Address()
         {
         }
 
-        [PocoJson("{ \"AirportName\" : \"AirportName_val\", \"AirportCode\" : \"AirportCode_val\" }")]
+        [PocoJson("{ \"AirportName\" : \"Jomo Kenyatta International Airport\", \"AirportCode\" : \"LAX\" }")]
         public void Airport()
         {
         }
@@ -31,7 +31,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"CustomerID\" : 0, \"Name\" : \"Name_val\", \"Address\" : \"Address_val\" }")]
+        [PocoJson("{ \"CustomerID\" : 0, \"Name\" : \"Benjamin\", \"Address\" : \"444 Oakwood Avenue, Summitville, OH 43002\" }")]
         public void Customer()
         {
         }

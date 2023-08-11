@@ -22,7 +22,11 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoIgnoredBsonAttributes : TestCasesBase
     {
-        [PocoJson("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"DictionaryField\" : { }, \"Name\" : \"Name_val\", \"InStock\" : true, \"Price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"00:00:00\" }")]
+#if NET472
+        [PocoJson("{ \"ExpiryDate\" : ISODate(\"1000-10-10T00:00:00Z\"), \"DictionaryField\" : { }, \"Name\" : \"Benjamin\", \"InStock\" : false, \"Price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"08:08:08\" }")]
+#else
+        [PocoJson("{ \"ExpiryDate\" : ISODate(\"1000-10-10T04:57:00Z\"), \"DictionaryField\" : { }, \"Name\" : \"Benjamin\", \"InStock\" : false, \"Price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"08:08:08\" }")]
+#endif
         public void UnsupportedBsonAttributes()
         {
         }

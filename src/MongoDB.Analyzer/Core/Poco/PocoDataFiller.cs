@@ -12,29 +12,63 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+
 namespace MongoDB.Analyzer.Core.Poco;
 
 public static class PocoDataFiller
 {
     private const string CollectionNamespace = "System.Collections.Generic";
+    private const string JsonDataResource = "MongoDB.Analyzer.Core.Poco.Data.Data.json";
     private const int MaxDepth = 3;
+
+    private static readonly ConcurrentDictionary<string, string[]> s_jsonData;
+    private static readonly Regex s_jsonDataRegexPattern;
+    private static readonly HashSet<string> s_supportedSystemTypes = new()
+    {
+        "System.DateTime",
+        "System.TimeSpan"
+    };
+
+    static PocoDataFiller()
+    {
+        s_jsonData = LoadJsonData();
+        s_jsonDataRegexPattern = new Regex(string.Join("|", s_jsonData.Keys.OrderBy(key => key)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    }
 
     public static void PopulatePoco(object poco) =>
         SetPropertiesAndFields(poco, MaxDepth);
+
+    private static string GetJsonDataValue(string memberName)
+    {
+        var match = s_jsonDataRegexPattern.Match(memberName);
+        if (match.Success)
+        {
+            var jsonData = s_jsonData[match.Value];
+            return jsonData[memberName.Length % jsonData.Length];
+        }
+
+        return null;
+    }
 
     private static object GetPropertyOrFieldValue(Type memberType, string memberName, int levelsLeft)
     {
         if (memberType.IsPrimitive)
         {
-            return Convert.ChangeType(memberName.Length % 10, memberType);
+            return HandlePrimitive(memberName, memberType);
         }
         else if (memberType.IsString())
         {
-            return $"{memberName}_val";
+            return HandleString(memberName);
         }
         else if (memberType.IsArray)
         {
             return HandleArray(memberType);
+        }
+        else if (memberType.IsSupportedSystemType())
+        {
+            return HandleSystemType(memberType, memberName);
         }
         else if (memberType.IsSupportedCollection())
         {
@@ -62,8 +96,30 @@ public static class PocoDataFiller
     private static Array HandleMultiDimensionalArray(Type arrayType) =>
         Array.CreateInstance(arrayType.GetElementType(), Enumerable.Repeat(0, arrayType.GetArrayRank()).ToArray());
 
+    private static object HandlePrimitive(string memberName, Type memberType)
+    {
+        var jsonDataValue = GetJsonDataValue(memberName);
+        if (jsonDataValue != null)
+        {
+            return Convert.ChangeType(jsonDataValue, memberType);
+        }
+
+        return Convert.ChangeType(memberName.Length % 10, memberType);
+    }
+
     private static Array HandleSingleDimensionalArray(Type arrayType) =>
         Array.CreateInstance(arrayType.GetElementType(), 0);
+
+    private static object HandleString(string memberName) =>
+        GetJsonDataValue(memberName) ?? $"{memberName}_val";
+
+    private static object HandleSystemType(Type systemType, string memberName) =>
+        systemType.FullName switch
+        {
+            "System.DateTime" => new DateTime(memberName.Length * 100, memberName.Length % 12, memberName.Length % 30),
+            "System.TimeSpan" => new TimeSpan(memberName.Length % 24, memberName.Length % 60, memberName.Length % 60),
+            _ => throw new ArgumentOutOfRangeException(nameof(systemType), systemType, "Unsupported system type")
+        };
 
     private static bool IsString(this Type type) =>
         type == typeof(string);
@@ -71,6 +127,18 @@ public static class PocoDataFiller
     private static bool IsSupportedCollection(this Type type) =>
         CollectionNamespace == type.Namespace &&
         type.GenericTypeArguments.Length == 1;
+
+    private static bool IsSupportedSystemType(this Type type) =>
+        s_supportedSystemTypes.Contains(type.FullName);
+
+    private static ConcurrentDictionary<string, string[]> LoadJsonData()
+    {
+        using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(JsonDataResource))
+        using (var streamReader = new StreamReader(resourceStream))
+        {
+            return JsonConvert.DeserializeObject<ConcurrentDictionary<string, string[]>>(streamReader.ReadToEnd());
+        }
+    }
 
     private static void SetPropertiesAndFields(object poco, int levelsLeft)
     {
