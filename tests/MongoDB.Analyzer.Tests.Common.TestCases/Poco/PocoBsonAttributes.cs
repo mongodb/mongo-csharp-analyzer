@@ -26,12 +26,16 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"ExpiryDate\" : ISODate(\"0001-01-01T00:00:00Z\"), \"Name\" : \"Name_val\", \"InStock\" : true, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"00:00:00\" }")]
+#if NET472
+        [PocoJson("{ \"ExpiryDate\" : ISODate(\"1000-10-10T00:00:00Z\"), \"Name\" : \"Benjamin\", \"InStock\" : false, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"08:08:08\" }")]
+#else
+        [PocoJson("{ \"ExpiryDate\" : ISODate(\"1000-10-10T04:57:00Z\"), \"Name\" : \"Benjamin\", \"InStock\" : false, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"08:08:08\" }")]
+#endif
         public void Clothing()
         {
         }
 
-        [PocoJson("{ \"VegetableCost\" : 3.0 }")]
+        [PocoJson("{ \"VegetableCost\" : 0.0 }")]
         public void Vegetable()
         {
         }

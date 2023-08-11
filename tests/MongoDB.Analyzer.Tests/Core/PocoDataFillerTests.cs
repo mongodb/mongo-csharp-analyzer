@@ -27,9 +27,9 @@ public sealed class PocoDataFillerTests
     {
         var poco = new Address();
         PocoDataFiller.PopulatePoco(poco);
-        Assert.AreEqual(poco.City, "City_val");
-        Assert.AreEqual(poco.Province, "Province_val");
-        Assert.AreEqual(poco.ZipCode, "ZipCode_val");
+        Assert.AreEqual(poco.City, "Dallas");
+        Assert.AreEqual(poco.Province, "Lombardy");
+        Assert.AreEqual(poco.ZipCode, "60601");
     }
 
     [DataTestMethod]
@@ -37,16 +37,16 @@ public sealed class PocoDataFillerTests
     {
         var poco = new Person();
         PocoDataFiller.PopulatePoco(poco);
-        Assert.AreEqual(poco.Name, "Name_val");
-        Assert.AreEqual(poco.LastName, "LastName_val");
-        Assert.AreEqual(poco.Address.City, "City_val");
-        Assert.AreEqual(poco.Address.Province, "Province_val");
-        Assert.AreEqual(poco.Address.ZipCode, "ZipCode_val");
-        Assert.AreEqual(poco.Vehicle.LicenceNumber, "LicenceNumber_val");
+        Assert.AreEqual(poco.Name, "Benjamin");
+        Assert.AreEqual(poco.LastName, "Martin");
+        Assert.AreEqual(poco.Address.City, "Dallas");
+        Assert.AreEqual(poco.Address.Province, "Lombardy");
+        Assert.AreEqual(poco.Address.ZipCode, "60601");
+        Assert.AreEqual(poco.Vehicle.LicenceNumber, "N48-OPQ");
         Assert.AreEqual(poco.Vehicle.VehicleType.Category, "Category_val");
         Assert.AreEqual(poco.Vehicle.VehicleType.MPG, 3.0);
         Assert.AreEqual(poco.Vehicle.VehicleType.Type, VehicleTypeEnum.Bus);
-        Assert.AreEqual(poco.Vehicle.VehicleType.VehicleMake.Name, "Name_val");
+        Assert.AreEqual(poco.Vehicle.VehicleType.VehicleMake.Name, "Benjamin");
     }
 
     [DataTestMethod]
@@ -111,9 +111,9 @@ public sealed class PocoDataFillerTests
     {
         var poco = new Fruit();
         PocoDataFiller.PopulatePoco(poco);
-        Assert.AreEqual(poco.Name, "Name_val");
+        Assert.AreEqual(poco.Name, "Benjamin");
         Assert.AreEqual(poco.Weight, 6.0);
-        Assert.AreEqual(poco.Color, "Color_val");
+        Assert.AreEqual(poco.Color, "Gray");
         Assert.AreEqual(poco.Quantity, 8);
         Assert.AreEqual(poco.TotalCost, 9.0);
         Assert.AreEqual(poco.Volume, 6.0);
@@ -163,5 +163,23 @@ public sealed class PocoDataFillerTests
         Assert.AreEqual(poco.Right.Right.Left.Right, null);
         Assert.AreEqual(poco.Right.Right.Right.Left, null);
         Assert.AreEqual(poco.Right.Right.Right.Right, null);
+    }
+
+    [DataTestMethod]
+    public void TestStringAndPrimitiveDataFaking()
+    {
+        var poco = new Order();
+        PocoDataFiller.PopulatePoco(poco);
+
+        Assert.AreEqual(poco.ConfirmationNumber, 987654321);
+        Assert.AreEqual(poco.Customer.CustomerId, 678234);
+        Assert.AreEqual(poco.Customer.DateOfBirth, "01/04/2024");
+        Assert.AreEqual(poco.Customer.Email, "curiousmind42@email.net");
+        Assert.AreEqual(poco.Customer.LastName, "Martin");
+        Assert.AreEqual(poco.Customer.Name, "Benjamin");
+
+        Assert.AreEqual(poco.Date, "06/30/2023");
+        Assert.AreEqual(poco.OrderNumber, 6783456);
+        Assert.AreEqual(poco.TrackingNumber, 78901234);
     }
 }
