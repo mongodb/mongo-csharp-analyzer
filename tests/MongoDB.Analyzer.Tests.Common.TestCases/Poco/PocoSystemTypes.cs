@@ -18,11 +18,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoSystemTypes : TestCasesBase
     {
-#if NET472
         [PocoJson("{ \"DateTimeField\" : ISODate(\"1300-01-13T00:00:00Z\"), \"DateTimeKindField\" : 0, \"DateTimeOffsetField\" : [NumberLong(0), 0], \"TimeSpanField\" : \"13:13:13\", \"TypeField\" : null }")]
-#else
-        [PocoJson("{ \"DateTimeField\" : ISODate(\"1300-01-13T04:57:00Z\"), \"DateTimeKindField\" : 0, \"DateTimeOffsetField\" : [NumberLong(0), 0], \"TimeSpanField\" : \"13:13:13\", \"TypeField\" : null }")]
-#endif
         public void SystemTypeContainer()
         {
         }
