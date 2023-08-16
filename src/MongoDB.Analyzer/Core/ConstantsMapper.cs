@@ -28,8 +28,8 @@ internal sealed class ConstantsMapper
 
     private IDictionary<string, LiteralExpressionSyntax> _originalToSyntax;
     private IDictionary<string, string> _mqlRemapping;
-    private HashSet<long> _registredNumericConstants;
-    private HashSet<string> _registredStringConstants;
+    private HashSet<long> _registeredNumericConstants;
+    private HashSet<string> _registeredStringConstants;
 
     private int _nextConstant = 0;
     private int _overflowConstantInt8;
@@ -40,10 +40,10 @@ internal sealed class ConstantsMapper
     
     public void CopyRegisteredConstants(ConstantsMapper mapper)
     {
-        _registredNumericConstants ??= new HashSet<long>();
-        _registredStringConstants ??= new HashSet<string>();
-        _registredNumericConstants.AddRange(mapper._registredNumericConstants);
-        _registredStringConstants.AddRange(mapper._registredStringConstants);
+        _registeredNumericConstants ??= new HashSet<long>();
+        _registeredStringConstants ??= new HashSet<string>();
+        _registeredNumericConstants.AddRange(mapper._registeredNumericConstants);
+        _registeredStringConstants.AddRange(mapper._registeredStringConstants);
     }
 
     public LiteralExpressionSyntax GetExpressionForConstant(SpecialType specialType, object constant)
@@ -156,7 +156,7 @@ internal sealed class ConstantsMapper
             throw new InvalidOperationException("Literals registration is finalized.");
         }
 
-        _overflowConstantInt8 = _registredNumericConstants?.Contains(sbyte.MaxValue) == true ? GetNextConstantInt8(sbyte.MaxValue) : sbyte.MaxValue;
+        _overflowConstantInt8 = _registeredNumericConstants?.Contains(sbyte.MaxValue) == true ? GetNextConstantInt8(sbyte.MaxValue) : sbyte.MaxValue;
         _allConstantsRegistered = true;
     }
 
@@ -234,14 +234,14 @@ internal sealed class ConstantsMapper
 
     private void RegisterNumeric(long value)
     {
-        _registredNumericConstants ??= new HashSet<long>();
-        _registredNumericConstants.Add(value);
+        _registeredNumericConstants ??= new HashSet<long>();
+        _registeredNumericConstants.Add(value);
     }
 
     private void RegisterString(string value)
     {
-        _registredStringConstants ??= new HashSet<string>();
-        _registredStringConstants.Add(value);
+        _registeredStringConstants ??= new HashSet<string>();
+        _registeredStringConstants.Add(value);
     }
 
     private void AssertLiteralsRegistred()
@@ -254,9 +254,9 @@ internal sealed class ConstantsMapper
 
     private int GetNextConstantInt()
     {
-        if (_registredNumericConstants != null)
+        if (_registeredNumericConstants != null)
         {
-            while (_registredNumericConstants.Contains(_nextConstant) && _nextConstant >= 0)
+            while (_registeredNumericConstants.Contains(_nextConstant) && _nextConstant >= 0)
             {
                 _nextConstant++;
             }
@@ -282,9 +282,9 @@ internal sealed class ConstantsMapper
     {
         var nextIntConstant = GetNextConstantInt();
 
-        if (_registredStringConstants != null)
+        if (_registeredStringConstants != null)
         {
-            while (_registredStringConstants.Contains($"{StringPrefix}{nextIntConstant}") && _nextConstant >= 0)
+            while (_registeredStringConstants.Contains($"{StringPrefix}{nextIntConstant}") && _nextConstant >= 0)
             {
                 nextIntConstant = GetNextConstantInt();
             }

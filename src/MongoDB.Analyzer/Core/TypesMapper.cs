@@ -21,30 +21,29 @@ internal sealed class TypesMapper
     private const string RegexLookahead = "(?![\\w])";
     private const string RegexLookbehind = "(?<![\\w\\.])";
 
-    private IDictionary<string, string> _typesRemapping;
+    private Lazy<IDictionary<string, string>> _typesRemapping;
 
-    public TypesMapper()
+    public TypesMapper(string @namespace, IEnumerable<(string NewName, string PreviousName)> mapping)
     {
-        _typesRemapping = new Dictionary<string, string>();
+        _typesRemapping = new Lazy<IDictionary<string, string>>(() =>
+            {
+                var result = new Dictionary<string, string>();
+                foreach (var pair in mapping)
+                {
+                    result[$"{RegexLookbehind}{@namespace}.{pair.NewName}{RegexLookahead}"] = pair.PreviousName;
+                    result[$"{RegexLookbehind}{pair.NewName}{RegexLookahead}"] = pair.PreviousName;
+                }
+                return result;
+            });
     }
 
-    public string RemapTypes(string sourceNamespace, TypesProcessor typesProcessor, string expression)
+    public string RemapTypes(string expression)
     {
-        AddMappings(sourceNamespace, typesProcessor);
-        foreach (var pair in _typesRemapping)
+        foreach (var pair in _typesRemapping.Value)
         {
             expression = Regex.Replace(expression, pair.Key, pair.Value);
         }
 
         return expression;
-    }
-
-    private void AddMappings(string sourceNamespace, TypesProcessor typesProcessor)
-    {
-        foreach (var pair in typesProcessor.GeneratedTypeToOriginalTypeMapping)
-        {
-            _typesRemapping[$"{RegexLookbehind}{sourceNamespace}.{pair.NewName}{RegexLookahead}"] = pair.PreviousName;
-            _typesRemapping[$"{RegexLookbehind}{pair.NewName}{RegexLookahead}"] = pair.PreviousName;
-        }
     }
 }

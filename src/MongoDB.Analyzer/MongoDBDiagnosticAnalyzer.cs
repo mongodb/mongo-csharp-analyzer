@@ -44,8 +44,7 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
         using var logger = SettingsHelper.CreateLogger(settings, correlationId);
 
         var typesProcessor = new TypesProcessor();
-        var typesMapper = new TypesMapper();
-        var mongoAnalyzerContext = new MongoAnalysisContext(context, settings, typesProcessor, typesMapper, logger, telemetryService);
+        var mongoAnalyzerContext = new MongoAnalysisContext(context, settings, typesProcessor, logger, telemetryService);
         var flushTelemetry = false;
 
         try

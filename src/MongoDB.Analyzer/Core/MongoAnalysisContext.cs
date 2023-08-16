@@ -18,7 +18,6 @@ internal record MongoAnalysisContext(
     SemanticModelAnalysisContext SemanticModelAnalysisContext,
     MongoDBAnalyzerSettings Settings,
     TypesProcessor TypesProcessor,
-    TypesMapper TypesMapper,
     Logger Logger,
     ITelemetryService Telemetry)
 {
