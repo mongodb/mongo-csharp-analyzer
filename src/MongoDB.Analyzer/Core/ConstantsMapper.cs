@@ -48,7 +48,7 @@ internal sealed class ConstantsMapper
 
     public LiteralExpressionSyntax GetExpressionForConstant(SpecialType specialType, object constant)
     {
-        AssertLiteralsRegistred();
+        AssertLiteralsRegistered();
 
         if (constant == null)
         {
@@ -67,7 +67,7 @@ internal sealed class ConstantsMapper
 
     public LiteralExpressionSyntax GetExpressionForEnum(SpecialType specialType, object constant)
     {
-        AssertLiteralsRegistred();
+        AssertLiteralsRegistered();
 
         if (constant == null)
         {
@@ -86,7 +86,7 @@ internal sealed class ConstantsMapper
 
     public LiteralExpressionSyntax GetExpressionForLiteral(LiteralExpressionSyntax literalExpressionSyntax)
     {
-        AssertLiteralsRegistred();
+        AssertLiteralsRegistered();
 
         if (literalExpressionSyntax == null)
         {
@@ -110,7 +110,7 @@ internal sealed class ConstantsMapper
 
     public LiteralExpressionSyntax GetExpressionByType(SpecialType specialType, string originalValue)
     {
-        AssertLiteralsRegistred();
+        AssertLiteralsRegistered();
 
         if (_originalToSyntax.TryGetValueSafe(originalValue, out var expressionSyntax))
         {
@@ -244,7 +244,7 @@ internal sealed class ConstantsMapper
         _registeredStringConstants.Add(value);
     }
 
-    private void AssertLiteralsRegistred()
+    private void AssertLiteralsRegistered()
     {
         if (!_allConstantsRegistered)
         {

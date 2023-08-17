@@ -21,27 +21,22 @@ internal sealed class TypesMapper
     private const string RegexLookahead = "(?![\\w])";
     private const string RegexLookbehind = "(?<![\\w\\.])";
 
-    private Lazy<IDictionary<string, string>> _typesRemapping;
+    private Lazy<(Regex NewNameMatcher, string PreviousName)[]> _typesRemapping;
 
     public TypesMapper(string @namespace, IEnumerable<(string NewName, string PreviousName)> mapping)
     {
-        _typesRemapping = new Lazy<IDictionary<string, string>>(() =>
-            {
-                var result = new Dictionary<string, string>();
-                foreach (var pair in mapping)
-                {
-                    result[$"{RegexLookbehind}{@namespace}.{pair.NewName}{RegexLookahead}"] = pair.PreviousName;
-                    result[$"{RegexLookbehind}{pair.NewName}{RegexLookahead}"] = pair.PreviousName;
-                }
-                return result;
-            });
+        _typesRemapping = new(() => mapping
+            .Select(pair => (GetRegex(pair.NewName), pair.PreviousName))
+            .ToArray());
+
+        Regex GetRegex(string name) => new($"{RegexLookbehind}{@namespace}.{name}{RegexLookahead}", RegexOptions.Compiled);
     }
 
     public string RemapTypes(string expression)
     {
-        foreach (var pair in _typesRemapping.Value)
+        foreach (var (newNameMatcher, previousName) in _typesRemapping.Value)
         {
-            expression = Regex.Replace(expression, pair.Key, pair.Value);
+            expression = newNameMatcher.Replace(expression, previousName);
         }
 
         return expression;

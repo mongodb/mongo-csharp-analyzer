@@ -113,13 +113,18 @@ public static class PocoDataFiller
     private static object HandleString(string memberName) =>
         GetJsonDataValue(memberName) ?? $"{memberName}_val";
 
-    private static object HandleSystemType(Type systemType, string memberName) =>
-        systemType.FullName switch
+    private static object HandleSystemType(Type systemType, string memberName)
+    {
+        return systemType.FullName switch
         {
-            "System.DateTime" => new DateTime(1900 + memberName.Length % 150, memberName.Length % 12, memberName.Length % 28, 0, 0, 0, 0, DateTimeKind.Utc),
-            "System.TimeSpan" => new TimeSpan(memberName.Length % 24, memberName.Length % 60, memberName.Length % 60),
+            "System.DateTime" => new DateTime(1900 + DateVal(150), DateVal(12), DateVal(28), 0, 0, 0, 0, DateTimeKind.Utc),
+            "System.TimeSpan" => new TimeSpan(TimeVal(23), TimeVal(59), TimeVal(59)),
             _ => throw new ArgumentOutOfRangeException(nameof(systemType), systemType, "Unsupported system type")
         };
+
+        int DateVal(int max) => 1 + memberName.Length % max;
+        int TimeVal(int max) => memberName.Length % max;
+    }
 
     private static bool IsString(this Type type) =>
         type == typeof(string);
