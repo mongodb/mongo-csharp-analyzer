@@ -17,10 +17,11 @@ namespace MongoDB.Analyzer.Core;
 internal sealed class TypesProcessor
 {
     private readonly Dictionary<string, (string NewName, MemberDeclarationSyntax NewDeclaration)> _processedTypes;
-
     private int _nextTypeId = 0;
 
     public MemberDeclarationSyntax[] TypesDeclarations => _processedTypes.Values.Select(p => p.NewDeclaration).ToArray();
+
+    public IEnumerable<(string NewName, string PreviousName)> GeneratedTypeToOriginalTypeMapping => _processedTypes.Select(pair => (pair.Value.NewName, pair.Key));
 
     public TypesProcessor()
     {

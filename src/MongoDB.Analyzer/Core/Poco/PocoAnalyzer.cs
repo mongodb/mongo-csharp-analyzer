@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
 using MongoDB.Analyzer.Core.Utilities;
 
 namespace MongoDB.Analyzer.Core.Poco;
@@ -66,6 +67,9 @@ internal static class PocoAnalyzer
         var driverVersion = compilationResult.PocoTestCodeExecutor.DriverVersion;
         var settings = context.Settings;
         int jsonCount = 0, internalExceptionsCount = 0, driverExceptionsCount = 0;
+        var typesMapper = new TypesMapper(
+            JsonSyntaxElements.Poco.JsonGeneratorNamespace,
+            context.TypesProcessor.GeneratedTypeToOriginalTypeMapping);
 
         foreach (var analysisContext in pocoAnalysis.AnalysisNodeContexts)
         {
@@ -74,17 +78,20 @@ internal static class PocoAnalyzer
 
             if (jsonResult.Json != null)
             {
-                var decoratedMessage = DecorateMessage(jsonResult.Json, driverVersion, context.Settings);
+                var decoratedMessage = AnalysisUtilities.DecorateMessage(jsonResult.Json, driverVersion, context.Settings);
                 semanticContext.ReportDiagnostics(PocoDiagnosticRules.DiagnosticRulePoco2Json, decoratedMessage, locations);
                 jsonCount++;
             }
             else if (jsonResult.Exception != null)
             {
                 var isDriverOrBsonException = IsDriverOrBsonException(jsonResult);
+
                 if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = PocoDiagnosticRules.DiagnosticRuleNotSupportedPoco;
-                    var decoratedMessage = DecorateMessage(jsonResult.Exception.InnerException?.Message ?? "Unsupported Poco expression", driverVersion, context.Settings);
+                    var message = AnalysisUtilities.GetExceptionMessage(jsonResult.Exception, typesMapper, AnalysisType.Poco);
+                    var decoratedMessage = AnalysisUtilities.DecorateMessage(message, driverVersion, context.Settings);
+
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 
@@ -109,7 +116,4 @@ internal static class PocoAnalyzer
         return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
             source.Contains("MongoDB.Bson"));
     }
-
-    private static string DecorateMessage(string message, string driverVersion, MongoDBAnalyzerSettings settings) =>
-        settings.OutputDriverVersion ? $"{message}_v{driverVersion}" : message;
 }

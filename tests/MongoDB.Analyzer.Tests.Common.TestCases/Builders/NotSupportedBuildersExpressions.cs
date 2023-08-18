@@ -50,13 +50,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         }
 
 #if NET472
-        [NotSupportedBuilders("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Helpers.Builders.GenType_Class_13.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
-        [NotSupportedBuilders("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Helpers.Builders.GenType_Class_14.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
-        [NotSupportedBuilders("Class System.TimeSpan cannot be assigned to Class MongoDB.Analyzer.Helpers.Builders.GenType_Class_15.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
+        [NotSupportedBuilders("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.GoldenApple.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
+        [NotSupportedBuilders("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.FujiApple.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
+        [NotSupportedBuilders("Class System.TimeSpan cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.YellowApple.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
 #else
-        [NotSupportedBuilders("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Helpers.Builders.GenType_Class_13.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
-        [NotSupportedBuilders("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Helpers.Builders.GenType_Class_14.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
-        [NotSupportedBuilders("Class System.TimeSpan cannot be assigned to Class MongoDB.Analyzer.Helpers.Builders.GenType_Class_15.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
+        [NotSupportedBuilders("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.GoldenApple.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
+        [NotSupportedBuilders("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.FujiApple.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
+        [NotSupportedBuilders("Class System.TimeSpan cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.YellowApple.  Ensure that known types are derived from the mapped class. (Parameter 'type')")]
 #endif
         public void Unsupported_type_for_bson_attribute_argument()
         {

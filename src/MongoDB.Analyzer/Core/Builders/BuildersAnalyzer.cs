@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
 using MongoDB.Analyzer.Core.Utilities;
 
 namespace MongoDB.Analyzer.Core.Builders;
@@ -67,6 +68,9 @@ internal static class BuildersAnalyzer
         var driverVersion = compilationResult.BuildersTestCodeExecutor.DriverVersion;
         var settings = context.Settings;
         int mqlCount = 0, internalExceptionsCount = 0, driverExceptionsCount = 0;
+        var typesMapper = new TypesMapper(
+            MqlGeneratorSyntaxElements.Builders.MqlGeneratorNamespace,
+            context.TypesProcessor.GeneratedTypeToOriginalTypeMapping);
 
         foreach (var analysisContext in buildersAnalysis.AnalysisNodeContexts)
         {
@@ -77,7 +81,7 @@ internal static class BuildersAnalyzer
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
                 var diagnosticDescriptor = BuidersDiagnosticsRules.DiagnosticRuleBuilder2MQL;
-                var decoratedMessage = DecorateMessage(mql, driverVersion, context.Settings);
+                var decoratedMessage = AnalysisUtilities.DecorateMessage(mql, driverVersion, context.Settings);
                 semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
             }
@@ -88,7 +92,9 @@ internal static class BuildersAnalyzer
                 if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = BuidersDiagnosticsRules.DiagnosticRuleNotSupportedBuilderExpression;
-                    var decoratedMessage = DecorateMessage(mqlResult.Exception.InnerException?.Message ?? "Unsupported builders expression", driverVersion, context.Settings);
+                    var message = AnalysisUtilities.GetExceptionMessage(mqlResult.Exception, typesMapper, AnalysisType.Builders);
+                    var decoratedMessage = AnalysisUtilities.DecorateMessage(message, driverVersion, context.Settings);
+
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 
@@ -113,7 +119,4 @@ internal static class BuildersAnalyzer
         return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
             source.Contains("MongoDB.Bson"));
     }
-
-    private static string DecorateMessage(string message, string driverVersion, MongoDBAnalyzerSettings settings) =>
-        settings.OutputDriverVersion ? $"{message}_v{driverVersion}" : message;
 }

@@ -16,6 +16,16 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class AnalysisUtilities
 {
+    public static string DecorateMessage(string message, string driverVersion, MongoDBAnalyzerSettings settings) =>
+        settings.OutputDriverVersion ? $"{message}_v{driverVersion}" : message;
+
+    public static string GetExceptionMessage(Exception exception, TypesMapper typesMapper, AnalysisType analysisType) =>
+        exception.InnerException?.Message switch
+        {
+            null => $"Unsupported {analysisType.ToString().ToUpper()} expression",
+            _ => typesMapper.RemapTypes(exception.InnerException?.Message)
+        };
+
     public static AnalysisTelemetry GetTelemetry(ExpressionsAnalysis expressionsAnalysis, AnalysisStats analysisStats, Stopwatch sw)
     {
         var expressionsCount = (expressionsAnalysis?.InvalidExpressionNodes?.Length ?? 0) + (expressionsAnalysis?.AnalysisNodeContexts?.Length ?? 0);
