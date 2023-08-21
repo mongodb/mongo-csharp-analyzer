@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Options;
@@ -23,8 +24,9 @@ namespace MongoDB.Analyzer.Helpers.Builders
     {
 #pragma warning disable CS0169 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning disable IDE0051
-        private static readonly BsonType s_dummyRef1;
-        private static readonly TimeSpanUnits s_dummyRef2;
+        private static readonly Int32 s_dummyRef1;
+        private static readonly BsonType s_dummyRef2;
+        private static readonly TimeSpanUnits s_dummyRef3;
 #pragma warning restore IDE0051 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning restore CS0169
 

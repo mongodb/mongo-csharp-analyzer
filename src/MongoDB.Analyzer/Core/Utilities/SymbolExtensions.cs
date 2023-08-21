@@ -23,6 +23,7 @@ internal static class SymbolExtensions
     private const string NamespaceMongoDBLinq = "MongoDB.Driver.Linq";
     private const string NamespaceSystem = "System";
     private const string NamespaceSystemLinq = "System.Linq";
+    private const string NullableDefinition = "System.Nullable<T>";
 
     private static readonly HashSet<string> s_supportedBsonAttributes = new()
     {
@@ -195,6 +196,9 @@ internal static class SymbolExtensions
         typeSymbol.TypeKind == TypeKind.Class &&
         !typeSymbol.IsAnonymousType;
 
+    public static bool IsSupportedNullable(this ITypeSymbol typeSymbol) =>
+        typeSymbol.OriginalDefinition.ToDisplayString() == NullableDefinition;
+    
     public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol, string fullTypeName) =>
         (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;

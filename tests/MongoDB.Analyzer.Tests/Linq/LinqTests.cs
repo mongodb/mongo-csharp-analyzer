@@ -63,6 +63,10 @@ public sealed class LinqTests : DiagnosticsTestCasesRunner
     public Task MongoQueryableSource(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(LinqNullables))]
+    public Task Nullables(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(LinqSuffix))]
     public Task Suffixes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 

@@ -406,17 +406,19 @@ internal static class LinqExpressionProcessor
         string fullName = null)
     {
         SyntaxNode replacementNode = null;
+        var isNullable = typeSymbol.IsSupportedNullable();
+        typeSymbol = isNullable ? ((INamedTypeSymbol)typeSymbol).TypeArguments.FirstOrDefault() : typeSymbol;
 
         if (typeSymbol.TypeKind == TypeKind.Enum)
         {
             var underlyingEnumType = (typeSymbol as INamedTypeSymbol).EnumUnderlyingType.SpecialType;
-
             var literalSyntax = rewriteContext.ConstantsMapper.GetExpressionByType(underlyingEnumType, fullName);
             replacementNode = GetEnumCastNode(typeSymbol, literalSyntax.Token.Value, rewriteContext.TypesProcessor);
         }
         else if (typeSymbol.SpecialType != SpecialType.None)
         {
             replacementNode = rewriteContext.ConstantsMapper.GetExpressionByType(typeSymbol.SpecialType, fullName);
+            replacementNode = isNullable ? SyntaxFactory.CastExpression(SyntaxFactoryUtilities.GetNullableType(typeSymbol.Name), replacementNode as ExpressionSyntax) : replacementNode;
         }
 
         return replacementNode;

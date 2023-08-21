@@ -61,6 +61,9 @@ internal static class SyntaxFactoryUtilities
             _ => throw new NotSupportedException($"Not supported type {value?.GetType()}")
         };
 
+    public static TypeSyntax GetNullableType(string typeName) =>
+        SyntaxFactory.NullableType(SyntaxFactory.ParseTypeName(typeName));
+
     public static SpecialType GetSpecialType(object value) =>
         value switch
         {

@@ -38,6 +38,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\Fruit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\Flower.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\CustomBsonSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataModel\Nullable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\PrimitiveTypeHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JsonAnalyzerVerbosity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DataModel\Order.cs" />

@@ -47,5 +47,12 @@ namespace MongoDB.Analyzer.Tests.Common.DataModel
         public static VehicleTypeEnum PropEnum { get; } = VehicleTypeEnum.Bus;
 
         public static Person Person { get; }
+        public static readonly byte? ReadonlyByteNullable = 1;
+        public static readonly int? ReadonlyIntNullable = 2;
+        public static readonly short? ReadonlyShortNullable = short.MaxValue;
+        public static readonly long? ReadonlyLongNullable = long.MaxValue;
+        public static readonly double? ReadonlyDoubleNullable = 234.432;
+        public static readonly VehicleTypeEnum? ReadonlyEnumNullable = VehicleTypeEnum.Bus;
+        public static readonly string? ReadonlyStringNullable = "BBB";
     }
 }
