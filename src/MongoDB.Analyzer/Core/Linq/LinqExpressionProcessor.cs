@@ -299,16 +299,10 @@ internal static class LinqExpressionProcessor
         }
 
         SyntaxNode nodeToReplace = identifierNode;
-        var identifierName = identifierNode.Identifier.Text;
 
         if (typeInfo.Type.TypeKind == TypeKind.Enum)
         {
-            if (nodeToReplace.Parent is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
-            {
-                nodeToReplace = memberAccessExpressionSyntax;
-                identifierName = memberAccessExpressionSyntax.Name.Identifier.Text;
-            }
-            else
+            if (nodeToReplace.Parent is not MemberAccessExpressionSyntax && nodeToReplace.Parent is not TypeArgumentListSyntax)
             {
                 return RewriteResult.Ignore;
             }
@@ -321,12 +315,7 @@ internal static class LinqExpressionProcessor
             }
         }
 
-        SyntaxNode newNode = identifierNode.Parent.Kind() switch
-        {
-            SyntaxKind.SimpleMemberAccessExpression => SyntaxFactoryUtilities.SimpleMemberAccess(remmapedType, identifierName),
-            _ => SyntaxFactory.IdentifierName(remmapedType)
-        };
-
+        SyntaxNode newNode = SyntaxFactory.IdentifierName(remmapedType);
         return new RewriteResult(nodeToReplace, newNode);
     }
 
