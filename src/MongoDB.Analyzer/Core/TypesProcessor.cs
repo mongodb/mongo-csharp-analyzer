@@ -283,10 +283,9 @@ internal sealed class TypesProcessor
         }
         else
         {
-            var isNullable = typeSymbol.IsSupportedNullable();
-            typeSymbol = isNullable ? ((INamedTypeSymbol)typeSymbol).TypeArguments.FirstOrDefault() : typeSymbol;
+            var (isNullable, underlingTypeSymbol) = typeSymbol.DiscardNullable();
 
-            var newTypeName = ProcessTypeSymbol(typeSymbol);
+            var newTypeName = ProcessTypeSymbol(underlingTypeSymbol);
             result = isNullable ? SyntaxFactoryUtilities.GetNullableType(newTypeName) :
                 SyntaxFactory.ParseTypeName(newTypeName);
         }

@@ -23,7 +23,6 @@ internal static class SymbolExtensions
     private const string NamespaceMongoDBLinq = "MongoDB.Driver.Linq";
     private const string NamespaceSystem = "System";
     private const string NamespaceSystemLinq = "System.Linq";
-    private const string NullableDefinition = "System.Nullable<T>";
 
     private static readonly HashSet<string> s_supportedBsonAttributes = new()
     {
@@ -69,6 +68,13 @@ internal static class SymbolExtensions
         "System.TimeSpan",
         "System.Type"
     };
+
+    public static (bool IsNullable, ITypeSymbol underlyingType) DiscardNullable(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.OriginalDefinition.SpecialType switch
+        {
+            SpecialType.System_Nullable_T => (true, ((INamedTypeSymbol)typeSymbol).TypeArguments.SingleOrDefault()),
+            _ => (false, typeSymbol)
+        };
 
     public static SyntaxToken[] GetFieldModifiers(this IFieldSymbol fieldSymbol) =>
         fieldSymbol.IsReadOnly ? GetReadOnlyPublicFieldModifiers() : GetPublicFieldModifiers();
@@ -195,9 +201,6 @@ internal static class SymbolExtensions
     public static bool IsSupportedMongoCollectionType(this ITypeSymbol typeSymbol) =>
         typeSymbol.TypeKind == TypeKind.Class &&
         !typeSymbol.IsAnonymousType;
-
-    public static bool IsSupportedNullable(this ITypeSymbol typeSymbol) =>
-        typeSymbol.OriginalDefinition.ToDisplayString() == NullableDefinition;
     
     public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol, string fullTypeName) =>
         (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&

@@ -24,8 +24,8 @@ namespace MongoDB.Analyzer.Helpers.Linq
     {
 #pragma warning disable CS0169 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning disable IDE0051
-        private static readonly BsonType s_dummyRef1;
-        private static readonly TimeSpanUnits s_dummyRef2;
+        private static readonly BsonType s_dummyRef1; // using MongoDB.Bson
+        private static readonly TimeSpanUnits s_dummyRef2; // using MongoDB.Bson.Serialization.Option
 #pragma warning restore IDE0051 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning restore CS0169
 

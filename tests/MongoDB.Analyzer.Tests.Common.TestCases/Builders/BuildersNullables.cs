@@ -94,50 +94,50 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : 1 }, { \"TicksSinceBirth\" : NumberLong(2) }, { \"Name\" : \"Name\" }, { \"Address.City\" : \"City\" }] }")]
         public void Nullable_primitive_types()
         {
-            _ = Builders<NullableHolder?>.Filter.Eq(n => n.ByteNullable, StaticHolder.ReadonlyByteNullable) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.DoubleNullable, StaticHolder.ReadonlyDoubleNullable) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.IntNullable, StaticHolder.ReadonlyIntNullable) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.LongNullable, StaticHolder.ReadonlyLongNullable) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.ShortNullable, StaticHolder.ReadonlyShortNullable) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.StringNullable, StaticHolder.ReadonlyStringNullable);
+            _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, StaticHolder.ReadonlyByteNullable) |
+                Builders<NullableHolder>.Filter.Eq(n => n.DoubleNullable, StaticHolder.ReadonlyDoubleNullable) |
+                Builders<NullableHolder>.Filter.Eq(n => n.IntNullable, StaticHolder.ReadonlyIntNullable) |
+                Builders<NullableHolder>.Filter.Eq(n => n.LongNullable, StaticHolder.ReadonlyLongNullable) |
+                Builders<NullableHolder>.Filter.Eq(n => n.ShortNullable, StaticHolder.ReadonlyShortNullable) |
+                Builders<NullableHolder>.Filter.Eq(n => n.StringNullable, StaticHolder.ReadonlyStringNullable);
 
-            _ = Builders<NullableHolder?>.Filter.Eq(n => n.ByteNullable, null) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.DoubleNullable, null) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.IntNullable, null) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.LongNullable, null) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.ShortNullable, null) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.StringNullable, null);
+            _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, null) |
+                Builders<NullableHolder>.Filter.Eq(n => n.DoubleNullable, null) |
+                Builders<NullableHolder>.Filter.Eq(n => n.IntNullable, null) |
+                Builders<NullableHolder>.Filter.Eq(n => n.LongNullable, null) |
+                Builders<NullableHolder>.Filter.Eq(n => n.ShortNullable, null) |
+                Builders<NullableHolder>.Filter.Eq(n => n.StringNullable, null);
 
-            _ = Builders<NullableHolder?>.Filter.Eq(n => n.ByteNullable, (byte)1) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.DoubleNullable, (double)4.5) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.IntNullable, (int)21) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.LongNullable, (long)22) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.ShortNullable, (short)2) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.StringNullable, (string)"String");
+            _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, (byte)1) |
+                Builders<NullableHolder>.Filter.Eq(n => n.DoubleNullable, (double)4.5) |
+                Builders<NullableHolder>.Filter.Eq(n => n.IntNullable, (int)21) |
+                Builders<NullableHolder>.Filter.Eq(n => n.LongNullable, (long)22) |
+                Builders<NullableHolder>.Filter.Eq(n => n.ShortNullable, (short)2) |
+                Builders<NullableHolder>.Filter.Eq(n => n.StringNullable, (string)"String");
 
-            _ = Builders<NullableHolder?>.Filter.Eq(n => n.ByteNullable, (byte?)1) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.DoubleNullable, (double?)4.5) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.IntNullable, (int?)21) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.LongNullable, (long?)22) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.ShortNullable, (short?)2) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.StringNullable, (string?)"String");
+            _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, (byte?)1) |
+                Builders<NullableHolder>.Filter.Eq(n => n.DoubleNullable, (double?)4.5) |
+                Builders<NullableHolder>.Filter.Eq(n => n.IntNullable, (int?)21) |
+                Builders<NullableHolder>.Filter.Eq(n => n.LongNullable, (long?)22) |
+                Builders<NullableHolder>.Filter.Eq(n => n.ShortNullable, (short?)2) |
+                Builders<NullableHolder>.Filter.Eq(n => n.StringNullable, (string?)"String");
 
-            _ = Builders<NullableHolder?>.Filter.Eq(n => n.ByteNullable, (byte?)1) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.DoubleNullable, 4.5) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.IntNullable, 21) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.LongNullable, (long?)22) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.ShortNullable, (short?)2) |
-                Builders<NullableHolder?>.Filter.Eq(n => n.StringNullable, "String");
+            _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, (byte?)1) |
+                Builders<NullableHolder>.Filter.Eq(n => n.DoubleNullable, 4.5) |
+                Builders<NullableHolder>.Filter.Eq(n => n.IntNullable, 21) |
+                Builders<NullableHolder>.Filter.Eq(n => n.LongNullable, (long?)22) |
+                Builders<NullableHolder>.Filter.Eq(n => n.ShortNullable, (short?)2) |
+                Builders<NullableHolder>.Filter.Eq(n => n.StringNullable, "String");
 
-            _ = Builders<Person?>.Filter.Eq(p => p.SiblingsCount, StaticHolder.ReadonlyIntNullable) |
-                Builders<Person?>.Filter.Eq(p => p.TicksSinceBirth, StaticHolder.ReadonlyLongNullable) |
-                Builders<Person?>.Filter.Eq(p => p.Name, StaticHolder.ReadonlyStringNullable) |
-                Builders<Person?>.Filter.Eq(p => p.Address.City, StaticHolder.ReadonlyStringNullable);
+            _ = Builders<Person>.Filter.Eq(p => p.SiblingsCount, StaticHolder.ReadonlyIntNullable) |
+                Builders<Person>.Filter.Eq(p => p.TicksSinceBirth, StaticHolder.ReadonlyLongNullable) |
+                Builders<Person>.Filter.Eq(p => p.Name, StaticHolder.ReadonlyStringNullable) |
+                Builders<Person>.Filter.Eq(p => p.Address.City, StaticHolder.ReadonlyStringNullable);
 
-            _ = Builders<Person?>.Filter.Eq(p => p.SiblingsCount, (int?)1) |
-                Builders<Person?>.Filter.Eq(p => p.TicksSinceBirth, (long?)2) |
-                Builders<Person?>.Filter.Eq(p => p.Name, (string?)"Name") |
-                Builders<Person?>.Filter.Eq(p => p.Address.City, (string?)"City");
+            _ = Builders<Person>.Filter.Eq(p => p.SiblingsCount, (int?)1) |
+                Builders<Person>.Filter.Eq(p => p.TicksSinceBirth, (long?)2) |
+                Builders<Person>.Filter.Eq(p => p.Name, (string?)"Name") |
+                Builders<Person>.Filter.Eq(p => p.Address.City, (string?)"City");
         }
 
         private VehicleTypeEnum? GetVehicleTypeEnum() => VehicleTypeEnum.Bus;

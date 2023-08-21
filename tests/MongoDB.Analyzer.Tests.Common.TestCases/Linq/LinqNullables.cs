@@ -110,10 +110,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         [MQL("aggregate([{ \"$match\" : { \"ShortNullable\" : GetNullableShort() } }])")]
         public void Method_with_nullable_return_type()
         {
-            _ = GetMongoQueryable<Person?>()
+            _ = GetMongoQueryable<Person>()
                 .Where(p => p.Vehicle.VehicleType.Type == GetVehicleTypeEnum());
 
-            _ = GetMongoQueryable<NullableHolder?>()
+            _ = GetMongoQueryable<NullableHolder>()
                 .Where(n => n.ShortNullable == GetNullableShort());
         }
 
