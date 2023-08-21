@@ -34,8 +34,10 @@ internal static class SyntaxFactoryUtilities
         SyntaxFactory.ArrayCreationExpression(SyntaxFactory.Token(SyntaxKind.NewKeyword), arrayTypeSyntax,
             SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, SyntaxFactory.SeparatedList<ExpressionSyntax>(expressions)));
 
-    public static CastExpressionSyntax GetCastConstantExpression(string castToTypeName, object constantValue) =>
-        SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(castToTypeName), GetConstantExpression(constantValue));
+    public static CastExpressionSyntax GetCastConstantExpression(string castToTypeName, object constantValue, bool isCastToTypeNullable = false) =>
+        SyntaxFactory.CastExpression(
+            isCastToTypeNullable ? GetNullableType(castToTypeName) : SyntaxFactory.ParseTypeName(castToTypeName),
+            GetConstantExpression(constantValue));
 
     public static LiteralExpressionSyntax GetConstantExpression(object constantValue) =>
         constantValue switch
@@ -60,6 +62,9 @@ internal static class SyntaxFactoryUtilities
             string @string => SyntaxFactory.Literal(@string),
             _ => throw new NotSupportedException($"Not supported type {value?.GetType()}")
         };
+
+    public static TypeSyntax GetNullableType(string typeName) =>
+        SyntaxFactory.NullableType(SyntaxFactory.ParseTypeName(typeName));
 
     public static SpecialType GetSpecialType(object value) =>
         value switch

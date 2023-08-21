@@ -349,7 +349,7 @@ internal static class LinqExpressionProcessor
         SyntaxNode replacementNode;
         if (fieldSymbol.Type.TypeKind == TypeKind.Enum)
         {
-            replacementNode = GetEnumCastNode(fieldSymbol.Type, fieldSymbol.ConstantValue, rewriteContext.TypesProcessor);
+            replacementNode = ExpressionProcessorUtilities.GetEnumCastNode(fieldSymbol.Type, fieldSymbol.ConstantValue, rewriteContext.TypesProcessor);
         }
         else if (fieldSymbol.Type.SpecialType != SpecialType.None)
         {
@@ -378,7 +378,11 @@ internal static class LinqExpressionProcessor
         }
 
         var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(identifierNode);
-        var replacementNode = GetConstantReplacementNode(rewriteContext, methodSymbol.ReturnType, nodeToReplace.ToString());
+        var replacementNode = ExpressionProcessorUtilities.GetConstantReplacementNode(
+            rewriteContext.TypesProcessor,
+            rewriteContext.ConstantsMapper,
+            methodSymbol.ReturnType,
+            nodeToReplace.ToString());
 
         if (replacementNode == null)
         {
@@ -386,40 +390,6 @@ internal static class LinqExpressionProcessor
         }
 
         return new RewriteResult(nodeToReplace, replacementNode);
-    }
-
-    private static SyntaxNode GetEnumCastNode(ITypeSymbol typeSymbol, object constantValue, TypesProcessor typesProcessor)
-    {
-        var remappedEnumTypeName = typesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeSymbol);
-
-        if (remappedEnumTypeName.IsNullOrWhiteSpace())
-        {
-            return null;
-        }
-
-        return SyntaxFactoryUtilities.GetCastConstantExpression(remappedEnumTypeName, constantValue);
-    }
-
-    private static SyntaxNode GetConstantReplacementNode(
-        RewriteContext rewriteContext,
-        ITypeSymbol typeSymbol,
-        string fullName = null)
-    {
-        SyntaxNode replacementNode = null;
-
-        if (typeSymbol.TypeKind == TypeKind.Enum)
-        {
-            var underlyingEnumType = (typeSymbol as INamedTypeSymbol).EnumUnderlyingType.SpecialType;
-
-            var literalSyntax = rewriteContext.ConstantsMapper.GetExpressionByType(underlyingEnumType, fullName);
-            replacementNode = GetEnumCastNode(typeSymbol, literalSyntax.Token.Value, rewriteContext.TypesProcessor);
-        }
-        else if (typeSymbol.SpecialType != SpecialType.None)
-        {
-            replacementNode = rewriteContext.ConstantsMapper.GetExpressionByType(typeSymbol.SpecialType, fullName);
-        }
-
-        return replacementNode;
     }
 
     private static bool IsChildOfLambdaOrQueryParameter(
@@ -460,7 +430,11 @@ internal static class LinqExpressionProcessor
         }
 
         var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(identifierNode);
-        var replacementNode = GetConstantReplacementNode(rewriteContext, typeInfo.ConvertedType, nodeToReplace.ToString());
+        var replacementNode = ExpressionProcessorUtilities.GetConstantReplacementNode(
+            rewriteContext.TypesProcessor,
+            rewriteContext.ConstantsMapper,
+             typeInfo.ConvertedType,
+            nodeToReplace.ToString());
 
         if (replacementNode == null)
         {
