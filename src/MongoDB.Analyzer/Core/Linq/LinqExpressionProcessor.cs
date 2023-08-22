@@ -227,10 +227,10 @@ internal static class LinqExpressionProcessor
                 .DescendantNodes(n => n != deepestMongoQueryableNode)
                 .OfType<IdentifierNameSyntax>()
                 .Where(identifierNode =>
-                {
-                    var symbolInfo = semanticModel.GetSymbolInfo(identifierNode);
-                    return symbolInfo.Symbol != null && IsChildOfLambdaOrQueryParameter(rewriteContext, identifierNode, symbolInfo);
-                })
+                    {
+                        var symbolInfo = semanticModel.GetSymbolInfo(identifierNode);
+                        return symbolInfo.Symbol != null && IsChildOfLambdaOrQueryParameter(rewriteContext, identifierNode, symbolInfo);
+                    })
                 .ToArray();
 
             foreach (var identifierNode in linqExpressionNode.DescendantNodes(n => n != deepestMongoQueryableNode).OfType<IdentifierNameSyntax>())
@@ -291,32 +291,10 @@ internal static class LinqExpressionProcessor
         SimpleNameSyntax identifierNode)
     {
         var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(identifierNode);
-        var remmapedType = rewriteContext.TypesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeInfo.Type);
+        var remappedType = rewriteContext.TypesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeInfo.Type);
+        var result = remappedType != null ? new(identifierNode, SyntaxFactory.IdentifierName(remappedType)) : RewriteResult.Invalid;
 
-        if (remmapedType == null)
-        {
-            return RewriteResult.Invalid;
-        }
-
-        SyntaxNode nodeToReplace = identifierNode;
-
-        if (typeInfo.Type.TypeKind == TypeKind.Enum)
-        {
-            if (nodeToReplace.Parent is not MemberAccessExpressionSyntax && nodeToReplace.Parent is not TypeArgumentListSyntax)
-            {
-                return RewriteResult.Ignore;
-            }
-        }
-        else
-        {
-            while (nodeToReplace.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-            {
-                nodeToReplace = nodeToReplace.Parent;
-            }
-        }
-
-        SyntaxNode newNode = SyntaxFactory.IdentifierName(remmapedType);
-        return new RewriteResult(nodeToReplace, newNode);
+        return result;
     }
 
     private static RewriteResult HandleField(
