@@ -417,7 +417,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         private Person _fieldPerson = new() { Name = "fieldPersonName" };
         private Person PropertyPerson { get; } = new Person() { Name = "propertyPersonName" };
 
-
         private Person GetPerson() => new();
         private Person GetPerson(long ticksSinceBirth) => new() { TicksSinceBirth = ticksSinceBirth };
 
