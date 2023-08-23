@@ -13,38 +13,12 @@
 // limitations under the License.
 
 using MongoDB.Analyzer.Core.HelperResources;
+using static MongoDB.Analyzer.Core.ExpressionProcessor;
 
 namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class LinqExpressionProcessor
 {
-    private record RewriteContext(
-        SyntaxNode LinqExpression,
-        SemanticModel SemanticModel,
-        TypesProcessor TypesProcessor,
-        ConstantsMapper ConstantsMapper);
-
-    private enum RewriteAction
-    {
-        Rewrite,
-        Ignore,
-        Invalid
-    }
-
-    private record RewriteResult(
-        RewriteAction RewriteAction,
-        SyntaxNode NodeToReplace,
-        SyntaxNode NewNode)
-    {
-        public RewriteResult(SyntaxNode NodeToReplace, SyntaxNode NewNode) :
-            this(RewriteAction.Rewrite, NodeToReplace, NewNode)
-        {
-        }
-
-        public static RewriteResult Ignore = new(RewriteAction.Ignore, null, null);
-        public static RewriteResult Invalid = new(RewriteAction.Invalid, null, null);
-    }
-
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
@@ -203,7 +177,7 @@ internal static class LinqExpressionProcessor
         // Temporary catch, this method should not throw, but does not handle all cases yet
         try
         {
-            var rewriteContext = new RewriteContext(linqExpressionNode, semanticModel, typesProcessor, new ConstantsMapper());
+            var rewriteContext = new RewriteContext(AnalysisType.Linq, linqExpressionNode, semanticModel, typesProcessor, new ConstantsMapper());
             var result = linqExpressionNode;
 
             var queryableNode = SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Linq.QueryableName);
@@ -229,7 +203,7 @@ internal static class LinqExpressionProcessor
                 .Where(identifierNode =>
                     {
                         var symbolInfo = semanticModel.GetSymbolInfo(identifierNode);
-                        return symbolInfo.Symbol != null && IsChildOfLambdaOrQueryParameter(rewriteContext, identifierNode, symbolInfo);
+                        return symbolInfo.Symbol != null && IsChildOfLambdaOrQueryOrBuildersParameter(rewriteContext, identifierNode, symbolInfo);
                     })
                 .ToArray();
 
@@ -249,6 +223,7 @@ internal static class LinqExpressionProcessor
                 }
 
                 var symbolInfo = semanticModel.GetSymbolInfo(identifierNode);
+                var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(nodeToHandle);
 
                 if (symbolInfo.Symbol == null)
                 {
@@ -257,12 +232,12 @@ internal static class LinqExpressionProcessor
 
                 var rewriteResult = symbolInfo.Symbol.Kind switch
                 {
-                    SymbolKind.Field => HandleField(rewriteContext, nodeToHandle, symbolInfo),
-                    SymbolKind.Method => HandleMethod(rewriteContext, nodeToHandle, symbolInfo),
+                    SymbolKind.Field => HandleField(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
+                    SymbolKind.Method => HandleMethod(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
                     SymbolKind.NamedType => HandleRemappedType(rewriteContext, identifierNode),
                     SymbolKind.Local or
                     SymbolKind.Parameter or
-                    SymbolKind.Property => SubstituteExpressionWithConst(rewriteContext, nodeToHandle, symbolInfo),
+                    SymbolKind.Property => SubstituteExpressionWithConstant(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
                     _ => RewriteResult.Ignore
                 };
 
@@ -295,119 +270,5 @@ internal static class LinqExpressionProcessor
         var result = remappedType != null ? new(identifierNode, SyntaxFactory.IdentifierName(remappedType)) : RewriteResult.Invalid;
 
         return result;
-    }
-
-    private static RewriteResult HandleField(
-        RewriteContext rewriteContext,
-        SyntaxNode identifierNode,
-        SymbolInfo symbolInfo)
-    {
-        var fieldSymbol = symbolInfo.Symbol as IFieldSymbol;
-        if (fieldSymbol?.HasConstantValue != true)
-        {
-            return SubstituteExpressionWithConst(rewriteContext, identifierNode, symbolInfo);
-        }
-
-        if (!identifierNode.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-        {
-            return RewriteResult.Ignore;
-        }
-
-        SyntaxNode replacementNode;
-        if (fieldSymbol.Type.TypeKind == TypeKind.Enum)
-        {
-            replacementNode = ExpressionProcessorUtilities.GetEnumCastNode(fieldSymbol.Type, fieldSymbol.ConstantValue, rewriteContext.TypesProcessor);
-        }
-        else if (fieldSymbol.Type.SpecialType != SpecialType.None)
-        {
-            replacementNode = rewriteContext.ConstantsMapper.GetExpressionForConstant(fieldSymbol.Type.SpecialType, fieldSymbol.ConstantValue);
-        }
-        else
-        {
-            return RewriteResult.Invalid;
-        }
-
-        return new RewriteResult(identifierNode.Parent, replacementNode);
-    }
-
-    private static RewriteResult HandleMethod(
-        RewriteContext rewriteContext,
-        SyntaxNode identifierNode,
-        SymbolInfo symbolInfo)
-    {
-        var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
-        if (methodSymbol.ReceiverType.IsIQueryable() ||
-           methodSymbol.ReturnType.IsIQueryable() ||
-           methodSymbol.ReturnType == null ||
-           IsChildOfLambdaOrQueryParameter(rewriteContext, identifierNode, symbolInfo))
-        {
-            return RewriteResult.Ignore;
-        }
-
-        var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(identifierNode);
-        var replacementNode = ExpressionProcessorUtilities.GetConstantReplacementNode(
-            rewriteContext.TypesProcessor,
-            rewriteContext.ConstantsMapper,
-            methodSymbol.ReturnType,
-            nodeToReplace.ToString());
-
-        if (replacementNode == null)
-        {
-            return RewriteResult.Invalid;
-        }
-
-        return new RewriteResult(nodeToReplace, replacementNode);
-    }
-
-    private static bool IsChildOfLambdaOrQueryParameter(
-        RewriteContext rewriteContext,
-        SyntaxNode identifier,
-        SymbolInfo symbolInfo)
-    {
-        if (symbolInfo.Symbol.IsContainedInLambdaOrQueryParameter(rewriteContext.LinqExpression))
-        {
-            return true;
-        }
-
-        var underlyingIdetifier = SyntaxFactoryUtilities.GetUnderlyingIdentifier(identifier);
-        if (underlyingIdetifier == null)
-        {
-            return false;
-        }
-
-        return rewriteContext.SemanticModel.GetSymbolInfo(underlyingIdetifier).Symbol.IsContainedInLambdaOrQueryParameter(rewriteContext.LinqExpression);
-    }
-
-    private static RewriteResult SubstituteExpressionWithConst(
-        RewriteContext rewriteContext,
-        SyntaxNode identifierNode,
-        SymbolInfo symbolInfo)
-    {
-        if (IsChildOfLambdaOrQueryParameter(rewriteContext, identifierNode, symbolInfo) ||
-            identifierNode.IsMemberOfAnonymousObject())
-        {
-            return RewriteResult.Ignore;
-        }
-
-        var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(identifierNode);
-
-        if (typeInfo.Type == null)
-        {
-            return RewriteResult.Ignore;
-        }
-
-        var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(identifierNode);
-        var replacementNode = ExpressionProcessorUtilities.GetConstantReplacementNode(
-            rewriteContext.TypesProcessor,
-            rewriteContext.ConstantsMapper,
-             typeInfo.ConvertedType,
-            nodeToReplace.ToString());
-
-        if (replacementNode == null)
-        {
-            return RewriteResult.Invalid;
-        }
-
-        return new RewriteResult(nodeToReplace, replacementNode);
     }
 }

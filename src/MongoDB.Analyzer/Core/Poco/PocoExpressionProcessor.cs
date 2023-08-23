@@ -48,8 +48,8 @@ internal static class PocoExpressionProcessor
                 {
                     var generatedClassName = typesProcessor.ProcessTypeSymbol(classSymbol);
                     var generatedClassNode = (ClassDeclarationSyntax)(typesProcessor.GetTypeSymbolToMemberDeclarationMapping(classSymbol));
-                    var expresionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(classNode, null, generatedClassNode, null, classNode.GetLocation()));
-                    analysisContexts.Add(expresionContext);
+                    var expressionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(classNode, null, generatedClassNode, null, classNode.GetLocation()));
+                    analysisContexts.Add(expressionContext);
                 }
             }
             catch (Exception ex)
