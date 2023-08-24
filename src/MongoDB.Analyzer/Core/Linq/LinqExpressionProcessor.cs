@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Analyzer.Core.HelperResources;
 using static MongoDB.Analyzer.Core.ExpressionProcessor;
 
 namespace MongoDB.Analyzer.Core.Linq;
@@ -28,10 +27,9 @@ internal static class LinqExpressionProcessor
         var processedSyntaxNodes = new HashSet<SyntaxNode>();
         var analysisContexts = new List<ExpressionAnalysisContext>();
         var invalidExpressionNodes = new List<InvalidExpressionAnalysisNode>();
-
         var typesProcessor = context.TypesProcessor;
 
-        foreach (var node in root.DescendantNodesWithSkipList(processedSyntaxNodes).OfType<ExpressionSyntax>())
+        foreach (var node in root.DescendantNodesWithSkipList<ExpressionSyntax>(processedSyntaxNodes))
         {
             var deepestMongoQueryableNode = node;
 
@@ -95,11 +93,12 @@ internal static class LinqExpressionProcessor
                 {
                     var generatedMongoQueryableTypeName = typesProcessor.ProcessTypeSymbol(mongoQueryableNamedType.TypeArguments[0]);
 
-                    var (newLinqExpression, constantsMapper) = RewriteLinqExpression(node, deepestMongoQueryableNode, typesProcessor, semanticModel);
+                    var rewriteContext = RewriteContext.Linq(node, deepestMongoQueryableNode, semanticModel, typesProcessor);
+                    var (newLinqExpression, constantsMapper) = RewriteExpression(rewriteContext);
 
                     if (newLinqExpression != null)
                     {
-                        var linqContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(
+                        var linqContext = new ExpressionAnalysisContext(new(
                             node,
                             generatedMongoQueryableTypeName,
                             newLinqExpression,
@@ -123,7 +122,7 @@ internal static class LinqExpressionProcessor
             TypesDeclarations = typesProcessor.TypesDeclarations
         };
 
-        context.Logger.Log($"Linq: Found {linqAnalysis.AnalysisNodeContexts.Length} expressions");
+        context.Logger.Log($"LINQ: Found {linqAnalysis.AnalysisNodeContexts.Length} expressions");
 
         return linqAnalysis;
     }
@@ -153,7 +152,7 @@ internal static class LinqExpressionProcessor
 
                         if (argSymbol.IsContainedInLambdaOrQueryParameter(linqExpressionNode))
                         {
-                            invalidLinqExpressionNodes.Add(new InvalidExpressionAnalysisNode(
+                            invalidLinqExpressionNodes.Add(new(
                                 methodInvocation,
                                 LinqAnalysisErrorMessages.MethodInvocationNotSupported));
 
@@ -164,110 +163,6 @@ internal static class LinqExpressionProcessor
                 }
             }
         }
-
-        return result;
-    }
-
-    private static (SyntaxNode RewrittenLinqExpression, ConstantsMapper ConstantsMapper) RewriteLinqExpression(
-        SyntaxNode linqExpressionNode,
-        SyntaxNode deepestMongoQueryableNode,
-        TypesProcessor typesProcessor,
-        SemanticModel semanticModel)
-    {
-        // Temporary catch, this method should not throw, but does not handle all cases yet
-        try
-        {
-            var rewriteContext = new RewriteContext(AnalysisType.Linq, linqExpressionNode, semanticModel, typesProcessor, new ConstantsMapper());
-            var result = linqExpressionNode;
-
-            var queryableNode = SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Linq.QueryableName);
-            var nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>()
-            {
-                { deepestMongoQueryableNode, queryableNode }
-            };
-
-            foreach (var literalSyntax in linqExpressionNode.DescendantNodes(n => n != deepestMongoQueryableNode).OfType<LiteralExpressionSyntax>())
-            {
-                if (!literalSyntax.Parent.IsKind(SyntaxKind.Argument))
-                {
-                    rewriteContext.ConstantsMapper.RegisterLiteral(literalSyntax);
-                }
-            }
-
-            rewriteContext.ConstantsMapper.FinalizeLiteralsRegistration();
-
-            var nodeProcessed = new List<SyntaxNode>();
-            var lambdaAndQueryIdentifiers = linqExpressionNode
-                .DescendantNodes(n => n != deepestMongoQueryableNode)
-                .OfType<IdentifierNameSyntax>()
-                .Where(identifierNode =>
-                    {
-                        var symbolInfo = semanticModel.GetSymbolInfo(identifierNode);
-                        return symbolInfo.Symbol != null && IsChildOfLambdaOrQueryOrBuildersParameter(rewriteContext, identifierNode, symbolInfo);
-                    })
-                .ToArray();
-
-            foreach (var identifierNode in linqExpressionNode.DescendantNodes(n => n != deepestMongoQueryableNode).OfType<IdentifierNameSyntax>())
-            {
-                if (identifierNode == deepestMongoQueryableNode ||
-                    !identifierNode.IsLeaf() ||
-                    nodeProcessed.Any(e => e.Contains(identifierNode)))
-                {
-                    continue;
-                }
-
-                var nodeToHandle = SyntaxNodeExtensions.GetTopMostInvocationOrBinaryExpressionSyntax(identifierNode, lambdaAndQueryIdentifiers);
-                if (nodeToHandle != identifierNode)
-                {
-                    nodeProcessed.Add(nodeToHandle);
-                }
-
-                var symbolInfo = semanticModel.GetSymbolInfo(identifierNode);
-                var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(nodeToHandle);
-
-                if (symbolInfo.Symbol == null)
-                {
-                    return default;
-                }
-
-                var rewriteResult = symbolInfo.Symbol.Kind switch
-                {
-                    SymbolKind.Field => HandleField(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
-                    SymbolKind.Method => HandleMethod(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
-                    SymbolKind.NamedType => HandleRemappedType(rewriteContext, identifierNode),
-                    SymbolKind.Local or
-                    SymbolKind.Parameter or
-                    SymbolKind.Property => SubstituteExpressionWithConstant(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
-                    _ => RewriteResult.Ignore
-                };
-
-                switch (rewriteResult.RewriteAction)
-                {
-                    case RewriteAction.Rewrite:
-                        nodesRemapping[rewriteResult.NodeToReplace] = rewriteResult.NewNode;
-                        break;
-                    case RewriteAction.Invalid:
-                        return default;
-                }
-            }
-
-            result = linqExpressionNode.ReplaceNodes(nodesRemapping.Keys, (n, _) => nodesRemapping[n]);
-
-            return (result, rewriteContext.ConstantsMapper);
-        }
-        catch
-        {
-            return default;
-        }
-    }
-
-    private static RewriteResult HandleRemappedType(
-        RewriteContext rewriteContext,
-        SimpleNameSyntax identifierNode)
-    {
-        var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(identifierNode);
-        var remappedType = rewriteContext.TypesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeInfo.Type);
-        var result = remappedType != null ? new(identifierNode, SyntaxFactory.IdentifierName(remappedType)) : RewriteResult.Invalid;
 
         return result;
     }

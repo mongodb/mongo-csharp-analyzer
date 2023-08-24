@@ -26,9 +26,13 @@ internal static class SyntaxNodeExtensions
         return syntaxNode;
     }
 
-    public static IEnumerable<SyntaxNode> DescendantNodesWithSkipList(this SyntaxNode syntaxNode, HashSet<SyntaxNode> skipList)
+    public static IEnumerable<SyntaxNode> DescendantNodesWithSkipList(this SyntaxNode syntaxNode, HashSet<SyntaxNode> skipList) =>
+        DescendantNodesWithSkipList<SyntaxNode>(syntaxNode, skipList);
+
+    public static IEnumerable<T> DescendantNodesWithSkipList<T>(this SyntaxNode syntaxNode, HashSet<SyntaxNode> skipList)
+        where T : SyntaxNode
     {
-        foreach (var node in syntaxNode.DescendantNodes(n => !skipList.Contains(n.Parent)))
+        foreach (var node in syntaxNode.DescendantNodes(n => !skipList.Contains(n.Parent)).OfType<T>())
         {
             if (skipList.Contains(node.Parent))
             {
