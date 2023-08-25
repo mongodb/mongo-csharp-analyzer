@@ -36,6 +36,7 @@ internal static class ExpressionProcessor
 
     private enum RewriteAction
     {
+        Unknown,
         Rewrite,
         Ignore,
         Invalid
@@ -51,8 +52,8 @@ internal static class ExpressionProcessor
         {
         }
 
-        public static RewriteResult Ignore = new(RewriteAction.Ignore, null, null);
-        public static RewriteResult Invalid = new(RewriteAction.Invalid, null, null);
+        public static RewriteResult Ignore { get; } = new(RewriteAction.Ignore, null, null);
+        public static RewriteResult Invalid { get; } = new(RewriteAction.Invalid, null, null);
     }
 
     public static (SyntaxNode RewrittenLinqExpression, ConstantsMapper ConstantsMapper) RewriteExpression(RewriteContext rewriteContext)
