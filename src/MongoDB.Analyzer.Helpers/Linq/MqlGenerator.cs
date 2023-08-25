@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
 namespace MongoDB.Analyzer.Helpers.Linq
@@ -34,13 +35,11 @@ namespace MongoDB.Analyzer.Helpers.Linq
             public Tuple<int, int> Field { get; set; }
         }
 
-        private static readonly IQueryableProvider s_queryableProvider = new IQueryableProviderV2();
-
         public static string GetDriverVersion() => typeof(IMongoQueryable<>).Assembly.GetName().Version.ToString(3);
 
         public static string GetMQL(bool isV3)
         {
-            var queryable = s_queryableProvider.GetQueryable<MqlGeneratorTemplateType>(isV3);
+            var queryable = QueryableProvider.GetQueryable<MqlGeneratorTemplateType>(isV3);
             var queryableWithExpression = queryable.Where(t => t.Field.Item1 == 1);
 
             queryableWithExpression.FirstOrDefault();

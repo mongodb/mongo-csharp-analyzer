@@ -12,17 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Search;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
-namespace MongoDB.Analyzer.Helpers.Builders
+namespace MongoDB.Analyzer.Helpers.Linq
 {
-    public static partial class Renderer
+    public static class QueryableProvider
     {
-        public static string Render<T>(SearchDefinition<T> searchDefinition)
+
+#if DRIVER_2_14_OR_GREATER
+        public static IMongoQueryable<TDocument> GetQueryable<TDocument>(bool isV3)
         {
-            var renderedBuildersDefinition = searchDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
-            return renderedBuildersDefinition.ToString();
+            var provider = isV3 ? LinqProviderAdapter.V3 : LinqProviderAdapter.V2;
+            return provider.AsQueryable(new MongoCollectionMock<TDocument>(), null, new AggregateOptions());
         }
+#else
+        public static IMongoQueryable<TDocument> GetQueryable<TDocument>(bool isV3) =>
+            !isV3 ? (new MongoCollectionMock<TDocument>()).AsQueryable() : null;
+#endif
     }
 }

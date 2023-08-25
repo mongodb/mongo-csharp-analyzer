@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
 using MongoDB.Analyzer.Core.Utilities;
 using static MongoDB.Analyzer.Core.HelperResources.ResourcesUtilities;
 
@@ -19,23 +20,17 @@ namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly SyntaxTree[] s_helpersSyntaxTrees;
-    private static readonly SyntaxTree s_linqProviderV2SyntaxTree;
-    private static readonly SyntaxTree s_linqProviderV3SyntaxTree;
-    private static readonly LinqMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElementsLinq2;
-    private static readonly LinqMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElementsLinq3;
-    private static readonly ParseOptions s_parseOptions;
+    private static readonly SyntaxTreesCache s_syntaxTreesCache;
+    private static readonly LinqMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElements;
+    private static readonly CSharpParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
     {
-        s_linqProviderV2SyntaxTree = GetCodeResource(ResourceNames.Linq.IQueryableProviderV2);
-        s_linqProviderV3SyntaxTree = GetCodeResource(ResourceNames.Linq.IQueryableProviderV3);
-        s_helpersSyntaxTrees = GetCommonCodeResources(ResourceNames.Linq.IQueryableProvider);
-
         var mqlGeneratorSyntaxTree = GetCodeResource(ResourceNames.Linq.MqlGenerator);
-        s_mqlGeneratorSyntaxElementsLinq2 = LinqMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree, false);
-        s_mqlGeneratorSyntaxElementsLinq3 = LinqMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree, true);
-        s_parseOptions = mqlGeneratorSyntaxTree.Options;
+        s_mqlGeneratorSyntaxElements = LinqMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree);
+
+        s_parseOptions = (CSharpParseOptions)mqlGeneratorSyntaxTree.Options;
+        s_syntaxTreesCache = new SyntaxTreesCache(s_parseOptions, ResourceNames.Linq.QueryableProvider);
     }
 
     public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
@@ -51,13 +46,12 @@ internal static class AnalysisCodeGenerator
         var isLinq3Default = referencesContainer.Version >= LinqAnalysisConstants.DefaultLinq3Version;
         var defaultLinqVersion = context.Settings.DefaultLinqVersion ?? (isLinq3Default ? LinqVersion.V3 : LinqVersion.V2);
 
-        var linqProviderSyntaxTree = isLinq3 ? s_linqProviderV3SyntaxTree : s_linqProviderV2SyntaxTree;
         var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Linq, linqExpressionAnalysis.TypesDeclarations, s_parseOptions);
-        var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(linqExpressionAnalysis, isLinq3);
+        var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(linqExpressionAnalysis);
 
-        var syntaxTrees = new List<SyntaxTree>(s_helpersSyntaxTrees)
+        var helperSyntaxTrees = s_syntaxTreesCache.GetSyntaxTrees(referencesContainer.Version);
+        var syntaxTrees = new List<SyntaxTree>(helperSyntaxTrees)
             {
-                linqProviderSyntaxTree,
                 typesSyntaxTree,
                 mqlGeneratorSyntaxTree
             };
@@ -76,10 +70,9 @@ internal static class AnalysisCodeGenerator
         return result;
     }
 
-    private static SyntaxTree GenerateMqlGeneratorSyntaxTree(ExpressionsAnalysis linqExpressionAnalysis, bool isLinq3)
+    private static SyntaxTree GenerateMqlGeneratorSyntaxTree(ExpressionsAnalysis linqExpressionAnalysis)
     {
-        var syntaxElements = isLinq3 ? s_mqlGeneratorSyntaxElementsLinq3 : s_mqlGeneratorSyntaxElementsLinq2;
-        var testCodeBuilder = new LinqMqlGeneratorTemplateBuilder(syntaxElements);
+        var testCodeBuilder = new LinqMqlGeneratorTemplateBuilder(s_mqlGeneratorSyntaxElements);
 
         foreach (var linqContext in linqExpressionAnalysis.AnalysisNodeContexts)
         {

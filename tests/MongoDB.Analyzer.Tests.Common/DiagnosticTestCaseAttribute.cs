@@ -83,7 +83,7 @@ namespace MongoDB.Analyzer.Tests.Common
         public MQLLinq3Attribute(
             string message,
             DriverTargetFramework targetFramework = DriverTargetFramework.All) :
-            base(message, DriverVersions.Linq3AndHigher, LinqVersion.V3, targetFramework)
+            base(message, DriverVersions.Linq3OrGreater, LinqVersion.V3, targetFramework)
         {
         }
     }
@@ -103,9 +103,10 @@ namespace MongoDB.Analyzer.Tests.Common
     public sealed class InvalidLinq3Attribute : InvalidLinqAttribute
     {
         public InvalidLinq3Attribute(
-            string message,
-            DriverTargetFramework targetFramework = DriverTargetFramework.All) :
-            base(message, DriverVersions.Linq3AndHigher, LinqVersion.V3, targetFramework)
+          string message,
+          string version = DriverVersions.Linq3OrGreater,
+          DriverTargetFramework targetFramework = DriverTargetFramework.All) :
+          base(message, version, LinqVersion.V3, targetFramework)
         {
         }
     }
@@ -115,7 +116,7 @@ namespace MongoDB.Analyzer.Tests.Common
         public NotSupportedLinq2Attribute(
             string message,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
-            string version = DriverVersions.Linq3AndHigher,
+            string version = DriverVersions.Linq3OrGreater,
             LinqVersion linqVersion = LinqVersion.V2) :
             base(DiagnosticRulesConstants.NotSupportedLinq2Expression, message, version, linqVersion, targetFramework)
         {
