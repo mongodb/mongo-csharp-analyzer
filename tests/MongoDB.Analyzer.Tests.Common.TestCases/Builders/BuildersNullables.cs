@@ -15,6 +15,9 @@
 using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver;
 
+#nullable enable
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersNullables : TestCasesBase
@@ -144,3 +147,5 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         private short? GetNullableShort() => 10;
     }
 }
+#nullable disable
+#pragma warning restore CS8602 // Dereference of a possibly null reference.s

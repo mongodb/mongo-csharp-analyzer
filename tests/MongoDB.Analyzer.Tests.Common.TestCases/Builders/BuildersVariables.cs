@@ -17,6 +17,9 @@ using System.Collections.Generic;
 using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver;
 
+#pragma warning disable CS0162 // Unreachable code detected
+#pragma warning disable CS0168 // Variable is declared but never used
+
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersVariables : TestCasesBase
@@ -557,6 +560,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var a = Builders<User>.Filter.Gte(u => u.Height, 99);
             var b = Builders<User>.Filter.Gte(u => u.Height, 101);
             var c = Builders<User>.Filter.Gte(u => u.Height, 106);
+
             try
             {
                 x = Builders<User>.Filter.Lte(u => u.Height, 57);
@@ -583,6 +587,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 b = Builders<User>.Filter.Gte(u => u.Height, 105);
                 a = c;
             }
+
             var finalResultX = x;
             var finalResultW = w;
             var finalResultT = t;
@@ -852,3 +857,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         private void Foo(object x, object y) { }
     }
 }
+
+#pragma warning restore CS0162 // Unreachable code detected
+#pragma warning restore CS0168 // Variable is declared but never used

@@ -16,6 +16,9 @@ using System.Linq;
 using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver.Linq;
 
+#nullable enable
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqNullables : TestCasesBase
@@ -265,3 +268,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         private short? GetNullableShort() => 10;
     }
 }
+
+#nullable disable
+#pragma warning restore CS8602 // Dereference of a possibly null reference.

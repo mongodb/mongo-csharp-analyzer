@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#nullable enable
+
 namespace MongoDB.Analyzer.Tests.Common.DataModel
 {
     public class NullableHolder
@@ -28,3 +30,5 @@ namespace MongoDB.Analyzer.Tests.Common.DataModel
         public Vehicle? VehicleNullable;
     }
 }
+
+#nullable disable
