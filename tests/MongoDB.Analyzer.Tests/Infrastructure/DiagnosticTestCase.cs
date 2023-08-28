@@ -29,7 +29,7 @@ public record DiagnosticTestCase(
     string MethodName,
     string Version,
     LinqVersion LinqVersion,
-    JsonAnalyzerVerbosity JsonAnalyzerVerbosity,
+    PocoAnalysisVerbosity JsonAnalyzerVerbosity,
     DiagnosticRule[] DiagnosticRules)
 {
 }

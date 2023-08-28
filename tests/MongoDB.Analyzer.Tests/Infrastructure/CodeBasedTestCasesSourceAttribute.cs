@@ -71,8 +71,8 @@ public sealed class CodeBasedTestCasesSourceAttribute : Attribute, ITestDataSour
                 location.StartLine >= 0 ? location.StartLine : 0,
                 location.StartLine >= 0 ? attribute.Message : null
             group new DiagnosticRule(attribute.RuleId, $"{attribute.Message}_v{version.ToString("V", new VersionFormatter())}", location)
-                by new { version, attribute.LinqProvider, attribute.JsonAnalyzerVerbosity } into g
-            select new DiagnosticTestCase(fileName, memberInfo.Name, g.Key.version.ToString(), g.Key.LinqProvider, g.Key.JsonAnalyzerVerbosity, g.ToArray());
+                by new { version, attribute.LinqProvider, attribute.PocoAnalysisVerbosity } into g
+            select new DiagnosticTestCase(fileName, memberInfo.Name, g.Key.version.ToString(), g.Key.LinqProvider, g.Key.PocoAnalysisVerbosity, g.ToArray());
 
         return diagnosticsTestCases.ToArray();
     }
