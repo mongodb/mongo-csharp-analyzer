@@ -131,14 +131,11 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select person;
         }
 
-#if NET472
-        [InvalidLinq3("Unable to cast object of type 'System.Int32' to type 'MongoDB.Bson.BsonValue'.")]
-        [InvalidLinq("Expression not supported: 10 in (o.BsonDocument.ElementCount == 10) because it was not possible to determine how to serialize the constant.", DriverVersions.V2_21_OrGreater)]
-#else
+#if !NET472
         [InvalidLinq("The binary operator Equal is not defined for the types 'MongoDB.Bson.BsonValue' and 'System.Int32'.")]
+#endif
         [InvalidLinq3("Unable to cast object of type 'System.Int32' to type 'MongoDB.Bson.BsonValue'.", DriverVersions.V2_19_to_2_20)]
         [InvalidLinq3("Expression not supported: 10 in (o.BsonDocument.ElementCount == 10) because it was not possible to determine how to serialize the constant.", DriverVersions.V2_21_OrGreater)]
-#endif
         public void Unsupported_bson_types()
         {
             _ = GetMongoQueryable<ClassWithBsonTypes>().Where(o => o.BsonDocument.ElementCount == 10);

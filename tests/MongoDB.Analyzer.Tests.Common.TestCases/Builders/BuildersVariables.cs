@@ -560,7 +560,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var a = Builders<User>.Filter.Gte(u => u.Height, 99);
             var b = Builders<User>.Filter.Gte(u => u.Height, 101);
             var c = Builders<User>.Filter.Gte(u => u.Height, 106);
-
             try
             {
                 x = Builders<User>.Filter.Lte(u => u.Height, 57);
@@ -587,7 +586,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 b = Builders<User>.Filter.Gte(u => u.Height, 105);
                 a = c;
             }
-
             var finalResultX = x;
             var finalResultW = w;
             var finalResultT = t;
