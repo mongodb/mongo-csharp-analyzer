@@ -39,12 +39,17 @@ internal sealed class SyntaxTreesCache
     {
         if (!_cache.TryGetValue(driverVersion, out var result))
         {
-            var driverVersionsOrGreater = Enumerable
-                  .Range(s_minVersion.Minor, driverVersion.Minor - s_minVersion.Minor + 1)
-                  .Select(minor => $"DRIVER_{driverVersion.Major}_{minor}_OR_GREATER")
-                  .ToArray();
+            var parseOptions = _parseOptions;
+            if (driverVersion >= s_minVersion)
+            {
+                var driverVersionsOrGreater = Enumerable
+                      .Range(s_minVersion.Minor, driverVersion.Minor - s_minVersion.Minor + 1)
+                      .Select(minor => $"DRIVER_{driverVersion.Major}_{minor}_OR_GREATER")
+                      .ToArray();
 
-            var parseOptions = _parseOptions.WithPreprocessorSymbols(driverVersionsOrGreater);
+                parseOptions = _parseOptions.WithPreprocessorSymbols(driverVersionsOrGreater);
+            }
+
             var versionedSyntaxTrees = GetVersionedCodeResources(parseOptions, _versionedResourcesNames);
 
             var commonSyntaxTrees = _commonSyntaxTrees.Concat(versionedSyntaxTrees).ToArray();
