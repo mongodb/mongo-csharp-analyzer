@@ -84,7 +84,8 @@ internal static class PocoExpressionProcessor
     private static bool PreanalyzeClassDeclaration(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
         context.Settings.PocoAnalysisVerbosity == PocoAnalysisVerbosity.All ||
         (classSymbol != null &&
-        (ContainsBsonAttributes(context, classSymbol) ||
-        ContainsPropertiesWithBsonAttributes(context, classSymbol) ||
-        ContainsFieldsWithBsonAttributes(context, classSymbol)));
+        (context.TypesProcessor.IsUserTypeProcessed(classSymbol) ||
+         ContainsBsonAttributes(context, classSymbol) ||
+         ContainsPropertiesWithBsonAttributes(context, classSymbol) ||
+         ContainsFieldsWithBsonAttributes(context, classSymbol)));
 }

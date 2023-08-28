@@ -45,11 +45,15 @@ internal sealed class TypesProcessor
         return null;
     }
 
-    public string GetTypeSymbolToGeneratedTypeMapping(ITypeSymbol typeSymbol) => GetGeneratedTypeMapping(typeSymbol).RemappedName;
+    public bool IsUserTypeProcessed(ITypeSymbol typeSymbol) =>
+        GetGeneratedTypeMapping(typeSymbol, true).RemappedName != null;
+
+    public string GetTypeSymbolToGeneratedTypeMapping(ITypeSymbol typeSymbol) =>
+        GetGeneratedTypeMapping(typeSymbol, false).RemappedName;
 
     public string ProcessTypeSymbol(ITypeSymbol typeSymbol)
     {
-        var (remappedName, fullTypeName) = GetGeneratedTypeMapping(typeSymbol);
+        var (remappedName, fullTypeName) = GetGeneratedTypeMapping(typeSymbol, false);
         if (fullTypeName == null)
         {
             return null;
@@ -74,7 +78,7 @@ internal sealed class TypesProcessor
         return remappedName;
     }
 
-    private (string RemappedName, string FullTypeName) GetGeneratedTypeMapping(ITypeSymbol typeSymbol)
+    private (string RemappedName, string FullTypeName) GetGeneratedTypeMapping(ITypeSymbol typeSymbol, bool userOnlyTypes)
     {
         if (typeSymbol == null)
         {
@@ -82,7 +86,7 @@ internal sealed class TypesProcessor
         }
 
         var fullTypeName = GetFullName(typeSymbol);
-        if (typeSymbol.IsSupportedBsonType(fullTypeName))
+        if (!userOnlyTypes && typeSymbol.IsSupportedBsonType(fullTypeName))
         {
             return (typeSymbol.Name, fullTypeName);
         }
@@ -92,7 +96,7 @@ internal sealed class TypesProcessor
             return (result.NewName, fullTypeName);
         }
 
-        if (typeSymbol.IsSupportedSystemType(fullTypeName))
+        if (!userOnlyTypes && typeSymbol.IsSupportedSystemType(fullTypeName))
         {
             return (fullTypeName, fullTypeName);
         }

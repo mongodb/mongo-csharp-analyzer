@@ -13,14 +13,43 @@
 // limitations under the License.
 
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
 
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoVerbosity : TestCasesBase
     {
-        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
-        public void Airline()
+        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        public void Airline_not_used_in_expression1()
         {
+        }
+
+        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
+        public void Airline_not_used_in_expression2()
+        {
+        }
+
+        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", PocoAnalysisVerbosity.All)]
+        public void Airline_not_used_in_expression3()
+        {
+        }
+
+        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        public void Airline_used_in_expression1()
+        {
+            _ = Builders<TestClasses.Airline_used_in_expression1>.Filter.Eq(u => u.AirlineName, "Lufthansa");
+        }
+
+        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", PocoAnalysisVerbosity.Medium)]
+        public void Airline_used_in_expression2()
+        {
+            _ = Builders<TestClasses.Airline_used_in_expression2>.Filter.Eq(u => u.AirlineName, "Lufthansa");
+        }
+
+        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", PocoAnalysisVerbosity.All)]
+        public void Airline_used_in_expression3()
+        {
+            _ = Builders<TestClasses.Airline_used_in_expression3>.Filter.Eq(u => u.AirlineName, "Lufthansa");
         }
 
         [PocoJson("{ \"StringProperty\" : \"StringProperty_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
@@ -65,7 +94,32 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 
         public class TestClasses
         {
-            public class Airline
+            public class Airline_not_used_in_expression1
+            {
+                public string AirlineName { get; set; }
+            }
+
+            public class Airline_not_used_in_expression2
+            {
+                public string AirlineName { get; set; }
+            }
+
+            public class Airline_not_used_in_expression3
+            {
+                public string AirlineName { get; set; }
+            }
+
+            public class Airline_used_in_expression1
+            {
+                public string AirlineName { get; set; }
+            }
+
+            public class Airline_used_in_expression2
+            {
+                public string AirlineName { get; set; }
+            }
+
+            public class Airline_used_in_expression3
             {
                 public string AirlineName { get; set; }
             }
