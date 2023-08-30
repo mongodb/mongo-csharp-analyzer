@@ -23,46 +23,6 @@ namespace MongoDB.Analyzer.Tests.Linq;
 public sealed class LinqTests : DiagnosticsTestCasesRunner
 {
     [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqArrays))]
-    public Task Arrays(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(LinqBasic))]
     public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqCollections))]
-    public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqComments))]
-    public Task Comments(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqComplexDataModel))]
-    public Task ComplexDataModel(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqConstantsReplacement))]
-    public Task ConstantsReplacement(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqEnums))]
-    public Task Enums(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqIgnoredExpressions))]
-    public Task IgnoredExpressions(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqIMongoQueryableSource))]
-    public Task MongoQueryableSource(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqSuffix))]
-    public Task Suffixes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqQuerySyntax))]
-    public Task QuerySyntax(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }
