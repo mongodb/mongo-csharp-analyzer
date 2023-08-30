@@ -20,7 +20,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class NotSupportedLinqExpressions : TestCasesBase
     {
-        [InvalidLinq("{document}{Name}.Trim() is not supported.", DriverVersions.Linq2AndLower)]
+        [InvalidLinq("{document}{Name}.Trim() is not supported.", DriverVersions.Linq2OrLower)]
         public void Unsupported_string_method_Trim()
         {
             _ = GetMongoQueryable()
@@ -85,7 +85,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 
         [InvalidLinq("{document}{Matrix2}.Get(1, 1) is not supported.")]
         [InvalidLinq3("Expression not supported: u.Matrix2.Get(1, 1).")]
-        public void Unsupported_multidimentional_array_dimension1()
+        public void Unsupported_multidimensional_array_dimension1()
         {
             _ = GetMongoQueryable<MultiDimentionalArrayHolder>()
                 .Where(u => u.Matrix2[1, 1] == 1);
@@ -93,20 +93,20 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 
         [InvalidLinq("{document}{Matrix3}.Get(1, 1, 1) is not supported.")]
         [InvalidLinq3("Expression not supported: u.Matrix3.Get(1, 1, 1).")]
-        public void Unsupported_multidimentional_array_dimension2()
+        public void Unsupported_multidimensional_array_dimension2()
         {
             _ = GetMongoQueryable<MultiDimentionalArrayHolder>()
                 .Where(u => u.Matrix3[1, 1, 1] == 1);
         }
 
-        [InvalidLinq("Unsupported filter: ({document}{Name} == {document}{LastName}).", version: DriverVersions.Linq2AndLower)]
+        [InvalidLinq("Unsupported filter: ({document}{Name} == {document}{LastName}).", version: DriverVersions.Linq2OrLower)]
         public void Unsupported_cross_reference_1()
         {
             _ = GetMongoQueryable<Person>()
                 .Where(u => u.Name == u.LastName);
         }
 
-        [InvalidLinq("Unsupported filter: ({IntArray.0} == {IntArray.1}).", version: DriverVersions.Linq2AndLower)]
+        [InvalidLinq("Unsupported filter: ({IntArray.0} == {IntArray.1}).", version: DriverVersions.Linq2OrLower)]
         public void Unsupported_cross_reference_2()
         {
             _ = GetMongoQueryable<SimpleTypesArraysHolder>()
@@ -131,12 +131,11 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select person;
         }
 
-#if NET472
-        [InvalidLinq3("Unable to cast object of type 'System.Int32' to type 'MongoDB.Bson.BsonValue'.")]
-#else
+#if !NET472
         [InvalidLinq("The binary operator Equal is not defined for the types 'MongoDB.Bson.BsonValue' and 'System.Int32'.")]
-        [InvalidLinq3("Unable to cast object of type 'System.Int32' to type 'MongoDB.Bson.BsonValue'.")]
 #endif
+        [InvalidLinq3("Unable to cast object of type 'System.Int32' to type 'MongoDB.Bson.BsonValue'.", DriverVersions.V2_19_to_2_20)]
+        [InvalidLinq3("Expression not supported: 10 in (o.BsonDocument.ElementCount == 10) because it was not possible to determine how to serialize the constant.", DriverVersions.V2_21_OrGreater)]
         public void Unsupported_bson_types()
         {
             _ = GetMongoQueryable<ClassWithBsonTypes>().Where(o => o.BsonDocument.ElementCount == 10);

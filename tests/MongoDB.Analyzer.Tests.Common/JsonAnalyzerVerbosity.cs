@@ -14,7 +14,7 @@
 
 namespace MongoDB.Analyzer.Tests.Common
 {
-    public enum JsonAnalyzerVerbosity
+    public enum PocoAnalysisVerbosity
     {
         None,
         Medium,

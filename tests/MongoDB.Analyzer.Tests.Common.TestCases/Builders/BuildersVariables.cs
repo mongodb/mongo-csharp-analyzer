@@ -17,6 +17,9 @@ using System.Collections.Generic;
 using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver;
 
+#pragma warning disable CS0162 // Unreachable code detected
+#pragma warning disable CS0168 // Variable is declared but never used
+
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersVariables : TestCasesBase
@@ -852,3 +855,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         private void Foo(object x, object y) { }
     }
 }
+
+#pragma warning restore CS0162 // Unreachable code detected
+#pragma warning restore CS0168 // Variable is declared but never used

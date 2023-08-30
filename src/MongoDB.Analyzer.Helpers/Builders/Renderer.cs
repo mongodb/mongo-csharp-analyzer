@@ -59,6 +59,20 @@ namespace MongoDB.Analyzer.Helpers.Builders
         {
             return fluentDefinition.ToString();
         }
+
+#if DRIVER_2_21_OR_GREATER
+        public static string Render<T>(MongoDB.Driver.Search.SearchDefinition<T> searchDefinition)
+        {
+            var renderedBuildersDefinition = searchDefinition.Render(new MongoDB.Driver.Search.SearchDefinitionRenderContext<T>(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry));
+            return renderedBuildersDefinition.ToString();
+        }
+#elif DRIVER_2_19_OR_GREATER
+        public static string Render<T>(MongoDB.Driver.Search.SearchDefinition<T> searchDefinition)
+        {
+            var renderedBuildersDefinition = searchDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
+            return renderedBuildersDefinition.ToString();
+        }
+#endif
     }
 }
 

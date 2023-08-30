@@ -19,13 +19,11 @@ namespace MongoDB.Analyzer.Core.Poco;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly SyntaxTree[] s_helpersSyntaxTrees;
     private static readonly PocoJsonGeneratorTemplateBuilder.SyntaxElements s_jsonGeneratorSyntaxElements;
     private static readonly ParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
     {
-        s_helpersSyntaxTrees = GetCommonCodeResources();
         var jsonGeneratorSyntaxTree = GetCodeResource(ResourceNames.Poco.JsonGenerator);
         s_jsonGeneratorSyntaxElements = PocoJsonGeneratorTemplateBuilder.CreateSyntaxElements(jsonGeneratorSyntaxTree);
         s_parseOptions = jsonGeneratorSyntaxTree.Options;
@@ -43,11 +41,7 @@ internal static class AnalysisCodeGenerator
         var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Poco, pocoExpressionAnalysis.TypesDeclarations, s_parseOptions);
         var jsonGeneratorSyntaxTree = GenerateJsonGeneratorSyntaxTree(pocoExpressionAnalysis);
 
-        var syntaxTrees = new List<SyntaxTree>(s_helpersSyntaxTrees)
-            {
-                typesSyntaxTree,
-                jsonGeneratorSyntaxTree
-            };
+        var syntaxTrees = new[] { typesSyntaxTree, jsonGeneratorSyntaxTree };
 
         var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(AnalysisType.Poco, context, referencesContainer, syntaxTrees);
         if (generatorType == null)

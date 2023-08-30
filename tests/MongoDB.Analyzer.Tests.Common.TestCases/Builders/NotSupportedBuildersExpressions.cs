@@ -19,15 +19,15 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class NotSupportedBuildersExpressions : TestCasesBase
     {
-        [NotSupportedBuilders("Unable to determine the serialization information for u => ArrayLength(u.IntArray).", DriverVersions.V2_18_AndLower)]
-        [NotSupportedBuilders("Expression not supported: ArrayLength(u.IntArray).", DriverVersions.V2_19_AndHigher)]
+        [NotSupportedBuilders("Unable to determine the serialization information for u => ArrayLength(u.IntArray).", DriverVersions.V2_18_OrLower)]
+        [NotSupportedBuilders("Expression not supported: ArrayLength(u.IntArray).", DriverVersions.V2_19_OrGreater)]
         public void Array_of_predefined_type_array_members_access()
         {
             _ = Builders<SimpleTypesArraysHolder>.Filter.Gt(u => u.IntArray.Length, 1);
         }
 
-        [NotSupportedBuilders("Unable to determine the serialization information for u => (u.SiblingsCount + 2).", DriverVersions.V2_18_AndLower)]
-        [NotSupportedBuilders("Expression not supported: (u.SiblingsCount + 2).", DriverVersions.V2_19_AndHigher)]
+        [NotSupportedBuilders("Unable to determine the serialization information for u => (u.SiblingsCount + 2).", DriverVersions.V2_18_OrLower)]
+        [NotSupportedBuilders("Expression not supported: (u.SiblingsCount + 2).", DriverVersions.V2_19_OrGreater)]
         public void Binary_expression_in_field_getter()
         {
             _ = Builders<Person>.Filter.Eq(u => u.SiblingsCount + 2, 1);
@@ -39,10 +39,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<SimpleTypesArraysHolder>.Filter.AnyNin(t => t.ObjectArray, null);
         }
 
-        [NotSupportedBuilders("Unable to determine the serialization information for f => f.Quantity.", version: DriverVersions.V2_18_AndLower)]
-        [NotSupportedBuilders("Expression not supported: f.Quantity.", version: DriverVersions.V2_19_AndHigher)]
-        [NotSupportedBuilders("Unable to determine the serialization information for a => a._AppleID.", version: DriverVersions.V2_18_AndLower)]
-        [NotSupportedBuilders("Expression not supported: a._AppleID.", version: DriverVersions.V2_19_AndHigher)]
+        [NotSupportedBuilders("Unable to determine the serialization information for f => f.Quantity.", version: DriverVersions.V2_18_OrLower)]
+        [NotSupportedBuilders("Expression not supported: f.Quantity.", version: DriverVersions.V2_19_OrGreater)]
+        [NotSupportedBuilders("Unable to determine the serialization information for a => a._AppleID.", version: DriverVersions.V2_18_OrLower)]
+        [NotSupportedBuilders("Expression not supported: a._AppleID.", version: DriverVersions.V2_19_OrGreater)]
         public void Warnings_due_to_bson_ignore()
         {
             _ = Builders<Fruit>.Update.Set(f => f.Quantity, 22);

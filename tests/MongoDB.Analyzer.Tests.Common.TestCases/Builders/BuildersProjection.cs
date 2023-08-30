@@ -47,10 +47,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<ListsHolder>.Projection.ElemMatch(u => u.PesonsList, g => g.SiblingsCount < 12 && g.SiblingsCount > 3).ElemMatch(u => u.NestedListsHolderIList, g => g.PesonsList.Count == 22);
         }
 
-        [BuildersMQL("{ \"Address\" : 1, \"_id\" : 0 }", DriverVersions.V2_18_AndLower)]
-        [BuildersMQL("{ \"_v\" : \"$Address\", \"_id\" : 0 }", DriverVersions.V2_19_AndHigher)]
-        [BuildersMQL("{ \"Address\" : 1, \"LastName\" : 1, \"Name\" : 1, \"_id\" : 0 }", DriverVersions.V2_18_AndLower)]
-        [BuildersMQL("{ \"_v\" : { \"$add\" : [{ \"$strLenCP\" : \"$LastName\" }, { \"$strLenCP\" : \"$Address\" }, { \"$strLenCP\" : \"$Name\" }] }, \"_id\" : 0 }", DriverVersions.V2_19_AndHigher)]
+        [BuildersMQL("{ \"Address\" : 1, \"_id\" : 0 }", DriverVersions.V2_18_OrLower)]
+        [BuildersMQL("{ \"_v\" : \"$Address\", \"_id\" : 0 }", DriverVersions.V2_19_OrGreater)]
+        [BuildersMQL("{ \"Address\" : 1, \"LastName\" : 1, \"Name\" : 1, \"_id\" : 0 }", DriverVersions.V2_18_OrLower)]
+        [BuildersMQL("{ \"_v\" : { \"$add\" : [{ \"$strLenCP\" : \"$LastName\" }, { \"$strLenCP\" : \"$Address\" }, { \"$strLenCP\" : \"$Name\" }] }, \"_id\" : 0 }", DriverVersions.V2_19_OrGreater)]
         public void Expression()
         {
             _ = Builders<Person>.Projection.Expression(u => u.Address);

@@ -61,6 +61,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 
         [BuildersMQL("{ \"Vehicle\" : \"geoHaystack\" }")]
         [BuildersMQL("{ \"Address\" : \"geoHaystack\", \"Vehicle\" : \"geoHaystack\" }")]
+        [System.Obsolete]
         public void GeoHaystack()
         {
             _ = Builders<Person>.IndexKeys.GeoHaystack(u => u.Vehicle);

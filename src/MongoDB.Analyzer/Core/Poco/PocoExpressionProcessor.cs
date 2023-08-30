@@ -18,7 +18,7 @@ internal static class PocoExpressionProcessor
 {
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
     {
-        if (context.Settings.JsonAnalyzerVerbosity == JsonAnalyzerVerbosity.None ||
+        if (context.Settings.PocoAnalysisVerbosity == PocoAnalysisVerbosity.None ||
             context.Settings.PocoLimit <= 0)
         {
             return default;
@@ -82,7 +82,7 @@ internal static class PocoExpressionProcessor
         attribute.AttributeClass.IsSupportedBsonAttribute() || context.TypesProcessor.GetTypeSymbolToMemberDeclarationMapping(attribute.AttributeClass) != null;
 
     private static bool PreanalyzeClassDeclaration(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
-        context.Settings.JsonAnalyzerVerbosity == JsonAnalyzerVerbosity.All ||
+        context.Settings.PocoAnalysisVerbosity == PocoAnalysisVerbosity.All ||
         (classSymbol != null &&
         (ContainsBsonAttributes(context, classSymbol) ||
         ContainsPropertiesWithBsonAttributes(context, classSymbol) ||

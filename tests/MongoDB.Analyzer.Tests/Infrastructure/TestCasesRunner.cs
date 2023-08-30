@@ -24,7 +24,7 @@ namespace MongoDB.Analyzer.Tests.Infrastructure;
 
 internal static class TestCasesRunner
 {
-    private record TestsBundleKey(string TestFileName, string DriverVersion, LinqVersion LinqVersion, JsonAnalyzerVerbosity JsonAnalyzerVerbosity);
+    private record TestsBundleKey(string TestFileName, string DriverVersion, LinqVersion LinqVersion, PocoAnalysisVerbosity PocoAnalysisVerbosity);
 
     private static readonly IDictionary<TestsBundleKey, IDictionary<string, DiagnosticTestCaseResult>>
         s_testResults = new Dictionary<TestsBundleKey, IDictionary<string, DiagnosticTestCaseResult>>();
@@ -50,7 +50,7 @@ internal static class TestCasesRunner
             testsBundleKey.TestFileName,
             testsBundleKey.DriverVersion,
             testsBundleKey.LinqVersion,
-            testsBundleKey.JsonAnalyzerVerbosity);
+            testsBundleKey.PocoAnalysisVerbosity);
 
         var diagnosticsAndMethodNodes = diagnostics
             .Where(d => DiagnosticRulesConstants.AllRules.Contains(d.Descriptor.Id))

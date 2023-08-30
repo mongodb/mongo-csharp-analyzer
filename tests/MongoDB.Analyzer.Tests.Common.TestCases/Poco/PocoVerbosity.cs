@@ -18,47 +18,47 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoVerbosity : TestCasesBase
     {
-        [NoDiagnostics(jsonAnalyzerVerbosity: JsonAnalyzerVerbosity.Medium)]
+        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
         public void Airline()
         {
         }
 
-        [PocoJson("{ \"StringProperty\" : \"StringProperty_val\" }", jsonAnalyzerVerbosity: JsonAnalyzerVerbosity.Medium)]
+        [PocoJson("{ \"StringProperty\" : \"StringProperty_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
         public void ClassWithBsonAttributes()
         {
         }
 
-        [PocoJson("{ \"string_property\" : \"StringProperty_val\" }", jsonAnalyzerVerbosity: JsonAnalyzerVerbosity.Medium)]
+        [PocoJson("{ \"string_property\" : \"StringProperty_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
         public void ClassWithPropertyBsonAttributes()
         {
         }
 
-        [PocoJson("{ \"string_field\" : \"StringField_val\" }", jsonAnalyzerVerbosity: JsonAnalyzerVerbosity.Medium)]
+        [PocoJson("{ \"string_field\" : \"StringField_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
         public void ClassWithFieldBsonAttributes()
         {
         }
 
-        [PocoJson("{ \"string_field\" : \"StringField_val\", \"string_property\" : \"StringProperty_val\" }", jsonAnalyzerVerbosity: JsonAnalyzerVerbosity.Medium)]
+        [PocoJson("{ \"string_field\" : \"StringField_val\", \"string_property\" : \"StringProperty_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
         public void ClassWithPropertyAndFieldAttributes()
         {
         }
 
-        [NoDiagnostics(jsonAnalyzerVerbosity: JsonAnalyzerVerbosity.None)]
+        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
         public void ClassWithBsonAttributes2()
         {
         }
 
-        [NoDiagnostics(jsonAnalyzerVerbosity: JsonAnalyzerVerbosity.None)]
+        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
         public void ClassWithPropertyBsonAttributes2()
         {
         }
 
-        [NoDiagnostics(jsonAnalyzerVerbosity: JsonAnalyzerVerbosity.None)]
+        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
         public void ClassWithFieldBsonAttributes2()
         {
         }
 
-        [NoDiagnostics(jsonAnalyzerVerbosity: JsonAnalyzerVerbosity.None)]
+        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
         public void ClassWithPropertyAndFieldAttributes2()
         {
         }

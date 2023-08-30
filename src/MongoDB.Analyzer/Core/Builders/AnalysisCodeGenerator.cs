@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
 using MongoDB.Analyzer.Core.Utilities;
 using static MongoDB.Analyzer.Core.HelperResources.ResourcesUtilities;
 
@@ -19,19 +20,18 @@ namespace MongoDB.Analyzer.Core.Builders;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly SyntaxTree[] s_helpersSyntaxTrees;
-    private static readonly SyntaxTree s_renderer_2_19_and_higher;
+    private static readonly SyntaxTreesCache s_syntaxTreesCache;
+
     private static readonly BuildersMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElements;
-    private static readonly ParseOptions s_parseOptions;
+    private static readonly CSharpParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
     {
-        s_helpersSyntaxTrees = GetCommonCodeResources(ResourceNames.Builders.Renderer);
-        s_renderer_2_19_and_higher = GetCodeResource(ResourceNames.Builders.Renderer_2_19_and_higher);
-
         var mqlGeneratorSyntaxTree = GetCodeResource(ResourceNames.Builders.MqlGenerator);
         s_mqlGeneratorSyntaxElements = BuildersMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree);
-        s_parseOptions = mqlGeneratorSyntaxTree.Options;
+
+        s_parseOptions = (CSharpParseOptions)mqlGeneratorSyntaxTree.Options;
+        s_syntaxTreesCache = new SyntaxTreesCache(s_parseOptions, ResourceNames.Builders.Renderer);
     }
 
     public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis buildersExpressionAnalysis)
@@ -46,16 +46,12 @@ internal static class AnalysisCodeGenerator
         var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Builders, buildersExpressionAnalysis.TypesDeclarations, s_parseOptions);
         var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(buildersExpressionAnalysis);
 
-        var syntaxTrees = new List<SyntaxTree>(s_helpersSyntaxTrees)
+        var helperSyntaxTrees = s_syntaxTreesCache.GetSyntaxTrees(referencesContainer.Version);
+        var syntaxTrees = new List<SyntaxTree>(helperSyntaxTrees)
             {
                 typesSyntaxTree,
                 mqlGeneratorSyntaxTree
             };
-
-        if (referencesContainer.Version >= BuildersAnalysisConstants.Version_2_19_and_higher)
-        {
-            syntaxTrees.Add(s_renderer_2_19_and_higher);
-        }
 
         var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(AnalysisType.Builders, context, referencesContainer, syntaxTrees);
         if (generatorType == null)
@@ -85,5 +81,5 @@ internal static class AnalysisCodeGenerator
         }
 
         return testCodeBuilder.GenerateSyntaxTree();
-    }
+    } 
 }
