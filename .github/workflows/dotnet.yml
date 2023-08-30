@@ -30,13 +30,6 @@ jobs:
       
     - name: Build
       run: msbuild MongoDB.Analyzer.sln -restore:false
-     
-    - name: Test net472
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-          testAssembly: MongoDB.Analyzer.Tests.dll
-          searchFolder: ./tests/MongoDB.Analyzer.Tests/bin/debug/net472/
-          runInParallel: false
 
     - name: Test netcoreapp3.1
       uses: microsoft/vstest-action@v1.0.0
