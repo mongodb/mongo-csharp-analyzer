@@ -15,6 +15,7 @@
 using MongoDB.Analyzer.Core;
 using MongoDB.Analyzer.Core.Builders;
 using MongoDB.Analyzer.Core.Linq;
+using MongoDB.Analyzer.Core.Poco;
 
 namespace MongoDB.Analyzer;
 
@@ -22,8 +23,9 @@ namespace MongoDB.Analyzer;
 public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => CollectionExtensions.CreateImmutableArray(
+        BuidersDiagnosticsRules.DiagnosticsRules,
         LinqDiagnosticsRules.DiagnosticsRules,
-        BuidersDiagnosticsRules.DiagnosticsRules);
+        PocoDiagnosticRules.DiagnosticsRules);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -41,18 +43,18 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
         using var telemetryService = SettingsHelper.CreateTelemetryService(settings, correlationId);
         using var logger = SettingsHelper.CreateLogger(settings, correlationId);
 
-        var mongoAnalyzerContext = new MongoAnalyzerContext(context, settings, logger, telemetryService);
+        var typesProcessor = new TypesProcessor();
+        var mongoAnalyzerContext = new MongoAnalysisContext(context, settings, typesProcessor, logger, telemetryService);
         var flushTelemetry = false;
 
         try
         {
-            telemetryService.AnalysisStarted(context, settings);
             logger.Log($"Analysis started, analyzer version: {Assembly.GetExecutingAssembly().GetName().Version}, file: {GetFilePath(context)}");
-
             telemetryService.AnalysisStarted(context, settings);
 
             flushTelemetry |= LinqAnalyzer.AnalyzeIMongoQueryable(mongoAnalyzerContext);
             flushTelemetry |= BuildersAnalyzer.AnalyzeBuilders(mongoAnalyzerContext);
+            flushTelemetry |= PocoAnalyzer.AnalyzePoco(mongoAnalyzerContext);
         }
         catch (Exception ex)
         {

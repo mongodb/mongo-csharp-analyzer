@@ -34,6 +34,10 @@ namespace MongoDB.Analyzer.Helpers
 
         public override MongoCollectionSettings Settings => new MongoCollectionSettings();
 
+#if DRIVER_2_21_OR_GREATER
+        public override Driver.Search.IMongoSearchIndexManager SearchIndexes => throw new NotImplementedException();
+#endif
+
         /// <inheritdoc />
         public override IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default)
         {
@@ -305,18 +309,21 @@ namespace MongoDB.Analyzer.Helpers
         }
 
         /// <inheritdoc />
+        [Obsolete]
         public override IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
         {
             return new EmptyCursor<TResult>();
         }
 
         /// <inheritdoc />
+        [Obsolete]
         public override IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
         {
             return new EmptyCursor<TResult>();
         }
 
         /// <inheritdoc />
+        [Obsolete]
         public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
         {
             await Task.FromResult(1);
@@ -324,6 +331,7 @@ namespace MongoDB.Analyzer.Helpers
         }
 
         /// <inheritdoc />
+        [Obsolete]
         public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
         {
             await Task.FromResult(1);

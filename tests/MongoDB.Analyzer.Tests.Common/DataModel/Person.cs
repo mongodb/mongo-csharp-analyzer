@@ -24,5 +24,7 @@ namespace MongoDB.Analyzer.Tests.Common.DataModel
 
         public int SiblingsCount { get; set; }
         public long TicksSinceBirth { get; set; }
+
+        public bool IsRetired { get; set; }
     }
 }

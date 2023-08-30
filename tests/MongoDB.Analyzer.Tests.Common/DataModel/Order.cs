@@ -12,14 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
-
-namespace MongoDB.Analyzer.Helpers.Linq
+namespace MongoDB.Analyzer.Tests.Common.DataModel
 {
-    public sealed class IQueryableProviderV2 : IQueryableProvider
+    public class Order
     {
-        public IMongoQueryable<TDocument> GetQueryable<TDocument>(bool isV3) =>
-            !isV3 ? (new MongoCollectionMock<TDocument>()).AsQueryable() : null;
+        public int OrderNumber { get; set; }
+        public int TrackingNumber { get; set; }
+        public int ConfirmationNumber { get; set; }
+        public Customer Customer { get; set; }
+        public string Date { get; set; }
+    }
+
+    public class Customer
+    {
+        public string Name { get; set; }
+        public int CustomerId { get; set; }
+        public string DateOfBirth { get; set; }
+        public string Email { get; set; }
+        public string LastName { get; set; }
     }
 }
+

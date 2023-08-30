@@ -81,5 +81,8 @@ namespace MongoDB.Analyzer.Tests.Common.DataModel
         public BsonDocument BsonDocument { get; set; }
         public BsonValue BsonValue { get; set; }
         public BsonObjectId BsonObjectId { get; set; }
+
+        public ClassWithBsonTypes Nested { get; set; }
+        public BsonType BsonType { get; set; }
     }
 }

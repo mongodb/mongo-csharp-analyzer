@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Linq;
 using MongoDB.Analyzer.Tests.Common.DataModel;
+using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
@@ -100,6 +102,71 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = from person in GetMongoQueryable<Person>()
                 where person.Vehicle.VehicleType.Type == VehicleTypeEnum.Bus || person.Vehicle.VehicleType.Type == VehicleTypeEnum.Motorcylce
                 select person.Vehicle.LicenceNumber;
+        }
+
+
+        [MQL("aggregate([{ \"$match\" : { \"MPG\" : { \"$gt\" : 20.0 } } }, { \"$project\" : { \"Item1\" : \"$VehicleMake\", \"Item2\" : \"$Type\", \"_id\" : 0 } }])")]
+        public void Enum_in_type_argument_1()
+        {
+            _ = GetMongoCollection<VehicleType>().AsQueryable()
+                .Where(v => v.MPG > 20)
+                .Select(v => new Tuple<VehicleMake, VehicleTypeEnum>(v.VehicleMake, v.Type));
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"MPG\" : { \"$gt\" : 20.0 } } }, { \"$project\" : { \"Item1\" : \"$VehicleMake\", \"Item2\" : \"$Type\", \"_id\" : 0 } }])")]
+        public void Enum_in_type_argument_query_syntax_1()
+        {
+            _ = from vehicleType in GetMongoQueryable<VehicleType>()
+                where vehicleType.MPG > 20
+                select new Tuple<VehicleMake, VehicleTypeEnum>(vehicleType.VehicleMake, vehicleType.Type);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"MPG\" : { \"$gt\" : 20.0 } } }, { \"$project\" : { \"__fld0\" : [0, 1, 2], \"_id\" : 0 } }])")]
+        public void Enum_in_type_argument_2()
+        {
+            _ = GetMongoCollection<VehicleType>().AsQueryable()
+                .Where(v => v.MPG > 20)
+                .Select(v => new System.Collections.Generic.List<VehicleTypeEnum> { VehicleTypeEnum.Bus, VehicleTypeEnum.Car, VehicleTypeEnum.Motorcylce });
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"MPG\" : { \"$gt\" : 20.0 } } }, { \"$project\" : { \"__fld0\" : [0, 1, 2], \"_id\" : 0 } }])")]
+        public void Enum_in_type_argument_query_syntax_2()
+        {
+            _ = from vehicleType in GetMongoQueryable<VehicleType>()
+                where vehicleType.MPG > 20
+                select new System.Collections.Generic.List<VehicleTypeEnum> { VehicleTypeEnum.Bus, VehicleTypeEnum.Car, VehicleTypeEnum.Motorcylce };
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : { \"$gt\" : 10 } } }, { \"$project\" : { \"__fld0\" : { \"Bus\" : 0, \"Car\" : 1 }, \"_id\" : 0 } }])")]
+        public void Enum_in_type_argument_3()
+        {
+            _ = GetMongoCollection<Person>().AsQueryable()
+                .Where(p => p.SiblingsCount > 10)
+                .Select(p => new System.Collections.Generic.Dictionary<string, VehicleTypeEnum> { { "Bus", VehicleTypeEnum.Bus }, { "Car", VehicleTypeEnum.Car } });
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : { \"$gt\" : 10 } } }, { \"$project\" : { \"__fld0\" : { \"Bus\" : 0, \"Car\" : 1 }, \"_id\" : 0 } }])")]
+        public void Enum_in_type_argument_query_syntax_3()
+        {
+            _ = from person in GetMongoQueryable<Person>()
+                where person.SiblingsCount > 10
+                select new System.Collections.Generic.Dictionary<string, VehicleTypeEnum> { { "Bus", VehicleTypeEnum.Bus }, { "Car", VehicleTypeEnum.Car } };
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"MPG\" : { \"$gt\" : 20.0 } } }, { \"$project\" : { \"Item1\" : \"$VehicleMake\", \"Item2\" : { \"Item1\" : \"$Type\", \"Item2\" : \"$Type\" }, \"_id\" : 0 } }])")]
+        public void Enum_in_nested_type_argument()
+        {
+            _ = GetMongoCollection<VehicleType>().AsQueryable()
+                .Where(v => v.MPG > 20)
+                .Select(v => new Tuple<VehicleMake, Tuple<VehicleTypeEnum, VehicleTypeEnum>>(v.VehicleMake, new Tuple<VehicleTypeEnum, VehicleTypeEnum>(v.Type, v.Type)));
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"MPG\" : { \"$gt\" : 20.0 } } }, { \"$project\" : { \"Item1\" : \"$VehicleMake\", \"Item2\" : { \"Item1\" : \"$Type\", \"Item2\" : \"$Type\" }, \"_id\" : 0 } }])")]
+        public void Enum_in_nested_type_argument_query_syntax()
+        {
+            _ = from vehicleType in GetMongoQueryable<VehicleType>()
+                where vehicleType.MPG > 20
+                select new Tuple<VehicleMake, Tuple<VehicleTypeEnum, VehicleTypeEnum>>(vehicleType.VehicleMake, new Tuple<VehicleTypeEnum, VehicleTypeEnum>(vehicleType.Type, vehicleType.Type));
         }
     }
 }

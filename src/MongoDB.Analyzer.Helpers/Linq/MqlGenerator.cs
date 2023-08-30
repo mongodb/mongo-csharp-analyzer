@@ -14,24 +14,32 @@
 
 using System;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
 namespace MongoDB.Analyzer.Helpers.Linq
 {
     public static class MqlGenerator
     {
+#pragma warning disable CS0169 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
+#pragma warning disable IDE0051
+        private static readonly BsonType s_dummyRef1; // using MongoDB.Bson
+        private static readonly TimeSpanUnits s_dummyRef2; // using MongoDB.Bson.Serialization.Option
+#pragma warning restore IDE0051 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
+#pragma warning restore CS0169
+
         private sealed class MqlGeneratorTemplateType
         {
             public Tuple<int, int> Field { get; set; }
         }
 
-        private static readonly IQueryableProvider s_queryableProvider = new IQueryableProviderV2();
-
         public static string GetDriverVersion() => typeof(IMongoQueryable<>).Assembly.GetName().Version.ToString(3);
 
         public static string GetMQL(bool isV3)
         {
-            var queryable = s_queryableProvider.GetQueryable<MqlGeneratorTemplateType>(isV3);
+            var queryable = QueryableProvider.GetQueryable<MqlGeneratorTemplateType>(isV3);
             var queryableWithExpression = queryable.Where(t => t.Field.Item1 == 1);
 
             queryableWithExpression.FirstOrDefault();

@@ -131,10 +131,4 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select u;
         }
     }
-
-    public static class LinqExtensions
-    {
-        public static IMongoQueryable<T> ApplyPaging<T>(this IMongoQueryable<T> query, int page, int pageSize) =>
-            query.Skip((page - 1) * pageSize).Take(pageSize);
-    }
 }

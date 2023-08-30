@@ -12,9 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MongoDB.Analyzer.Core.Builders;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MongoDB.Analyzer.Tests.Common.TestCases.Jira;
+using MongoDB.Analyzer.Tests.Infrastructure;
 
-internal static class BuildersAnalysisConstants
+namespace MongoDB.Analyzer.Tests.Jira;
+
+[TestClass]
+public sealed class JiraTests : DiagnosticsTestCasesRunner
 {
-    public const string AnalysisAssemblyName = "DynamicProxyGenAssembly2";
+    [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(VS78))]
+    public Task VS78(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

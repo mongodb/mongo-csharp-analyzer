@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
 using MongoDB.Analyzer.Core.Utilities;
 
 namespace MongoDB.Analyzer.Core.Builders;
 
 internal static class BuildersAnalyzer
 {
-    public static bool AnalyzeBuilders(MongoAnalyzerContext context)
+    public static bool AnalyzeBuilders(MongoAnalysisContext context)
     {
         var sw = Stopwatch.StartNew();
         var stats = AnalysisStats.Empty;
@@ -33,7 +34,7 @@ internal static class BuildersAnalyzer
             stats = ReportMqlOrInvalidExpressions(context, buildersAnalysis);
 
             sw.Stop();
-            context.Logger.Log($"Builders analysis ended: with {stats.MqlCount} mql translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}.");
+            context.Logger.Log($"Builders analysis ended: with {stats.MqlCount} mql translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}ms.");
         }
         catch (Exception ex)
         {
@@ -50,7 +51,7 @@ internal static class BuildersAnalyzer
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalyzerContext context, ExpressionsAnalysis buildersAnalysis)
+    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis buildersAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
         if (buildersAnalysis.AnalysisNodeContexts.EmptyOrNull())
@@ -67,6 +68,9 @@ internal static class BuildersAnalyzer
         var driverVersion = compilationResult.BuildersTestCodeExecutor.DriverVersion;
         var settings = context.Settings;
         int mqlCount = 0, internalExceptionsCount = 0, driverExceptionsCount = 0;
+        var typesMapper = new TypesMapper(
+            MqlGeneratorSyntaxElements.Builders.MqlGeneratorNamespace,
+            context.TypesProcessor.GeneratedTypeToOriginalTypeMapping);
 
         foreach (var analysisContext in buildersAnalysis.AnalysisNodeContexts)
         {
@@ -77,22 +81,24 @@ internal static class BuildersAnalyzer
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
                 var diagnosticDescriptor = BuidersDiagnosticsRules.DiagnosticRuleBuilder2MQL;
-                var decoratedMessage = DecorateMessage(mql, driverVersion, context.Settings);
+                var decoratedMessage = AnalysisUtilities.DecorateMessage(mql, driverVersion, context.Settings);
                 semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
             }
             else if (mqlResult.Exception != null)
             {
-                var isDriverException = mqlResult.Exception.InnerException?.Source?.Contains("MongoDB.Driver") == true;
+                var isDriverOrBsonException = IsDriverOrBsonException(mqlResult);
 
-                if (isDriverException || settings.OutputInternalExceptions)
+                if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {
                     var diagnosticDescriptor = BuidersDiagnosticsRules.DiagnosticRuleNotSupportedBuilderExpression;
-                    var decoratedMessage = DecorateMessage(mqlResult.Exception.InnerException?.Message ?? "Unsupported builders expression", driverVersion, context.Settings);
+                    var message = AnalysisUtilities.GetExceptionMessage(mqlResult.Exception, typesMapper, AnalysisType.Builders);
+                    var decoratedMessage = AnalysisUtilities.DecorateMessage(message, driverVersion, context.Settings);
+
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 }
 
-                if (!isDriverException)
+                if (!isDriverOrBsonException)
                 {
                     context.Logger.Log($"Exception while analyzing {analysisContext.Node}: {mqlResult.Exception.InnerException?.Message}");
                     internalExceptionsCount++;
@@ -104,9 +110,13 @@ internal static class BuildersAnalyzer
             }
         }
 
-        return new AnalysisStats(mqlCount, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
+        return new AnalysisStats(mqlCount, 0, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
     }
 
-    private static string DecorateMessage(string message, string driverVersion, MongoDBAnalyzerSettings settings) =>
-        settings.OutputDriverVersion ? $"{message}_v{driverVersion}" : message;
+    private static bool IsDriverOrBsonException(MQLResult mqlResult)
+    {
+        var source = mqlResult.Exception.InnerException?.Source;
+        return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
+            source.Contains("MongoDB.Bson"));
+    }
 }

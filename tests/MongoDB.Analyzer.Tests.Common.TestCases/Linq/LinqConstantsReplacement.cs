@@ -15,6 +15,7 @@
 using System.Drawing;
 using System.Linq;
 using MongoDB.Analyzer.Tests.Common.DataModel;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq;
 
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
@@ -148,6 +149,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 o.Nested.Nested.Point.X == Point.Empty.X ||
                 o.Nested.Point.Y == 123 ||
                 o.Nested.Point.X == GetDrawingPoint().X);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"BsonType\" : 1 } }])")]
+        public void Query_containing_bson_type_enum()
+        {
+            _ = GetMongoQueryable<ClassWithBsonTypes>().Where(o =>
+                o.BsonType == BsonType.Double);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : byteConstant }, { \"SiblingsCount\" : 0 }, { \"SiblingsCount\" : intConstant1 }, { \"SiblingsCount\" : 1 }, { \"SiblingsCount\" : intConstant2 }, { \"SiblingsCount\" : 2 }, { \"TicksSinceBirth\" : NumberLong(longConstant1) }, { \"TicksSinceBirth\" : NumberLong(3) }, { \"TicksSinceBirth\" : NumberLong(longConstant2) }, { \"TicksSinceBirth\" : NumberLong(4) }, { \"Name\" : stringConstant1 }, { \"Name\" : \"s__5\" }, { \"Name\" : stringConstant2 }, { \"Name\" : \"s__6\" }] } }])")]
@@ -408,7 +416,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 
         private Person _fieldPerson = new() { Name = "fieldPersonName" };
         private Person PropertyPerson { get; } = new Person() { Name = "propertyPersonName" };
-
 
         private Person GetPerson() => new();
         private Person GetPerson(long ticksSinceBirth) => new() { TicksSinceBirth = ticksSinceBirth };

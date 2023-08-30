@@ -17,12 +17,18 @@ using MongoDB.Driver.Linq;
 
 namespace MongoDB.Analyzer.Helpers.Linq
 {
-    public sealed class IQueryableProviderV3 : IQueryableProvider
+    public static class QueryableProvider
     {
-        public IMongoQueryable<TDocument> GetQueryable<TDocument>(bool isV3)
+
+#if DRIVER_2_14_OR_GREATER
+        public static IMongoQueryable<TDocument> GetQueryable<TDocument>(bool isV3)
         {
             var provider = isV3 ? LinqProviderAdapter.V3 : LinqProviderAdapter.V2;
             return provider.AsQueryable(new MongoCollectionMock<TDocument>(), null, new AggregateOptions());
         }
+#else
+        public static IMongoQueryable<TDocument> GetQueryable<TDocument>(bool isV3) =>
+            !isV3 ? (new MongoCollectionMock<TDocument>()).AsQueryable() : null;
+#endif
     }
 }

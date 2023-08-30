@@ -20,12 +20,13 @@ internal record AnalysisTelemetry(
     string DriverVersion,
     string Target,
     int MqlCount,
+    int JsonCount,
     int DriverExceptionCount,
     int InternalExceptionCount,
     long DurationMS)
 {
-    public static AnalysisTelemetry Invalid = new(-1, -1, null, null, -1, -1, -1, -1);
-    public static AnalysisTelemetry Empty = new(0, 0, null, null, -1, -1, -1, -1);
+    public static AnalysisTelemetry Invalid = new(-1, -1, null, null, -1, -1, -1, -1, -1);
+    public static AnalysisTelemetry Empty = new(0, 0, null, null, -1, -1, -1, -1, -1);
 
     public (string, object)[] ToKeyValues() => new (string, object)[]
     {
@@ -33,6 +34,7 @@ internal record AnalysisTelemetry(
             ("data_types_count", DataTypesCount),
             ("driver_version", DriverVersion),
             ("mql_count", MqlCount),
+            ("json_count", JsonCount),
             ("driver_exception_count", DriverExceptionCount),
             ("internal_exception_count", InternalExceptionCount),
             ("duration_ms", DurationMS)

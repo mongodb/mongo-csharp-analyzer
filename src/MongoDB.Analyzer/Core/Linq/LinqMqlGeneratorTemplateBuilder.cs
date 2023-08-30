@@ -29,7 +29,6 @@ internal sealed class LinqMqlGeneratorTemplateBuilder
     }
 
     private readonly SyntaxElements _syntaxElements;
-
     private ClassDeclarationSyntax _mqlGeneratorDeclarationSyntaxNew;
     private int _nextTestMethodIndex;
 
@@ -60,17 +59,9 @@ internal sealed class LinqMqlGeneratorTemplateBuilder
     public SyntaxTree GenerateSyntaxTree() =>
          _syntaxElements.Root.ReplaceNode(_syntaxElements.ClassDeclarationSyntax, _mqlGeneratorDeclarationSyntaxNew).SyntaxTree;
 
-    public static SyntaxElements CreateSyntaxElements(SyntaxTree mqlGeneratorSyntaxTree, bool isLinq3)
+    public static SyntaxElements CreateSyntaxElements(SyntaxTree mqlGeneratorSyntaxTree)
     {
         var root = mqlGeneratorSyntaxTree.GetRoot();
-
-        if (isLinq3)
-        {
-            var linqProviderIdentifier = root.GetSingleIdentifier(IQueryableProviderV2);
-            var linqProviderIdentifierNew = linqProviderIdentifier.WithIdentifier(SyntaxFactory.Identifier(IQueryableProviderV3));
-
-            root = root.ReplaceNode(linqProviderIdentifier, linqProviderIdentifierNew);
-        }
 
         var classDeclarationSyntax = root.GetSingleClassDeclaration(MqlGenerator);
         var mainTestMethodNode = classDeclarationSyntax.GetSingleMethod(MqlGeneratorMainMethodName);

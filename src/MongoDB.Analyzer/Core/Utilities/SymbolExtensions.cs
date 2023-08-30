@@ -16,13 +16,72 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SymbolExtensions
 {
-    private static readonly HashSet<string> s_supportedCollections = new()
+    private const string AssemblyMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceMongoDBBson = "MongoDB.Bson";
+    private const string NamespaceMongoDBBsonAttributes = "MongoDB.Bson.Serialization.Attributes";
+    private const string NamespaceMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceMongoDBLinq = "MongoDB.Driver.Linq";
+    private const string NamespaceSystem = "System";
+    private const string NamespaceSystemLinq = "System.Linq";
+
+    private static readonly HashSet<string> s_supportedBsonAttributes = new()
     {
-        "System.Collections.Generic.List<T>",
-        "System.Collections.Generic.IList<T>",
-        "System.Collections.Generic.IEnumerable<T>"
+        "BsonConstructorAttribute",
+        "BsonDateTimeOptionsAttribute",
+        "BsonDefaultValueAttribute",
+        "BsonDiscriminatorAttribute",
+        "BsonElementAttribute",
+        "BsonExtraElementsAttribute",
+        "BsonFactoryMethodAttribute",
+        "BsonIdAttribute",
+        "BsonIgnoreAttribute",
+        "BsonIgnoreExtraElementsAttribute",
+        "BsonIgnoreIfDefaultAttribute",
+        "BsonIgnoreIfNullAttribute",
+        "BsonKnownTypesAttribute",
+        "BsonNoIdAttribute",
+        "BsonRequiredAttribute",
+        "BsonTimeSpanOptionsAttribute"
     };
 
+    private static readonly HashSet<string> s_supportedBsonTypes = new()
+    {
+        "MongoDB.Bson.BsonDocument",
+        "MongoDB.Bson.BsonObjectId",
+        "MongoDB.Bson.BsonType",
+        "MongoDB.Bson.BsonValue",
+        "MongoDB.Bson.Serialization.Options.TimeSpanUnits"
+    };
+
+    private static readonly HashSet<string> s_supportedCollections = new()
+    {
+        "System.Collections.Generic.IEnumerable<T>",
+        "System.Collections.Generic.IList<T>",
+        "System.Collections.Generic.List<T>"
+    };
+
+    private static readonly HashSet<string> s_supportedSystemTypes = new()
+    {
+        "System.DateTime",
+        "System.DateTimeKind",
+        "System.DateTimeOffset",
+        "System.TimeSpan",
+        "System.Type"
+    };
+
+    public static (bool IsNullable, ITypeSymbol underlyingType) DiscardNullable(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.OriginalDefinition.SpecialType switch
+        {
+            SpecialType.System_Nullable_T => (true, ((INamedTypeSymbol)typeSymbol).TypeArguments.SingleOrDefault()),
+            _ => (false, typeSymbol)
+        };
+
+    public static SyntaxToken[] GetFieldModifiers(this IFieldSymbol fieldSymbol) =>
+        fieldSymbol.IsReadOnly ? GetReadOnlyPublicFieldModifiers() : GetPublicFieldModifiers();
+
+    public static AccessorDeclarationSyntax[] GetPropertyAccessors(this IPropertySymbol propertySymbol) =>
+        propertySymbol.IsReadOnly ? GetReadOnlyPropertyAccessors() : (propertySymbol.IsWriteOnly ? GetWriteOnlyPropertyAccessors() : GetReadWritePropertyAccessors());
+    
     public static IMethodSymbol GetMethodSymbol(this SyntaxNode node, SemanticModel semanticModel) =>
         semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
 
@@ -41,9 +100,16 @@ internal static class SymbolExtensions
             _ => symbol.IsContainedInLambda(parentNode)
         };
 
-    public static bool IsDefinedInMongoLinq(this ISymbol symbol) =>
-        symbol?.ContainingModule?.Name?.ToLowerInvariant() == "mongodb.driver.dll" &&
-        symbol?.ContainingNamespace?.Name == "Linq";
+    public static bool IsDefinedInMongoLinqOrSystemLinq(this ISymbol symbol)
+    {
+        var containingNamespace = symbol?.ContainingNamespace?.ToDisplayString();
+
+        // In case of system linq, the containing module is not validated for simplicity,
+        // as it can differ in different .net frameworks.
+        return containingNamespace == NamespaceSystemLinq ||
+            containingNamespace == NamespaceMongoDBLinq &&
+            symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
+    }
 
     public static bool IsBuilder(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
@@ -51,11 +117,12 @@ internal static class SymbolExtensions
             "FilterDefinitionBuilder" or
             "IndexKeysDefinitionBuilder" or
             "IndexKeysDefinitionExtensions" or
-            "SortDefinitionBuilder" or
-            "SortDefinitionExtensions" or
             "ProjectionDefinitionBuilder" or
             "ProjectionDefinitionExtensions" or
             "PipelineDefinitionBuilder" or
+            "SearchDefinitionBuilder" or
+            "SortDefinitionBuilder" or
+            "SortDefinitionExtensions" or
             "UpdateDefinitionBuilder" => true,
             _ => false
         };
@@ -70,9 +137,10 @@ internal static class SymbolExtensions
         {
             "FilterDefinition" or
             "IndexKeysDefinition" or
-            "SortDefinition" or
             "ProjectionDefinition" or
             "PipelineDefinition" or
+            "SearchDefinition" or
+            "SortDefinition" or
             "UpdateDefinition" => true,
             _ => false
         };
@@ -92,30 +160,30 @@ internal static class SymbolExtensions
 
     public static bool IsFindOptions(this ITypeSymbol namedTypeSymbol) =>
        namedTypeSymbol?.Name == "FindOptions" &&
-       namedTypeSymbol?.ContainingAssembly.Name == "MongoDB.Driver";
+       namedTypeSymbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
 
-    public static bool IsIMongoCollection(this ITypeSymbol typeSymbol) => ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver", "IMongoCollection");
+    public static bool IsIMongoCollection(this ITypeSymbol typeSymbol) => ImplementsOrIsInterface(typeSymbol, NamespaceMongoDBDriver, "IMongoCollection");
 
     public static bool IsIMongoQueryable(this ITypeSymbol typeSymbol) =>
-        ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IMongoQueryable") ||
-        ImplementsOrIsInterface(typeSymbol, "MongoDB.Driver.Linq", "IOrderedMongoQueryable");
+        ImplementsOrIsInterface(typeSymbol, NamespaceMongoDBLinq, "IMongoQueryable") ||
+        ImplementsOrIsInterface(typeSymbol, NamespaceMongoDBLinq, "IOrderedMongoQueryable");
 
-    public static bool IsLinqEnumerable(this ITypeSymbol typeSymbol) =>
-        typeSymbol?.Name == "Enumerable" && typeSymbol.ContainingNamespace.Name == "Linq";
+    public static bool IsIQueryable(this ITypeSymbol typeSymbol) =>
+        ImplementsOrIsInterface(typeSymbol, NamespaceSystemLinq, nameof(IQueryable));
 
     public static bool IsMongoQueryable(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name == "MongoQueryable";
 
-    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
-        typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-        s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString());
-
-    public static bool IsSupportedMongoCollectionType(this ITypeSymbol typeSymbol) =>
-        typeSymbol.TypeKind == TypeKind.Class &&
-        !typeSymbol.IsAnonymousType;
-
     public static bool IsString(this ITypeSymbol typeSymbol) =>
         typeSymbol?.SpecialType == SpecialType.System_String;
+
+    public static bool IsSupportedBsonAttribute(this ITypeSymbol typeSymbol) =>
+        s_supportedBsonAttributes.Contains(typeSymbol?.Name) &&
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBsonAttributes;
+
+    public static bool IsSupportedBsonType(this ITypeSymbol typeSymbol, string fullTypeName) =>
+        s_supportedBsonTypes.Contains(fullTypeName) &&
+        (typeSymbol?.ContainingNamespace?.ToDisplayString().StartsWith(NamespaceMongoDBBson) ?? false);
 
     public static bool IsSupportedBuilderType(this ITypeSymbol typeSymbol) =>
         typeSymbol?.TypeKind switch
@@ -126,17 +194,53 @@ internal static class SymbolExtensions
             _ => false
         };
 
+    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
+        typeSymbol is INamedTypeSymbol namedTypeSymbol &&
+        s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString());
+
+    public static bool IsSupportedMongoCollectionType(this ITypeSymbol typeSymbol) =>
+        typeSymbol.TypeKind == TypeKind.Class &&
+        !typeSymbol.IsAnonymousType;
+    
+    public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol, string fullTypeName) =>
+        (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
+
     public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
         typeSymbol.IsIMongoCollection() &&
         typeSymbol is INamedTypeSymbol namedType &&
         namedType.TypeArguments.Length == 1 &&
         namedType.TypeArguments[0].IsSupportedMongoCollectionType();
 
-    private static bool ImplementsOrIsInterface(this ITypeSymbol typeSymbol, string @namespace, string interfaceName) =>
-        typeSymbol?.TypeKind switch
+    private static SyntaxToken[] GetPublicFieldModifiers() =>
+        new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) };
+
+    private static SyntaxToken[] GetReadOnlyPublicFieldModifiers() =>
+        new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword) };
+
+    private static AccessorDeclarationSyntax[] GetReadOnlyPropertyAccessors() =>
+        new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
+
+    private static AccessorDeclarationSyntax[] GetReadWritePropertyAccessors() =>
+        new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)), SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
+
+    private static AccessorDeclarationSyntax[] GetWriteOnlyPropertyAccessors() =>
+        new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
+
+    private static bool ImplementsOrIsInterface(this ITypeSymbol typeSymbol, string @namespace, string interfaceName)
+    {
+        if (typeSymbol == null)
         {
-            TypeKind.Class => typeSymbol.Interfaces.Any(i => i.Name == interfaceName && i.ContainingNamespace.ToDisplayString() == @namespace),
-            TypeKind.Interface => typeSymbol.Name == interfaceName && typeSymbol.ContainingNamespace.ToDisplayString() == @namespace,
-            _ => false
-        };
+            return false;
+        }
+
+        return IsType(typeSymbol) || typeSymbol.Interfaces.Any(IsType);
+
+        bool IsType(ITypeSymbol typeSymbol) =>
+            typeSymbol.Name == interfaceName && typeSymbol.ContainingNamespace.ToDisplayString() == @namespace;
+    }
 }

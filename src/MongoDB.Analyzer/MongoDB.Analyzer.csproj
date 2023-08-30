@@ -7,11 +7,11 @@
 
     <PackageId>MongoDBAnalyzerCore</PackageId>
 
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
     <Company>MongoDB Inc.</Company>
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>MongoDB Roslyn analyzer for MongoDB .Net driver.</Description>
-    <InformationalVersion>1.1.0</InformationalVersion>
+    <InformationalVersion>1.2.0</InformationalVersion>
     <Product>MongoDB.Analyzer</Product>
     <ImplicitUsings>enable</ImplicitUsings>
 
@@ -21,6 +21,8 @@
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\*.cs" LinkBase="Core\HelperResources\" />
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\*.cs" LinkBase="Core\HelperResources\Linq" />
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Builders\*.cs" LinkBase="Core\HelperResources\Builders" />
+    <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Poco\*.cs" LinkBase="Core\HelperResources\Poco" />
+    <EmbeddedResource Include="Core\Poco\Data\Data.json" />
   </ItemGroup>
 
   <ItemGroup>

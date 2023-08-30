@@ -12,33 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using static MongoDB.Analyzer.Core.HelperResources.MqlGeneratorSyntaxElements.Linq;
+using MongoDB.Analyzer.Core.HelperResources;
+using MongoDB.Analyzer.Core.Utilities;
 using static MongoDB.Analyzer.Core.HelperResources.ResourcesUtilities;
 
 namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly SyntaxTree[] s_helpersSyntaxTrees;
-    private static readonly SyntaxTree s_linqProviderV2SyntaxTree;
-    private static readonly SyntaxTree s_linqProviderV3SyntaxTree;
-    private static readonly LinqMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElementsLinq2;
-    private static readonly LinqMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElementsLinq3;
-    private static readonly ParseOptions s_parseOptions;
+    private static readonly SyntaxTreesCache s_syntaxTreesCache;
+    private static readonly LinqMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElements;
+    private static readonly CSharpParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
     {
-        s_linqProviderV2SyntaxTree = GetCodeResource(ResourceNames.Linq.IQueryableProviderV2);
-        s_linqProviderV3SyntaxTree = GetCodeResource(ResourceNames.Linq.IQueryableProviderV3);
-        s_helpersSyntaxTrees = GetCommonCodeResources(ResourceNames.Linq.IQueryableProvider);
-
         var mqlGeneratorSyntaxTree = GetCodeResource(ResourceNames.Linq.MqlGenerator);
-        s_mqlGeneratorSyntaxElementsLinq2 = LinqMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree, false);
-        s_mqlGeneratorSyntaxElementsLinq3 = LinqMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree, true);
-        s_parseOptions = mqlGeneratorSyntaxTree.Options;
+        s_mqlGeneratorSyntaxElements = LinqMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree);
+
+        s_parseOptions = (CSharpParseOptions)mqlGeneratorSyntaxTree.Options;
+        s_syntaxTreesCache = new SyntaxTreesCache(s_parseOptions, ResourceNames.Linq.QueryableProvider);
     }
 
-    public static CompilationResult Compile(MongoAnalyzerContext context, ExpressionsAnalysis linqExpressionAnalysis)
+    public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var referencesContainer = ReferencesProvider.GetReferences(semanticModel.Compilation.References, context.Logger);
@@ -48,57 +43,36 @@ internal static class AnalysisCodeGenerator
         }
 
         var isLinq3 = referencesContainer.Version >= LinqAnalysisConstants.MinLinq3Version;
-        var linqProviderSyntaxTree = isLinq3 ? s_linqProviderV3SyntaxTree : s_linqProviderV2SyntaxTree;
+        var isLinq3Default = referencesContainer.Version >= LinqAnalysisConstants.DefaultLinq3Version;
+        var defaultLinqVersion = context.Settings.DefaultLinqVersion ?? (isLinq3Default ? LinqVersion.V3 : LinqVersion.V2);
 
         var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Linq, linqExpressionAnalysis.TypesDeclarations, s_parseOptions);
-        var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(linqExpressionAnalysis, isLinq3);
+        var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(linqExpressionAnalysis);
 
-        var syntaxTrees = new List<SyntaxTree>(s_helpersSyntaxTrees)
+        var helperSyntaxTrees = s_syntaxTreesCache.GetSyntaxTrees(referencesContainer.Version);
+        var syntaxTrees = new List<SyntaxTree>(helperSyntaxTrees)
             {
-                linqProviderSyntaxTree,
                 typesSyntaxTree,
                 mqlGeneratorSyntaxTree
             };
 
-        var compilation = CSharpCompilation.Create(
-            LinqAnalysisConstants.AnalysisAssemblyName,
-            syntaxTrees,
-            referencesContainer.References,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-        using var memoryStream = new MemoryStream();
-        var emitResult = compilation.Emit(memoryStream);
-
-        LinqMqlGeneratorExecutor linqTestCodeExecutor = null;
-
-        if (emitResult.Success)
+        var generatorType = AnalysisCodeGeneratorUtilities.CompileAndGetGeneratorType(AnalysisType.Linq, context, referencesContainer, syntaxTrees);
+        if (generatorType == null)
         {
-            context.Logger.Log("Compilation successful");
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-            var mqlGeneratorType = DynamicTypeProvider.GetType(referencesContainer, memoryStream, MqlGeneratorFullName);
-
-            linqTestCodeExecutor = mqlGeneratorType != null ?
-                new LinqMqlGeneratorExecutor(mqlGeneratorType, isLinq3 ? LinqVersion.V3 : LinqVersion.V2, context.Settings.DefaultLinqVersion) : null;
-        }
-        else
-        {
-            context.Logger.Log($"Compilation failed with: {string.Join(Environment.NewLine, emitResult.Diagnostics)}");
+            return CompilationResult.Failure;
         }
 
         var result = new CompilationResult(
-            linqTestCodeExecutor != null,
-            linqTestCodeExecutor,
+            true,
+            new LinqMqlGeneratorExecutor(generatorType, isLinq3 ? LinqVersion.V3 : LinqVersion.V2, defaultLinqVersion),
             referencesContainer.Version);
 
         return result;
     }
 
-    private static SyntaxTree GenerateMqlGeneratorSyntaxTree(ExpressionsAnalysis linqExpressionAnalysis, bool isLinq3)
+    private static SyntaxTree GenerateMqlGeneratorSyntaxTree(ExpressionsAnalysis linqExpressionAnalysis)
     {
-        var syntaxElements = isLinq3 ? s_mqlGeneratorSyntaxElementsLinq3 : s_mqlGeneratorSyntaxElementsLinq2;
-        var testCodeBuilder = new LinqMqlGeneratorTemplateBuilder(syntaxElements);
+        var testCodeBuilder = new LinqMqlGeneratorTemplateBuilder(s_mqlGeneratorSyntaxElements);
 
         foreach (var linqContext in linqExpressionAnalysis.AnalysisNodeContexts)
         {

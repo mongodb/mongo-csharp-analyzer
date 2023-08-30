@@ -26,10 +26,10 @@ internal sealed class LinqMqlGeneratorExecutor
 
     public string DriverVersion { get; }
 
-    public LinqMqlGeneratorExecutor(Type testClassType, LinqVersion maxSupportedLinqVerison, LinqVersion defaultLinqVersion)
+    public LinqMqlGeneratorExecutor(Type testClassType, LinqVersion maxSupportedLinqVersion, LinqVersion defaultLinqVersion)
     {
         _testClassType = testClassType;
-        _isLinq3Driver = maxSupportedLinqVerison == LinqVersion.V3;
+        _isLinq3Driver = maxSupportedLinqVersion == LinqVersion.V3;
         _isLinq3Default = defaultLinqVersion == LinqVersion.V3;
 
         DriverVersion = GetDriverVersion();

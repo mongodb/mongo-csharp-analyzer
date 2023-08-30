@@ -20,16 +20,19 @@ internal static class ResourceNames
 
     internal static class Linq
     {
-        public const string IQueryableProvider = $"Linq.{nameof(IQueryableProvider)}";
-        public const string IQueryableProviderV2 = $"Linq.{nameof(IQueryableProviderV2)}";
-        public const string IQueryableProviderV3 = $"Linq.{nameof(IQueryableProviderV3)}";
         public const string MqlGenerator = $"Linq.{nameof(MqlGenerator)}";
+        public const string QueryableProvider = $"Linq.{nameof(QueryableProvider)}";
     }
 
     internal static class Builders
     {
         public const string MqlGenerator = $"Builders.{nameof(MqlGenerator)}";
         public const string Renderer = $"Builders.{nameof(Renderer)}";
+    }
+
+    internal static class Poco
+    {
+        public const string JsonGenerator = $"Poco.{nameof(JsonGenerator)}";
     }
 
     public const string EmptyCursor = nameof(EmptyCursor);

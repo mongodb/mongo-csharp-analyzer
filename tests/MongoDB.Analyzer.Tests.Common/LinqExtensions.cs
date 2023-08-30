@@ -12,12 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
 using MongoDB.Driver.Linq;
 
-namespace MongoDB.Analyzer.Helpers.Linq
+namespace MongoDB.Analyzer.Tests.Common
 {
-    public interface IQueryableProvider
+    public static class LinqExtensions
     {
-        IMongoQueryable<TDocument> GetQueryable<TDocument>(bool isV3);
+        public static IMongoQueryable<T> ApplyPaging<T>(this IMongoQueryable<T> query, int page, int pageSize) =>
+            query.Skip((page - 1) * pageSize).Take(pageSize);
+
+        public static IQueryable<T> ApplyPagingIQueryable<T>(this IQueryable<T> query, int page, int pageSize) =>
+            query.Skip((page - 1) * pageSize).Take(pageSize);
     }
 }

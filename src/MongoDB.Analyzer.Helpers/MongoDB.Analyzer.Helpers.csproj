@@ -1,12 +1,27 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>DynamicProxyGenAssembly2</AssemblyName>
+    <Configurations>DRIVER_2_12;DRIVER_2_14;DRIVER_2_19;DRIVER_2_21</Configurations>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.14.0-beta1" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'DRIVER_2_14'">
+    <DefineConstants>DRIVER_2_14_OR_GREATER</DefineConstants>
+  </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'DRIVER_2_19'">
+      <DefineConstants>DRIVER_2_14_OR_GREATER</DefineConstants>
+      <DefineConstants>DRIVER_2_19_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'DRIVER_2_21'">
+    <DefineConstants>DRIVER_2_21_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="2.12.4" Condition="'$(Configuration)' == 'DRIVER_2_12'" />
+    <PackageReference Include="MongoDB.Driver" Version="2.14.0" Condition="'$(Configuration)' == 'DRIVER_2_14'" />
+    <PackageReference Include="MongoDB.Driver" Version="2.19.0" Condition="'$(Configuration)' == 'DRIVER_2_19'" />
+    <PackageReference Include="MongoDB.Driver" Version="2.21.0" Condition="'$(Configuration)' == 'DRIVER_2_21'" />
+  </ItemGroup>
 </Project>

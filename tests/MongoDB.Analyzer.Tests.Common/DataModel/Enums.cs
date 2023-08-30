@@ -14,6 +14,18 @@
 
 namespace MongoDB.Analyzer.Tests.Common.DataModel
 {
+    public class NullableEnumHolder
+    {
+        public EnumInt8? EnumInt8 { get; set; }
+        public EnumUInt8? EnumUInt8 { get; set; }
+        public EnumInt16? EnumInt16 { get; set; }
+        public EnumUInt16? EnumUInt16 { get; set; }
+        public EnumInt32? EnumInt32 { get; set; }
+        public EnumUInt32? EnumUInt32 { get; set; }
+        public EnumInt64? EnumInt64 { get; set; }
+        public EnumUInt64? EnumUInt64 { get; set; }
+    }
+
     public class EnumHolder
     {
         public EnumInt8 EnumInt8 { get; set; }

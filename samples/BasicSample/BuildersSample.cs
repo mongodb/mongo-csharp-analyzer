@@ -20,6 +20,19 @@ namespace BasicSample
 {
     public class BuildersSample
     {
+        public void AtlasSearch()
+        {
+            var mongoClient = new MongoClient(@"mongodb://localhost:27017");
+            var db = mongoClient.GetDatabase("testdb");
+            var moviesCollection = db.GetCollection<Movie>("movies");
+
+            // Search definition (analyzer provides mql as information message)
+            var searchTitle = Builders<Movie>.Search.Wildcard(p => p.Title, "Green D*");
+
+            // MQL is displayed for 'searchTitle' variables
+            moviesCollection.Aggregate().Search(searchTitle);
+        }
+
         public async Task<List<Movie>> GetMovies(double minScore, Genre genre, string titleSearchTerm)
         {
             var mongoClient = new MongoClient(@"mongodb://localhost:27017");

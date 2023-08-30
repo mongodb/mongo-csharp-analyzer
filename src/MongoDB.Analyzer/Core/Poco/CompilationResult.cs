@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MongoDB.Analyzer.Core;
+namespace MongoDB.Analyzer.Core.Poco;
 
-internal record MongoAnalyzerContext(
-    SemanticModelAnalysisContext SemanticModelAnalysisContext,
-    MongoDBAnalyzerSettings Settings,
-    Logger Logger,
-    ITelemetryService Telemetry)
+internal record CompilationResult(
+    bool Success,
+    PocoJsonGeneratorExecutor PocoTestCodeExecutor,
+    Version MongoDBDriverVersion)
 {
-};
+    public static CompilationResult Failure { get; } = new CompilationResult(false, null, null);
+}

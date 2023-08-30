@@ -12,24 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Driver;
+using System;
 using System.Linq;
-using BsonDocumentCustom123 = MongoDB.Bson.BsonDocument;
-using BsonValueCustom123 = MongoDB.Bson.BsonValue;
-using BsonObjectIdCustom123 = MongoDB.Bson.BsonObjectId;
-using BsonTypeCustom123 = MongoDB.Bson.BsonType;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Driver;
 
 namespace MongoDB.Analyzer.Helpers.Builders
 {
     public static class MqlGenerator
     {
-#pragma warning disable CS0169 // The field is never used
+#pragma warning disable CS0169 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning disable IDE0051
-        private static readonly BsonDocumentCustom123 s_dummyRef1;
-        private static readonly BsonValueCustom123 s_dummyRef2;
-        private static readonly BsonObjectIdCustom123 s_dummyRef3;
-        private static readonly BsonTypeCustom123 s_dummyRef4;
-#pragma warning restore IDE0051 // The field is never used
+        private static readonly Int32 s_dummyRef1; // using System
+        private static readonly BsonType s_dummyRef2; // using MongoDB.Bson
+        private static readonly TimeSpanUnits s_dummyRef3; // using MongoDB.Bson.Serialization.Option
+#pragma warning restore IDE0051 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning restore CS0169
 
         private sealed class MqlGeneratorTemplateType

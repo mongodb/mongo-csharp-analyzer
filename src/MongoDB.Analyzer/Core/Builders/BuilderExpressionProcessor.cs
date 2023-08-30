@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Analyzer.Core.HelperResources;
-using TypeInfo = Microsoft.CodeAnalysis.TypeInfo;
+using static MongoDB.Analyzer.Core.ExpressionProcessor;
 
 namespace MongoDB.Analyzer.Core.Builders;
 
@@ -27,34 +26,7 @@ internal static class BuilderExpressionProcessor
         Fluent
     }
 
-    private record RewriteContext(
-        SyntaxNode BuildersExpression,
-        SemanticModel SemanticModel,
-        TypesProcessor TypesProcessor,
-        ConstantsMapper ConstantsMapper);
-
-    private enum RewriteAction
-    {
-        Rewrite,
-        Ignore,
-        Invalid
-    }
-
-    private record RewriteResult(
-        RewriteAction RewriteAction,
-        SyntaxNode NodeToReplace,
-        SyntaxNode NewNode)
-    {
-        public RewriteResult(SyntaxNode NodeToReplace, SyntaxNode NewNode) :
-            this(RewriteAction.Rewrite, NodeToReplace, NewNode)
-        {
-        }
-
-        public static RewriteResult Ignore = new(RewriteAction.Ignore, null, null);
-        public static RewriteResult Invalid = new(RewriteAction.Invalid, null, null);
-    }
-
-    public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalyzerContext context)
+    public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var syntaxTree = semanticModel.SyntaxTree;
@@ -63,7 +35,7 @@ internal static class BuilderExpressionProcessor
         var analysisContexts = new List<ExpressionAnalysisContext>();
         var invalidExpressionNodes = new List<InvalidExpressionAnalysisNode>();
 
-        var typesProcessor = new TypesProcessor();
+        var typesProcessor = context.TypesProcessor;
         var nodesProcessed = new HashSet<SyntaxNode>();
         var buildersToAnalysisContextMap = context.Settings.EnableVariableTracking ? new Dictionary<SyntaxNode, ExpressionAnalysisContext>() : null;
 
@@ -105,19 +77,20 @@ internal static class BuilderExpressionProcessor
                     typesProcessor.ProcessTypeSymbol(typeArgument);
                 }
 
-                var (newBuildersExpression, constantsMapper) = RewriteBuildersExpression(expressionNode, typesProcessor, semanticModel, collectionNode);
+                var rewriteContext = RewriteContext.Builders(expressionNode, collectionNode, semanticModel, typesProcessor);
+                var (newBuildersExpression, constantsMapper) = RewriteExpression(rewriteContext);
 
                 if (newBuildersExpression != null)
                 {
-                    var expresionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(
+                    var expressionContext = new ExpressionAnalysisContext(new(
                         expressionNode,
                         typesProcessor.GetTypeSymbolToGeneratedTypeMapping(namedType.TypeArguments.First()),
                         newBuildersExpression,
                         constantsMapper,
                         expressionNode.GetLocation()));
 
-                    analysisContexts.Add(expresionContext);
-                    buildersToAnalysisContextMap?.Add(expressionNode, expresionContext);
+                    analysisContexts.Add(expressionContext);
+                    buildersToAnalysisContextMap?.Add(expressionNode, expressionContext);
                 }
             }
             catch (Exception ex)
@@ -219,379 +192,5 @@ internal static class BuilderExpressionProcessor
         }
 
         return (nodeType, namedType, expressionNode);
-    }
-
-    private static RewriteResult HandleRemappedType(
-        RewriteContext rewriteContext,
-        SimpleNameSyntax simpleNameNode,
-        TypeInfo typeInfo)
-    {
-        if (simpleNameNode is GenericNameSyntax genericNameSyntax)
-        {
-            var genericTypeInfo = rewriteContext.SemanticModel.GetTypeInfo(genericNameSyntax);
-            var genericRemappedType = rewriteContext.TypesProcessor.ProcessTypeSymbol(genericTypeInfo.Type);
-
-            if (genericRemappedType == null)
-            {
-                return RewriteResult.Invalid;
-            }
-
-            return new RewriteResult(simpleNameNode, SyntaxFactory.IdentifierName(genericRemappedType));
-        }
-
-        var remappedType = rewriteContext.TypesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeInfo.Type);
-
-        if (remappedType == null)
-        {
-            return RewriteResult.Invalid;
-        }
-
-        SyntaxNode nodeToReplace = simpleNameNode;
-        var identifierName = simpleNameNode.Identifier.Text;
-
-        if (simpleNameNode is GenericNameSyntax)
-        {
-            nodeToReplace = simpleNameNode;
-        }
-        if (typeInfo.Type.TypeKind == TypeKind.Enum)
-        {
-            if (nodeToReplace.Parent is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
-            {
-                nodeToReplace = memberAccessExpressionSyntax;
-                identifierName = memberAccessExpressionSyntax.Name.Identifier.Text;
-            }
-            else
-            {
-                return RewriteResult.Ignore;
-            }
-        }
-        else
-        {
-            while (nodeToReplace.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-            {
-                nodeToReplace = nodeToReplace.Parent;
-            }
-        }
-
-        SyntaxNode newNode = simpleNameNode.Parent.Kind() switch
-        {
-            SyntaxKind.SimpleMemberAccessExpression => SyntaxFactoryUtilities.SimpleMemberAccess(remappedType, identifierName),
-            _ => SyntaxFactory.IdentifierName(remappedType)
-        };
-
-        return new RewriteResult(nodeToReplace, newNode);
-    }
-
-    private static RewriteResult HandleField(
-        RewriteContext rewriteContext,
-        SyntaxNode simpleNameSyntax,
-        SymbolInfo symbolInfo,
-        TypeInfo typeInfo)
-    {
-        var fieldSymbol = symbolInfo.Symbol as IFieldSymbol;
-        if (fieldSymbol?.HasConstantValue != true)
-        {
-            return SubstituteExpressionWithConst(rewriteContext, simpleNameSyntax, symbolInfo, typeInfo);
-        }
-
-        if (!simpleNameSyntax.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-        {
-            return RewriteResult.Ignore;
-        }
-
-        SyntaxNode replacementNode;
-        if (fieldSymbol.Type.TypeKind == TypeKind.Enum)
-        {
-            replacementNode = GetEnumCastNode(fieldSymbol.Type, fieldSymbol.ConstantValue, rewriteContext.TypesProcessor);
-        }
-        else if (fieldSymbol.Type.SpecialType != SpecialType.None)
-        {
-            replacementNode = rewriteContext.ConstantsMapper.GetExpressionForConstant(fieldSymbol.Type.SpecialType, fieldSymbol.ConstantValue);
-        }
-        else
-        {
-            return RewriteResult.Invalid;
-        }
-
-        return new RewriteResult(simpleNameSyntax.Parent, replacementNode);
-    }
-
-    private static RewriteResult HandleMethod(
-        RewriteContext rewriteContext,
-        SyntaxNode simpleNameSyntax,
-        SymbolInfo symbolInfo,
-        TypeInfo typeInfo)
-    {
-        var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
-        if (methodSymbol.ReceiverType.IsIMongoQueryable() ||
-           methodSymbol.ReturnType.IsIMongoQueryable() ||
-           methodSymbol.ReturnType == null ||
-           methodSymbol.IsBuilderMethod() ||
-           methodSymbol.IsFindFluentMethod() ||
-           IsChildOfLambdaParameterOrBuilders(rewriteContext, simpleNameSyntax, symbolInfo))
-        {
-            return RewriteResult.Ignore;
-        }
-
-        var typeSymbol = typeInfo.ConvertedType ?? methodSymbol.ReturnType;
-        var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(simpleNameSyntax);
-        var replacementNode = GetConstantReplacementNode(rewriteContext, typeSymbol, nodeToReplace.ToString());
-
-        if (replacementNode == null)
-        {
-            return RewriteResult.Invalid;
-        }
-
-        return new RewriteResult(nodeToReplace, replacementNode);
-    }
-
-    private static SyntaxNode GetEnumCastNode(ITypeSymbol typeSymbol, object constantValue, TypesProcessor typesProcessor)
-    {
-        var remappedEnumTypeName = typesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeSymbol);
-
-        if (remappedEnumTypeName.IsNullOrWhiteSpace())
-        {
-            return null;
-        }
-
-        return SyntaxFactoryUtilities.GetCastConstantExpression(remappedEnumTypeName, constantValue);
-    }
-
-    private static SyntaxNode GetConstantReplacementNode(
-        RewriteContext rewriteContext,
-        ITypeSymbol typeSymbol,
-        string fullName = null)
-    {
-        SyntaxNode replacementNode = null;
-
-        if (typeSymbol.TypeKind == TypeKind.Enum)
-        {
-            var underlyingEnumType = (typeSymbol as INamedTypeSymbol).EnumUnderlyingType.SpecialType;
-
-            var literalSyntax = rewriteContext.ConstantsMapper.GetExpressionByType(underlyingEnumType, fullName);
-            replacementNode = GetEnumCastNode(typeSymbol, literalSyntax.Token.Value, rewriteContext.TypesProcessor);
-        }
-        else if (typeSymbol.SpecialType != SpecialType.None)
-        {
-            replacementNode = rewriteContext.ConstantsMapper.GetExpressionByType(typeSymbol.SpecialType, fullName);
-        }
-
-        return replacementNode;
-    }
-
-    private static bool IsChildOfLambdaParameterOrBuilders(
-        RewriteContext rewriteContext,
-        SyntaxNode simpleNameSyntax,
-        SymbolInfo symbolInfo)
-    {
-        if (symbolInfo.Symbol.IsContainedInLambda(rewriteContext.BuildersExpression))
-        {
-            return true;
-        }
-
-        var underlyingIdetifier = SyntaxFactoryUtilities.GetUnderlyingIdentifier(simpleNameSyntax);
-        if (underlyingIdetifier == null)
-        {
-            return false;
-        }
-
-        if (underlyingIdetifier.Identifier.Text == "Builders" ||
-            rewriteContext.SemanticModel.GetSymbolInfo(underlyingIdetifier).Symbol.IsContainedInLambda(rewriteContext.BuildersExpression))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private static GenericNameSyntax ProcessGenericType(RewriteContext rewriteContext, GenericNameSyntax genericNameSyntax)
-    {
-        var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(genericNameSyntax);
-        var remappedType = rewriteContext.TypesProcessor.ProcessTypeSymbol(typeInfo.Type);
-
-        if (remappedType == null)
-        {
-            return null;
-        }
-
-        var typeArguments = new List<TypeSyntax>();
-
-        foreach (var typeArgument in genericNameSyntax.TypeArgumentList.Arguments)
-        {
-            TypeSyntax typeSyntax;
-
-            if (typeArgument is GenericNameSyntax nestedGenericNameSyntax)
-            {
-                typeSyntax = ProcessGenericType(rewriteContext, nestedGenericNameSyntax);
-
-                if (typeSyntax == null)
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                var typeArgumentTypeInfo = rewriteContext.SemanticModel.GetTypeInfo(typeArgument);
-                var typeArgumentRemappedType = rewriteContext.TypesProcessor.ProcessTypeSymbol(typeArgumentTypeInfo.Type);
-
-                if (typeArgumentRemappedType == null)
-                {
-                    return null;
-                }
-
-                typeSyntax = SyntaxFactory.IdentifierName(typeArgumentRemappedType);
-            }
-
-            typeArguments.Add(typeSyntax);
-        }
-
-        var newGenericNameSyntax = SyntaxFactory.GenericName(
-            SyntaxFactory.Identifier(remappedType),
-            SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(typeArguments)));
-
-        return newGenericNameSyntax;
-    }
-
-    private static RewriteResult RemoveNonFluentParams(
-        SyntaxNode syntaxNode,
-        SymbolInfo symbolInfo,
-        TypeInfo typeInfo)
-    {
-        var typeSymbol = symbolInfo.Symbol.Kind switch
-        {
-            SymbolKind.Field => (symbolInfo.Symbol as IFieldSymbol).Type,
-            SymbolKind.Method => (symbolInfo.Symbol as IMethodSymbol).ReturnType,
-            SymbolKind.NamedType => symbolInfo.Symbol as INamedTypeSymbol,
-            SymbolKind.Local or
-            SymbolKind.Parameter or
-            SymbolKind.Property => typeInfo.Type,
-            _ => null
-        };
-
-        if (typeSymbol.IsFindOptions())
-        {
-            var argumentNode = syntaxNode.GetParentArgumentSyntaxIfExists();
-            if (argumentNode == null)
-            {
-                return RewriteResult.Invalid;
-            }
-
-            return new RewriteResult(argumentNode, SyntaxFactoryUtilities.NewFindOptionsArgument);
-        }
-
-        return null;
-    }
-
-    private static (SyntaxNode RewrittenLinqExpression, ConstantsMapper ConstantsMapper) RewriteBuildersExpression(
-       SyntaxNode buildersExpressionNode,
-       TypesProcessor typesProcessor,
-       SemanticModel semanticModel,
-       SyntaxNode collectionNode = null)
-    {
-        var rewriteContext = new RewriteContext(buildersExpressionNode, semanticModel, typesProcessor, new ConstantsMapper());
-
-        var nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
-        var nodeProcessed = new HashSet<SyntaxNode>();
-
-        if (collectionNode != null)
-        {
-            nodesRemapping.Add(collectionNode, SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Builders.CollectionName));
-            nodeProcessed.Add(collectionNode);
-        }
-
-        foreach (var literalSyntax in buildersExpressionNode.DescendantNodes().OfType<LiteralExpressionSyntax>())
-        {
-            rewriteContext.ConstantsMapper.RegisterLiteral(literalSyntax);
-        }
-
-        rewriteContext.ConstantsMapper.FinalizeLiteralsRegistration();
-
-
-        foreach (var identifierNode in buildersExpressionNode.DescendantNodesWithSkipList(nodeProcessed).OfType<SimpleNameSyntax>())
-        {
-            if (identifierNode == collectionNode ||
-                !identifierNode.IsLeaf() ||
-                nodeProcessed.Any(e => e.Contains(identifierNode)))
-            {
-                continue;
-            }
-
-            var nodeToHandle = SyntaxNodeExtensions.GetTopMostInvocationOrBinaryExpressionSyntax(identifierNode, null);
-            if (nodeToHandle != identifierNode)
-            {
-                nodeProcessed.Add(nodeToHandle);
-            }
-
-            var symbolInfo = semanticModel.GetSymbolInfo(nodeToHandle);
-            var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(nodeToHandle);
-
-            var rewriteResult = RemoveNonFluentParams(nodeToHandle, symbolInfo, typeInfo);
-            if (rewriteResult == null)
-            {
-                rewriteResult = symbolInfo.Symbol.Kind switch
-                {
-                    SymbolKind.Field => HandleField(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
-                    SymbolKind.Method => HandleMethod(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
-                    SymbolKind.NamedType => HandleRemappedType(rewriteContext, identifierNode, typeInfo),
-                    SymbolKind.Local or
-                    SymbolKind.Parameter or
-                    SymbolKind.Property => SubstituteExpressionWithConst(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
-                    _ => RewriteResult.Ignore
-                };
-            }
-
-            switch (rewriteResult.RewriteAction)
-            {
-                case RewriteAction.Rewrite:
-                    {
-                        if (symbolInfo.Symbol.Kind == SymbolKind.NamedType)
-                        {
-                            nodeProcessed.Add(rewriteResult.NodeToReplace);
-                        }
-
-                        if (nodesRemapping == null)
-                        {
-                            nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
-                        }
-
-                        nodesRemapping[rewriteResult.NodeToReplace] = rewriteResult.NewNode;
-                        break;
-                    }
-                case RewriteAction.Invalid:
-                    return (null, null);
-                default:
-                    continue;
-            }
-        }
-
-        var result = buildersExpressionNode.ReplaceNodes(
-            nodesRemapping.Keys,
-            (n, _) => nodesRemapping[n]);
-
-        return (result, rewriteContext.ConstantsMapper);
-    }
-
-    private static RewriteResult SubstituteExpressionWithConst(
-        RewriteContext rewriteContext,
-        SyntaxNode simpleNameSyntax,
-        SymbolInfo symbolInfo,
-        TypeInfo typeInfo)
-    {
-        if (IsChildOfLambdaParameterOrBuilders(rewriteContext, simpleNameSyntax, symbolInfo) ||
-            simpleNameSyntax.IsMemberOfAnonymousObject() ||
-            typeInfo.Type == null)
-        {
-            return RewriteResult.Ignore;
-        }
-
-        var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(simpleNameSyntax);
-        var replacementNode = GetConstantReplacementNode(rewriteContext, typeInfo.Type, nodeToReplace.ToString());
-
-        if (replacementNode == null)
-        {
-            return RewriteResult.Invalid;
-        }
-
-        return new RewriteResult(nodeToReplace, replacementNode);
     }
 }
