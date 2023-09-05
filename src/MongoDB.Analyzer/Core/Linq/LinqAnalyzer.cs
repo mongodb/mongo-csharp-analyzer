@@ -67,7 +67,7 @@ internal static class LinqAnalyzer
         foreach (var invalidLinqNode in linqExpressionAnalysis.InvalidExpressionNodes)
         {
             var diagnostics = Diagnostic.Create(
-                LinqDiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression,
+                DiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression,
                 invalidLinqNode.OriginalExpression.GetLocation(),
                 AnalysisUtilities.DecorateMessage(invalidLinqNode.Errors.FirstOrDefault(), driverVersionString, context.Settings));
 
@@ -105,7 +105,7 @@ internal static class LinqAnalyzer
             if (mqlResult.Mql != null)
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
-                var diagnosticDescriptor = mqlResult.Linq3Only ? LinqDiagnosticsRules.DiagnosticRuleNotSupportedLinq2Expression : LinqDiagnosticsRules.DiagnosticRuleLinq2MQL;
+                var diagnosticDescriptor = mqlResult.Linq3Only ? DiagnosticsRules.DiagnosticRuleNotSupportedLinq2Expression : DiagnosticsRules.DiagnosticRuleLinq2MQL;
                 var decoratedMessage = AnalysisUtilities.DecorateMessage(mql, driverVersion, settings);
                 semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
@@ -116,7 +116,7 @@ internal static class LinqAnalyzer
 
                 if (isDriverOrLinqException || settings.OutputInternalExceptions)
                 {
-                    var diagnosticDescriptor = LinqDiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression;
+                    var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression;
                     var message = AnalysisUtilities.GetExceptionMessage(mqlResult.Exception, typesMapper, AnalysisType.Linq);
                     var decoratedMessage = AnalysisUtilities.DecorateMessage(message, driverVersion, context.Settings);
 

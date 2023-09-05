@@ -80,7 +80,7 @@ internal static class BuildersAnalyzer
             if (mqlResult.Mql != null)
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
-                var diagnosticDescriptor = BuidersDiagnosticsRules.DiagnosticRuleBuilder2MQL;
+                var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleBuilder2MQL;
                 var decoratedMessage = AnalysisUtilities.DecorateMessage(mql, driverVersion, context.Settings);
                 semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
@@ -91,7 +91,7 @@ internal static class BuildersAnalyzer
 
                 if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {
-                    var diagnosticDescriptor = BuidersDiagnosticsRules.DiagnosticRuleNotSupportedBuilderExpression;
+                    var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleNotSupportedBuilderExpression;
                     var message = AnalysisUtilities.GetExceptionMessage(mqlResult.Exception, typesMapper, AnalysisType.Builders);
                     var decoratedMessage = AnalysisUtilities.DecorateMessage(message, driverVersion, context.Settings);
 

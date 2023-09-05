@@ -22,10 +22,7 @@ namespace MongoDB.Analyzer;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
 {
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => CollectionExtensions.CreateImmutableArray(
-        BuidersDiagnosticsRules.DiagnosticsRules,
-        LinqDiagnosticsRules.DiagnosticsRules,
-        PocoDiagnosticRules.DiagnosticsRules);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => DiagnosticsRules.Rules;
 
     public override void Initialize(AnalysisContext context)
     {
