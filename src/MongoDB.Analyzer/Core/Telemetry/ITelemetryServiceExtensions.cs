@@ -39,7 +39,7 @@ internal static class ITelemetryServicExtensions
         var csharpOptions = csharpCompilation.Options;
 
         var data = new (string, object)[]
-        {
+            {
                 ("output_kind", (csharpOptions?.OutputKind)?.ToString() ?? "Unknown"),
                 ("output_platform", (csharpOptions?.Platform)?.ToString() ?? "Unknown"),
                 ("lang_version", (csharpCompilation?.LanguageVersion)?.ToString() ?? "Unknown"),
@@ -49,7 +49,7 @@ internal static class ITelemetryServicExtensions
                 ("poco_limit", settings.PocoLimit.ToString()),
                 ("logs_enabled", settings.OutputInternalLogsToFile),
                 ("analyzer_version", s_version)
-        };
+            };
 
         telemetryService.Event("Analysis Started", data);
     }
@@ -61,5 +61,5 @@ internal static class ITelemetryServicExtensions
         telemetryService.Event("Builders analyzed", analysisStatistics.ToKeyValues());
 
     public static void PocoAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
-        telemetryService.Event("Pocos analyzed", analysisStatistics.ToKeyValues());
+        telemetryService.Event("POCOs analyzed", analysisStatistics.ToKeyValues());
 }
