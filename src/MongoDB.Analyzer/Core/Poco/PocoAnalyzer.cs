@@ -79,7 +79,7 @@ internal static class PocoAnalyzer
             if (jsonResult.Json != null)
             {
                 var decoratedMessage = AnalysisUtilities.DecorateMessage(jsonResult.Json, driverVersion, context.Settings);
-                semanticContext.ReportDiagnostics(PocoDiagnosticRules.DiagnosticRulePoco2Json, decoratedMessage, locations);
+                semanticContext.ReportDiagnostics(DiagnosticsRules.DiagnosticRulePoco2Json, decoratedMessage, locations);
                 jsonCount++;
             }
             else if (jsonResult.Exception != null)
@@ -88,11 +88,10 @@ internal static class PocoAnalyzer
 
                 if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {
-                    var diagnosticDescriptor = PocoDiagnosticRules.DiagnosticRuleNotSupportedPoco;
                     var message = AnalysisUtilities.GetExceptionMessage(jsonResult.Exception, typesMapper, AnalysisType.Poco);
                     var decoratedMessage = AnalysisUtilities.DecorateMessage(message, driverVersion, context.Settings);
 
-                    semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
+                    semanticContext.ReportDiagnostics(DiagnosticsRules.DiagnosticRuleNotSupportedPoco, decoratedMessage, locations);
                 }
 
                 if (!isDriverOrBsonException)
