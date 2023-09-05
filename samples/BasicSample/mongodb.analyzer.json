@@ -16,5 +16,8 @@
   "OutputInternalLogsToFile": false,
 
   // Logs file, to be used in conjunction with OutputInternalLogsToFile setting
-  "LogFileName": "c:\\logs\\analyzerlogs.txt"
+  "LogFileName": "c:\\logs\\analyzerlogs.txt",
+
+  // POCO analysis verbosity, defaults to Medium
+  "PocoAnalysisVerbosity" : "All"
 }

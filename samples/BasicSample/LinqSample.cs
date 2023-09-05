@@ -28,7 +28,7 @@ namespace BasicSample
             var db = mongoClient.GetDatabase("testdb");
             var moviesCollection = db.GetCollection<Movie>("movies").AsQueryable();
 
-            // Linq filter query (analyzer provides mql as information message)
+            // LINQ filter query (analyzer provides mql as information message)
             var movies = await moviesCollection
                 .Where(m =>
                     m.Genre == genre &&
@@ -46,7 +46,7 @@ namespace BasicSample
             var db = mongoClient.GetDatabase("testdb");
             var moviesCollection = db.GetCollection<Movie>("movies").AsQueryable();
 
-            // Linq group by (analyzer provides mql as information message)
+            // LINQ group by (analyzer provides mql as information message)
             var groups = await moviesCollection
                 .GroupBy(m => m.Genre)
                 .ToListAsync();
@@ -66,7 +66,7 @@ namespace BasicSample
             var db = mongoClient.GetDatabase("testdb");
             var moviesCollection = db.GetCollection<Movie>("movies").AsQueryable();
 
-            // Linq group by and select (analyzer provides mql as information message)
+            // LINQ group by and select (analyzer provides mql as information message)
             var groups = await moviesCollection
                 .GroupBy(m => m.Genre)
                 .Select(g => new { Genre = g.Key, MoviesCount = g.Count(), AverageScore = g.Average(m => m.Score) })
@@ -111,7 +111,7 @@ namespace BasicSample
             // GetHashCode is not supported (analyzer provides warning)
             _ = moviesCollection.Where(m => m.GetHashCode() == 1234);
 
-            // External method referencing linq lambda parameter is not supported (analyzer provides warning)
+            // External method referencing LINQ lambda parameter is not supported (analyzer provides warning)
             _ = moviesCollection
                 .Where(m => CalculateMoviesReviewsNumber(m) == 512)
                 .Where(m => GetProducerAndTitle(m) == "Christopher Nolan: Dunkirk");
