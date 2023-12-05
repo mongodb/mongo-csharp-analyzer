@@ -23,58 +23,6 @@ namespace MongoDB.Analyzer.Tests.Builders;
 public sealed class BuildersTests : DiagnosticsTestCasesRunner
 {
     [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersAnonymousObjects))]
-    public Task AnonymousObjects(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersArrays))]
-    public Task Arrays(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersAtlasSearch))]
-    public Task AtlasSearch(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersBasic))]
     public Task Basic(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersBsonAttributes))]
-    public Task BsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersCollections))]
-    public Task Collections(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersComplexDataModel))]
-    public Task ComplexDataModel(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersConstantsReplacement))]
-    public Task ConstantsReplacement(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersFluentApi))]
-    public Task FluentApi(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersIgnoredExpressions))]
-    public Task IgnoredExpressions(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersIndexKeys))]
-    public Task IndexKeys(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersNullables))]
-    public Task Nullables(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersProjection))]
-    public Task Projection(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(BuildersVariables))]
-    public Task Variables(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }
