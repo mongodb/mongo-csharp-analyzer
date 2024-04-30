@@ -44,7 +44,8 @@ internal static class DiagnosticsAnalyzer
         var packages = ImmutableArray.Create(new PackageIdentity("MongoDB.Driver", driverVersion));
         var allReferences = netReferences
             .AddPackages(packages)
-            .AddAssemblies(ImmutableArray.Create(PathUtilities.TestDataModelAssemblyPath));
+            .AddAssemblies(ImmutableArray.Create(PathUtilities.TestDataModelAssemblyPath))
+            .WithNuGetConfigFilePath(PathUtilities.NugetConfigPath);
 
         var metadataReferences = await allReferences.ResolveAsync(LanguageNames.CSharp, default);
 

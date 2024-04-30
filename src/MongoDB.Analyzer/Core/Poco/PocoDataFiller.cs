@@ -20,7 +20,7 @@ namespace MongoDB.Analyzer.Core.Poco;
 public static class PocoDataFiller
 {
     private const string CollectionNamespace = "System.Collections.Generic";
-    private const string JsonDataResource = "MongoDB.Analyzer.Core.Poco.Data.Data.json";
+    private const string JsonDataResource = "MongoDB.Analyzer.Core.Poco.Data.data.json";
     private const int MaxDepth = 3;
 
     private static readonly ConcurrentDictionary<string, string[]> s_jsonData;

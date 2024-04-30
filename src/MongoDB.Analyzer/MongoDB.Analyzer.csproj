@@ -22,7 +22,7 @@
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Linq\*.cs" LinkBase="Core\HelperResources\Linq" />
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Builders\*.cs" LinkBase="Core\HelperResources\Builders" />
     <EmbeddedResource Include="..\MongoDB.Analyzer.Helpers\Poco\*.cs" LinkBase="Core\HelperResources\Poco" />
-    <EmbeddedResource Include="Core\Poco\Data\Data.json" />
+    <EmbeddedResource Include=".\Core\Poco\Data\data.json" />
   </ItemGroup>
 
   <ItemGroup>

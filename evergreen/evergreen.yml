@@ -1,0 +1,299 @@
+################################################
+# Evergreen Template for MongoDB CSharp Analyzer
+################################################
+
+# When a task that used to pass starts to fail
+# Go through all versions that may have been skipped to detect
+# when the task started failing
+stepback: true
+
+# Mark a failure as a system/bootstrap failure (purple box) rather then a task
+# failure by default.
+# Actual testing tasks are marked with `type: test`
+command_type: system
+
+# Protect ourself against rogue test case, or curl gone wild, that runs forever
+exec_timeout_secs: 900
+
+# What to do when evergreen hits the timeout (`post:` tasks are run automatically)
+timeout:
+  - command: shell.exec
+    params:
+      script: |
+        ls -la
+        df -h
+
+functions:
+
+  fetch-source:
+    # Executes git clone and applies the submitted patch, if any
+    - command: git.get_project
+      params:
+        directory: mongo-csharp-analyzer
+    # Applies the subitted patch, if any
+    # Deprecated. Should be removed. But still needed for certain agents (ZAP)
+    - command: git.apply_patch
+    # Make an evergreen exapanstion file with dynamic values
+    - command: shell.exec
+      params:
+        shell: bash
+        working_dir: mongo-csharp-analyzer
+        script: |
+          PACKAGE_VERSION=$(git describe --tags)
+          # Get the current unique version of this checkout
+          if [ "${is_patch}" = "true" ]; then
+            CURRENT_VERSION=$(git describe)-patch-${version_id}
+          else
+            CURRENT_VERSION=latest
+          fi
+
+          export DOTNET_SDK_PATH="$(pwd)/../.dotnet"
+
+          if [ "Windows_NT" != "$OS" ]; then
+            # non windows OSs don't have dotnet in the PATH
+            export PATH=$PATH:/usr/share/dotnet
+          fi
+
+          export MONGODB_BINARIES="$DRIVERS_TOOLS/mongodb/bin"
+          export PROJECT_DIRECTORY="$(pwd)"
+
+          cat <<EOT > expansion.yml
+          PACKAGE_VERSION: "$PACKAGE_VERSION"
+          CURRENT_VERSION: "$CURRENT_VERSION"
+          PROJECT_DIRECTORY: "$PROJECT_DIRECTORY"
+          DOTNET_SDK_PATH: "$DOTNET_SDK_PATH"
+          PREPARE_SHELL: |
+            set -o errexit
+            set -o xtrace
+            export PACKAGE_VERSION="$PACKAGE_VERSION"
+            export PROJECT_DIRECTORY="$PROJECT_DIRECTORY"
+            export DOTNET_SDK_PATH="$DOTNET_SDK_PATH"            
+            export PATH="$DOTNET_SDK_PATH:$MONGODB_BINARIES:$PATH"
+            export PROJECT="${project}"
+          EOT
+          # See what we've done
+          cat expansion.yml
+
+    # Load the expansion file to make an evergreen variable with the current unique version
+    - command: expansions.update
+      params:
+        file: mongo-csharp-analyzer/expansion.yml
+
+  install-dependencies:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          OS=${OS} \
+            ${PROJECT_DIRECTORY}/evergreen/install-dependencies.sh
+
+  prepare-resources:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+
+  upload-mo-artifacts:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongodb-logs.tar.gz
+        remote_file: ${build_variant}/${revision}/${version_id}/${build_id}/logs/${task_id}-${execution}-mongodb-logs.tar.gz
+        bucket: ${aws_upload_bucket}
+        permissions: public-read
+        content_type: ${content_type|application/x-gzip}
+        display_name: "mongodb-logs.tar.gz"
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: drivers-tools/.evergreen/orchestration/server.log
+        remote_file: ${build_variant}/${revision}/${version_id}/${build_id}/logs/${task_id}-${execution}-orchestration.log
+        bucket: ${aws_upload_bucket}
+        permissions: public-read
+        content_type: ${content_type|text/plain}
+        display_name: "orchestration.log"
+
+  upload-test-results:
+    - command: attach.xunit_results
+      params:
+        file: ./mongo-csharp-analyzer/build/test-results/TEST*.xml
+
+  run-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-analyzer
+        script: |
+          ${PREPARE_SHELL}
+          DRIVER_VERSION=${DRIVER_VERSION} \
+          TARGET_FRAMEWORK=${TARGET_FRAMEWORK} \
+          OS=${OS} \
+            evergreen/run-tests.sh
+
+  package-pack:
+    - command: shell.exec
+      params:
+        working_dir: mongo-csharp-analyzer
+        script: |
+          ${PREPARE_SHELL}
+          OS=${OS} \
+          PACKAGE_VERSION=${PACKAGE_VERSION} \
+            evergreen/run-pack.sh
+
+  package-push:
+    - command: shell.exec
+      params:
+        working_dir: mongo-csharp-analyzer
+        env:
+          NUGET_KEY: ${nuget_key}
+        script: |
+          ${PREPARE_SHELL}
+          PACKAGE_VERSION=${PACKAGE_VERSION} evergreen/run-push.sh
+
+  cleanup:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+
+  fix-absolute-paths:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          for filename in $(find ${DRIVERS_TOOLS} -name \*.json); do
+            perl -p -i -e "s|ABSOLUTE_PATH_REPLACEMENT_TOKEN|${DRIVERS_TOOLS}|g" $filename
+          done
+
+  windows-fix:
+    - command: shell.exec
+      params:
+        script: |
+          if [ "Windows_NT" = "$OS" ]; then
+            ${PREPARE_SHELL}
+            for i in $(find ${DRIVERS_TOOLS}/.evergreen ${PROJECT_DIRECTORY}/evergreen -name \*.sh); do
+              cat $i | tr -d '\r' > $i.new
+              mv $i.new $i
+            done
+            # Copy client certificate because symlinks do not work on Windows.
+            cp ${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem ${MONGO_ORCHESTRATION_HOME}/lib/client.pem
+          fi
+
+  make-files-executable:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          for i in $(find ${DRIVERS_TOOLS}/.evergreen ${PROJECT_DIRECTORY}/evergreen -name \*.sh); do
+            chmod +x $i
+          done
+
+pre:
+  - func: fetch-source
+  #- func: prepare-resources
+  - func: windows-fix
+  - func: fix-absolute-paths
+  - func: make-files-executable
+  - func: install-dependencies
+
+post:
+  - func: upload-mo-artifacts
+  - func: cleanup
+
+tasks:
+  - name: test-netcoreapp31
+    commands:
+      - func: run-tests
+        vars:
+          TARGET_FRAMEWORK: netcoreapp3.1
+      - func: upload-test-results
+      
+  - name: test-net472
+    commands:
+      - func: run-tests
+        vars:
+          TARGET_FRAMEWORK: net472
+      - func: upload-test-results
+
+  - name: package-pack
+    depends_on:
+      - name: test-netcoreapp31
+        variant: .tests-variant
+    commands:
+      - func: package-pack
+
+  - name: package-push
+    commands:
+      - func: package-push
+
+axes:
+  - id: driver
+    display_name: MongoDB Driver Version
+    values:
+      - id: "latest"
+        display_name: "latest"
+        variables:
+          DRIVER_VERSION: "latest"
+      - id: "2.25"
+        display_name: "2.25.0"
+        variables:
+          DRIVER_VERSION: "2.25.0"
+      - id: "2.18.0"
+        display_name: "2.18.0"
+        variables:
+          DRIVER_VERSION: "2.18.0"
+      - id: "2.12.4"
+        display_name: "2.12.4"
+        variables:
+          DRIVER_VERSION: "2.12.4"
+
+  - id: os
+    display_name: OS
+    values:
+      - id: "windows-64"
+        display_name: "Windows 64-bit"
+        variables:
+          OS: "windows-64"
+        run_on: windows-64-vs2017-test
+      - id: "ubuntu-2004"
+        display_name: "Ubuntu 20.04"
+        variables:
+          OS: "ubuntu-2004"
+        run_on: ubuntu2004-test
+        
+buildvariants:
+- matrix_name: "tests-linux" 
+  matrix_spec: { os: ["ubuntu-2004"], driver: "*"}
+  display_name: "${driver} CSharp Analyzer on ${os}, driver version ${driver}"
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-netcoreapp31
+    
+- matrix_name: "tests-windows" 
+  matrix_spec: { os: ["windows-64"], driver: "*" }
+  display_name: "${driver} CSharp Analyzer on ${os}, driver version ${driver}"
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-netcoreapp31
+    - name: test-net472
+
+- name: package-pack
+  git_tag_only: true
+  display_name: "Package Pack"
+  run_on: ubuntu1804-small
+  tasks:
+    - name: package-pack
+
+- name: package-push
+  git_tag_only: true
+  display_name: "Package Push"
+  run_on: ubuntu1804-small
+  tasks:
+    - name: package-push

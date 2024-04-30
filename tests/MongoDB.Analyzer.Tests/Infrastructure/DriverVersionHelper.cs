@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Linq;
 using NuGet.Versioning;
 
@@ -19,7 +20,13 @@ namespace MongoDB.Analyzer.Tests.Infrastructure;
 
 internal static class DriverVersionHelper
 {
-    public static readonly NuGetVersion[] DriverVersions = new[]
+    public static readonly NuGetVersion[] DriverVersions;
+
+    static DriverVersionHelper()
+    {
+        var driverVersion = Environment.GetEnvironmentVariable("DRIVER_VERSION");
+
+        if (driverVersion != null)
         {
             NuGetVersion.Parse("2.12.4"),
             NuGetVersion.Parse("2.18.0"),

@@ -24,6 +24,7 @@ internal static class PathUtilities
     private static readonly string s_testCasesPath = GetFullPathRelativeToParent(s_testCasesBaseFolder);
 
     public static string TestDataModelAssemblyPath { get; } = GetFullPathRelativeToParent("MongoDB.Analyzer.Tests.Common.ClassLibrary", "bin", "Debug", "netstandard2.0", "MongoDB.Analyzer.Tests.Common.ClassLibrary");
+    public static string NugetConfigPath { get; } = GetFullPathRelativeToParent("..", "nuget.config");
 
     public static string GetTestCaseFileFullPathFromName(string testCaseFullyQualifiedName)
     {
