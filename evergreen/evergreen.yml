@@ -291,13 +291,13 @@ buildvariants:
 - name: package-pack
   git_tag_only: true
   display_name: "Package Pack"
-  run_on: ubuntu1804-small
+  run_on: ubuntu2004-small
   tasks:
     - name: package-pack
 
 - name: package-push
   git_tag_only: true
   display_name: "Package Push"
-  run_on: ubuntu1804-small
+  run_on: ubuntu2004-small
   tasks:
     - name: package-push
