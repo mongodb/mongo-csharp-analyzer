@@ -67,7 +67,7 @@ functions:
             set -o xtrace
             export PACKAGE_VERSION="$PACKAGE_VERSION"
             export PROJECT_DIRECTORY="$PROJECT_DIRECTORY"
-            export DOTNET_SDK_PATH="$DOTNET_SDK_PATH"            
+            export DOTNET_SDK_PATH="$DOTNET_SDK_PATH"
             export PATH="$DOTNET_SDK_PATH:$MONGODB_BINARIES:$PATH"
             export PROJECT="${project}"
           EOT
@@ -245,6 +245,10 @@ axes:
         display_name: "2.25.0"
         variables:
           DRIVER_VERSION: "2.25.0"
+      - id: "2.21"
+        display_name: "2.21.0"
+        variables:
+          DRIVER_VERSION: "2.21.0"
       - id: "2.18.0"
         display_name: "2.18.0"
         variables:
