@@ -37,6 +37,7 @@ internal static class DriverVersionHelper
         //   NuGetVersion.Parse("2.25.0")
         // } ;
     }
+    }
 
     public static NuGetVersion[] FilterVersionForRange(string versionRange)
     {
