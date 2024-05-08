@@ -117,7 +117,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         [BuildersMQL("{ \"Avg\" : { \"$divide\" : [{ \"$add\" : [{ \"$multiply\" : [\"$Age\", 2] }, \"$Height\"] }, 2] }, \"_id\" : 0 }", DriverVersions.V2_19_OrGreater)]
         [BuildersMQL("{ new { FieldToExclude = \"Age\" }.FieldToExclude : 0 }")]
         [BuildersMQL("{ new { FieldToInclude = \"Scores\" }.FieldToInclude : 1 }")]
-        [BuildersMQL("{ new { Field = \"IntArray\" }.Field : { \"$slice\" : [10, 5] } }")]
+        [BuildersMQL("{ new { Field = \"IntArray\" }.Field : { \"$slice\" : [10, 5] } }", DriverVersions.V2_22_OrLower)]
+        [BuildersMQL("{ new { Field = \"IntArray\" }.Field : { \"$slice\" : [\"$s__0\", 10, 5] } }", DriverVersions.V2_23_OrGreater)]
         [BuildersMQL("{ new { Field = \"Age\" }.Field : 1, new { Field = \"LastName\" }.Field : 1 }")]
         public void Projection()
         {

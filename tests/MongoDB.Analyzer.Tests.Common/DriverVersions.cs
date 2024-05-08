@@ -25,6 +25,8 @@ namespace MongoDB.Analyzer.Tests.Common
         public const string V2_19_OrGreater = "[2.19.0,)";
         public const string V2_20_OrLower = "(, 2.20.0)";
         public const string V2_21_OrGreater = "[2.21.0,)";
+        public const string V2_22_OrLower = "(, 2.23.0)";
+        public const string V2_23_OrGreater = "[2.23.0,)";
         public const string V2_19_to_2_20= "[2.19.0, 2.20.0)";
     }
 }

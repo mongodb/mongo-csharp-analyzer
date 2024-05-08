@@ -73,8 +73,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 .Include(u => u.Vehicle).Exclude(u => u.Address);
         }
 
-        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [10, 5] } }")]
-        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [10, 5] }, \"JaggedStringArray2\" : { \"$slice\" : [3, 9] } }")]
+        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [10, 5] } }", DriverVersions.V2_22_OrLower)]
+        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [\"$IntArray\", 10, 5] } }", DriverVersions.V2_23_OrGreater)]
+        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [10, 5] }, \"JaggedStringArray2\" : { \"$slice\" : [3, 9] } }", DriverVersions.V2_22_OrLower)]
+        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [\"$IntArray\", 10, 5] }, \"JaggedStringArray2\" : { \"$slice\" : [\"$JaggedStringArray2\", 3, 9] } }", DriverVersions.V2_23_OrGreater)]
         public void Slice()
         {
             _ = Builders<SimpleTypesArraysHolder>.Projection.Slice(u => u.IntArray, 10, 5);
