@@ -9,10 +9,10 @@ if [ "${DRIVER_VERSION}" == "latest" ]; then
     if [[ "$OS" =~ Windows|windows ]]; then
         DRIVER_VERSION=$(powershell.exe "(Get-Content latest_driver.json | ConvertFrom-Json).data[0].version")
     else
-        sudo apt-get --assume-yes install jq
         DRIVER_VERSION=$(curl "https://www.myget.org/F/mongodb/api/v3/query?prerelease=true&take=1&q=PackageId:MongoDB.Driver" | jq ".data[0].version" -r)
     fi
 fi;
 
-echo Driver version set to: "$DRIVER_VERSION"
-export DRIVER_VERSION="$DRIVER_VERSION"
+cat << EOF >> ./version-expansion.yml
+DRIVER_VERSION: "$DRIVER_VERSION"
+EOF

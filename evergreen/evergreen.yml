@@ -87,12 +87,6 @@ functions:
           OS=${OS} \
             ${PROJECT_DIRECTORY}/evergreen/install-dependencies.sh
 
-  prepare-resources:
-    - command: shell.exec
-      params:
-        script: |
-          ${PREPARE_SHELL}
-
   upload-mo-artifacts:
     - command: shell.exec
       params:
@@ -206,7 +200,6 @@ functions:
 
 pre:
   - func: fetch-source
-  #- func: prepare-resources
   - func: windows-fix
   - func: fix-absolute-paths
   - func: make-files-executable
@@ -220,6 +213,9 @@ tasks:
   - name: test-netcoreapp31
     commands:
       - func: get-driver-version
+      - command: expansions.update
+        params:
+          file: mongo-csharp-analyzer/version-expansion.yml
       - func: run-tests
         vars:
           TARGET_FRAMEWORK: netcoreapp3.1
@@ -228,6 +224,9 @@ tasks:
   - name: test-net472
     commands:
       - func: get-driver-version
+      - command: expansions.update
+        params:
+          file: mongo-csharp-analyzer/version-expansion.yml
       - func: run-tests
         vars:
           TARGET_FRAMEWORK: net472
@@ -289,11 +288,25 @@ axes:
         display_name: "Ubuntu 20.04"
         variables:
           OS: "ubuntu-2004"
+          python3_binary: "/opt/python/3.8/bin/python3"
         run_on: ubuntu2004-test
+      - id: "macos-1100"
+        display_name: "macOS 11.00"
+        variables:
+          OS: "macos-1100"
+          python3_binary: /Library/Frameworks/Python.framework/Versions/3.8/bin/python3
+        run_on: macos-1100
 
 buildvariants:
 - matrix_name: "tests-linux" 
   matrix_spec: { os: ["ubuntu-2004"], driver: "*"}
+  display_name: "${driver} CSharp Analyzer on ${os}, driver version ${driver}"
+  tags: ["tests-variant"]
+  tasks:
+    - name: test-netcoreapp31
+
+- matrix_name: "tests-mac" 
+  matrix_spec: { os: ["macos-1100"], driver: "*"}
   display_name: "${driver} CSharp Analyzer on ${os}, driver version ${driver}"
   tags: ["tests-variant"]
   tasks:
@@ -305,7 +318,6 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netcoreapp31
-    - name: test-net472
 
 - name: package-pack
   git_tag_only: true
