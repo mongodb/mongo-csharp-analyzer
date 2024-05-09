@@ -125,6 +125,15 @@ functions:
       params:
         file: ./mongo-csharp-analyzer/build/test-results/TEST*.xml
 
+  get-driver-version:
+    - command: shell.exec
+      params:
+        working_dir: mongo-csharp-analyzer
+        script: |
+          ${PREPARE_SHELL}
+          DRIVER_VERSION=${DRIVER_VERSION} \
+            evergreen/get-driver-version.sh
+
   run-tests:
     - command: shell.exec
       type: test
@@ -210,6 +219,7 @@ post:
 tasks:
   - name: test-netcoreapp31
     commands:
+      - func: get-driver-version
       - func: run-tests
         vars:
           TARGET_FRAMEWORK: netcoreapp3.1
@@ -217,6 +227,7 @@ tasks:
       
   - name: test-net472
     commands:
+      - func: get-driver-version
       - func: run-tests
         vars:
           TARGET_FRAMEWORK: net472
@@ -245,10 +256,18 @@ axes:
         display_name: "2.25.0"
         variables:
           DRIVER_VERSION: "2.25.0"
+      - id: "2.23"
+        display_name: "2.23.0"
+        variables:
+          DRIVER_VERSION: "2.23.0"
       - id: "2.21"
         display_name: "2.21.0"
         variables:
           DRIVER_VERSION: "2.21.0"
+      - id: "2.19.0"
+        display_name: "2.19.0"
+        variables:
+          DRIVER_VERSION: "2.19.0"
       - id: "2.18.0"
         display_name: "2.18.0"
         variables:
@@ -271,7 +290,7 @@ axes:
         variables:
           OS: "ubuntu-2004"
         run_on: ubuntu2004-test
-        
+
 buildvariants:
 - matrix_name: "tests-linux" 
   matrix_spec: { os: ["ubuntu-2004"], driver: "*"}
@@ -279,7 +298,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netcoreapp31
-    
+
 - matrix_name: "tests-windows" 
   matrix_spec: { os: ["windows-64"], driver: "*" }
   display_name: "${driver} CSharp Analyzer on ${os}, driver version ${driver}"
