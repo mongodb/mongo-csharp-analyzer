@@ -1,12 +1,27 @@
 #!/usr/bin/env bash
-set -o errexit  # Exit the script with error if any of the commands fail
+set -o errexit # Exit the script with error if any of the commands fail
+set +o xtrace  # Disable tracing.
 
-if [ -z "$PACKAGE_VERSION" ]
-then
-  PACKAGE_VERSION=$(git describe --tags)
-  echo Calculated PACKAGE_VERSION value: "$PACKAGE_VERSION"
+if [ -z "$PACKAGES_SOURCE" ]; then
+  echo "PACKAGES_SOURCE variable should be set"
+  exit 1
 fi
-# validate "clear" version. x.y.z[-abc1]
+
+if [ -z "$PACKAGES_SOURCE_KEY" ]; then
+  echo "PACKAGES_SOURCE_KEY variable should be set"
+  exit 1
+fi
+
+if [ -z "$PACKAGE_VERSION" ]; then
+  echo "PACKAGE_VERSION variable should be set"
+  exit 1
+fi
+
+clear_version_rx='^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$'
+if [ "$PACKAGES_SOURCE" = "https://api.nuget.org/v3/index.json" ] && [[ ! "$PACKAGE_VERSION" =~ $clear_version_rx ]]; then
+  echo "Cannot push dev version to nuget.org: '$PACKAGE_VERSION'"
+  exit 1
+fi
 
 echo Pushing nuget package...
-dotnet nuget push ./artifacts/nuget/MongoDB.Analyzer."$PACKAGE_VERSION".nupkg  -s https://api.nuget.org/v3/index.json -k "$NUGET_KEY"
+dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Analyzer."$PACKAGE_VERSION".nupkg
