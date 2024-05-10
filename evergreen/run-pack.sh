@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
-set -o errexit  # Exit the script with error if any of the commands fail
-
-if [ -z "$PACKAGE_VERSION" ]
-then
-  PACKAGE_VERSION=$(git describe --tags)
-  echo Calculated PACKAGE_VERSION value: "$PACKAGE_VERSION"
-fi
+set -o errexit # Exit the script with error if any of the commands fail
+set +o xtrace  # Disable tracing.
 
 echo Creating nuget package...
 

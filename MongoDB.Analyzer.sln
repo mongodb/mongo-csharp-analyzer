@@ -50,8 +50,8 @@ Global
 		{41218684-A8E3-41AC-8F85-58B9B2F43B09}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Debug|Any CPU.ActiveCfg = DRIVER_2_19|Any CPU
 		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Debug|Any CPU.Build.0 = DRIVER_2_19|Any CPU
-		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Release|Any CPU.ActiveCfg = DRIVER_2_19|Any CPU
+		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Release|Any CPU.Build.0 = DRIVER_2_19|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

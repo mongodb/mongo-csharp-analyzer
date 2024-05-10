@@ -40,6 +40,7 @@ functions:
         working_dir: mongo-csharp-analyzer
         script: |
           PACKAGE_VERSION=$(git describe --tags)
+          PACKAGE_VERSION=$(echo $PACKAGE_VERSION | cut -c 2-)
           # Get the current unique version of this checkout
           if [ "${is_patch}" = "true" ]; then
             CURRENT_VERSION=$(git describe)-patch-${version_id}
@@ -153,12 +154,25 @@ functions:
   package-push:
     - command: shell.exec
       params:
+        shell: bash
         working_dir: mongo-csharp-analyzer
         env:
-          NUGET_KEY: ${nuget_key}
+          PACKAGES_SOURCE: ${PACKAGES_SOURCE}
+          PACKAGES_SOURCE_KEY: ${PACKAGES_SOURCE_KEY}
+          PACKAGE_VERSION: ${PACKAGE_VERSION}
         script: |
           ${PREPARE_SHELL}
-          PACKAGE_VERSION=${PACKAGE_VERSION} evergreen/run-push.sh
+          . ./evergreen/run-push.sh
+
+  trace-artifacts:
+    - command: papertrail.trace
+      params:
+        key_id: ${papertrail_key_id}
+        secret_key: ${papertrail_secret_key}
+        product: ${PRODUCT_NAME}
+        version: ${PACKAGE_VERSION}
+        filenames:
+          - "mongo-csharp-analyzer/artifacts/nuget/MongoDB.Analyzer.${PACKAGE_VERSION}.nupkg"
 
   cleanup:
     - command: shell.exec
@@ -239,9 +253,27 @@ tasks:
     commands:
       - func: package-pack
 
-  - name: package-push
+  - name: package-push_nuget
     commands:
+      - func: package-pack
       - func: package-push
+        vars:
+          PACKAGES_SOURCE: "https://api.nuget.org/v3/index.json"
+          PACKAGES_SOURCE_KEY: ${nuget_api_key}
+      - func: trace-artifacts
+          vars:
+            PRODUCT_NAME: "mongo-csharp-analyzer"
+
+  - name: package-push_myget
+    commands:
+      - func: package-pack
+      - func: package-push
+        vars:
+          PACKAGES_SOURCE: "https://www.myget.org/F/mongodb/api/v3/index.json"
+          PACKAGES_SOURCE_KEY: ${myget_api_key}
+      #- func: trace-artifacts
+      #  vars:
+      #    PRODUCT_NAME: "mongo-csharp-analyzer-dev"
 
 axes:
   - id: driver
@@ -326,9 +358,15 @@ buildvariants:
   tasks:
     - name: package-pack
 
-- name: package-push
+- name: package-push_nuget
   git_tag_only: true
-  display_name: "Package Push"
+  display_name: "Package Push (NuGet)"
   run_on: ubuntu2004-small
   tasks:
-    - name: package-push
+    - name: package-push_nuget
+
+- name: package-push_myget
+  display_name: "Package Push (MyGet)"
+  run_on: ubuntu2004-small
+  tasks:
+    - name: package-push_myget
