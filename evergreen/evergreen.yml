@@ -261,8 +261,8 @@ tasks:
           PACKAGES_SOURCE: "https://api.nuget.org/v3/index.json"
           PACKAGES_SOURCE_KEY: ${nuget_api_key}
       - func: trace-artifacts
-          vars:
-            PRODUCT_NAME: "mongo-csharp-analyzer"
+        vars:
+          PRODUCT_NAME: "mongo-csharp-analyzer"
 
   - name: package-push_myget
     commands:
