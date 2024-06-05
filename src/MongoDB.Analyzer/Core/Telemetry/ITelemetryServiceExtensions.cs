@@ -14,11 +14,11 @@
 
 namespace MongoDB.Analyzer.Core;
 
-internal static class ITelemetryServicExtensions
+internal static class ITelemetryServiceExtensions
 {
     private static readonly string s_version;
 
-    static ITelemetryServicExtensions()
+    static ITelemetryServiceExtensions()
     {
         try
         {
