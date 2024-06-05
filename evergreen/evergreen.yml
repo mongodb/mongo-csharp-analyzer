@@ -169,7 +169,7 @@ functions:
       params:
         key_id: ${papertrail_key_id}
         secret_key: ${papertrail_secret_key}
-        product: "mongo-csharp-analyzer-dev"
+        product: "mongo-csharp-analyzer"
         version: ${PACKAGE_VERSION}
         filenames:
           - "mongo-csharp-analyzer/artifacts/nuget/MongoDB.Analyzer.${PACKAGE_VERSION}.nupkg"
@@ -292,12 +292,10 @@ tasks:
   - name: push-packages-myget
     commands:
       - func: package-pack
-      # - func: package-push
-      #   vars:
-      #     PACKAGES_SOURCE: "https://www.myget.org/F/mongodb/api/v3/index.json"
-      #     PACKAGES_SOURCE_KEY: ${myget_api_key}
-      - func: trace-artifacts
-      - func: generate-ssdlc-report
+      - func: package-push
+        vars:
+          PACKAGES_SOURCE: "https://www.myget.org/F/mongodb/api/v3/index.json"
+          PACKAGES_SOURCE_KEY: ${myget_api_key}
 
 axes:
   - id: driver
