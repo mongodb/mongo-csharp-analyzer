@@ -100,6 +100,8 @@ internal static class SymbolExtensions
             _ => symbol.IsContainedInLambda(parentNode)
         };
 
+    public static bool IsDefinedInMongoDriver(this ISymbol symbol) => symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
+
     public static bool IsDefinedInMongoLinqOrSystemLinq(this ISymbol symbol)
     {
         var containingNamespace = symbol?.ContainingNamespace?.ToDisplayString();

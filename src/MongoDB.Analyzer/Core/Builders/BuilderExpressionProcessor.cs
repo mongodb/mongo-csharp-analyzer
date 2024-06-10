@@ -172,6 +172,20 @@ internal static class BuilderExpressionProcessor
                 return default;
             }
 
+            var builderFilterDefinition = expressionNode
+                    .NestedInvocations()
+                    .FirstOrDefault(n =>
+                    {
+                        var currentMethodSymbol = n.GetMethodSymbol(semanticModel);
+                        return !((currentMethodSymbol?.ReceiverType).IsBuilder());
+                    });
+
+            if (builderFilterDefinition == null ||
+                !semanticModel.GetSymbolInfo(builderFilterDefinition).Symbol.IsDefinedInMongoDriver())
+            {
+                return default;
+            }
+
             foreach (var invocationNode in expressionNode.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>())
             {
                 if (semanticModel.GetSymbolInfo(invocationNode).Symbol is not IMethodSymbol methodSymbol ||

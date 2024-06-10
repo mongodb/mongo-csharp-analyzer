@@ -25,4 +25,8 @@ public sealed class JiraTests : DiagnosticsTestCasesRunner
     [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(VS78))]
     public Task VS78(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(VS140))]
+    public Task VS140(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }
