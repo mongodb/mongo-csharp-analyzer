@@ -30,7 +30,7 @@ if [ "$PACKAGES_SOURCE" = "https://api.nuget.org/v3/index.json" ] && [[ ! "$PACK
 fi
 
 echo Verifying signature
-dotnet nuget verify ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg --certificate-fingerprint "$NUGET_SIGN_CERTIFICATE_FINGERPRINT"
+dotnet nuget verify ./artifacts/nuget/MongoDB.Analyzer."$PACKAGE_VERSION".nupkg --certificate-fingerprint "$NUGET_SIGN_CERTIFICATE_FINGERPRINT"
 
 echo Pushing nuget package...
 dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Analyzer."$PACKAGE_VERSION".nupkg
