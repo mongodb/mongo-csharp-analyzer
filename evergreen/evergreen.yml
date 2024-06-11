@@ -145,9 +145,15 @@ functions:
     - command: shell.exec
       params:
         working_dir: mongo-csharp-analyzer
+        env:
+          ARTIFACTORY_PASSWORD: ${ARTIFACTORY_PASSWORD}
+          ARTIFACTORY_USERNAME: ${ARTIFACTORY_USERNAME}
+          AZURE_NUGET_SIGN_TENANT_ID: ${AZURE_NUGET_SIGN_TENANT_ID}
+          AZURE_NUGET_SIGN_CLIENT_ID: ${AZURE_NUGET_SIGN_CLIENT_ID}
+          AZURE_NUGET_SIGN_CLIENT_SECRET: ${AZURE_NUGET_SIGN_CLIENT_SECRET}
+          PACKAGE_VERSION: ${PACKAGE_VERSION}
         script: |
           ${PREPARE_SHELL}
-          OS=${OS} \
           PACKAGE_VERSION=${PACKAGE_VERSION} \
             evergreen/run-pack.sh
 
@@ -157,6 +163,7 @@ functions:
         shell: bash
         working_dir: mongo-csharp-analyzer
         env:
+          NUGET_SIGN_CERTIFICATE_FINGERPRINT: ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}
           PACKAGES_SOURCE: ${PACKAGES_SOURCE}
           PACKAGES_SOURCE_KEY: ${PACKAGES_SOURCE_KEY}
           PACKAGE_VERSION: ${PACKAGE_VERSION}

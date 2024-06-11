@@ -2,6 +2,13 @@
 set -o errexit # Exit the script with error if any of the commands fail
 set +o xtrace  # Disable tracing.
 
+# Environment variables used as input:
+# NUGET_SIGN_CERTIFICATE_FINGERPRINT
+# PACKAGES_SOURCE
+# PACKAGES_SOURCE_KEY
+# PACKAGE_VERSION
+
+
 if [ -z "$PACKAGES_SOURCE" ]; then
   echo "PACKAGES_SOURCE variable should be set"
   exit 1
@@ -22,6 +29,9 @@ if [ "$PACKAGES_SOURCE" = "https://api.nuget.org/v3/index.json" ] && [[ ! "$PACK
   echo "Cannot push dev version to nuget.org: '$PACKAGE_VERSION'"
   exit 1
 fi
+
+echo Verifying signature
+dotnet nuget verify ./artifacts/nuget/"$package"."$PACKAGE_VERSION".nupkg --certificate-fingerprint "$NUGET_SIGN_CERTIFICATE_FINGERPRINT"
 
 echo Pushing nuget package...
 dotnet nuget push --source "$PACKAGES_SOURCE" --api-key "$PACKAGES_SOURCE_KEY" ./artifacts/nuget/MongoDB.Analyzer."$PACKAGE_VERSION".nupkg
