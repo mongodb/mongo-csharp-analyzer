@@ -8,7 +8,6 @@ set +o xtrace  # Disable tracing.
 # PACKAGES_SOURCE_KEY
 # PACKAGE_VERSION
 
-
 if [ -z "$PACKAGES_SOURCE" ]; then
   echo "PACKAGES_SOURCE variable should be set"
   exit 1
