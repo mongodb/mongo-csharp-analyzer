@@ -76,13 +76,13 @@ internal static class ExpressionProcessor
         var removeFluentParameters = false;
         IdentifierNameSyntax[] lambdaAndQueryIdentifiers = null;
         SyntaxNode[] rootNodesRemapped = null;
-        IEnumerable<SimpleNameSyntax> expressionDescendants;
+        SimpleNameSyntax[] expressionDescendants;
 
         switch (rewriteContext.AnalysisType)
         {
             case AnalysisType.Builders:
                 {
-                    expressionDescendants = expressionNode.DescendantNodesWithSkipList<SimpleNameSyntax>(nodesProcessed);
+                    expressionDescendants = expressionNode.DescendantNodesWithSkipList<SimpleNameSyntax>(nodesProcessed).ToArray();
 
                     var remapped = new List<SyntaxNode>();
 
@@ -129,7 +129,7 @@ internal static class ExpressionProcessor
                       })
                       .ToArray();
 
-                    expressionDescendants = expressionNode.DescendantNodes(n => !rootNodes.Contains(n)).OfType<IdentifierNameSyntax>();
+                    expressionDescendants = expressionNode.DescendantNodes(n => !rootNodes.Contains(n)).OfType<IdentifierNameSyntax>().ToArray();
                     rootNodesRemapped = new SyntaxNode[] { SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Linq.QueryableName) };
                     break;
                 }
