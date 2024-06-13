@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Microsoft.CodeAnalysis;
 using static MongoDB.Analyzer.Core.ExpressionProcessor;
 
 namespace MongoDB.Analyzer.Core.Builders;
@@ -24,6 +25,21 @@ internal static class BuilderExpressionProcessor
         Invalid,
         Builders,
         Fluent
+    }
+
+    private static SyntaxNode[] GetBuildersDefinitionNodes(SemanticModel semanticModel, SyntaxNode expressionNode)
+    {
+        var nodesProcessed = new HashSet<SyntaxNode>();
+
+        foreach (var node in expressionNode.DescendantNodesWithSkipList(nodesProcessed))
+        {
+            if (semanticModel.GetTypeInfo(node).Type.IsBuilder())
+            {
+                nodesProcessed.Add(node);
+            }
+        }
+
+        return nodesProcessed.ToArray();
     }
 
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
@@ -41,20 +57,22 @@ internal static class BuilderExpressionProcessor
 
         foreach (var node in root.DescendantNodesWithSkipList(nodesProcessed))
         {
-            SyntaxNode collectionNode = null;
+            SyntaxNode[] builderDefinitionOrCollectionNodes = null;
             var (nodeType, namedType, expressionNode) = GetNodeType(semanticModel, node);
 
             switch (nodeType)
             {
                 case NodeType.Builders:
                     {
+                        //Get Nodes that represent Builder Definitions
+                        builderDefinitionOrCollectionNodes = GetBuildersDefinitionNodes(semanticModel, expressionNode);
                         break;
                     }
                 case NodeType.Fluent:
                     {
-                        collectionNode = expressionNode
+                        builderDefinitionOrCollectionNodes = new SyntaxNode[] {expressionNode
                             .NestedInvocations()
-                            .FirstOrDefault(n => semanticModel.GetTypeInfo(n).Type.IsSupportedIMongoCollection());
+                            .FirstOrDefault(n => semanticModel.GetTypeInfo(n).Type.IsSupportedIMongoCollection()) };
                         break;
                     }
                 case NodeType.Invalid:
@@ -77,7 +95,7 @@ internal static class BuilderExpressionProcessor
                     typesProcessor.ProcessTypeSymbol(typeArgument);
                 }
 
-                var rewriteContext = RewriteContext.Builders(expressionNode, collectionNode, semanticModel, typesProcessor);
+                var rewriteContext = RewriteContext.Builders(expressionNode, builderDefinitionOrCollectionNodes, semanticModel, typesProcessor);
                 var (newBuildersExpression, constantsMapper) = RewriteExpression(rewriteContext);
 
                 if (newBuildersExpression != null)
@@ -169,20 +187,6 @@ internal static class BuilderExpressionProcessor
                     }
                 }
 
-                return default;
-            }
-
-            var builderFilterDefinition = expressionNode
-                    .NestedInvocations()
-                    .FirstOrDefault(n =>
-                    {
-                        var currentMethodSymbol = n.GetMethodSymbol(semanticModel);
-                        return !((currentMethodSymbol?.ReceiverType).IsBuilder());
-                    });
-
-            if (builderFilterDefinition == null ||
-                !semanticModel.GetSymbolInfo(builderFilterDefinition).Symbol.IsDefinedInMongoDriver())
-            {
                 return default;
             }
 

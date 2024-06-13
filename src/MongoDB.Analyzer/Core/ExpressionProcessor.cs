@@ -22,16 +22,16 @@ internal static class ExpressionProcessor
     public record RewriteContext(
         AnalysisType AnalysisType,
         SyntaxNode Expression,
-        SyntaxNode RootNode,
+        SyntaxNode[] RootNodes,
         SemanticModel SemanticModel,
         TypesProcessor TypesProcessor,
         ConstantsMapper ConstantsMapper)
     {
-        public static RewriteContext Builders(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
-            new(AnalysisType.Builders, Expression, RootNode, SemanticModel, TypesProcessor, new());
+        public static RewriteContext Builders(SyntaxNode Expression, SyntaxNode[] RootNodes, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
+            new(AnalysisType.Builders, Expression, RootNodes, SemanticModel, TypesProcessor, new());
 
         public static RewriteContext Linq(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
-            new(AnalysisType.Linq, Expression, RootNode, SemanticModel, TypesProcessor, new());
+            new(AnalysisType.Linq, Expression, new SyntaxNode[] { RootNode }, SemanticModel, TypesProcessor, new());
     }
 
     private enum RewriteAction
@@ -61,7 +61,8 @@ internal static class ExpressionProcessor
         var nodesProcessed = new HashSet<SyntaxNode>();
         var nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
         var expressionNode = rewriteContext.Expression;
-        var rootNode = rewriteContext.RootNode;
+        var rootNodes = rewriteContext.RootNodes;
+        var typesProcessor = rewriteContext.TypesProcessor;
 
         // Register literals
         foreach (var literalSyntax in expressionNode.DescendantNodes().OfType<LiteralExpressionSyntax>())
@@ -74,7 +75,7 @@ internal static class ExpressionProcessor
         var processGenerics = false;
         var removeFluentParameters = false;
         IdentifierNameSyntax[] lambdaAndQueryIdentifiers = null;
-        SyntaxNode rootNodeRemapped;
+        SyntaxNode[] rootNodesRemapped = null;
         IEnumerable<SimpleNameSyntax> expressionDescendants;
 
         switch (rewriteContext.AnalysisType)
@@ -82,8 +83,36 @@ internal static class ExpressionProcessor
             case AnalysisType.Builders:
                 {
                     expressionDescendants = expressionNode.DescendantNodesWithSkipList<SimpleNameSyntax>(nodesProcessed);
-                    rootNodeRemapped = SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Builders.CollectionName);
 
+                    var remapped = new List<SyntaxNode>();
+
+                    foreach (var rootNode in rootNodes)
+                    {
+                        var rootType = rewriteContext.SemanticModel.GetTypeInfo(rootNode).Type as INamedTypeSymbol;
+                        if (rootType.IsSupportedIMongoCollection())
+                        {
+                            var remappedNode = SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Builders.CollectionName);
+                            remapped.Add(remappedNode);
+                        }
+                        else if (rootType.IsBuilder())
+                        {
+                            var rootTypeArguments = rootType.TypeArguments.ToArray();
+
+                            var typeArguments = rootTypeArguments.Select(rootTypeArgument => SyntaxFactory.ParseTypeName(typesProcessor.GetTypeSymbolToGeneratedTypeMapping(rootTypeArgument))).ToArray();
+
+                            var buildersGenericType = SyntaxFactory.GenericName("Builders").WithTypeArgumentList(
+                                SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(typeArguments)));
+
+                            var memberAccess = SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                buildersGenericType,
+                                SyntaxFactory.IdentifierName(rootType.GetBuilderDefinitionName()));
+
+                            remapped.Add(memberAccess);
+                        }
+                    }
+
+                    rootNodesRemapped = remapped.ToArray();
                     processGenerics = true;
                     removeFluentParameters = true;
                     break;
@@ -91,7 +120,7 @@ internal static class ExpressionProcessor
             case AnalysisType.Linq:
                 {
                     lambdaAndQueryIdentifiers = expressionNode
-                      .DescendantNodes(n => n != rootNode)
+                      .DescendantNodes(n => !rootNodes.Contains(n))
                       .OfType<IdentifierNameSyntax>()
                       .Where(identifierNode =>
                       {
@@ -100,15 +129,15 @@ internal static class ExpressionProcessor
                       })
                       .ToArray();
 
-                    expressionDescendants = expressionNode.DescendantNodes(n => n != rootNode).OfType<IdentifierNameSyntax>();
-                    rootNodeRemapped = SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Linq.QueryableName);
+                    expressionDescendants = expressionNode.DescendantNodes(n => !rootNodes.Contains(n)).OfType<IdentifierNameSyntax>();
+                    rootNodesRemapped = new SyntaxNode[] { SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Linq.QueryableName) };
                     break;
                 }
             default:
                 throw new ArgumentOutOfRangeException(nameof(rewriteContext.AnalysisType), rewriteContext.AnalysisType, "Unsupported analysis type");
         }
 
-        if (rootNode != null)
+        foreach (var (rootNode, rootNodeRemapped) in rootNodes.Zip(rootNodesRemapped, (a, b) => (a, b)))
         {
             nodesProcessed.Add(rootNode);
             nodesRemapping.Add(rootNode, rootNodeRemapped);
@@ -116,7 +145,7 @@ internal static class ExpressionProcessor
 
         foreach (var identifierNode in expressionDescendants)
         {
-            if (identifierNode == rootNode ||
+            if (rootNodes.Contains(identifierNode) ||
                 !identifierNode.IsLeaf() ||
                 nodesProcessed.Any(e => e.Contains(identifierNode)))
             {

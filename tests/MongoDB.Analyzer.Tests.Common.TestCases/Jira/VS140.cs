@@ -19,6 +19,11 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
 {
     internal sealed class VS140 : TestCasesBase
     {
+        public VS140 GetClass() => new VS140();
+
+        [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
+        [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
+        [BuildersMQL("{ \"Scores.1\" : 100, \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
         [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
         public void FilterDefinition()
         {
@@ -36,10 +41,17 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                  Builders<User>.Filter.Gt(u => u.Age, 20)) |
                 (Builders<User>.Filter.Ne(u => u.Name, "Bob") &
                  Builders<User>.Filter.Exists(u => u.LastName)));
+
+            _ = Builders<User>.Filter.Lt(u => u.Age, 10) |
+                Builders<User>.Filter.Gt(u => u.Age, 20) |
+                (filterDefinition.Ne(u => u.Name, "Bob") &
+                 filterDefinition.Exists(u => u.LastName));
         }
 
-        [BuildersMQL("{ \"Address\" : \"text\", \"Vehicle\" : \"text\" }")]
-        [BuildersMQL("{ \"Name\" : \"2d\", \"LastName\" : \"2d\" }")]
+        [BuildersMQL("{ \"Address\" : -1 }")]
+        [BuildersMQL("{ new { Field = \"Name\", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field : \"2d\", new { Field = \"LastName\", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field : \"2d\", new { Field = \"Address\", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field : \"text\", new { Field = \"Vehicle\", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field : \"text\" }")]
+        [BuildersMQL("{ \"Name\" : \"2d\", \"LastName\" : \"2d\", \"Address\" : \"text\", \"Vehicle\" : \"text\" }")]
+        [BuildersMQL("{ new { Field = \"Name\", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field : \"2d\", new { Field = \"LastName\", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field : \"2d\", new { Field = \"Address\", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field : \"text\", new { Field = \"Vehicle\", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field : \"text\" }")]
         public void IndexKeysDefinition()
         {
             var indexDefinition = Builders<Person>.IndexKeys;
@@ -53,10 +65,18 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                         .Text(new { Field = "Vehicle", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field));
 
             _ = indexDefinition.Combine(Builders<Person>.IndexKeys.Geo2D(u => u.Name).Geo2D("LastName"), Builders<Person>.IndexKeys.Text(u => u.Address).Text("Vehicle"));
+
+            _ = Builders<Person>.IndexKeys.Combine(
+                    indexDefinition.Geo2D(new { Field = "Name", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field)
+                        .Geo2D(new { Field = "LastName", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field),
+                    indexDefinition.Text(new { Field = "Address", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field)
+                        .Text(new { Field = "Vehicle", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field));
         }
 
         [BuildersMQL("{ \"Age\" : 1 }")]
-        [BuildersMQL("{ \"Name\" : 1 }")]
+        [BuildersMQL("{ new { Field = \"Age\" }.Field : 1, new { Field = \"LastName\" }.Field : 1 }")]
+        [BuildersMQL("{ \"Age\" : 1, \"Name\" : 1 }")]
+        [BuildersMQL("{ new { Field = \"Age\" }.Field : 1, new { Field = \"LastName\" }.Field : 1 }")]
         public void ProjectionDefinition()
         {
             var projectionDefinition = Builders<User>.Projection;
@@ -68,9 +88,16 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                     projectionDefinition.Include(new { Field = "LastName" }.Field));
 
             _ = projectionDefinition.Combine(Builders<User>.Projection.Include(u => u.Age), Builders<User>.Projection.Include(u => u.Name));
+
+            _ = Builders<User>.Projection.Combine(
+                    projectionDefinition.Include(new { Field = "Age" }.Field),
+                    projectionDefinition.Include(new { Field = "LastName" }.Field));
         }
 
-        [NoDiagnostics]
+        [BuildersMQL("{ \"equals\" : { \"value\" : true, \"path\" : \"IsRetired\" } }", DriverVersions.V2_19_OrGreater)]
+        [BuildersMQL("{ \"span\" : { \"first\" : { \"operator\" : { \"term\" : { \"query\" : \"foo\", \"path\" : \"Name\" } }, \"endPositionLte\" : 5 } } }", DriverVersions.V2_19_OrGreater)]
+        [BuildersMQL("{ \"span\" : { \"or\" : { \"clauses\" : [{ \"term\" : { \"query\" : \"a\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"b\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"c\", \"path\" : \"Name\" } }] } } }", DriverVersions.V2_19_OrGreater)]
+        [BuildersMQL("{ \"span\" : { \"or\" : { \"clauses\" : [{ \"term\" : { \"query\" : \"a\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"b\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"c\", \"path\" : \"Name\" } }] } } }", DriverVersions.V2_19_OrGreater)]
         public void SearchDefinition()
         {
             var searchDefinition = Builders<Person>.Search;
@@ -85,11 +112,16 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                     searchSpanDefinition.Term(p => p.Name, "a"),
                     searchSpanDefinition.Term(p => p.Name, "b"),
                     searchSpanDefinition.Term(p => p.Name, "c")));
+
+            _ = Builders<Person>.Search.Span(searchSpanDefinition.Or(
+                    searchSpanDefinition.Term(p => p.Name, "a"),
+                    searchSpanDefinition.Term(p => p.Name, "b"),
+                    searchSpanDefinition.Term(p => p.Name, "c")));
         }
 
-        [BuildersMQL("{ \"Age\" : -1 }")]
-        [BuildersMQL("{ \"Name\" : 1 }")]
-        [BuildersMQL("{ \"Address\" : 1 }")]
+        [BuildersMQL("{ new { Address = \"Address\" }.Address : 1, new { Name = \"Name\" }.Name : -1 }")]
+        [BuildersMQL("{ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 }")]
+        [BuildersMQL("{ \"Age\" : -1, \"Name\" : 1, \"Address\" : 1 }")]
         public void SortDefinition()
         {
             var sortDefinition = Builders<User>.Sort;
@@ -102,13 +134,26 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                     Builders<User>.Sort.Descending(u => u.Age),
                     Builders<User>.Sort.Ascending(u => u.Name),
                     Builders<User>.Sort.Ascending(u => u.Address));
+
+            _ = Builders<User>.Sort.Combine(
+                    sortDefinition.Descending(u => u.Age),
+                    sortDefinition.Ascending(u => u.Name),
+                    sortDefinition.Ascending(u => u.Address));
         }
 
-        [NoDiagnostics]
+        [BuildersMQL("{ \"$set\" : { \"Age\" : 22 } }")]
         public void UpdateDefinition()
         {
             var updateDefinition = Builders<User>.Update;
             _ = updateDefinition.Set(u => u.Age, 22);
+        }
+
+        [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
+        [BuildersMQL("{ \"Name\" : \"User Name2\" }")]
+        public void MethodTest()
+        {
+            _ = GetFilterDefinitionBuilder().Eq(u => u.Name, "User Name1");
+            _ = GetClass().GetFilterDefinitionBuilder().Eq(u => u.Name, "User Name2");
         }
     }
 }

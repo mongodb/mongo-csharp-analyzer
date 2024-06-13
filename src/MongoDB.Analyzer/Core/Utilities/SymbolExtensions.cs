@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.HelperResources;
+
 namespace MongoDB.Analyzer.Core;
 
 internal static class SymbolExtensions
@@ -123,10 +125,28 @@ internal static class SymbolExtensions
             "ProjectionDefinitionExtensions" or
             "PipelineDefinitionBuilder" or
             "SearchDefinitionBuilder" or
+            "SearchSpanDefinitionBuilder" or
             "SortDefinitionBuilder" or
             "SortDefinitionExtensions" or
             "UpdateDefinitionBuilder" => true,
             _ => false
+        };
+
+    public static string GetBuilderDefinitionName(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.Name switch
+        {
+            "FilterDefinitionBuilder" => "Filter",
+            "IndexKeysDefinitionBuilder" => "IndexKeys",
+            "IndexKeysDefinitionExtensions" => "IndexKeys",
+            "ProjectionDefinitionBuilder" => "Projection",
+            "ProjectionDefinitionExtensions" => "Projection",
+            "PipelineDefinitionBuilder" => "Projection",
+            "SearchDefinitionBuilder" => "Search",
+            "SearchSpanDefinitionBuilder" => "SearchSpan",
+            "SortDefinitionBuilder" => "Sort",
+            "SortDefinitionExtensions" => "Sort",
+            "UpdateDefinitionBuilder" => "Update",
+            _ => null
         };
 
     public static bool IsBuilderMethod(this IMethodSymbol methodSymbol) =>
