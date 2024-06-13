@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.CodeAnalysis;
 using static MongoDB.Analyzer.Core.ExpressionProcessor;
 
 namespace MongoDB.Analyzer.Core.Builders;
@@ -33,7 +32,7 @@ internal static class BuilderExpressionProcessor
 
         foreach (var node in expressionNode.DescendantNodesWithSkipList(nodesProcessed))
         {
-            if (semanticModel.GetTypeInfo(node).Type.IsBuilder())
+            if (semanticModel.GetTypeInfo(node).Type.IsBuilder() && !semanticModel.GetSymbolInfo(node).Symbol.IsDefinedInMongoDriver())
             {
                 nodesProcessed.Add(node);
             }
