@@ -209,6 +209,7 @@ functions:
       params:
         working_dir: "mongo-csharp-analyzer"
         env:
+          NUGET_SIGN_CERTIFICATE_FINGERPRINT: ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}
           PRODUCT_NAME: "mongo-csharp-analyzer"
           github_commit: ${github_commit}
         script: |

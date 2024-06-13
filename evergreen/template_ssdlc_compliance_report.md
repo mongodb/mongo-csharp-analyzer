@@ -53,4 +53,10 @@ Coverity static analysis report is available <a href="https://us-west-2.console.
 
 ## Signature information
 
-Blocked on <https://jira.mongodb.org/browse/VS-124>.
+Packages are signed with certificate with fingerprint: ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}.
+Signature can be validated by running ```dotnet nuget verify``` command.
+
+For example signature of ```MongoDB.Analyzer."${PACKAGE_VERSION}".nupkg``` package can be verified by running:
+```
+dotnet nuget verify MongoDB.Analyzer."${PACKAGE_VERSION}".nupkg --certificate-fingerprint ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}
+```
