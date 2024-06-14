@@ -32,9 +32,21 @@ internal static class BuilderExpressionProcessor
 
         foreach (var node in expressionNode.DescendantNodesWithSkipList(nodesProcessed))
         {
-            if (semanticModel.GetTypeInfo(node).Type.IsBuilder() && !semanticModel.GetSymbolInfo(node).Symbol.IsDefinedInMongoDriver())
+            if (semanticModel.GetTypeInfo(node).Type.IsBuilder())
             {
-                nodesProcessed.Add(node);
+                if (!semanticModel.GetSymbolInfo(node).Symbol.IsDefinedInMongoDriver())
+                {
+                    nodesProcessed.Add(node);
+                }
+                else if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
+                {
+                    var objectExpression = memberAccessExpressionSyntax.Expression;
+
+                    if (semanticModel.GetAliasInfo(objectExpression) != null)
+                    {
+                        nodesProcessed.Add(node);
+                    }
+                }
             }
         }
 

@@ -15,11 +15,21 @@
 using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver;
 
+#pragma warning disable IDE0005
+using builder = MongoDB.Driver.Builders<MongoDB.Analyzer.Tests.Common.DataModel.User>;
+#pragma warning restore IDE0005
+
+#pragma warning disable IDE0001
+
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
 {
     internal sealed class VS140 : TestCasesBase
     {
+        public FilterDefinitionBuilder<User> GetFilterDefinitionBuilder() => Builders<User>.Filter;
+        public static FilterDefinitionBuilder<User> GetFilterDefinitionBuilderStatic() => Builders<User>.Filter;
+
         public VS140 GetClass() => new VS140();
+        public static VS140 GetClassStatic() => new VS140();
 
         [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
         [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
@@ -37,8 +47,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                  filterDefinition.Exists(u => u.LastName));
 
             _ = filterDefinition.Eq(u => u.Scores[1], 100) &
-                (((Builders<User>.Filter.Lt(u => u.Age, 10)) |
-                 Builders<User>.Filter.Gt(u => u.Age, 20)) |
+                ((Builders<User>.Filter.Lt(u => u.Age, 10)) |
+                 Builders<User>.Filter.Gt(u => u.Age, 20) |
                 (Builders<User>.Filter.Ne(u => u.Name, "Bob") &
                  Builders<User>.Filter.Exists(u => u.LastName)));
 
@@ -155,6 +165,23 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
             _ = GetFilterDefinitionBuilder().Eq(u => u.Name, "User Name1");
             _ = GetClass().GetFilterDefinitionBuilder().Eq(u => u.Name, "User Name2");
         }
+
+        [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
+        [BuildersMQL("{ \"Name\" : \"User Name2\" }")]
+        public void StaticMethodTest()
+        {
+            _ = GetFilterDefinitionBuilderStatic().Eq(u => u.Name, "User Name1");
+            _ = GetClassStatic().GetFilterDefinitionBuilder().Eq(u => u.Name, "User Name2");
+        }
+
+        [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
+        [BuildersMQL("{ \"$set\" : { \"Age\" : 22 } }")]
+        public void UsingAliasTest()
+        {
+            _ = builder.Filter.Eq(u => u.Name, "User Name1");
+            _ = builder.Update.Set(u => u.Age, 22);
+        }
     }
 }
 
+#pragma warning disable IDE0001
