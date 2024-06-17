@@ -67,10 +67,10 @@ public sealed class LinqTests : DiagnosticsTestCasesRunner
     public Task Nullables(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
-    [CodeBasedTestCasesSource(typeof(LinqSuffix))]
-    public Task Suffixes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
-
-    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(LinqQuerySyntax))]
     public Task QuerySyntax(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(LinqSuffix))]
+    public Task Suffixes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

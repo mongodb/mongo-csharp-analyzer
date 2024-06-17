@@ -20,55 +20,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqSuffix : TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        public void SingleMethod_suffix()
-        {
-            var collection = GetMongoCollection();
-
-            _ = collection.AsQueryable()
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10)
-                .Select(u => u.Name)
-                .ToCursor();
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        public void TwoMethods_suffix()
-        {
-            var collection = GetMongoCollection();
-
-            _ = collection.AsQueryable()
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10)
-                .Select(u => u.Name)
-                .ToCursor()
-                .ToList();
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        public void MultipleMethods_suffix()
-        {
-            var collection = GetMongoCollection();
-
-            _ = collection.AsQueryable()
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10)
-                .Select(u => u.Name)
-                .ToCursor()
-                .ToList()
-                .ToArray()
-                .ToList();
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
-        public void IMongoQueryable_extensions_suffix()
-        {
-            _ = GetMongoQueryable()
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10)
-                .ApplyPaging(1, 0);
-        }
-
         [MQL("aggregate([{ \"$match\" : { \"LastName\" : \"Smith\" } }])")]
         public void IMongoQueryable_extensions_in_middle()
         {
@@ -86,6 +37,30 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .ApplyPaging(1, 0)
                 .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
                 .Where(u => u.LastName.Length < 10);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
+        public void IMongoQueryable_extensions_suffix()
+        {
+            _ = GetMongoQueryable()
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                .Where(u => u.LastName.Length < 10)
+                .ApplyPaging(1, 0);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        public void MultipleMethods_suffix()
+        {
+            var collection = GetMongoCollection();
+
+            _ = collection.AsQueryable()
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                .Where(u => u.LastName.Length < 10)
+                .Select(u => u.Name)
+                .ToCursor()
+                .ToList()
+                .ToArray()
+                .ToList();
         }
 
         [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
@@ -129,6 +104,31 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 where u.Name == "Bob" && u.Age > 16 && u.Age <= 21
                 where u.LastName.Length < 10
                 select u;
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        public void SingleMethod_suffix()
+        {
+            var collection = GetMongoCollection();
+
+            _ = collection.AsQueryable()
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                .Where(u => u.LastName.Length < 10)
+                .Select(u => u.Name)
+                .ToCursor();
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        public void TwoMethods_suffix()
+        {
+            var collection = GetMongoCollection();
+
+            _ = collection.AsQueryable()
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                .Where(u => u.LastName.Length < 10)
+                .Select(u => u.Name)
+                .ToCursor()
+                .ToList();
         }
     }
 }

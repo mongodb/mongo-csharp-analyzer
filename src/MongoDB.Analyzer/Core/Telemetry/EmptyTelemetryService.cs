@@ -26,11 +26,11 @@ internal sealed class EmptyTelemetryService : ITelemetryService
     {
     }
 
-    public void Flush()
+    public void Event(string eventName, params (string, object)[] data)
     {
     }
 
-    public void Event(string eventName, params (string, object)[] data)
+    public void Flush()
     {
     }
 }

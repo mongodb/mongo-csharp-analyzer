@@ -25,16 +25,6 @@ internal static class LinqMqlGeneratorProvider
         AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
     }
 
-    private static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
-    {
-        var assemblyName = new AssemblyName(args.Name);
-        if (s_pathsMappings.TryGetValue($"{assemblyName.Name}_{assemblyName.Version}", out var assemblyPath))
-        {
-            return Assembly.LoadFile(assemblyPath);
-        }
-        return null;
-    }
-
     public static LinqMqlGeneratorExecutor GetLinqMqlGeneratorExecutor(
         ReferencesContainer referencesContainer,
         MemoryStream assemblyMemoryStream,
@@ -59,5 +49,15 @@ internal static class LinqMqlGeneratorProvider
         }
 
         return result;
+    }
+
+    private static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+    {
+        var assemblyName = new AssemblyName(args.Name);
+        if (s_pathsMappings.TryGetValue($"{assemblyName.Name}_{assemblyName.Version}", out var assemblyPath))
+        {
+            return Assembly.LoadFile(assemblyPath);
+        }
+        return null;
     }
 }

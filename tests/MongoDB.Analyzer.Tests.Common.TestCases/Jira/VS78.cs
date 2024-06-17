@@ -78,6 +78,15 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 select person;
         }
 
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
+        public void IMongoQueryable_extensions_prefix()
+        {
+            _ = GetMongoQueryable()
+                .ApplyPaging(1, 0)
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                .Where(u => u.LastName.Length < 10);
+        }
+
         [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
         [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
         [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])")]
@@ -113,31 +122,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 select u.Name;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
-        public void IMongoQueryable_extensions_prefix()
-        {
-            _ = GetMongoQueryable()
-                .ApplyPaging(1, 0)
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10);
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
-        public void IQueryable_extensions_suffix()
-        {
-            _ = GetMongoQueryable()
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10)
-                .ApplyPagingIQueryable(1, 0);
-
-            _ = GetMongoQueryable()
-                .ApplyPaging(1, 0)
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10)
-                .ApplyPagingIQueryable(1, 0);
-        }
-
         [NoDiagnostics]
         public void IQueryable_extensions_in_middle_and_prefix_should_be_ignored()
         {
@@ -162,6 +146,22 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
               .ApplyPagingIQueryable(1, 0)
               .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
               .Where(u => u.LastName.Length < 10);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
+        public void IQueryable_extensions_suffix()
+        {
+            _ = GetMongoQueryable()
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                .Where(u => u.LastName.Length < 10)
+                .ApplyPagingIQueryable(1, 0);
+
+            _ = GetMongoQueryable()
+                .ApplyPaging(1, 0)
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                .Where(u => u.LastName.Length < 10)
+                .ApplyPagingIQueryable(1, 0);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"Root.Data\" : intVariable1 + intVariable2 } }])")]

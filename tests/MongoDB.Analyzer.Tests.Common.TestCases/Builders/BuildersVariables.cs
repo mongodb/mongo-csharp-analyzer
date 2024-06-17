@@ -741,54 +741,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             var finalResultC = c;
         }
 
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 1)]
-        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 2)]
-        [BuildersMQL("{ \"SiblingsCount\" : { \"$lte\" : 5 } }", 4)]
-        [BuildersMQL("{ \"Vehicle.VehicleType.MPG\" : { \"$gte\" : 25.0 } }", 5)]
-        [BuildersMQL("{ \"Name\" : \"John\" }", 7)]
-        [BuildersMQL("{ \"LastName\" : \"Doe\" }", 8, 10)]
-        public void Variable_tracking_single_reasignment()
-        {
-            var x = Builders<Person>.Filter.Exists(p => p.Address, false);
-            x = Builders<Person>.Filter.Exists(p => p.Address, true);
-
-            x = Builders<Person>.Filter.Lte(p => p.SiblingsCount, 5);
-            x = Builders<Person>.Filter.Gte(p => p.Vehicle.VehicleType.MPG, 25);
-
-            x = Builders<Person>.Filter.Eq(p => p.Name, "John");
-            x = Builders<Person>.Filter.Eq(p => p.LastName, "Doe");
-
-            var finalResult = x;
-        }
-
-        [BuildersMQL("{ \"Name\" : \"John\", \"LastName\" : \"Doe\" }", 1, 3, 4, 5, 6)]
-        [BuildersMQL("{ \"Name\" : \"Bob\" }", 8, 9, 10, 12, 13, 14, 14, 16, 16)]
-        public void Variable_tracking_single_multi_reference()
-        {
-            var x = Builders<Person>.Filter.Eq(p => p.Name, "John") &
-                    Builders<Person>.Filter.Eq(x => x.LastName, "Doe");
-            var y = x;
-            Foo(x);
-            Foo(y);
-            GetMongoCollection<Person>().Find(x);
-
-            x = Builders<Person>.Filter.Eq(p => p.Name, "Bob");
-            Foo(x);
-            GetMongoCollection<Person>().Find(x);
-
-            y = x;
-            Foo(y);
-            GetMongoCollection<Person>().Find(y | x);
-
-            Bar(x, y);
-
-            if (true)
-            {
-                x = y = null;
-            }
-
-            Bar(x, y); // no diagnostics
-        }
 
         [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 1)]
         [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 2)]
@@ -843,6 +795,55 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 
             Bar(x, y, z); // diagnostics for z only
             Bar(z);
+        }
+
+        [BuildersMQL("{ \"Name\" : \"John\", \"LastName\" : \"Doe\" }", 1, 3, 4, 5, 6)]
+        [BuildersMQL("{ \"Name\" : \"Bob\" }", 8, 9, 10, 12, 13, 14, 14, 16, 16)]
+        public void Variable_tracking_single_multi_reference()
+        {
+            var x = Builders<Person>.Filter.Eq(p => p.Name, "John") &
+                    Builders<Person>.Filter.Eq(x => x.LastName, "Doe");
+            var y = x;
+            Foo(x);
+            Foo(y);
+            GetMongoCollection<Person>().Find(x);
+
+            x = Builders<Person>.Filter.Eq(p => p.Name, "Bob");
+            Foo(x);
+            GetMongoCollection<Person>().Find(x);
+
+            y = x;
+            Foo(y);
+            GetMongoCollection<Person>().Find(y | x);
+
+            Bar(x, y);
+
+            if (true)
+            {
+                x = y = null;
+            }
+
+            Bar(x, y); // no diagnostics
+        }
+
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : false } }", 1)]
+        [BuildersMQL("{ \"Address\" : { \"$exists\" : true } }", 2)]
+        [BuildersMQL("{ \"SiblingsCount\" : { \"$lte\" : 5 } }", 4)]
+        [BuildersMQL("{ \"Vehicle.VehicleType.MPG\" : { \"$gte\" : 25.0 } }", 5)]
+        [BuildersMQL("{ \"Name\" : \"John\" }", 7)]
+        [BuildersMQL("{ \"LastName\" : \"Doe\" }", 8, 10)]
+        public void Variable_tracking_single_reasignment()
+        {
+            var x = Builders<Person>.Filter.Exists(p => p.Address, false);
+            x = Builders<Person>.Filter.Exists(p => p.Address, true);
+
+            x = Builders<Person>.Filter.Lte(p => p.SiblingsCount, 5);
+            x = Builders<Person>.Filter.Gte(p => p.Vehicle.VehicleType.MPG, 25);
+
+            x = Builders<Person>.Filter.Eq(p => p.Name, "John");
+            x = Builders<Person>.Filter.Eq(p => p.LastName, "Doe");
+
+            var finalResult = x;
         }
 
         private FilterDefinition<T> GenerateBuildersExpression<T>(FilterDefinition<T> buildersExpression) => buildersExpression;

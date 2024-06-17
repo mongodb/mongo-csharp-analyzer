@@ -22,6 +22,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersNullables : TestCasesBase
     {
+        [BuildersMQL("{ \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum() }")]
+        [BuildersMQL("{ \"ShortNullable\" : GetNullableShort() }")]
+        public void Method_with_nullable_return_type()
+        {
+            _ = Builders<Person?>.Filter.Eq(p => p.Vehicle.VehicleType.Type, GetVehicleTypeEnum());
+            _ = Builders<NullableHolder?>.Filter.Eq(n => n.ShortNullable, GetNullableShort());
+        }
+
         [BuildersMQL("{ \"$or\" : [{ \"EnumInt8\" : nullableEnumInt8 }, { \"EnumUInt8\" : nullableEnumUInt8 }, { \"EnumInt16\" : nullableEnumInt16 }, { \"EnumUInt16\" : nullableEnumUInt16 }, { \"EnumInt32\" : nullableEnumInt32 }, { \"EnumUInt32\" : nullableEnumUInt32 }, { \"EnumInt64\" : NumberLong(nullableEnumInt64) }, { \"EnumUInt64\" : NumberLong(nullableEnumUInt64) }] }")]
         [BuildersMQL("{ \"$or\" : [{ \"EnumInt8\" : null }, { \"EnumUInt8\" : null }, { \"EnumInt16\" : null }, { \"EnumUInt16\" : null }, { \"EnumInt32\" : null }, { \"EnumUInt32\" : null }, { \"EnumInt64\" : null }, { \"EnumUInt64\" : null }] }")]
         [BuildersMQL("{ \"$or\" : [{ \"EnumInt8\" : 0 }, { \"EnumUInt8\" : 0 }, { \"EnumInt16\" : 0 }, { \"EnumUInt16\" : 0 }, { \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : NumberLong(0) }, { \"EnumUInt64\" : NumberLong(0) }] }")]
@@ -78,14 +86,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         public void Nullable_mongo_queryable()
         {
             _ = Builders<Person?>.Filter.Eq(p => p.Address.City, "New York City");
-        }
-
-        [BuildersMQL("{ \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum() }")]
-        [BuildersMQL("{ \"ShortNullable\" : GetNullableShort() }")]
-        public void Method_with_nullable_return_type()
-        {
-            _ = Builders<Person?>.Filter.Eq(p => p.Vehicle.VehicleType.Type, GetVehicleTypeEnum());
-            _ = Builders<NullableHolder?>.Filter.Eq(n => n.ShortNullable, GetNullableShort());
         }
 
         [BuildersMQL("{ \"$or\" : [{ \"ByteNullable\" : StaticHolder.ReadonlyByteNullable }, { \"DoubleNullable\" : StaticHolder.ReadonlyDoubleNullable }, { \"IntNullable\" : StaticHolder.ReadonlyIntNullable }, { \"LongNullable\" : NumberLong(StaticHolder.ReadonlyLongNullable) }, { \"ShortNullable\" : StaticHolder.ReadonlyShortNullable }, { \"StringNullable\" : StaticHolder.ReadonlyStringNullable }] }")]

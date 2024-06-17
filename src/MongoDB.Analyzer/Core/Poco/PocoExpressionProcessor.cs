@@ -72,11 +72,11 @@ internal static class PocoExpressionProcessor
     private static bool ContainsBsonAttributes(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
         classSymbol.GetAttributes().Where(attribute => IsValidBsonAttribute(context, attribute)).AnySafe();
 
+    private static bool ContainsFieldsWithBsonAttributes(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
+    classSymbol.GetMembers().OfType<IFieldSymbol>().SelectMany(field => field.GetAttributes().Where(attribute => IsValidBsonAttribute(context, attribute))).AnySafe();
+
     private static bool ContainsPropertiesWithBsonAttributes(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
         classSymbol.GetMembers().OfType<IPropertySymbol>().SelectMany(property => property.GetAttributes().Where(attribute => IsValidBsonAttribute(context, attribute))).AnySafe();
-
-    private static bool ContainsFieldsWithBsonAttributes(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
-        classSymbol.GetMembers().OfType<IFieldSymbol>().SelectMany(field => field.GetAttributes().Where(attribute => IsValidBsonAttribute(context, attribute))).AnySafe();
 
     private static bool IsValidBsonAttribute(MongoAnalysisContext context, AttributeData attribute) =>
         attribute.AttributeClass.IsSupportedBsonAttribute() || context.TypesProcessor.GetTypeSymbolToMemberDeclarationMapping(attribute.AttributeClass) != null;

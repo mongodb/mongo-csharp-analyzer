@@ -19,6 +19,10 @@ internal static class SyntaxFactoryUtilities
     public static SyntaxNode NewFindOptionsArgument { get; } =
         SyntaxFactory.Argument(SyntaxFactory.ParseExpression("new FindOptions()"));
 
+    public static ArrayCreationExpressionSyntax GetArrayCreationExpression(ArrayTypeSyntax arrayTypeSyntax, ExpressionSyntax[] expressions) =>
+        SyntaxFactory.ArrayCreationExpression(SyntaxFactory.Token(SyntaxKind.NewKeyword), arrayTypeSyntax,
+        SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, SyntaxFactory.SeparatedList<ExpressionSyntax>(expressions)));
+
     public static AttributeSyntax GetAttribute(string name, List<AttributeArgumentSyntax> arguments)
     {
         var separatedAttributeArgumentList = SyntaxFactory.SeparatedList<AttributeArgumentSyntax>(arguments);
@@ -29,10 +33,6 @@ internal static class SyntaxFactoryUtilities
 
         return attributeNode;
     }
-
-    public static ArrayCreationExpressionSyntax GetArrayCreationExpression(ArrayTypeSyntax arrayTypeSyntax, ExpressionSyntax[] expressions) =>
-        SyntaxFactory.ArrayCreationExpression(SyntaxFactory.Token(SyntaxKind.NewKeyword), arrayTypeSyntax,
-            SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, SyntaxFactory.SeparatedList<ExpressionSyntax>(expressions)));
 
     public static CastExpressionSyntax GetCastConstantExpression(string castToTypeName, object constantValue, bool isCastToTypeNullable = false) =>
         SyntaxFactory.CastExpression(
@@ -63,6 +63,20 @@ internal static class SyntaxFactoryUtilities
             _ => throw new NotSupportedException($"Not supported type {value?.GetType()}")
         };
 
+    public static NameSyntax GetIdentifier(string identifierName)
+    {
+        var parts = identifierName.Split('.');
+
+        NameSyntax result = SyntaxFactory.IdentifierName(parts[0]);
+
+        for (int i = 1; i < parts.Length; i++)
+        {
+            result = SyntaxFactory.QualifiedName(result, SyntaxFactory.IdentifierName(parts[i]));
+        }
+
+        return result;
+    }
+
     public static TypeSyntax GetNullableType(string typeName) =>
         SyntaxFactory.NullableType(SyntaxFactory.ParseTypeName(typeName));
 
@@ -82,19 +96,8 @@ internal static class SyntaxFactoryUtilities
             _ => throw new NotSupportedException($"Not supported type {value?.GetType()}")
         };
 
-    public static NameSyntax GetIdentifier(string identifierName)
-    {
-        var parts = identifierName.Split('.');
-
-        NameSyntax result = SyntaxFactory.IdentifierName(parts[0]);
-
-        for (int i = 1; i < parts.Length; i++)
-        {
-            result = SyntaxFactory.QualifiedName(result, SyntaxFactory.IdentifierName(parts[i]));
-        }
-
-        return result;
-    }
+    public static SimpleNameSyntax GetUnderlyingIdentifier(SyntaxNode identifier) =>
+        GetUnderlyingNameSyntax(identifier.Parent);
 
     public static SimpleNameSyntax GetUnderlyingNameSyntax(SyntaxNode syntax)
     {
@@ -119,12 +122,28 @@ internal static class SyntaxFactoryUtilities
         return underlyingNameSyntax;
     }
 
-    public static SimpleNameSyntax GetUnderlyingIdentifier(SyntaxNode identifier) =>
-        GetUnderlyingNameSyntax(identifier.Parent);
-
     public static bool IsMemberOfAnonymousObject(this SyntaxNode identifier) =>
         identifier.Parent.IsKind(SyntaxKind.NameEquals) &&
         identifier.Parent.Parent.IsKind(SyntaxKind.AnonymousObjectMemberDeclarator);
+
+    public static SyntaxNode ResolveAccessExpressionNode(SyntaxNode identifier)
+    {
+        SyntaxNode result = identifier;
+
+        while (result.Parent.IsKind(SyntaxKind.InvocationExpression) ||
+             result.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+        {
+            result = result.Parent;
+        }
+
+        return result;
+    }
+
+    public static MemberAccessExpressionSyntax SimpleMemberAccess(string source, string member) =>
+        SyntaxFactory.MemberAccessExpression(
+            SyntaxKind.SimpleMemberAccessExpression,
+            SyntaxFactory.IdentifierName(source),
+            SyntaxFactory.IdentifierName(member));
 
     public static ExpressionSyntax TrimElementAccessAndInvocationSyntax(ExpressionSyntax expressionSyntax)
     {
@@ -148,23 +167,4 @@ internal static class SyntaxFactoryUtilities
 
         return result;
     }
-
-    public static SyntaxNode ResolveAccessExpressionNode(SyntaxNode identifier)
-    {
-        SyntaxNode result = identifier;
-
-        while (result.Parent.IsKind(SyntaxKind.InvocationExpression) ||
-             result.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-        {
-            result = result.Parent;
-        }
-
-        return result;
-    }
-
-    public static MemberAccessExpressionSyntax SimpleMemberAccess(string source, string member) =>
-        SyntaxFactory.MemberAccessExpression(
-            SyntaxKind.SimpleMemberAccessExpression,
-            SyntaxFactory.IdentifierName(source),
-            SyntaxFactory.IdentifierName(member));
 }

@@ -39,16 +39,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<SimpleTypesArraysHolder>.Filter.AnyNin(t => t.ObjectArray, null);
         }
 
-        [NotSupportedBuilders("Unable to determine the serialization information for f => f.Quantity.", version: DriverVersions.V2_18_OrLower)]
-        [NotSupportedBuilders("Expression not supported: f.Quantity.", version: DriverVersions.V2_19_OrGreater)]
-        [NotSupportedBuilders("Unable to determine the serialization information for a => a._AppleID.", version: DriverVersions.V2_18_OrLower)]
-        [NotSupportedBuilders("Expression not supported: a._AppleID.", version: DriverVersions.V2_19_OrGreater)]
-        public void Warnings_due_to_bson_ignore()
-        {
-            _ = Builders<Fruit>.Update.Set(f => f.Quantity, 22);
-            _ = Builders<Apple>.Update.Set(a => a._AppleID, "Apple ID");
-        }
-
 #if NET472
         [NotSupportedBuilders("Class System.Int32 cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.GoldenApple.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
         [NotSupportedBuilders("Class System.Type cannot be assigned to Class MongoDB.Analyzer.Tests.Common.DataModel.FujiApple.  Ensure that known types are derived from the mapped class.\r\nParameter name: type")]
@@ -63,6 +53,16 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<GoldenApple>.Filter.Exists(g => g.GoldenAppleCost, false);
             _ = Builders<FujiApple>.Filter.Exists(f => f.FujiAppleCost, false);
             _ = Builders<YellowApple>.Filter.Exists(y => y.YellowAppleCost, false);
+        }
+
+        [NotSupportedBuilders("Unable to determine the serialization information for f => f.Quantity.", version: DriverVersions.V2_18_OrLower)]
+        [NotSupportedBuilders("Expression not supported: f.Quantity.", version: DriverVersions.V2_19_OrGreater)]
+        [NotSupportedBuilders("Unable to determine the serialization information for a => a._AppleID.", version: DriverVersions.V2_18_OrLower)]
+        [NotSupportedBuilders("Expression not supported: a._AppleID.", version: DriverVersions.V2_19_OrGreater)]
+        public void Warnings_due_to_bson_ignore()
+        {
+            _ = Builders<Fruit>.Update.Set(f => f.Quantity, 22);
+            _ = Builders<Apple>.Update.Set(a => a._AppleID, "Apple ID");
         }
     }
 }

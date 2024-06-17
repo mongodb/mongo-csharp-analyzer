@@ -50,6 +50,13 @@ internal static class PocoAnalyzer
         return telemetry.ExpressionsFound > 0;
     }
 
+    private static bool IsDriverOrBsonException(JsonResult jsonResult)
+    {
+        var source = jsonResult.Exception.InnerException?.Source;
+        return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
+            source.Contains("MongoDB.Bson"));
+    }
+
     private static AnalysisStats ReportJsonOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis pocoAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
@@ -107,12 +114,5 @@ internal static class PocoAnalyzer
         }
 
         return new AnalysisStats(0, jsonCount, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
-    }
-
-    private static bool IsDriverOrBsonException(JsonResult jsonResult)
-    {
-        var source = jsonResult.Exception.InnerException?.Source;
-        return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
-            source.Contains("MongoDB.Bson"));
     }
 }

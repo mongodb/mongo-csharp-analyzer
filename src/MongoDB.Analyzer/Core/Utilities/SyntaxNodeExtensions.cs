@@ -16,16 +16,6 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SyntaxNodeExtensions
 {
-    public static SyntaxNode TrimParenthesis(this SyntaxNode syntaxNode)
-    {
-        while (syntaxNode is ParenthesizedExpressionSyntax parenthesizedExpression)
-        {
-            syntaxNode = parenthesizedExpression.Expression;
-        }
-
-        return syntaxNode;
-    }
-
     public static IEnumerable<SyntaxNode> DescendantNodesWithSkipList(this SyntaxNode syntaxNode, HashSet<SyntaxNode> skipList) =>
         DescendantNodesWithSkipList<SyntaxNode>(syntaxNode, skipList);
 
@@ -55,21 +45,6 @@ internal static class SyntaxNodeExtensions
     public static ExpressionSyntax GetNextNestedInvocation(this SyntaxNode syntaxNode) =>
            ((syntaxNode as InvocationExpressionSyntax)?.Expression as MemberAccessExpressionSyntax)?.Expression;
 
-    public static IEnumerable<ExpressionSyntax> NestedInvocations(this SyntaxNode syntaxNode)
-    {
-        var expressionSyntax = GetNextNestedInvocation(syntaxNode);
-
-        while (expressionSyntax != null)
-        {
-            yield return expressionSyntax;
-
-            expressionSyntax = GetNextNestedInvocation(expressionSyntax);
-        }
-
-        ExpressionSyntax GetNextNestedInvocation(SyntaxNode syntaxNode) =>
-            ((syntaxNode as InvocationExpressionSyntax)?.Expression as MemberAccessExpressionSyntax)?.Expression;
-    }
-
     public static ArgumentSyntax GetParentArgumentSyntaxIfExists(this SyntaxNode syntaxNode)
     {
         while (syntaxNode != null)
@@ -85,11 +60,11 @@ internal static class SyntaxNodeExtensions
         return null;
     }
 
-    public static IdentifierNameSyntax GetSingleIdentifier(this SyntaxNode syntaxNode, string identifierName) =>
-        syntaxNode.DescendantNodes().OfType<IdentifierNameSyntax>().Single(i => i.Identifier.Text == identifierName);
-
     public static ClassDeclarationSyntax GetSingleClassDeclaration(this SyntaxNode syntaxNode, string className) =>
         syntaxNode.DescendantNodes().OfType<ClassDeclarationSyntax>().Single(i => i.Identifier.Text == className);
+
+    public static IdentifierNameSyntax GetSingleIdentifier(this SyntaxNode syntaxNode, string identifierName) =>
+    syntaxNode.DescendantNodes().OfType<IdentifierNameSyntax>().Single(i => i.Identifier.Text == identifierName);
 
     public static MethodDeclarationSyntax GetSingleMethod(this SyntaxNode syntaxNode, string name) =>
         syntaxNode.DescendantNodes().OfType<MethodDeclarationSyntax>().Single(m => m.Identifier.Text == name);
@@ -185,5 +160,30 @@ internal static class SyntaxNodeExtensions
             syntaxNode.IsKind(SyntaxKind.InvocationExpression) && syntaxNode.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression);
 
         return false;
+    }
+
+    public static IEnumerable<ExpressionSyntax> NestedInvocations(this SyntaxNode syntaxNode)
+    {
+        var expressionSyntax = GetNextNestedInvocation(syntaxNode);
+
+        while (expressionSyntax != null)
+        {
+            yield return expressionSyntax;
+
+            expressionSyntax = GetNextNestedInvocation(expressionSyntax);
+        }
+
+        ExpressionSyntax GetNextNestedInvocation(SyntaxNode syntaxNode) =>
+            ((syntaxNode as InvocationExpressionSyntax)?.Expression as MemberAccessExpressionSyntax)?.Expression;
+    }
+
+    public static SyntaxNode TrimParenthesis(this SyntaxNode syntaxNode)
+    {
+        while (syntaxNode is ParenthesizedExpressionSyntax parenthesizedExpression)
+        {
+            syntaxNode = parenthesizedExpression.Expression;
+        }
+
+        return syntaxNode;
     }
 }

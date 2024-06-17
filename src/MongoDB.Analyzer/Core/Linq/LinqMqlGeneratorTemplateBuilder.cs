@@ -56,9 +56,6 @@ internal sealed class LinqMqlGeneratorTemplateBuilder
         return newMqlGeneratorMethodName;
     }
 
-    public SyntaxTree GenerateSyntaxTree() =>
-         _syntaxElements.Root.ReplaceNode(_syntaxElements.ClassDeclarationSyntax, _mqlGeneratorDeclarationSyntaxNew).SyntaxTree;
-
     public static SyntaxElements CreateSyntaxElements(SyntaxTree mqlGeneratorSyntaxTree)
     {
         var root = mqlGeneratorSyntaxTree.GetRoot();
@@ -70,4 +67,7 @@ internal sealed class LinqMqlGeneratorTemplateBuilder
 
         return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, linqExpressionNode, queryableTypeNode);
     }
+
+    public SyntaxTree GenerateSyntaxTree() =>
+         _syntaxElements.Root.ReplaceNode(_syntaxElements.ClassDeclarationSyntax, _mqlGeneratorDeclarationSyntaxNew).SyntaxTree;
 }

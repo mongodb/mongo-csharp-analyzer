@@ -35,17 +35,6 @@ internal sealed class LinqMqlGeneratorExecutor
         DriverVersion = GetDriverVersion();
     }
 
-    private string GetDriverVersion()
-    {
-        try
-        {
-            return (string)_testClassType.GetMethod(MqlGeneratorSyntaxElements.Linq.GetDriverVersion).Invoke(null, new object[] { });
-        }
-        catch { }
-
-        return null;
-    }
-
     public MQLResult GenerateMql(string methodName)
     {
         MQLResult result;
@@ -99,5 +88,16 @@ internal sealed class LinqMqlGeneratorExecutor
         }
 
         return new MQLResult(mql, false, exception);
+    }
+
+    private string GetDriverVersion()
+    {
+        try
+        {
+            return (string)_testClassType.GetMethod(MqlGeneratorSyntaxElements.Linq.GetDriverVersion).Invoke(null, new object[] { });
+        }
+        catch { }
+
+        return null;
     }
 }

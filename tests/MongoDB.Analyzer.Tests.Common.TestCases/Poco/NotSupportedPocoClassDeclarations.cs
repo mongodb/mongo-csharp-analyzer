@@ -20,30 +20,30 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class NotSupportedPocoClassDeclarations : TestCasesBase
     {
-        [NotSupportedPoco("A serializer of type 'BooleanSerializer' is not configurable using an attribute of type 'BsonTimeSpanOptionsAttribute'.")]
-        public void ClassTimeSpan()
-        {
-        }
-
         [NotSupportedPoco("A serializer of type 'DecimalSerializer' is not configurable using an attribute of type 'BsonDateTimeOptionsAttribute'.")]
         public void ClassDateTime()
         {
         }
 
+        [NotSupportedPoco("A serializer of type 'BooleanSerializer' is not configurable using an attribute of type 'BsonTimeSpanOptionsAttribute'.")]
+        public void ClassTimeSpan()
+        {
+        }
+
         public class TestClasses
         {
-            public class ClassTimeSpan
-            {
-                [BsonTimeSpanOptions(representation: BsonType.Array, Units = Bson.Serialization.Options.TimeSpanUnits.Hours)]
-                public bool InStock { get; set; }
-
-                public int Width { get; set; }
-            }
-
             public class ClassDateTime
             {
                 [BsonDateTimeOptions(DateOnly = true, Kind = DateTimeKind.Local)]
                 public decimal Price { get; set; }
+
+                public int Width { get; set; }
+            }
+
+            public class ClassTimeSpan
+            {
+                [BsonTimeSpanOptions(representation: BsonType.Array, Units = Bson.Serialization.Options.TimeSpanUnits.Hours)]
+                public bool InStock { get; set; }
 
                 public int Width { get; set; }
             }

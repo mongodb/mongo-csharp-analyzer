@@ -21,28 +21,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
     public sealed class LinqComments : TestCasesBase
     {
         [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
-        public void SingleLine_comment_before_and_after_expression()
-        {
-            // single line comment
-            _ = GetMongoCollection().AsQueryable()
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.Height == 180);
-            // single line comment
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
-        public void SingleLine_comment_between_linq_invocations()
-        {
-            _ = GetMongoCollection()
-                // single line comment
-                .AsQueryable()
-                // single line comment
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                // single line comment
-                .Where(u => u.Height == 180);
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
         public void MultiLine_comment_before_and_after_expression()
         {
             /*
@@ -122,6 +100,28 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                     multi line comment line 2
                 */
                 select user;
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        public void SingleLine_comment_before_and_after_expression()
+        {
+            // single line comment
+            _ = GetMongoCollection().AsQueryable()
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                .Where(u => u.Height == 180);
+            // single line comment
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        public void SingleLine_comment_between_linq_invocations()
+        {
+            _ = GetMongoCollection()
+                // single line comment
+                .AsQueryable()
+                // single line comment
+                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+                // single line comment
+                .Where(u => u.Height == 180);
         }
     }
 }

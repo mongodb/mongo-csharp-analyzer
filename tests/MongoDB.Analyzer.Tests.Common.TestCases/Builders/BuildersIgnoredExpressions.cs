@@ -21,20 +21,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersIgnoredExpressions : TestCasesBase
     {
-        [BuildersMQL("{ \"Address.City\" : \"Vienna\" }")]
-        public void Simple_valid_expression_as_baseline()
-        {
-            var person = new Person();
-            _ = Builders<Person>.Filter.Eq(t => t.Address.City, "Vienna");
-        }
-
-        [NoDiagnostics]
-        public void Objects_comparison_expression_should_be_ignored()
-        {
-            var person = new Person();
-            _ = Builders<Person>.Filter.Eq(t => t.Address, person.Address);
-        }
-
         [NoDiagnostics]
         public void Arrays_reference_should_be_ignored()
         {
@@ -49,6 +35,12 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         }
 
         [NoDiagnostics]
+        public void Generic_builder_expressions_should_be_ignored<T>()
+        {
+            _ = Builders<T>.Filter.Eq("field", "value");
+        }
+
+        [NoDiagnostics]
         public void In_should_be_ignored()
         {
             var arr = new[] { "Lion", "Erich" };
@@ -56,16 +48,24 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         }
 
         [NoDiagnostics]
-        public void Generic_builder_expressions_should_be_ignored<T>()
-        {
-            _ = Builders<T>.Filter.Eq("field", "value");
-        }
-
-        [NoDiagnostics]
         public void Internal_members_should_be_ignored()
         {
             _ = Builders<MixedDataMembers>.Filter.Eq(u => u.InternalPropertyInt, 1);
             _ = Builders<MixedDataMembers>.Filter.Eq(u => u.ProtectedInternalPropertyString, "str");
+        }
+
+        [NoDiagnostics]
+        public void Objects_comparison_expression_should_be_ignored()
+        {
+            var person = new Person();
+            _ = Builders<Person>.Filter.Eq(t => t.Address, person.Address);
+        }
+
+        [BuildersMQL("{ \"Address.City\" : \"Vienna\" }")]
+        public void Simple_valid_expression_as_baseline()
+        {
+            var person = new Person();
+            _ = Builders<Person>.Filter.Eq(t => t.Address.City, "Vienna");
         }
     }
 }

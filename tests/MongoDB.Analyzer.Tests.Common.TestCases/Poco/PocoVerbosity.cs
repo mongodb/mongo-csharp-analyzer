@@ -57,13 +57,18 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"string_property\" : \"StringProperty_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
-        public void ClassWithPropertyBsonAttributes()
+        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        public void ClassWithBsonAttributes2()
         {
         }
 
         [PocoJson("{ \"string_field\" : \"StringField_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
         public void ClassWithFieldBsonAttributes()
+        {
+        }
+
+        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        public void ClassWithFieldBsonAttributes2()
         {
         }
 
@@ -73,22 +78,17 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         }
 
         [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
-        public void ClassWithBsonAttributes2()
+        public void ClassWithPropertyAndFieldAttributes2()
+        {
+        }
+
+        [PocoJson("{ \"string_property\" : \"StringProperty_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
+        public void ClassWithPropertyBsonAttributes()
         {
         }
 
         [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
         public void ClassWithPropertyBsonAttributes2()
-        {
-        }
-
-        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
-        public void ClassWithFieldBsonAttributes2()
-        {
-        }
-
-        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
-        public void ClassWithPropertyAndFieldAttributes2()
         {
         }
 
@@ -130,13 +130,19 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
                 public string StringProperty { get; set; }
             }
 
-            public class ClassWithPropertyBsonAttributes
+            [BsonIgnoreExtraElements]
+            public class ClassWithBsonAttributes2
             {
-                [BsonElement("string_property", Order = 2)]
                 public string StringProperty { get; set; }
             }
 
             public class ClassWithFieldBsonAttributes
+            {
+                [BsonElement("string_field", Order = 2)]
+                public string StringField;
+            }
+
+            public class ClassWithFieldBsonAttributes2
             {
                 [BsonElement("string_field", Order = 2)]
                 public string StringField;
@@ -151,24 +157,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
                 public string StringField;
             }
 
-            [BsonIgnoreExtraElements]
-            public class ClassWithBsonAttributes2
-            {
-                public string StringProperty { get; set; }
-            }
-
-            public class ClassWithPropertyBsonAttributes2
-            {
-                [BsonElement("string_property", Order = 2)]
-                public string StringProperty { get; set; }
-            }
-
-            public class ClassWithFieldBsonAttributes2
-            {
-                [BsonElement("string_field", Order = 2)]
-                public string StringField;
-            }
-
             public class ClassWithPropertyAndFieldAttributes2
             {
                 [BsonElement("string_property", Order = 2)]
@@ -176,6 +164,18 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 
                 [BsonElement("string_field", Order = 1)]
                 public string StringField;
+            }
+
+            public class ClassWithPropertyBsonAttributes
+            {
+                [BsonElement("string_property", Order = 2)]
+                public string StringProperty { get; set; }
+            }
+
+            public class ClassWithPropertyBsonAttributes2
+            {
+                [BsonElement("string_property", Order = 2)]
+                public string StringProperty { get; set; }
             }
         }
     }

@@ -30,24 +30,6 @@ internal sealed class ExpressionsAnalysis
     public InvalidExpressionAnalysisNode[] InvalidExpressionNodes { get; set; }
 }
 
-internal record ExpressionAnalysisContext(ExpressionAnalysisNode Node)
-{
-    public string EvaluationMethodName { get; set; }
-}
-
-internal abstract record ExpressionAnalysisNodeBase(SyntaxNode OriginalExpression);
-
-internal record ExpressionAnalysisNode(
-    SyntaxNode OriginalExpression,
-    string ArgumentTypeName,
-    SyntaxNode RewrittenExpression,
-    ConstantsMapper ConstantsRemapper,
-    params Location[] Locations) :
-    ExpressionAnalysisNodeBase(OriginalExpression);
-
-internal record InvalidExpressionAnalysisNode(SyntaxNode OriginalExpression, params string[] Errors) :
-    ExpressionAnalysisNodeBase(OriginalExpression);
-
 internal record AnalysisStats(
     int MqlCount,
     int JsonCount,
@@ -58,3 +40,21 @@ internal record AnalysisStats(
 {
     public static AnalysisStats Empty { get; } = new AnalysisStats(0, 0, 0, 0, null, null);
 }
+
+internal record ExpressionAnalysisContext(ExpressionAnalysisNode Node)
+{
+    public string EvaluationMethodName { get; set; }
+}
+
+internal record ExpressionAnalysisNode(
+    SyntaxNode OriginalExpression,
+    string ArgumentTypeName,
+    SyntaxNode RewrittenExpression,
+    ConstantsMapper ConstantsRemapper,
+    params Location[] Locations) :
+    ExpressionAnalysisNodeBase(OriginalExpression);
+
+internal abstract record ExpressionAnalysisNodeBase(SyntaxNode OriginalExpression);
+
+internal record InvalidExpressionAnalysisNode(SyntaxNode OriginalExpression, params string[] Errors) :
+    ExpressionAnalysisNodeBase(OriginalExpression);

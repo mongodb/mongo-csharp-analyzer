@@ -35,8 +35,6 @@ internal sealed class ConstantsMapper
     private int _overflowConstantInt8;
 
     private bool _allConstantsRegistered = false;
-
-    public static string GetVariableName(LiteralExpressionSyntax literalExpressionSyntax) => literalExpressionSyntax.GetAnnotations(VariableAnnotation).FirstOrDefault()?.Data;
     
     public void CopyRegisteredConstants(ConstantsMapper mapper)
     {
@@ -44,6 +42,58 @@ internal sealed class ConstantsMapper
         _registeredStringConstants ??= new HashSet<string>();
         _registeredNumericConstants.AddRange(mapper._registeredNumericConstants);
         _registeredStringConstants.AddRange(mapper._registeredStringConstants);
+    }
+
+    public void FinalizeLiteralsRegistration()
+    {
+        if (_allConstantsRegistered)
+        {
+            throw new InvalidOperationException("Literals registration is finalized.");
+        }
+
+        _overflowConstantInt8 = _registeredNumericConstants?.Contains(sbyte.MaxValue) == true ? GetNextConstantInt8(sbyte.MaxValue) : sbyte.MaxValue;
+        _allConstantsRegistered = true;
+    }
+
+    public LiteralExpressionSyntax GetExpressionByType(SpecialType specialType, string originalValue)
+    {
+        AssertLiteralsRegistered();
+
+        if (_originalToSyntax.TryGetValueSafe(originalValue, out var expressionSyntax))
+        {
+            return expressionSyntax;
+        }
+
+        var syntaxToken = specialType switch
+        {
+            SpecialType.System_Byte or
+            SpecialType.System_SByte => SyntaxFactory.Literal(GetNextConstantInt8()),
+            SpecialType.System_UInt16 or
+            SpecialType.System_Int16 or
+            SpecialType.System_Int32 or
+            SpecialType.System_UInt32 or
+            SpecialType.System_Int64 or
+            SpecialType.System_UInt64 => SyntaxFactory.Literal(GetNextConstantInt()),
+            SpecialType.System_Double => SyntaxFactory.Literal(GetNextConstantInt() + DoubleSuffix),
+            SpecialType.System_String => SyntaxFactory.Literal(GetNextConstantString()),
+            _ => (SyntaxToken?)null
+        };
+
+        if (syntaxToken != null)
+        {
+            var isString = specialType == SpecialType.System_String;
+            var expressionKind = isString ? SyntaxKind.StringLiteralExpression : SyntaxKind.NumericLiteralExpression;
+
+            var syntaxAnnotation = new SyntaxAnnotation(VariableAnnotation, originalValue);
+            expressionSyntax = SyntaxFactory.LiteralExpression(expressionKind, syntaxToken.Value).WithAdditionalAnnotations(syntaxAnnotation);
+
+            _originalToSyntax ??= new Dictionary<string, LiteralExpressionSyntax>();
+            _originalToSyntax[originalValue] = expressionSyntax;
+
+            AddMapping(syntaxToken.Value.ValueText, originalValue, isString);
+        }
+
+        return expressionSyntax;
     }
 
     public LiteralExpressionSyntax GetExpressionForConstant(SpecialType specialType, object constant)
@@ -108,57 +158,7 @@ internal sealed class ConstantsMapper
         return GetExpressionByType(specialType, value.ToString());
     }
 
-    public LiteralExpressionSyntax GetExpressionByType(SpecialType specialType, string originalValue)
-    {
-        AssertLiteralsRegistered();
-
-        if (_originalToSyntax.TryGetValueSafe(originalValue, out var expressionSyntax))
-        {
-            return expressionSyntax;
-        }
-
-        var syntaxToken = specialType switch
-        {
-            SpecialType.System_Byte or
-            SpecialType.System_SByte => SyntaxFactory.Literal(GetNextConstantInt8()),
-            SpecialType.System_UInt16 or
-            SpecialType.System_Int16 or
-            SpecialType.System_Int32 or
-            SpecialType.System_UInt32 or
-            SpecialType.System_Int64 or
-            SpecialType.System_UInt64 => SyntaxFactory.Literal(GetNextConstantInt()),
-            SpecialType.System_Double => SyntaxFactory.Literal(GetNextConstantInt() + DoubleSuffix),
-            SpecialType.System_String => SyntaxFactory.Literal(GetNextConstantString()),
-            _ => (SyntaxToken?)null
-        };
-
-        if (syntaxToken != null)
-        {
-            var isString = specialType == SpecialType.System_String;
-            var expressionKind = isString ? SyntaxKind.StringLiteralExpression : SyntaxKind.NumericLiteralExpression;
-
-            var syntaxAnnotation = new SyntaxAnnotation(VariableAnnotation, originalValue);
-            expressionSyntax = SyntaxFactory.LiteralExpression(expressionKind, syntaxToken.Value).WithAdditionalAnnotations(syntaxAnnotation);
-
-            _originalToSyntax ??= new Dictionary<string, LiteralExpressionSyntax>();
-            _originalToSyntax[originalValue] = expressionSyntax;
-
-            AddMapping(syntaxToken.Value.ValueText, originalValue, isString);
-        }
-
-        return expressionSyntax;
-    }
-
-    public void FinalizeLiteralsRegistration()
-    {
-        if (_allConstantsRegistered)
-        {
-            throw new InvalidOperationException("Literals registration is finalized.");
-        }
-
-        _overflowConstantInt8 = _registeredNumericConstants?.Contains(sbyte.MaxValue) == true ? GetNextConstantInt8(sbyte.MaxValue) : sbyte.MaxValue;
-        _allConstantsRegistered = true;
-    }
+    public static string GetVariableName(LiteralExpressionSyntax literalExpressionSyntax) => literalExpressionSyntax.GetAnnotations(VariableAnnotation).FirstOrDefault()?.Data;
 
     public void RegisterLiteral(LiteralExpressionSyntax literalExpressionSyntax)
     {
@@ -209,6 +209,14 @@ internal sealed class ConstantsMapper
         return expression;
     }
 
+    private void AssertLiteralsRegistered()
+    {
+        if (!_allConstantsRegistered)
+        {
+            throw new InvalidOperationException("Literals registration not finished");
+        }
+    }
+
     private void AddMapping(string source, string target, bool isString)
     {
         if (_mqlRemapping == null)
@@ -229,26 +237,6 @@ internal sealed class ConstantsMapper
         else
         {
             _mqlRemapping[$"{RegexLookbehind}{source}{RegexLookahead}"] = target;
-        }
-    }
-
-    private void RegisterNumeric(long value)
-    {
-        _registeredNumericConstants ??= new HashSet<long>();
-        _registeredNumericConstants.Add(value);
-    }
-
-    private void RegisterString(string value)
-    {
-        _registeredStringConstants ??= new HashSet<string>();
-        _registeredStringConstants.Add(value);
-    }
-
-    private void AssertLiteralsRegistered()
-    {
-        if (!_allConstantsRegistered)
-        {
-            throw new InvalidOperationException("Literals registration not finished");
         }
     }
 
@@ -291,5 +279,17 @@ internal sealed class ConstantsMapper
         }
 
         return $"{StringPrefix}{nextIntConstant}";
+    }
+
+    private void RegisterNumeric(long value)
+    {
+        _registeredNumericConstants ??= new HashSet<long>();
+        _registeredNumericConstants.Add(value);
+    }
+
+    private void RegisterString(string value)
+    {
+        _registeredStringConstants ??= new HashSet<string>();
+        _registeredStringConstants.Add(value);
     }
 }

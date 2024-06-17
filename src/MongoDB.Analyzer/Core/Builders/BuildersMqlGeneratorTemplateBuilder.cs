@@ -28,9 +28,9 @@ internal sealed class BuildersMqlGeneratorTemplateBuilder
         public SyntaxNode[] NodesToReplace { get; } = new[] { BuilderDefinitionNode, CollectionTypeNode };
     }
 
-    private readonly SyntaxElements _syntaxElements;
     private ClassDeclarationSyntax _mqlGeneratorDeclarationSyntaxNew;
     private int _nextTestMethodIndex;
+    private readonly SyntaxElements _syntaxElements;
 
     public BuildersMqlGeneratorTemplateBuilder(SyntaxElements syntaxElements)
     {
@@ -55,9 +55,6 @@ internal sealed class BuildersMqlGeneratorTemplateBuilder
         return newMqlGeneratorMethodName;
     }
 
-    public SyntaxTree GenerateSyntaxTree() =>
-        _syntaxElements.Root.ReplaceNode(_syntaxElements.ClassDeclarationSyntax, _mqlGeneratorDeclarationSyntaxNew).SyntaxTree;
-
     public static SyntaxElements CreateSyntaxElements(SyntaxTree mqlGeneratorSyntaxTree)
     {
         var root = mqlGeneratorSyntaxTree.GetRoot();
@@ -69,4 +66,7 @@ internal sealed class BuildersMqlGeneratorTemplateBuilder
 
         return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, builderDefinitionNode, collectionTypeNode);
     }
+
+    public SyntaxTree GenerateSyntaxTree() =>
+        _syntaxElements.Root.ReplaceNode(_syntaxElements.ClassDeclarationSyntax, _mqlGeneratorDeclarationSyntaxNew).SyntaxTree;
 }

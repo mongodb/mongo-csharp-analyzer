@@ -19,51 +19,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersComplexDataModel : TestCasesBase
     {
-        [BuildersMQL("{ \"Address.City.122\" : { \"$exists\" : false } }")]
-        public void Nested_class_depth_of_1()
-        {
-            _ = Builders<Person>.Filter.SizeLt(u => u.Address.City, 123);
-        }
-
-        [BuildersMQL("{ \"Vehicle.VehicleType.Category\" : \"Motorized\" }")]
-        public void Nested_class_depth_of_2()
-        {
-            _ = Builders<Person>.Filter.Eq(u => u.Vehicle.VehicleType.Category, "Motorized");
-        }
-
-        [BuildersMQL("{ \"Vehicle.VehicleType.VehicleMake.Name\" : \"Honda\" }")]
-        public void Nested_class_depth_of_3()
-        {
-            _ = Builders<Person>.Filter.Eq(u => u.Vehicle.VehicleType.VehicleMake.Name, "Honda");
-        }
-
-        [BuildersMQL("{ \"Root.Left.Data\" : 1, \"Root.Right.Data\" : 2 }")]
-        public void Self_referencing_class_depth_1()
-        {
-            _ = Builders<Tree>.Filter.Eq(t => t.Root.Left.Data, 1) &
-                Builders<Tree>.Filter.Eq(t => t.Root.Right.Data, 2);
-        }
-
-        [BuildersMQL("{ \"Root.Left.Tree.Root.Right.Data\" : 1 }")]
-        public void Self_referencing_class_depth_2()
-        {
-            _ = Builders<Tree>.Sort.Ascending(t => t.Root.Left.Tree.Root.Right.Data);
-        }
-
-        [BuildersMQL("{ \"$or\" : [{ \"Data\" : { \"$lte\" : 1 } }, { \"DataT\" : { \"$mod\" : [NumberLong(10), NumberLong(2)] } }] }")]
-        public void Generics_single_predefined_type()
-        {
-            _ = Builders<SingleTypeGeneric<int>>.Filter.Lte(t => t.Data, 1) |
-                Builders<SingleTypeGeneric<int>>.Filter.Mod(t => t.DataT, 10, 2);
-        }
-
-        [BuildersMQL("{ \"$or\" : [{ \"Data\" : { \"$gte\" : 1 } }, { \"DataT.Address.City\" : { \"$gte\" : \"Berlin\" } }] }")]
-        public void Generics_single_custom_type()
-        {
-            _ = Builders<SingleTypeGeneric<Person>>.Filter.Gte(t => t.Data, 1) |
-                Builders<SingleTypeGeneric<Person>>.Filter.Gte(t => t.DataT.Address.City, "Berlin");
-        }
-
         [BuildersMQL("{ \"$or\" : [{ \"Data\" : 1 }, { \"DataT1\" : 32 }, { \"DataT2\" : \"dataString\" }, { \"DataT3.Vehicle.LicenceNumber\" : \"LicenceNumber\" }] }")]
         public void Generics_multiple_mixed_types()
         {
@@ -84,13 +39,18 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                     .Filter.Eq(t => t.DataT2.DataT2.Name, "Kate");
         }
 
-        [BuildersMQL("{ \"AbstractBaseData\" : \"base\", \"NestedClass1Data\" : \"nested1\", \"NestedClass2Data\" : \"nested2\", \"NestedClass3Data\" : \"nested3\" }")]
-        public void Inheritance_predifined_types()
+        [BuildersMQL("{ \"$or\" : [{ \"Data\" : { \"$gte\" : 1 } }, { \"DataT.Address.City\" : { \"$gte\" : \"Berlin\" } }] }")]
+        public void Generics_single_custom_type()
         {
-            _ = Builders<NestedClass3>.Filter.Eq(t => t.AbstractBaseData, "base") &
-                Builders<NestedClass3>.Filter.Eq(t => t.NestedClass1Data, "nested1") &
-                Builders<NestedClass3>.Filter.Eq(t => t.NestedClass2Data, "nested2") &
-                Builders<NestedClass3>.Filter.Eq(t => t.NestedClass3Data, "nested3");
+            _ = Builders<SingleTypeGeneric<Person>>.Filter.Gte(t => t.Data, 1) |
+                Builders<SingleTypeGeneric<Person>>.Filter.Gte(t => t.DataT.Address.City, "Berlin");
+        }
+
+        [BuildersMQL("{ \"$or\" : [{ \"Data\" : { \"$lte\" : 1 } }, { \"DataT\" : { \"$mod\" : [NumberLong(10), NumberLong(2)] } }] }")]
+        public void Generics_single_predefined_type()
+        {
+            _ = Builders<SingleTypeGeneric<int>>.Filter.Lte(t => t.Data, 1) |
+                Builders<SingleTypeGeneric<int>>.Filter.Mod(t => t.DataT, 10, 2);
         }
 
         [BuildersMQL("{ \"$or\" : [{ \"AbstractBaseData\" : \"base\", \"AbstractBaseDataT1\" : 0, \"AbstractBaseDataT2.Name\" : \"Bob\" }, { \"NestedGenericClass1T1\" : 1, \"NestedGenericClass1T2.Name\" : \"Alice\" }, { \"NestedGenericClass2T1\" : 0, \"NestedGenericClass2T2.Name\" : \"John\" }] }")]
@@ -105,16 +65,56 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<NestedGenericClass2<EnumInt32, Person>>.Filter.Eq(t => t.NestedGenericClass2T2.Name, "John");
         }
 
-        [BuildersMQL("{ \"IntProp\" : 123 }")]
-        public void Properties_with_intefaces_and_indexers_should_be_ingored()
+        [BuildersMQL("{ \"AbstractBaseData\" : \"base\", \"NestedClass1Data\" : \"nested1\", \"NestedClass2Data\" : \"nested2\", \"NestedClass3Data\" : \"nested3\" }")]
+        public void Inheritance_predifined_types()
         {
-            _ = Builders<ClassWithNonTrivialProperties>.Filter.Eq(t => t.IntProp, 123);
+            _ = Builders<NestedClass3>.Filter.Eq(t => t.AbstractBaseData, "base") &
+                Builders<NestedClass3>.Filter.Eq(t => t.NestedClass1Data, "nested1") &
+                Builders<NestedClass3>.Filter.Eq(t => t.NestedClass2Data, "nested2") &
+                Builders<NestedClass3>.Filter.Eq(t => t.NestedClass3Data, "nested3");
+        }
+
+        [BuildersMQL("{ \"Address.City.122\" : { \"$exists\" : false } }")]
+        public void Nested_class_depth_of_1()
+        {
+            _ = Builders<Person>.Filter.SizeLt(u => u.Address.City, 123);
+        }
+
+        [BuildersMQL("{ \"Vehicle.VehicleType.Category\" : \"Motorized\" }")]
+        public void Nested_class_depth_of_2()
+        {
+            _ = Builders<Person>.Filter.Eq(u => u.Vehicle.VehicleType.Category, "Motorized");
+        }
+
+        [BuildersMQL("{ \"Vehicle.VehicleType.VehicleMake.Name\" : \"Honda\" }")]
+        public void Nested_class_depth_of_3()
+        {
+            _ = Builders<Person>.Filter.Eq(u => u.Vehicle.VehicleType.VehicleMake.Name, "Honda");
         }
 
         [BuildersMQL("{ \"IntProp\" : 123 }")]
         public void Properties_with_bson_types_should_work()
         {
             _ = Builders<ClassWithBsonTypes>.Filter.Eq(t => t.IntProp, 123);
+        }
+
+        [BuildersMQL("{ \"IntProp\" : 123 }")]
+        public void Properties_with_intefaces_and_indexers_should_be_ingored()
+        {
+            _ = Builders<ClassWithNonTrivialProperties>.Filter.Eq(t => t.IntProp, 123);
+        }
+
+        [BuildersMQL("{ \"Root.Left.Data\" : 1, \"Root.Right.Data\" : 2 }")]
+        public void Self_referencing_class_depth_1()
+        {
+            _ = Builders<Tree>.Filter.Eq(t => t.Root.Left.Data, 1) &
+                Builders<Tree>.Filter.Eq(t => t.Root.Right.Data, 2);
+        }
+
+        [BuildersMQL("{ \"Root.Left.Tree.Root.Right.Data\" : 1 }")]
+        public void Self_referencing_class_depth_2()
+        {
+            _ = Builders<Tree>.Sort.Ascending(t => t.Root.Left.Tree.Root.Right.Data);
         }
     }
 }

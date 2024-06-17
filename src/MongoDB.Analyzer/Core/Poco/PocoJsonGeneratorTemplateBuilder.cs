@@ -47,9 +47,6 @@ internal sealed class PocoJsonGeneratorTemplateBuilder
         return newJsonGeneratorMethodName;
     }
 
-    public SyntaxTree GenerateSyntaxTree() =>
-        _syntaxElements.Root.ReplaceNode(_syntaxElements.ClassDeclarationSyntax, _jsonGeneratorDeclarationSyntaxNew).SyntaxTree;
-
     public static SyntaxElements CreateSyntaxElements(SyntaxTree jsonGeneratorSyntaxTree)
     {
         var root = jsonGeneratorSyntaxTree.GetRoot();
@@ -61,4 +58,7 @@ internal sealed class PocoJsonGeneratorTemplateBuilder
 
         return new(root, classDeclarationSyntax, mainTestMethodNode, predefinedType);
     }
+
+    public SyntaxTree GenerateSyntaxTree() =>
+        _syntaxElements.Root.ReplaceNode(_syntaxElements.ClassDeclarationSyntax, _jsonGeneratorDeclarationSyntaxNew).SyntaxTree;
 }

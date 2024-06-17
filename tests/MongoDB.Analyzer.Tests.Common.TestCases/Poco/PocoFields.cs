@@ -18,8 +18,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoFields : TestCasesBase
     {
-        [PocoJson("{ \"BooleanValue\" : true, \"ByteValue\" : 9, \"SByteValue\" : 0, \"ShortValue\" : 0, \"UShortValue\" : 1, \"IntValue\" : 8, \"UIntValue\" : 9, \"LongValue\" : NumberLong(9), \"ULongValue\" : NumberLong(0), \"CharValue\" : 9, \"DoubleValue\" : 1.0, \"StringValue\" : \"StringValue_val\", \"FloatValue\" : 0.0 }")]
-        public void PrimitiveTypeHolderWithFields()
+        [PocoJson("{ \"NestedNestedInt\" : 5, \"NestedNestedDouble\" : 8.0, \"NestedNestedString\" : \"NestedNestedString_val\" }")]
+        public void NestedNestedTypeWithFields()
         {
         }
 
@@ -33,35 +33,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"NestedNestedInt\" : 5, \"NestedNestedDouble\" : 8.0, \"NestedNestedString\" : \"NestedNestedString_val\" }")]
-        public void NestedNestedTypeWithFields()
+        [PocoJson("{ \"BooleanValue\" : true, \"ByteValue\" : 9, \"SByteValue\" : 0, \"ShortValue\" : 0, \"UShortValue\" : 1, \"IntValue\" : 8, \"UIntValue\" : 9, \"LongValue\" : NumberLong(9), \"ULongValue\" : NumberLong(0), \"CharValue\" : 9, \"DoubleValue\" : 1.0, \"StringValue\" : \"StringValue_val\", \"FloatValue\" : 0.0 }")]
+        public void PrimitiveTypeHolderWithFields()
         {
         }
 
         public class TestClasses
         {
-            public class PrimitiveTypeHolderWithFields
-            {
-                public bool BooleanValue { get; set; }
-                public byte ByteValue { get; set; }
-                public sbyte SByteValue { get; set; }
-
-                public short ShortValue { get; set; }
-                public ushort UShortValue { get; set; }
-
-                public int IntValue { get; set; }
-                public uint UIntValue { get; set; }
-
-                public long LongValue { get; set; }
-                public ulong ULongValue { get; set; }
-
-                public char CharValue { get; set; }
-                public double DoubleValue { get; set; }
-
-                public string StringValue { get; set; }
-                public float FloatValue { get; set; }
-            }
-
             public class NestedTypeHolderWithFields
             {
                 public Address Address;
@@ -89,6 +67,28 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
                         public string NestedNestedString;
                     }
                 }
+            }
+
+            public class PrimitiveTypeHolderWithFields
+            {
+                public bool BooleanValue { get; set; }
+                public byte ByteValue { get; set; }
+                public sbyte SByteValue { get; set; }
+
+                public short ShortValue { get; set; }
+                public ushort UShortValue { get; set; }
+
+                public int IntValue { get; set; }
+                public uint UIntValue { get; set; }
+
+                public long LongValue { get; set; }
+                public ulong ULongValue { get; set; }
+
+                public char CharValue { get; set; }
+                public double DoubleValue { get; set; }
+
+                public string StringValue { get; set; }
+                public float FloatValue { get; set; }
             }
         }
     }

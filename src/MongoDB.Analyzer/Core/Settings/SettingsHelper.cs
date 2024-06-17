@@ -18,12 +18,32 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SettingsHelper
 {
-    public const string SettingsFileName = "mongodb.analyzer.json";
-
     private static readonly JsonSerializerSettings s_jsonSettings = new()
     {
         DefaultValueHandling = DefaultValueHandling.Populate
     };
+
+    public const string SettingsFileName = "mongodb.analyzer.json";
+
+    public static Logger CreateLogger(MongoDBAnalyzerSettings settings, string correlationId)
+    {
+        if (settings?.OutputInternalLogsToFile == true && !string.IsNullOrWhiteSpace(settings.LogFileName))
+        {
+            return new Logger(settings.LogFileName, correlationId);
+        }
+
+        return Logger.Empty;
+    }
+
+    public static ITelemetryService CreateTelemetryService(MongoDBAnalyzerSettings settings, string correlationId)
+    {
+        if (settings?.SendTelemetry == true)
+        {
+            return new SegmentTelemetryService("TELEMETRY-KEY", correlationId);
+        }
+
+        return EmptyTelemetryService.Instance;
+    }
 
     public static MongoDBAnalyzerSettings GetSettings(AnalyzerOptions analyzerOptions)
     {
@@ -44,25 +64,5 @@ internal static class SettingsHelper
         }
 
         return result;
-    }
-
-    public static Logger CreateLogger(MongoDBAnalyzerSettings settings, string correlationId)
-    {
-        if (settings?.OutputInternalLogsToFile == true && !string.IsNullOrWhiteSpace(settings.LogFileName))
-        {
-            return new Logger(settings.LogFileName, correlationId);
-        }
-
-        return Logger.Empty;
-    }
-
-    public static ITelemetryService CreateTelemetryService(MongoDBAnalyzerSettings settings, string correlationId)
-    {
-        if (settings?.SendTelemetry == true)
-        {
-            return new SegmentTelemetryService("TELEMETRY-KEY", correlationId);
-        }
-
-        return EmptyTelemetryService.Instance;
     }
 }

@@ -99,6 +99,83 @@ internal static class BuildersVariablesResolver
         return expressionAnalysisContexts;
     }
 
+    private static void AddOrRemoveVariableValueFromContext(SyntaxNode syntaxNode, VariableValue variableValue, ResolutionContext resolutionContext, HashSet<string> dirtyVariables)
+    {
+        var variableName = syntaxNode switch
+        {
+            //For Assignments, LHS must be Identifier since this check was already completed in TryProcessBuildersExpression
+            AssignmentExpressionSyntax @assignment => (@assignment.Left.TrimParenthesis() as IdentifierNameSyntax).Identifier.ValueText,
+            IdentifierNameSyntax node => node.Identifier.ToString(),
+            VariableDeclaratorSyntax @declarator => @declarator.Identifier.ValueText,
+            _ => null
+        };
+
+        dirtyVariables.Add(variableName);
+        resolutionContext.CurrentVariablesValues[variableName] = variableValue;
+
+        var originalExpression = variableValue.ExpressionAnalysisContext.Node.OriginalExpression;
+
+        if (resolutionContext.BuilderNodesProcessed.Add(originalExpression))
+        {
+            resolutionContext.ProcessedVariables.Add(variableValue);
+        }
+
+        if (syntaxNode.Parent is ConditionalExpressionSyntax)
+        {
+            resolutionContext.CurrentVariablesValues.Remove(variableName);
+        }
+    }
+
+    private static SyntaxKind GenerateBinaryExpressionSyntaxKind(SyntaxNode syntaxNode) =>
+        syntaxNode.Kind() switch
+        {
+            SyntaxKind.AndAssignmentExpression => SyntaxKind.BitwiseAndExpression,
+            SyntaxKind.OrAssignmentExpression => SyntaxKind.BitwiseOrExpression,
+            _ => SyntaxKind.None
+        };
+
+    private static ExpressionAnalysisContext GenerateNewExpressionAnalysisContext(
+        SyntaxNode syntaxNode,
+        Dictionary<SyntaxNode, VariableValue> builderNodeToVariableValue)
+    {
+        var argumentTypeName = builderNodeToVariableValue.Values.First().ExpressionAnalysisContext.Node.ArgumentTypeName;
+        var rewrittenSyntaxNode = syntaxNode.ReplaceNodes(builderNodeToVariableValue.Keys, (n, _) => builderNodeToVariableValue[n].ExpressionAnalysisContext.Node.RewrittenExpression);
+
+        if (IsCompoundExpression(rewrittenSyntaxNode))
+        {
+            var rewrittenAssignmentExpression = rewrittenSyntaxNode as AssignmentExpressionSyntax;
+            var binaryExpressionSyntaxKind = GenerateBinaryExpressionSyntaxKind(syntaxNode);
+            rewrittenSyntaxNode = SyntaxFactory.BinaryExpression(binaryExpressionSyntaxKind, rewrittenAssignmentExpression.Left, rewrittenAssignmentExpression.Right);
+        }
+
+        var rewrittenBuildersExpression = rewrittenSyntaxNode switch
+        {
+            AssignmentExpressionSyntax @assignmentExpression => @assignmentExpression.Right,
+            VariableDeclaratorSyntax @variableDeclarator => @variableDeclarator.Initializer.Value,
+            _ => rewrittenSyntaxNode
+        };
+
+        var (finalBuildersExpression, finalConstantMapper) = ConstantsMapperComposer.Compose(rewrittenBuildersExpression, builderNodeToVariableValue.Values.Select(v => v.ExpressionAnalysisContext.Node.ConstantsRemapper));
+        return new ExpressionAnalysisContext(new ExpressionAnalysisNode(rewrittenBuildersExpression, argumentTypeName, finalBuildersExpression, finalConstantMapper));
+    }
+
+    private static VariableValue GetOrGenerateVariableValue(SyntaxNode syntaxNode, EvaluationResult evaluationResult)
+    {
+        VariableValue variableValue;
+
+        if (evaluationResult.SyntaxNodeToVariableValueMap.Count > 1)
+        {
+            var expressionAnalysisContext = GenerateNewExpressionAnalysisContext(syntaxNode, evaluationResult.SyntaxNodeToVariableValueMap);
+            variableValue = new VariableValue(expressionAnalysisContext, new List<Location>());
+        }
+        else
+        {
+            variableValue = evaluationResult.SyntaxNodeToVariableValueMap.Values.First();
+        }
+
+        return variableValue;
+    }
+
     private static bool IsCompoundExpression(SyntaxNode syntaxNode) =>
         syntaxNode.Kind() switch
         {
@@ -107,12 +184,19 @@ internal static class BuildersVariablesResolver
             _ => false
         };
 
-    private static SyntaxKind GenerateBinaryExpressionSyntaxKind(SyntaxNode syntaxNode) =>
-        syntaxNode.Kind() switch
+    private static bool IsConditionalBlock(SyntaxNode syntaxNode) =>
+        syntaxNode switch
         {
-            SyntaxKind.AndAssignmentExpression => SyntaxKind.BitwiseAndExpression,
-            SyntaxKind.OrAssignmentExpression => SyntaxKind.BitwiseOrExpression,
-            _ => SyntaxKind.None
+            LocalFunctionStatementSyntax => false,
+            SwitchSectionSyntax or
+            SwitchExpressionArmSyntax or
+            ElseClauseSyntax or
+            ForStatementSyntax or
+            CommonForEachStatementSyntax or
+            DoStatementSyntax or
+            WhileStatementSyntax or
+            CatchClauseSyntax => true,
+            _ => syntaxNode.Parent is TryStatementSyntax || syntaxNode.Parent is IfStatementSyntax
         };
 
     private static EvaluationResult PreEvaluate(
@@ -193,72 +277,53 @@ internal static class BuildersVariablesResolver
         return new EvaluationResult(canEvaluate, syntaxNodeToVariableValueMap);
     }
 
-    private static ExpressionAnalysisContext GenerateNewExpressionAnalysisContext(
-        SyntaxNode syntaxNode,
-        Dictionary<SyntaxNode, VariableValue> builderNodeToVariableValue)
+    private static void ProcessBlock(SyntaxNode syntaxNode, ResolutionContext resolutionContext)
     {
-        var argumentTypeName = builderNodeToVariableValue.Values.First().ExpressionAnalysisContext.Node.ArgumentTypeName;
-        var rewrittenSyntaxNode = syntaxNode.ReplaceNodes(builderNodeToVariableValue.Keys, (n, _) => builderNodeToVariableValue[n].ExpressionAnalysisContext.Node.RewrittenExpression);
+        var dirtyVariables = new HashSet<string>();
+        HashSet<SyntaxNode> nodesProcessed = null;
 
-        if (IsCompoundExpression(rewrittenSyntaxNode))
+        foreach (var childNode in syntaxNode.DescendantNodes(n => ShouldDescendIntoChildren(n)))
         {
-            var rewrittenAssignmentExpression = rewrittenSyntaxNode as AssignmentExpressionSyntax;
-            var binaryExpressionSyntaxKind = GenerateBinaryExpressionSyntaxKind(syntaxNode);
-            rewrittenSyntaxNode = SyntaxFactory.BinaryExpression(binaryExpressionSyntaxKind, rewrittenAssignmentExpression.Left, rewrittenAssignmentExpression.Right);
+            if (nodesProcessed.ContainsSafe(childNode.Parent))
+            {
+                continue;
+            }
+
+            if (IsConditionalBlock(childNode))
+            {
+                ProcessBlock(childNode, resolutionContext);
+                MarkNodeAsProcessed(childNode);
+            }
+            else if (TryProcessBuildersExpression(childNode, resolutionContext, dirtyVariables))
+            {
+                MarkNodeAsProcessed(childNode);
+            }
         }
 
-        var rewrittenBuildersExpression = rewrittenSyntaxNode switch
-        {
-            AssignmentExpressionSyntax @assignmentExpression => @assignmentExpression.Right,
-            VariableDeclaratorSyntax @variableDeclarator => @variableDeclarator.Initializer.Value,
-            _ => rewrittenSyntaxNode
-        };
+        resolutionContext.CurrentVariablesValues.RemoveRange(dirtyVariables);
 
-        var (finalBuildersExpression, finalConstantMapper) = ConstantsMapperComposer.Compose(rewrittenBuildersExpression, builderNodeToVariableValue.Values.Select(v => v.ExpressionAnalysisContext.Node.ConstantsRemapper));
-        return new ExpressionAnalysisContext(new ExpressionAnalysisNode(rewrittenBuildersExpression, argumentTypeName, finalBuildersExpression, finalConstantMapper));
+        bool ShouldDescendIntoChildren(SyntaxNode syntaxNode) =>
+            syntaxNode.Kind() != SyntaxKind.AttributeList &&
+            !nodesProcessed.ContainsSafe(syntaxNode.Parent) && syntaxNode is not LocalFunctionStatementSyntax;
+        
+        void MarkNodeAsProcessed(SyntaxNode syntaxNode)
+        {
+            nodesProcessed ??= new HashSet<SyntaxNode>();
+            nodesProcessed.Add(syntaxNode);
+        }
     }
 
-    private static VariableValue GetOrGenerateVariableValue(SyntaxNode syntaxNode, EvaluationResult evaluationResult)
+    private static void ProcessTree(SyntaxNode node, ResolutionContext resolutionContext)
     {
-        VariableValue variableValue;
+        var childNodes = node.DescendantNodesAndSelf().OfType<MethodDeclarationSyntax>();
 
-        if (evaluationResult.SyntaxNodeToVariableValueMap.Count > 1)
+        foreach (var childNode in childNodes)
         {
-            var expressionAnalysisContext = GenerateNewExpressionAnalysisContext(syntaxNode, evaluationResult.SyntaxNodeToVariableValueMap);
-            variableValue = new VariableValue(expressionAnalysisContext, new List<Location>());
-        }
-        else
-        {
-            variableValue = evaluationResult.SyntaxNodeToVariableValueMap.Values.First();
-        }
-
-        return variableValue;
-    }
-
-    private static void AddOrRemoveVariableValueFromContext(SyntaxNode syntaxNode, VariableValue variableValue, ResolutionContext resolutionContext, HashSet<string> dirtyVariables)
-    {
-        var variableName = syntaxNode switch
-        {
-            //For Assignments, LHS must be Identifier since this check was already completed in TryProcessBuildersExpression
-            AssignmentExpressionSyntax @assignment => (@assignment.Left.TrimParenthesis() as IdentifierNameSyntax).Identifier.ValueText,
-            IdentifierNameSyntax node => node.Identifier.ToString(),
-            VariableDeclaratorSyntax @declarator => @declarator.Identifier.ValueText,
-            _ => null
-        };
-
-        dirtyVariables.Add(variableName);
-        resolutionContext.CurrentVariablesValues[variableName] = variableValue;
-
-        var originalExpression = variableValue.ExpressionAnalysisContext.Node.OriginalExpression;
-
-        if (resolutionContext.BuilderNodesProcessed.Add(originalExpression))
-        {
-            resolutionContext.ProcessedVariables.Add(variableValue);
-        }
-
-        if (syntaxNode.Parent is ConditionalExpressionSyntax)
-        {
-            resolutionContext.CurrentVariablesValues.Remove(variableName);
+            resolutionContext = resolutionContext with
+            {
+                CurrentVariablesValues = new Dictionary<string, VariableValue>()
+            };
+            ProcessBlock(childNode, resolutionContext);
         }
     }
 
@@ -401,71 +466,6 @@ internal static class BuildersVariablesResolver
             }
 
             return new NodeContext(syntaxNode, nodeType, isValidBuilderExpression);
-        }
-    }
-
-    private static bool IsConditionalBlock(SyntaxNode syntaxNode) =>
-        syntaxNode switch
-        {
-            LocalFunctionStatementSyntax => false,
-            SwitchSectionSyntax or
-            SwitchExpressionArmSyntax or
-            ElseClauseSyntax or
-            ForStatementSyntax or
-            CommonForEachStatementSyntax or
-            DoStatementSyntax or
-            WhileStatementSyntax or
-            CatchClauseSyntax => true,
-            _ => syntaxNode.Parent is TryStatementSyntax || syntaxNode.Parent is IfStatementSyntax
-        };
-
-    private static void ProcessBlock(SyntaxNode syntaxNode, ResolutionContext resolutionContext)
-    {
-        var dirtyVariables = new HashSet<string>();
-        HashSet<SyntaxNode> nodesProcessed = null;
-
-        foreach (var childNode in syntaxNode.DescendantNodes(n => ShouldDescendIntoChildren(n)))
-        {
-            if (nodesProcessed.ContainsSafe(childNode.Parent))
-            {
-                continue;
-            }
-
-            if (IsConditionalBlock(childNode))
-            {
-                ProcessBlock(childNode, resolutionContext);
-                MarkNodeAsProcessed(childNode);
-            }
-            else if (TryProcessBuildersExpression(childNode, resolutionContext, dirtyVariables))
-            {
-                MarkNodeAsProcessed(childNode);
-            }
-        }
-
-        resolutionContext.CurrentVariablesValues.RemoveRange(dirtyVariables);
-
-        bool ShouldDescendIntoChildren(SyntaxNode syntaxNode) =>
-            syntaxNode.Kind() != SyntaxKind.AttributeList &&
-            !nodesProcessed.ContainsSafe(syntaxNode.Parent) && syntaxNode is not LocalFunctionStatementSyntax;
-        
-        void MarkNodeAsProcessed(SyntaxNode syntaxNode)
-        {
-            nodesProcessed ??= new HashSet<SyntaxNode>();
-            nodesProcessed.Add(syntaxNode);
-        }
-    }
-
-    private static void ProcessTree(SyntaxNode node, ResolutionContext resolutionContext)
-    {
-        var childNodes = node.DescendantNodesAndSelf().OfType<MethodDeclarationSyntax>();
-
-        foreach (var childNode in childNodes)
-        {
-            resolutionContext = resolutionContext with
-            {
-                CurrentVariablesValues = new Dictionary<string, VariableValue>()
-            };
-            ProcessBlock(childNode, resolutionContext);
         }
     }
 }
