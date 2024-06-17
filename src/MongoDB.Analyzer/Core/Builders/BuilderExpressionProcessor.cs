@@ -26,33 +26,6 @@ internal static class BuilderExpressionProcessor
         Fluent
     }
 
-    private static SyntaxNode[] GetBuildersDefinitionNodes(SemanticModel semanticModel, SyntaxNode expressionNode)
-    {
-        var nodesProcessed = new HashSet<SyntaxNode>();
-
-        foreach (var node in expressionNode.DescendantNodesWithSkipList(nodesProcessed))
-        {
-            if (semanticModel.GetTypeInfo(node).Type.IsBuilder())
-            {
-                if (!semanticModel.GetSymbolInfo(node).Symbol.IsDefinedInMongoDriver())
-                {
-                    nodesProcessed.Add(node);
-                }
-                else if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
-                {
-                    var objectExpression = memberAccessExpressionSyntax.Expression;
-
-                    if (semanticModel.GetAliasInfo(objectExpression) != null)
-                    {
-                        nodesProcessed.Add(node);
-                    }
-                }
-            }
-        }
-
-        return nodesProcessed.ToArray();
-    }
-
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
     {
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
@@ -75,7 +48,7 @@ internal static class BuilderExpressionProcessor
             {
                 case NodeType.Builders:
                     {
-                        //Get Nodes that represent Builder Definitions
+                        // Get nodes that represent Builder definitions
                         builderDefinitionOrCollectionNodes = GetBuildersDefinitionNodes(semanticModel, expressionNode);
                         break;
                     }
@@ -221,5 +194,31 @@ internal static class BuilderExpressionProcessor
         }
 
         return (nodeType, namedType, expressionNode);
+    }
+
+    private static SyntaxNode[] GetBuildersDefinitionNodes(SemanticModel semanticModel, SyntaxNode expressionNode)
+    {
+        var nodesProcessed = new HashSet<SyntaxNode>();
+        var builderDefinitionNodes = new List<SyntaxNode>();
+
+        foreach (var node in expressionNode.DescendantNodesWithSkipList(nodesProcessed))
+        {
+            if (semanticModel.GetTypeInfo(node).Type.IsBuilder())
+            {
+                nodesProcessed.Add(node);
+
+                if (semanticModel.GetSymbolInfo(node).Symbol.IsDefinedInMongoDriver() &&
+                    node is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
+                    memberAccessExpressionSyntax.Expression is GenericNameSyntax genericNameSyntax &&
+                    genericNameSyntax.Identifier.ValueText == "Builders")
+                {
+                    continue;
+                }
+
+                builderDefinitionNodes.Add(node);
+            }
+        }
+
+        return builderDefinitionNodes.ToArray();
     }
 }

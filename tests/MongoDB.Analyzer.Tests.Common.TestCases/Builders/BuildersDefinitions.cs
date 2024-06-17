@@ -21,20 +21,21 @@ using builder = MongoDB.Driver.Builders<MongoDB.Analyzer.Tests.Common.DataModel.
 
 #pragma warning disable IDE0001
 
-namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
+namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
-    internal sealed class VS140 : TestCasesBase
+    public sealed class BuildersDefinitions : TestCasesBase
     {
         public FilterDefinitionBuilder<User> GetFilterDefinitionBuilder() => Builders<User>.Filter;
         public static FilterDefinitionBuilder<User> GetFilterDefinitionBuilderStatic() => Builders<User>.Filter;
 
-        public VS140 GetClass() => new VS140();
-        public static VS140 GetClassStatic() => new VS140();
+        public BuildersDefinitions GetClass() => new BuildersDefinitions();
+        public static BuildersDefinitions GetClassStatic() => new BuildersDefinitions();
 
         [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
         [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
         [BuildersMQL("{ \"Scores.1\" : 100, \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
         [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
+        [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
         public void FilterDefinition()
         {
             var filterDefinition = Builders<User>.Filter;
@@ -56,6 +57,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 Builders<User>.Filter.Gt(u => u.Age, 20) |
                 (filterDefinition.Ne(u => u.Name, "Bob") &
                  filterDefinition.Exists(u => u.LastName));
+
+            _ = MongoDB.Driver.Builders<MongoDB.Analyzer.Tests.Common.DataModel.User>.Filter.Eq(u => u.Name, "User Name1");
         }
 
         [BuildersMQL("{ \"Address\" : -1 }")]
@@ -81,6 +84,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                         .Geo2D(new { Field = "LastName", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field),
                     indexDefinition.Text(new { Field = "Address", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field)
                         .Text(new { Field = "Vehicle", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field));
+        }
+
+        [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
+        [BuildersMQL("{ \"Name\" : \"User Name2\" }")]
+        public void MethodTest()
+        {
+            _ = GetFilterDefinitionBuilder().Eq(u => u.Name, "User Name1");
+            _ = GetClass().GetFilterDefinitionBuilder().Eq(u => u.Name, "User Name2");
         }
 
         [BuildersMQL("{ \"Age\" : 1 }")]
@@ -151,27 +162,19 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                     sortDefinition.Ascending(u => u.Address));
         }
 
-        [BuildersMQL("{ \"$set\" : { \"Age\" : 22 } }")]
-        public void UpdateDefinition()
-        {
-            var updateDefinition = Builders<User>.Update;
-            _ = updateDefinition.Set(u => u.Age, 22);
-        }
-
-        [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
-        [BuildersMQL("{ \"Name\" : \"User Name2\" }")]
-        public void MethodTest()
-        {
-            _ = GetFilterDefinitionBuilder().Eq(u => u.Name, "User Name1");
-            _ = GetClass().GetFilterDefinitionBuilder().Eq(u => u.Name, "User Name2");
-        }
-
         [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
         [BuildersMQL("{ \"Name\" : \"User Name2\" }")]
         public void StaticMethodTest()
         {
             _ = GetFilterDefinitionBuilderStatic().Eq(u => u.Name, "User Name1");
             _ = GetClassStatic().GetFilterDefinitionBuilder().Eq(u => u.Name, "User Name2");
+        }
+
+        [BuildersMQL("{ \"$set\" : { \"Age\" : 22 } }")]
+        public void UpdateDefinition()
+        {
+            var updateDefinition = Builders<User>.Update;
+            _ = updateDefinition.Set(u => u.Age, 22);
         }
 
         [BuildersMQL("{ \"Name\" : \"User Name1\" }")]

@@ -55,6 +55,10 @@ public sealed class BuildersTests : DiagnosticsTestCasesRunner
     public Task ConstantsReplacement(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersDefinitions))]
+    public Task Definitions(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersFluentApi))]
     public Task FluentApi(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
