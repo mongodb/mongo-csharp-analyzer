@@ -21,9 +21,9 @@ internal static class DiagnosticsRules
     private const string DocumentationRulesBaseLink = "https://www.mongodb.com/docs/mongodb-analyzer/current/rules";
 
     // Builders
+    private const string BuilderCategory = "MongoDB.Analyzer.Builders";
     private const string DiagnosticIdBuilders2MQL = "MABuilders1001";
     private const string DiagnosticIdNotSupportedBuilderExpression = "MABuilders2001";
-    private const string BuilderCategory = "MongoDB.Analyzer.Builders";
 
     // LINQ
     private const string DiagnosticIdLinq2MQL = "MALinq1001";

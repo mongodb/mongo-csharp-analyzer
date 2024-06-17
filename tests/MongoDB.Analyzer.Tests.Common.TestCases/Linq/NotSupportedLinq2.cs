@@ -22,47 +22,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
     {
         [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])")]
         [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])")]
-        public void String_methods_Trim()
-        {
-            _ = GetMongoQueryable()
-                .Where(u => u.Name.Trim() == "123");
-        }
-
-        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$substrCP\" : [\"$Name\", 1, 2] }, \"abc\"] } } }])")]
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$substrCP\" : [\"$Name\", 1, 2] }, \"abc\"] } } }])")]
-        public void String_methods_Substring()
-        {
-            _ = GetMongoQueryable()
-                .Where(u => u.Name.Substring(1, 2) == "abc");
-        }
-
-        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [\"$Name\", \"$LastName\"] } } }])")]
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [\"$Name\", \"$LastName\"] } } }])")]
-        public void Unsupported_cross_reference_1()
-        {
-            _ = GetMongoQueryable<Person>()
-                .Where(u => u.Name == u.LastName);
-        }
-
-        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$arrayElemAt\" : [\"$IntArray\", 0] }, { \"$arrayElemAt\" : [\"$IntArray\", 1] }] } } }])")]
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$arrayElemAt\" : [\"$IntArray\", 0] }, { \"$arrayElemAt\" : [\"$IntArray\", 1] }] } } }])")]
-        public void Unsupported_cross_reference_2()
-        {
-            _ = GetMongoQueryable<SimpleTypesArraysHolder>()
-                .Where(u => u.IntArray[0] == u.IntArray[1]);
-        }
-
-        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$Age\", 1] }, 123] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"Dr \", \"$Name\"] }, \"Dr Bob\"] } } }])")]
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$Age\", 1] }, 123] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"Dr \", \"$Name\"] }, \"Dr Bob\"] } } }])")]
-        public void Unsupported_property_transformation()
-        {
-            _ = GetMongoQueryable()
-                .Where(u => u.Age + 1 == 123)
-                .Where(u => "Dr " + u.Name == "Dr Bob");
-        }
-
-        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])")]
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])")]
         [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$substrCP\" : [\"$Name\", 1, 2] }, \"abc\"] } } }])")]
         [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$substrCP\" : [\"$Name\", 1, 2] }, \"abc\"] } } }])")]
         [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [\"$Name\", \"$LastName\"] } } }])")]
@@ -93,6 +52,47 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 where user.Age + 1 == 123
                 where "Dr" + user.Name == "Dr Bob"
                 select user;
+        }
+
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$substrCP\" : [\"$Name\", 1, 2] }, \"abc\"] } } }])")]
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$substrCP\" : [\"$Name\", 1, 2] }, \"abc\"] } } }])")]
+        public void String_methods_Substring()
+        {
+            _ = GetMongoQueryable()
+                .Where(u => u.Name.Substring(1, 2) == "abc");
+        }
+
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])")]
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])")]
+        public void String_methods_Trim()
+        {
+            _ = GetMongoQueryable()
+                .Where(u => u.Name.Trim() == "123");
+        }
+
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [\"$Name\", \"$LastName\"] } } }])")]
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [\"$Name\", \"$LastName\"] } } }])")]
+        public void Unsupported_cross_reference_1()
+        {
+            _ = GetMongoQueryable<Person>()
+                .Where(u => u.Name == u.LastName);
+        }
+
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$arrayElemAt\" : [\"$IntArray\", 0] }, { \"$arrayElemAt\" : [\"$IntArray\", 1] }] } } }])")]
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$arrayElemAt\" : [\"$IntArray\", 0] }, { \"$arrayElemAt\" : [\"$IntArray\", 1] }] } } }])")]
+        public void Unsupported_cross_reference_2()
+        {
+            _ = GetMongoQueryable<SimpleTypesArraysHolder>()
+                .Where(u => u.IntArray[0] == u.IntArray[1]);
+        }
+
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$Age\", 1] }, 123] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"Dr \", \"$Name\"] }, \"Dr Bob\"] } } }])")]
+        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$Age\", 1] }, 123] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"Dr \", \"$Name\"] }, \"Dr Bob\"] } } }])")]
+        public void Unsupported_property_transformation()
+        {
+            _ = GetMongoQueryable()
+                .Where(u => u.Age + 1 == 123)
+                .Where(u => "Dr " + u.Name == "Dr Bob");
         }
     }
 }

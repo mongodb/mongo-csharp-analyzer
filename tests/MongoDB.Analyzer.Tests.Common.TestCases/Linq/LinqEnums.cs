@@ -86,25 +86,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => u.Vehicle.LicenceNumber);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumUInt64\" : NumberLong(0) }, { \"EnumUInt64\" : NumberLong(999) }, { \"EnumUInt64\" : NumberLong(-1) }] } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt64\" : NumberLong(0) }, { \"EnumInt64\" : NumberLong(999) }, { \"EnumInt64\" : NumberLong(\"9223372036854775807\") }] } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Vehicle.VehicleType.Type\" : 0 }, { \"Vehicle.VehicleType.Type\" : 2 }] } }, { \"$project\" : { \"LicenceNumber\" : \"$Vehicle.LicenceNumber\", \"_id\" : 0 } }])")]
-        public void Query_Syntax()
-        {
-            _ = from enumHolder in GetMongoQueryable<EnumHolder>()
-                where enumHolder.EnumUInt64 == EnumUInt64.Value0 || enumHolder.EnumUInt64 == EnumUInt64.Value999 || enumHolder.EnumUInt64 == EnumUInt64.MaxValue
-                select enumHolder;
-
-            _ = from enumHolder in GetMongoQueryable<EnumHolder>()
-                where enumHolder.EnumInt64 == EnumInt64.Value0 || enumHolder.EnumInt64 == EnumInt64.Value999 || enumHolder.EnumInt64 == EnumInt64.MaxValue
-                select enumHolder;
-
-            _ = from person in GetMongoQueryable<Person>()
-                where person.Vehicle.VehicleType.Type == VehicleTypeEnum.Bus || person.Vehicle.VehicleType.Type == VehicleTypeEnum.Motorcylce
-                select person.Vehicle.LicenceNumber;
-        }
-
-
         [MQL("aggregate([{ \"$match\" : { \"MPG\" : { \"$gt\" : 20.0 } } }, { \"$project\" : { \"Item1\" : \"$VehicleMake\", \"Item2\" : \"$Type\", \"_id\" : 0 } }])")]
         public void Enum_in_type_argument_1()
         {
@@ -167,6 +148,24 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = from vehicleType in GetMongoQueryable<VehicleType>()
                 where vehicleType.MPG > 20
                 select new Tuple<VehicleMake, Tuple<VehicleTypeEnum, VehicleTypeEnum>>(vehicleType.VehicleMake, new Tuple<VehicleTypeEnum, VehicleTypeEnum>(vehicleType.Type, vehicleType.Type));
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumUInt64\" : NumberLong(0) }, { \"EnumUInt64\" : NumberLong(999) }, { \"EnumUInt64\" : NumberLong(-1) }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt64\" : NumberLong(0) }, { \"EnumInt64\" : NumberLong(999) }, { \"EnumInt64\" : NumberLong(\"9223372036854775807\") }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Vehicle.VehicleType.Type\" : 0 }, { \"Vehicle.VehicleType.Type\" : 2 }] } }, { \"$project\" : { \"LicenceNumber\" : \"$Vehicle.LicenceNumber\", \"_id\" : 0 } }])")]
+        public void Query_Syntax()
+        {
+            _ = from enumHolder in GetMongoQueryable<EnumHolder>()
+                where enumHolder.EnumUInt64 == EnumUInt64.Value0 || enumHolder.EnumUInt64 == EnumUInt64.Value999 || enumHolder.EnumUInt64 == EnumUInt64.MaxValue
+                select enumHolder;
+
+            _ = from enumHolder in GetMongoQueryable<EnumHolder>()
+                where enumHolder.EnumInt64 == EnumInt64.Value0 || enumHolder.EnumInt64 == EnumInt64.Value999 || enumHolder.EnumInt64 == EnumInt64.MaxValue
+                select enumHolder;
+
+            _ = from person in GetMongoQueryable<Person>()
+                where person.Vehicle.VehicleType.Type == VehicleTypeEnum.Bus || person.Vehicle.VehicleType.Type == VehicleTypeEnum.Motorcylce
+                select person.Vehicle.LicenceNumber;
         }
     }
 }

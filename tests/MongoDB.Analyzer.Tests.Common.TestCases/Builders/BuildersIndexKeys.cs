@@ -27,20 +27,30 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<User>.IndexKeys.Ascending("Age");
         }
 
-        [BuildersMQL("{ \"Address\" : -1 }")]
-        [BuildersMQL("{ \"Address\" : -1 }")]
-        public void Descending()
-        {
-            _ = Builders<Person>.IndexKeys.Descending(x => x.Address);
-            _ = Builders<Person>.IndexKeys.Descending("Address");
-        }
-
         [BuildersMQL("{ \"Address\" : -1, \"Name\" : 1, \"LastName\" : -1 }")]
         [BuildersMQL("{ \"SiblingsCount\" : 1, \"TicksSinceBirth\" : -1, \"Vehicle\" : 1 }")]
         public void Ascending_descending()
         {
             _ = Builders<Person>.IndexKeys.Descending(x => x.Address).Ascending("Name").Descending(x => x.LastName);
             _ = Builders<Person>.IndexKeys.Ascending(x => x.SiblingsCount).Descending("TicksSinceBirth").Ascending(x => x.Vehicle);
+        }
+
+        [BuildersMQL("{ \"Name\" : \"text\", \"LastName\" : \"hashed\", \"Vehicle\" : \"2d\", \"Address\" : 1 }")]
+        [BuildersMQL("{ \"Name\" : \"2d\", \"LastName\" : \"2dsphere\", \"Vehicle\" : \"text\", \"Address\" : -1, \"SiblingsCount\" : \"hashed\", \"TicksSinceBirth\" : 1 }")]
+        [BuildersMQL("{ \"Name\" : \"2d\", \"LastName\" : \"2d\", \"Address\" : \"text\", \"Vehicle\" : \"text\" }")]
+        public void Combined()
+        {
+            _ = Builders<Person>.IndexKeys.Text(u => u.Name).Hashed(u => u.LastName).Geo2D(u => u.Vehicle).Ascending(u => u.Address);
+            _ = Builders<Person>.IndexKeys.Geo2D(u => u.Name).Geo2DSphere(u => u.LastName).Text(u => u.Vehicle).Descending(u => u.Address).Hashed(u => u.SiblingsCount).Ascending(u => u.TicksSinceBirth);
+            _ = Builders<Person>.IndexKeys.Combine(Builders<Person>.IndexKeys.Geo2D(u => u.Name).Geo2D("LastName"), Builders<Person>.IndexKeys.Text(u => u.Address).Text("Vehicle"));
+        }
+
+        [BuildersMQL("{ \"Address\" : -1 }")]
+        [BuildersMQL("{ \"Address\" : -1 }")]
+        public void Descending()
+        {
+            _ = Builders<Person>.IndexKeys.Descending(x => x.Address);
+            _ = Builders<Person>.IndexKeys.Descending("Address");
         }
 
         [BuildersMQL("{ \"Vehicle\" : \"2d\" }")]
@@ -96,16 +106,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 
             var wildcardField = "Vehicle";
             _ = Builders<Person>.IndexKeys.Wildcard(wildcardField);
-        }
-
-        [BuildersMQL("{ \"Name\" : \"text\", \"LastName\" : \"hashed\", \"Vehicle\" : \"2d\", \"Address\" : 1 }")]
-        [BuildersMQL("{ \"Name\" : \"2d\", \"LastName\" : \"2dsphere\", \"Vehicle\" : \"text\", \"Address\" : -1, \"SiblingsCount\" : \"hashed\", \"TicksSinceBirth\" : 1 }")]
-        [BuildersMQL("{ \"Name\" : \"2d\", \"LastName\" : \"2d\", \"Address\" : \"text\", \"Vehicle\" : \"text\" }")]
-        public void Combined()
-        {
-            _ = Builders<Person>.IndexKeys.Text(u => u.Name).Hashed(u => u.LastName).Geo2D(u => u.Vehicle).Ascending(u => u.Address);
-            _ = Builders<Person>.IndexKeys.Geo2D(u => u.Name).Geo2DSphere(u => u.LastName).Text(u => u.Vehicle).Descending(u => u.Address).Hashed(u => u.SiblingsCount).Ascending(u => u.TicksSinceBirth);
-            _ = Builders<Person>.IndexKeys.Combine(Builders<Person>.IndexKeys.Geo2D(u => u.Name).Geo2D("LastName"), Builders<Person>.IndexKeys.Text(u => u.Address).Text("Vehicle"));
         }
     }
 }

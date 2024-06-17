@@ -20,12 +20,22 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqArrays : TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"IntArray.12\" : 1 }, { \"IntArray.0\" : 2147483647 }] } }, { \"$match\" : { \"$or\" : [{ \"ObjectArray.0\" : null }, { \"ObjectArray.10\" : { \"$ne\" : null } }] } }])")]
-        public void Array_of_predefined_type_item_access()
+        [MQL("aggregate([{ \"$match\" : { \"EnumArrayWithDimension1.0\" : 32767 } }, { \"$match\" : { \"TreeJaggedArray2.0.1.Root.Data\" : 1 } }, { \"$match\" : { \"$or\" : [{ \"TreeNodeJaggedArray3.0.1.2.Data\" : 3 }, { \"TreeNodeJaggedArray3.2.1.0.Left.Data\" : 1 }] } }])")]
+        public void Array_of_custom_type_item_access()
         {
-            _ = GetMongoQueryable<SimpleTypesArraysHolder>()
-                .Where(t => t.IntArray[12] == 1 || t.IntArray.ElementAt(0) == int.MaxValue)
-                .Where(t => t.ObjectArray[0] == null || t.ObjectArray.ElementAt(10) != null);
+            _ = GetMongoQueryable<CustomTypesArraysHolder>()
+                .Where(t => t.EnumArrayWithDimension1[0] == EnumInt16.MaxValue)
+                .Where(t => t.TreeJaggedArray2[0][1].Root.Data == 1)
+                .Where(t => t.TreeNodeJaggedArray3[0][1][2].Data == 3 || t.TreeNodeJaggedArray3[2][1][0].Left.Data == 1);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"EnumArrayWithDimension1\" : { \"$size\" : 1 } } }, { \"$match\" : { \"TreeJaggedArray2\" : { \"$size\" : 2 } } }, { \"$match\" : { \"TreeNodeJaggedArray3\" : { \"$size\" : 3 } } }])")]
+        public void Array_of_custom_type_member_access()
+        {
+            _ = GetMongoQueryable<CustomTypesArraysHolder>()
+                .Where(t => t.EnumArrayWithDimension1.Length == 1)
+                .Where(t => t.TreeJaggedArray2.Length == 2)
+                .Where(t => t.TreeNodeJaggedArray3.Length == 3);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"IntArray.0\" : { \"$exists\" : true } } }, { \"$match\" : { \"ObjectArray\" : { \"$size\" : 3 } } }])")]
@@ -34,6 +44,22 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<SimpleTypesArraysHolder>()
                 .Where(t => t.IntArray.Length > 0)
                 .Where(t => t.ObjectArray.Length == 3);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"IntArray.12\" : 1 }, { \"IntArray.0\" : 2147483647 }] } }, { \"$match\" : { \"$or\" : [{ \"ObjectArray.0\" : null }, { \"ObjectArray.10\" : { \"$ne\" : null } }] } }])")]
+        public void Array_of_predefined_type_item_access()
+        {
+            _ = GetMongoQueryable<SimpleTypesArraysHolder>()
+                .Where(t => t.IntArray[12] == 1 || t.IntArray.ElementAt(0) == int.MaxValue)
+                .Where(t => t.ObjectArray[0] == null || t.ObjectArray.ElementAt(10) != null);
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Children.0.Data\" : 1 } }, { \"$match\" : { \"Children.0.Children.1.Children.2.Children.3.Children.4.Data\" : 2 } }])")]
+        public void Array_of_self()
+        {
+            _ = GetMongoQueryable<NestedArrayHolder>()
+                .Where(t => t.Children[0].Data == 1)
+                .Where(t => t.Children[0].Children[1].Children[2].Children[3].Children[4].Data == 2);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"JaggedStringArray2.0.1\" : \"str\" }, { \"JaggedStringArray2.1.3\" : \"str2\" }] } }, { \"$match\" : { \"$or\" : [{ \"JaggedIntArray3.2.999.29\" : -1 }, { \"JaggedIntArray3.10.1.3\" : 3 }] } }, { \"$match\" : { \"$or\" : [{ \"JaggedLongArray4.2.3.2.2\" : NumberLong(-9223372036854775808) }, { \"JaggedLongArray4.10.1.3.3\" : NumberLong(23) }] } }, { \"$match\" : { \"$or\" : [{ \"JaggedShortArray5.2.999.29.12.144\" : 0 }, { \"JaggedShortArray5.10.1.3.3.32\" : 23 }] } }])")]
@@ -54,32 +80,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(t => t.JaggedIntArray3.Length == 1 || t.JaggedIntArray3[1][1].Length == 2)
                 .Where(t => t.JaggedLongArray4.Length == 1 || t.JaggedLongArray4[1][2][3].Length == 2)
                 .Where(t => t.JaggedShortArray5.Length == 1 || t.JaggedShortArray5[1][2][3][4].Length == 2);
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"EnumArrayWithDimension1.0\" : 32767 } }, { \"$match\" : { \"TreeJaggedArray2.0.1.Root.Data\" : 1 } }, { \"$match\" : { \"$or\" : [{ \"TreeNodeJaggedArray3.0.1.2.Data\" : 3 }, { \"TreeNodeJaggedArray3.2.1.0.Left.Data\" : 1 }] } }])")]
-        public void Array_of_custom_type_item_access()
-        {
-            _ = GetMongoQueryable<CustomTypesArraysHolder>()
-                .Where(t => t.EnumArrayWithDimension1[0] == EnumInt16.MaxValue)
-                .Where(t => t.TreeJaggedArray2[0][1].Root.Data == 1)
-                .Where(t => t.TreeNodeJaggedArray3[0][1][2].Data == 3 || t.TreeNodeJaggedArray3[2][1][0].Left.Data == 1);
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"EnumArrayWithDimension1\" : { \"$size\" : 1 } } }, { \"$match\" : { \"TreeJaggedArray2\" : { \"$size\" : 2 } } }, { \"$match\" : { \"TreeNodeJaggedArray3\" : { \"$size\" : 3 } } }])")]
-        public void Array_of_custom_type_member_access()
-        {
-            _ = GetMongoQueryable<CustomTypesArraysHolder>()
-                .Where(t => t.EnumArrayWithDimension1.Length == 1)
-                .Where(t => t.TreeJaggedArray2.Length == 2)
-                .Where(t => t.TreeNodeJaggedArray3.Length == 3);
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"Children.0.Data\" : 1 } }, { \"$match\" : { \"Children.0.Children.1.Children.2.Children.3.Children.4.Data\" : 2 } }])")]
-        public void Array_of_self()
-        {
-            _ = GetMongoQueryable<NestedArrayHolder>()
-                .Where(t => t.Children[0].Data == 1)
-                .Where(t => t.Children[0].Children[1].Children[2].Children[3].Children[4].Data == 2);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"JaggedStringArray2.0.1\" : \"str\" }, { \"JaggedStringArray2.1.3\" : \"str2\" }] } }, { \"$match\" : { \"$or\" : [{ \"JaggedIntArray3.2.999.29\" : -1 }, { \"JaggedIntArray3.10.1.3\" : 3 }] } }, { \"$match\" : { \"$or\" : [{ \"JaggedLongArray4.2.3.2.2\" : NumberLong(-9223372036854775808) }, { \"JaggedLongArray4.10.1.3.3\" : NumberLong(23) }] } }, { \"$match\" : { \"$or\" : [{ \"JaggedShortArray5.2.999.29.12.144\" : 0 }, { \"JaggedShortArray5.10.1.3.3.32\" : 23 }] } }])")]

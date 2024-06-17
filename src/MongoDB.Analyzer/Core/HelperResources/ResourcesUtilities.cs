@@ -23,12 +23,12 @@ internal static class ResourcesUtilities
         ResourceNames.MongoDatabaseMock
     };
 
+    private static readonly CSharpParseOptions s_parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp8);
+
     private static readonly string[] s_versionedResources = new[]
     {
         ResourceNames.MongoCollectionMock
     };
-
-    private static readonly CSharpParseOptions s_parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp8);
 
     public static SyntaxTree GetCodeResource(string csharpCodeResourceName, CSharpParseOptions parseOptions = null) =>
         CSharpSyntaxTree.ParseText(GetStringResource(csharpCodeResourceName), parseOptions ?? s_parseOptions);

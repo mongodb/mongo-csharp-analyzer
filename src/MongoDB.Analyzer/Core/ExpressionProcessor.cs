@@ -19,6 +19,14 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class ExpressionProcessor
 {
+    private enum RewriteAction
+    {
+        Unknown,
+        Rewrite,
+        Ignore,
+        Invalid
+    }
+
     public record RewriteContext(
         AnalysisType AnalysisType,
         SyntaxNode Expression,
@@ -32,14 +40,6 @@ internal static class ExpressionProcessor
 
         public static RewriteContext Linq(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
             new(AnalysisType.Linq, Expression, RootNode, SemanticModel, TypesProcessor, new());
-    }
-
-    private enum RewriteAction
-    {
-        Unknown,
-        Rewrite,
-        Ignore,
-        Invalid
     }
 
     private record RewriteResult(

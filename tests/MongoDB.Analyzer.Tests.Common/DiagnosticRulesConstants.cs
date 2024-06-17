@@ -16,9 +16,9 @@ namespace MongoDB.Analyzer.Tests.Common
 {
     internal static class DiagnosticRulesConstants
     {
+        public const string MongoLinq2MQL = "MALinq1001";
         public const string NotSupportedLinqExpression = "MALinq2001";
         public const string NotSupportedLinq2Expression = "MALinq2002";
-        public const string MongoLinq2MQL = "MALinq1001";
 
         public const string Builders2MQL = "MABuilders1001";
         public const string NotSupportedBuildersExpression = "MABuilders2001";
@@ -30,9 +30,9 @@ namespace MongoDB.Analyzer.Tests.Common
 
         public static string[] AllRules { get; } = new[]
         {
+            MongoLinq2MQL,
             NotSupportedLinqExpression,
             NotSupportedLinq2Expression,
-            MongoLinq2MQL,
             Builders2MQL,
             NotSupportedBuildersExpression,
             Poco2Json,

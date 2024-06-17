@@ -16,6 +16,6 @@ namespace MongoDB.Analyzer.Core;
 
 internal interface ITelemetryService : IDisposable
 {
-    public void Flush();
     public void Event(string eventName, params (string, object)[] data);
+    public void Flush();
 }

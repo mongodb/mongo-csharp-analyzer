@@ -79,37 +79,11 @@ internal static class SymbolExtensions
     public static SyntaxToken[] GetFieldModifiers(this IFieldSymbol fieldSymbol) =>
         fieldSymbol.IsReadOnly ? GetReadOnlyPublicFieldModifiers() : GetPublicFieldModifiers();
 
-    public static AccessorDeclarationSyntax[] GetPropertyAccessors(this IPropertySymbol propertySymbol) =>
-        propertySymbol.IsReadOnly ? GetReadOnlyPropertyAccessors() : (propertySymbol.IsWriteOnly ? GetWriteOnlyPropertyAccessors() : GetReadWritePropertyAccessors());
-    
     public static IMethodSymbol GetMethodSymbol(this SyntaxNode node, SemanticModel semanticModel) =>
         semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
 
-    public static bool IsContainedInLambda(this ISymbol symbol, SyntaxNode parentNode)
-    {
-        var isContainedInLambda = (symbol?.ContainingSymbol is IMethodSymbol methodSymbol && methodSymbol.MethodKind == MethodKind.AnonymousFunction);
-        var result = isContainedInLambda && symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax()));
-
-        return result;
-    }
-
-    public static bool IsContainedInLambdaOrQueryParameter(this ISymbol symbol, SyntaxNode parentNode) =>
-        symbol switch
-        {
-            IRangeVariableSymbol => symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax())),
-            _ => symbol.IsContainedInLambda(parentNode)
-        };
-
-    public static bool IsDefinedInMongoLinqOrSystemLinq(this ISymbol symbol)
-    {
-        var containingNamespace = symbol?.ContainingNamespace?.ToDisplayString();
-
-        // In case of system linq, the containing module is not validated for simplicity,
-        // as it can differ in different .net frameworks.
-        return containingNamespace == NamespaceSystemLinq ||
-            containingNamespace == NamespaceMongoDBLinq &&
-            symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
-    }
+    public static AccessorDeclarationSyntax[] GetPropertyAccessors(this IPropertySymbol propertySymbol) =>
+        propertySymbol.IsReadOnly ? GetReadOnlyPropertyAccessors() : (propertySymbol.IsWriteOnly ? GetWriteOnlyPropertyAccessors() : GetReadWritePropertyAccessors());
 
     public static bool IsBuilder(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
@@ -127,11 +101,6 @@ internal static class SymbolExtensions
             _ => false
         };
 
-    public static bool IsBuilderMethod(this IMethodSymbol methodSymbol) =>
-        methodSymbol != null &&
-        (methodSymbol.ReceiverType.IsBuilder() ||
-         (methodSymbol.ReducedFrom?.ReceiverType).IsBuilder());
-
     public static bool IsBuilderDefinition(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
         {
@@ -144,6 +113,37 @@ internal static class SymbolExtensions
             "UpdateDefinition" => true,
             _ => false
         };
+
+    public static bool IsBuilderMethod(this IMethodSymbol methodSymbol) =>
+        methodSymbol != null &&
+        (methodSymbol.ReceiverType.IsBuilder() ||
+         (methodSymbol.ReducedFrom?.ReceiverType).IsBuilder());
+
+    public static bool IsContainedInLambda(this ISymbol symbol, SyntaxNode parentNode)
+    {
+        var isContainedInLambda = (symbol?.ContainingSymbol is IMethodSymbol methodSymbol && methodSymbol.MethodKind == MethodKind.AnonymousFunction);
+        var result = isContainedInLambda && symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax()));
+
+        return result;
+    }
+
+    public static bool IsContainedInLambdaOrQueryParameter(this ISymbol symbol, SyntaxNode parentNode) =>
+    symbol switch
+    {
+        IRangeVariableSymbol => symbol.DeclaringSyntaxReferences.Any(d => parentNode.Contains(d.GetSyntax())),
+        _ => symbol.IsContainedInLambda(parentNode)
+    };
+
+    public static bool IsDefinedInMongoLinqOrSystemLinq(this ISymbol symbol)
+    {
+        var containingNamespace = symbol?.ContainingNamespace?.ToDisplayString();
+
+        // In case of system linq, the containing module is not validated for simplicity,
+        // as it can differ in different .net frameworks.
+        return containingNamespace == NamespaceSystemLinq ||
+            containingNamespace == NamespaceMongoDBLinq &&
+            symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
+    }
 
     public static bool IsFindFluent(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
@@ -198,6 +198,12 @@ internal static class SymbolExtensions
         typeSymbol is INamedTypeSymbol namedTypeSymbol &&
         s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString());
 
+    public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
+        typeSymbol.IsIMongoCollection() &&
+        typeSymbol is INamedTypeSymbol namedType &&
+        namedType.TypeArguments.Length == 1 &&
+        namedType.TypeArguments[0].IsSupportedMongoCollectionType();
+
     public static bool IsSupportedMongoCollectionType(this ITypeSymbol typeSymbol) =>
         typeSymbol.TypeKind == TypeKind.Class &&
         !typeSymbol.IsAnonymousType;
@@ -206,21 +212,15 @@ internal static class SymbolExtensions
         (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
 
-    public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
-        typeSymbol.IsIMongoCollection() &&
-        typeSymbol is INamedTypeSymbol namedType &&
-        namedType.TypeArguments.Length == 1 &&
-        namedType.TypeArguments[0].IsSupportedMongoCollectionType();
-
     private static SyntaxToken[] GetPublicFieldModifiers() =>
         new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) };
-
-    private static SyntaxToken[] GetReadOnlyPublicFieldModifiers() =>
-        new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword) };
 
     private static AccessorDeclarationSyntax[] GetReadOnlyPropertyAccessors() =>
         new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
             .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
+
+    private static SyntaxToken[] GetReadOnlyPublicFieldModifiers() =>
+        new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword) };
 
     private static AccessorDeclarationSyntax[] GetReadWritePropertyAccessors() =>
         new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)

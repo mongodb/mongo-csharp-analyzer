@@ -206,18 +206,6 @@ namespace MongoDB.Analyzer.Helpers
         }
 
         /// <inheritdoc />
-        public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default)
-        {
-            return new EmptyCursor<TProjection>();
-        }
-
-        /// <inheritdoc />
-        public override IAsyncCursor<TProjection> FindSync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default)
-        {
-            return new EmptyCursor<TProjection>();
-        }
-
-        /// <inheritdoc />
         public override async Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default)
         {
             await Task.FromResult(1);
@@ -306,6 +294,18 @@ namespace MongoDB.Analyzer.Helpers
         {
             await Task.FromResult(1);
             return default;
+        }
+
+        /// <inheritdoc />
+        public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default)
+        {
+            return new EmptyCursor<TProjection>();
+        }
+
+        /// <inheritdoc />
+        public override IAsyncCursor<TProjection> FindSync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default)
+        {
+            return new EmptyCursor<TProjection>();
         }
 
         /// <inheritdoc />

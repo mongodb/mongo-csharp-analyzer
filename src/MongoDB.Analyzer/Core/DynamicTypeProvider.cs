@@ -23,16 +23,6 @@ internal static class DynamicTypeProvider
         AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
     }
 
-    private static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
-    {
-        var assemblyName = new AssemblyName(args.Name);
-        if (s_pathsMappings.TryGetValue($"{assemblyName.Name}_{assemblyName.Version}", out var assemblyPath))
-        {
-            return Assembly.LoadFile(assemblyPath);
-        }
-        return null;
-    }
-
     public static Type GetType(
         ReferencesContainer referencesContainer,
         MemoryStream assemblyMemoryStream,
@@ -55,5 +45,15 @@ internal static class DynamicTypeProvider
         }
 
         return result;
+    }
+
+    private static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+    {
+        var assemblyName = new AssemblyName(args.Name);
+        if (s_pathsMappings.TryGetValue($"{assemblyName.Name}_{assemblyName.Version}", out var assemblyPath))
+        {
+            return Assembly.LoadFile(assemblyPath);
+        }
+        return null;
     }
 }

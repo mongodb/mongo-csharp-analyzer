@@ -21,6 +21,10 @@ namespace MongoDB.Analyzer.Tests.Common
 {
     public abstract class TestCasesBase
     {
+        protected IMongoDatabase GetDatabase() => MongoDBProvider.MongoDatabase;
+
+        protected FilterDefinition<User> GetFilterUser() => Builders<User>.Filter.Lt(u => u.Age, 10);
+
         protected IMongoCollection<User> GetMongoCollection() =>
             GetMongoCollection<User>();
 
@@ -31,9 +35,5 @@ namespace MongoDB.Analyzer.Tests.Common
         protected IMongoQueryable<T> GetMongoQueryable<T>() => GetMongoCollection<T>().AsQueryable();
 
         protected T ReturnArgument<T>(T arg) => arg;
-
-        protected FilterDefinition<User> GetFilterUser() => Builders<User>.Filter.Lt(u => u.Age, 10);
-
-        protected IMongoDatabase GetDatabase() => MongoDBProvider.MongoDatabase;
     }
 }

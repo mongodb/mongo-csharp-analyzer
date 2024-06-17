@@ -20,6 +20,16 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqCollections : TestCasesBase
     {
+        [MQL("aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
+        public void Enumerables()
+        {
+            _ = GetMongoQueryable<EnumerableHolder>().Where(t =>
+                    t.Enumerable1.Count() == 121 &&
+                    t.Enumerable1.ElementAt(12) == 1 &&
+                    t.Enumerable2.Count() == 22 &&
+                    t.Enumerable2.ElementAt(12).Enumerable2.ElementAt(21).Enumerable1.ElementAt(1) == 2);
+        }
+
         [MQL("aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]
         public void Lists()
         {
@@ -30,16 +40,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(t => t.NestedListsHolderList[2].StringList[4] == "Nested")
                 .Where(t => t.IntIList[1] == 12)
                 .Where(t => t.NestedListsHolderIList[12].IntIList[12] == 2);
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
-        public void Enumerables()
-        {
-            _ = GetMongoQueryable<EnumerableHolder>().Where(t =>
-                    t.Enumerable1.Count() == 121 &&
-                    t.Enumerable1.ElementAt(12) == 1 &&
-                    t.Enumerable2.Count() == 22 &&
-                    t.Enumerable2.ElementAt(12).Enumerable2.ElementAt(21).Enumerable1.ElementAt(1) == 2);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]

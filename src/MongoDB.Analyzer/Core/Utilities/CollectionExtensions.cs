@@ -37,11 +37,11 @@ internal static class CollectionExtensions
 
     public static bool ContainsSafe<T>(this HashSet<T> hashSet, T item) => hashSet?.Contains(item) == true;
 
-    public static bool EmptyOrNull<T>(this IEnumerable<T> enumerable) =>
-        enumerable?.Any() != true;
-
     public static ImmutableArray<T> CreateImmutableArray<T>(params IEnumerable<T>[] enumerables) =>
         ImmutableArray.Create(enumerables.Aggregate((prev, curr) => prev.Concat(curr)).ToArray());
+
+    public static bool EmptyOrNull<T>(this IEnumerable<T> enumerable) =>
+        enumerable?.Any() != true;
 
     public static void RemoveRange<K, V>(this IDictionary<K, V> dictionary, IEnumerable<K> keysToRemove)
     {

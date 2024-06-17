@@ -77,15 +77,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<BsonDocument>.Search.QueryString("Name", "constant string");
         }
 
-        [BuildersMQL("{ \"wildcard\" : { \"query\" : [\"foo\", \"bar\"], \"path\" : \"Name\" } }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"wildcard\" : { \"query\" : \"A\", \"path\" : \"Name\" } }", DriverVersions.V2_19_OrGreater, 2, 3)]
-        public void Wildcard()
-        {
-            _ = Builders<Person>.Search.Wildcard(m => m.Name, new[] { "foo", "bar" });
-            _ = Builders<Person>.Search.Wildcard("Name", "A");
-            _ = Builders<BsonDocument>.Search.Wildcard("Name", "A");
-        }
-
         [BuildersMQL("{ \"regex\" : { \"query\" : [\"Donald\", \"Mike\"], \"path\" : \"Name\" } }", DriverVersions.V2_19_OrGreater)]
         [BuildersMQL("{ \"regex\" : { \"query\" : \"Alice\", \"path\" : \"Name\" } }", DriverVersions.V2_19_OrGreater, 2, 3)]
         public void Regex()
@@ -93,6 +84,15 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<Person>.Search.Regex(m => m.Name, new[] { "Donald", "Mike" });
             _ = Builders<Person>.Search.Regex("Name", "Alice");
             _ = Builders<BsonDocument>.Search.Regex("Name", "Alice");
+        }
+
+        [NoDiagnostics(DriverVersions.V2_18_OrLower)]
+        public void Search_should_be_ignored_in_older_drivers()
+        {
+            // Technically Atlas Search code can't appear with older drivers, via normal C# usage,
+            // so this test covers isoteric edge cases.
+            _ = Builders<User>.Search.Text(m => m.Address, "My address");
+            _ = Builders<Person>.Search.Phrase(m => m.Address.Province, "Columbia");
         }
 
         [BuildersMQL("{ \"span\" : { \"first\" : { \"operator\" : { \"term\" : { \"query\" : \"foo\", \"path\" : \"Name\" } }, \"endPositionLte\" : 5 } } }", DriverVersions.V2_19_OrGreater)]
@@ -138,13 +138,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                     }, "A");
         }
 
-        [NoDiagnostics(DriverVersions.V2_18_OrLower)]
-        public void Search_should_be_ignored_in_older_drivers()
+        [BuildersMQL("{ \"wildcard\" : { \"query\" : [\"foo\", \"bar\"], \"path\" : \"Name\" } }", DriverVersions.V2_19_OrGreater)]
+        [BuildersMQL("{ \"wildcard\" : { \"query\" : \"A\", \"path\" : \"Name\" } }", DriverVersions.V2_19_OrGreater, 2, 3)]
+        public void Wildcard()
         {
-            // Technically Atlas Search code can't appear with older drivers, via normal C# usage,
-            // so this test covers isoteric edge cases.
-            _ = Builders<User>.Search.Text(m => m.Address, "My address");
-            _ = Builders<Person>.Search.Phrase(m => m.Address.Province, "Columbia");
+            _ = Builders<Person>.Search.Wildcard(m => m.Name, new[] { "foo", "bar" });
+            _ = Builders<Person>.Search.Wildcard("Name", "A");
+            _ = Builders<BsonDocument>.Search.Wildcard("Name", "A");
         }
     }
 }

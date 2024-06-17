@@ -29,17 +29,6 @@ internal sealed class PocoJsonGeneratorExecutor
         DriverVersion = GetDriverVersion();
     }
 
-    private string GetDriverVersion()
-    {
-        try
-        {
-            return (string)_testClassType.GetMethod(JsonSyntaxElements.Poco.GetDriverVersion).Invoke(null, new object[] { });
-        }
-        catch { }
-
-        return null;
-    }
-
     public JsonResult GenerateJson(string methodName)
     {
         Exception exception = null;
@@ -62,5 +51,16 @@ internal sealed class PocoJsonGeneratorExecutor
         }
 
         return new JsonResult(json, exception);
+    }
+
+    private string GetDriverVersion()
+    {
+        try
+        {
+            return (string)_testClassType.GetMethod(JsonSyntaxElements.Poco.GetDriverVersion).Invoke(null, new object[] { });
+        }
+        catch { }
+
+        return null;
     }
 }

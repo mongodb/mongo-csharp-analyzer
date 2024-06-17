@@ -21,18 +21,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoBsonAttributes : TestCasesBase
     {
-        [PocoJson("{ \"Style\" : \"Style_val\", \"year_built\" : 9, \"_id\" : \"Identifier_val\" }")]
-        public void House()
-        {
-        }
-
         [PocoJson("{ \"ExpiryDate\" : ISODate(\"1911-11-11T00:00:00Z\"), \"Name\" : \"Benjamin\", \"InStock\" : false, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"08:08:08\" }")]
         public void Clothing()
-        {
-        }
-
-        [PocoJson("{ \"VegetableCost\" : 0.0 }")]
-        public void Vegetable()
         {
         }
 
@@ -41,23 +31,18 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
+        [PocoJson("{ \"Style\" : \"Style_val\", \"year_built\" : 9, \"_id\" : \"Identifier_val\" }")]
+        public void House()
+        {
+        }
+
+        [PocoJson("{ \"VegetableCost\" : 0.0 }")]
+        public void Vegetable()
+        {
+        }
+
         public class TestClasses
         {
-            public class House
-            {
-                [BsonId]
-                public string Identifier { get; set; }
-
-                [BsonElement("year_built", Order = 2)]
-                public int YearBuilt { get; set; }
-
-                [BsonElement(Order = 1)]
-                public string Style { get; set; }
-
-                [BsonIgnore]
-                public double Cost { get; set; }
-            }
-
             public class Clothing
             {
                 [BsonConstructor("Name", "InStock", "Price")]
@@ -98,13 +83,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
                 public TimeSpan SaleTime { get; set; }
             }
 
-            [BsonIgnoreExtraElements]
-            [BsonDiscriminator("Carrot")]
-            public class Vegetable
-            {
-                public double VegetableCost { get; set; }
-            }
-
             [BsonNoId]
             public class Computer
             {
@@ -112,6 +90,28 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 
                 [BsonExtraElementsAttribute]
                 public BsonDocument CatchAll { get; set; }
+            }
+
+            public class House
+            {
+                [BsonId]
+                public string Identifier { get; set; }
+
+                [BsonElement("year_built", Order = 2)]
+                public int YearBuilt { get; set; }
+
+                [BsonElement(Order = 1)]
+                public string Style { get; set; }
+
+                [BsonIgnore]
+                public double Cost { get; set; }
+            }
+
+            [BsonIgnoreExtraElements]
+            [BsonDiscriminator("Carrot")]
+            public class Vegetable
+            {
+                public double VegetableCost { get; set; }
             }
         }
     }

@@ -22,40 +22,26 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqQuerySyntax: TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : user.Age, \"LastName\" : person.Address.City } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22, \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$and\" : [{ \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] }, { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] }] } }, { \"$project\" : { \"Age\" : \"$Age\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] } }, { \"$match\" : { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }, { \"$project\" : { \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] } }, { \"$match\" : { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }, { \"$match\" : { \"Address\" : /^Drive/s } }, { \"$project\" : { \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        public void Simple_Linq_queries()
+        [MQL("aggregate([{ \"$match\" : { \"Name\" : NameComposer(firstName, lastName) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : DoubleAge(ageParameter) } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Height\" : DoubleHeight(25) } }])")]
+        public void Method_invocations()
         {
-            User user = new User();
-            user.Age = 25;
-            Person person = new Person();
+            var firstName = "John";
+            var lastName = "Doe";
+            var personsQueryable = GetMongoQueryable<Person>();
+            _ = from person in personsQueryable
+                where person.Name.Equals(NameComposer(firstName, lastName))
+                select person;
 
-            var userQueryable = GetMongoQueryable();
-            _ = from item in userQueryable
-                        where item.Age == user.Age && item.LastName == person.Address.City
-                        select item;
+            var ageParameter = 20;
+            _ = from user in GetMongoQueryable<User>()
+                where user.Age == DoubleAge(ageParameter)
+                select user;
 
-            _ = from item in GetMongoQueryable()
-                        where item.Age == 22 && (item.LastName == "Doe" || item.Name == "John")
-                        select item;
-
-            _ = from item in GetMongoQueryable()
-                        where (item.Age == 22 || item.Age == 25) && (item.LastName == "Doe" || item.Name == "John")
-                        select item.Age;
-
-            _ = from item in GetMongoQueryable()
-                        where (item.Age == 22 || item.Age == 25)
-                        where (item.LastName == "Doe" || item.Name == "John")
-                        select new { item.Age, item.Address };
-
-            _ = from item in GetMongoQueryable()
-                        where (item.Age == 22 || item.Age == 25)
-                        where (item.LastName == "Doe" || item.Name == "John")
-                        where item.Address.StartsWith("Drive")
-                        select new { item.Age, item.Address, item.Name};
+            _ = from user in GetMongoCollection<User>().AsQueryable()
+                where user.Height == DoubleHeight(25)
+                select user;
         }
 
         [MQL("aggregate([{ \"$project\" : { \"PersonsList\" : { \"$map\" : { \"input\" : { \"$filter\" : { \"input\" : \"$PesonsList\", \"as\" : \"person\", \"cond\" : { \"$lt\" : [\"$$person.SiblingsCount\", 2] } } }, \"as\" : \"person\", \"in\" : { \"Name\" : \"$$person.Name\", \"Address\" : \"$$person.Address\" } } }, \"_id\" : 0 } }])")]
@@ -96,31 +82,45 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 };
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : NameComposer(firstName, lastName) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : DoubleAge(ageParameter) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Height\" : DoubleHeight(25) } }])")]
-        public void Method_invocations()
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : user.Age, \"LastName\" : person.Address.City } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22, \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$and\" : [{ \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] }, { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] }] } }, { \"$project\" : { \"Age\" : \"$Age\", \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] } }, { \"$match\" : { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }, { \"$project\" : { \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] } }, { \"$match\" : { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }, { \"$match\" : { \"Address\" : /^Drive/s } }, { \"$project\" : { \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        public void Simple_Linq_queries()
         {
-            var firstName = "John";
-            var lastName = "Doe";
-            var personsQueryable = GetMongoQueryable<Person>();
-            _ = from person in personsQueryable
-                        where person.Name.Equals(NameComposer(firstName, lastName))
-                        select person;
+            User user = new User();
+            user.Age = 25;
+            Person person = new Person();
 
-            var ageParameter = 20;
-            _ = from user in GetMongoQueryable<User>()
-                where user.Age == DoubleAge(ageParameter)
-                select user;
+            var userQueryable = GetMongoQueryable();
+            _ = from item in userQueryable
+                where item.Age == user.Age && item.LastName == person.Address.City
+                select item;
 
-            _ = from user in GetMongoCollection<User>().AsQueryable()
-                where user.Height == DoubleHeight(25)
-                select user;
+            _ = from item in GetMongoQueryable()
+                where item.Age == 22 && (item.LastName == "Doe" || item.Name == "John")
+                select item;
+
+            _ = from item in GetMongoQueryable()
+                where (item.Age == 22 || item.Age == 25) && (item.LastName == "Doe" || item.Name == "John")
+                select item.Age;
+
+            _ = from item in GetMongoQueryable()
+                where (item.Age == 22 || item.Age == 25)
+                where (item.LastName == "Doe" || item.Name == "John")
+                select new { item.Age, item.Address };
+
+            _ = from item in GetMongoQueryable()
+                where (item.Age == 22 || item.Age == 25)
+                where (item.LastName == "Doe" || item.Name == "John")
+                where item.Address.StartsWith("Drive")
+                select new { item.Age, item.Address, item.Name };
         }
 
-        private string NameComposer(string firstName, string lastName) => $"{firstName}{lastName}";
         private int DoubleAge(int age) => 2 * age;
         private int DoubleHeight(int height) => 2 * height;
+        private string NameComposer(string firstName, string lastName) => $"{firstName}{lastName}";
     }
 }
 

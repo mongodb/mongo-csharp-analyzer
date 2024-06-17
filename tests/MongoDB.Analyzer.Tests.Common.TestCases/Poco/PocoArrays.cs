@@ -18,8 +18,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoArrays : TestCasesBase
     {
-        [PocoJson("{ \"BooleanArray\" : [], \"ByteArray\" : new BinData(0, \"\"), \"SByteArray\" : [], \"ShortArray\" : [], \"UShortArray\" : [], \"IntArray\" : [], \"UIntArray\" : [], \"LongArray\" : [], \"ULongArray\" : [], \"CharArray\" : [], \"DoubleArray\" : [], \"StringArray\" : [], \"FloatArray\" : [], \"ObjectArray\" : [], \"JaggedStringArray2\" : [], \"JaggedIntArray3\" : [], \"JaggedLongArray4\" : [], \"JaggedShortArray5\" : [] }")]
-        public void SimpleTypesArraysHolder()
+        [PocoJson("{ \"EnumArrayWithDimension1\" : [], \"JaggedEnumArray\" : [], \"TreeJaggedArray2\" : [], \"TreeNodeJaggedArray3\" : [] }")]
+        public void CustomTypesArraysHolder()
         {
         }
 
@@ -28,18 +28,42 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"EnumArrayWithDimension1\" : [], \"JaggedEnumArray\" : [], \"TreeJaggedArray2\" : [], \"TreeNodeJaggedArray3\" : [] }")]
-        public void CustomTypesArraysHolder()
-        {
-        }
-
         [PocoJson("{ \"Data\" : 4, \"Children\" : [] }")]
         public void NestedArrayHolder()
         {
         }
 
+        [PocoJson("{ \"BooleanArray\" : [], \"ByteArray\" : new BinData(0, \"\"), \"SByteArray\" : [], \"ShortArray\" : [], \"UShortArray\" : [], \"IntArray\" : [], \"UIntArray\" : [], \"LongArray\" : [], \"ULongArray\" : [], \"CharArray\" : [], \"DoubleArray\" : [], \"StringArray\" : [], \"FloatArray\" : [], \"ObjectArray\" : [], \"JaggedStringArray2\" : [], \"JaggedIntArray3\" : [], \"JaggedLongArray4\" : [], \"JaggedShortArray5\" : [] }")]
+        public void SimpleTypesArraysHolder()
+        {
+        }
+
         public class TestClasses
         {
+            public class CustomTypesArraysHolder
+            {
+                public EnumInt16[] EnumArrayWithDimension1 { get; set; }
+                public EnumInt16[][] JaggedEnumArray { get; set; }
+
+                public Tree[][] TreeJaggedArray2 { get; set; }
+                public TreeNode[][][] TreeNodeJaggedArray3 { get; set; }
+            }
+
+            public class MultiDimensionalArrayHolder
+            {
+                public int[,] Matrix2 { get; set; }
+                public int[,,] Matrix3 { get; set; }
+                public int[,][,] Matrix4 { get; set; }
+                public int[][,][,] Matrix5 { get; set; }
+                public int[,][,][][] Matrix6 { get; set; }
+            }
+
+            public class NestedArrayHolder
+            {
+                public int Data { get; set; }
+                public NestedArrayHolder[] Children { get; set; }
+            }
+
             public class SimpleTypesArraysHolder
             {
                 public bool[] BooleanArray { get; set; }
@@ -66,30 +90,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
                 public int[][][] JaggedIntArray3 { get; set; }
                 public long[][][][] JaggedLongArray4 { get; set; }
                 public short[][][][][] JaggedShortArray5 { get; set; }
-            }
-
-            public class MultiDimensionalArrayHolder
-            {
-                public int[,] Matrix2 { get; set; }
-                public int[,,] Matrix3 { get; set; }
-                public int[,][,] Matrix4 { get; set; }
-                public int[][,][,] Matrix5 { get; set; }
-                public int[,][,][][] Matrix6 { get; set; }
-            }
-
-            public class CustomTypesArraysHolder
-            {
-                public EnumInt16[] EnumArrayWithDimension1 { get; set; }
-                public EnumInt16[][] JaggedEnumArray { get; set; }
-
-                public Tree[][] TreeJaggedArray2 { get; set; }
-                public TreeNode[][][] TreeNodeJaggedArray3 { get; set; }
-            }
-
-            public class NestedArrayHolder
-            {
-                public int Data { get; set; }
-                public NestedArrayHolder[] Children { get; set; }
             }
         }
     }

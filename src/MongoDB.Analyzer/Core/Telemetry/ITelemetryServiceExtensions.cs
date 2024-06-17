@@ -54,11 +54,11 @@ internal static class ITelemetryServiceExtensions
         telemetryService.Event("Analysis Started", data);
     }
 
+    public static void BuildersAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
+    telemetryService.Event("Builders analyzed", analysisStatistics.ToKeyValues());
+
     public static void LinqAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
         telemetryService.Event("LINQ analyzed", analysisStatistics.ToKeyValues());
-
-    public static void BuildersAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
-        telemetryService.Event("Builders analyzed", analysisStatistics.ToKeyValues());
 
     public static void PocoAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
         telemetryService.Event("POCOs analyzed", analysisStatistics.ToKeyValues());

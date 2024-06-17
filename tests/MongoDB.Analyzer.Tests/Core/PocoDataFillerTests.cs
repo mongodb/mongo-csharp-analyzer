@@ -23,13 +23,26 @@ namespace MongoDB.Analyzer.Tests.Core;
 public sealed class PocoDataFillerTests
 {
     [DataTestMethod]
-    public void TestSimplePoco()
+    public void TestCollectionHolder()
     {
-        var poco = new Address();
+        var poco = new ListsHolder();
         PocoDataFiller.PopulatePoco(poco);
-        Assert.AreEqual(poco.City, "Dallas");
-        Assert.AreEqual(poco.Province, "Lombardy");
-        Assert.AreEqual(poco.ZipCode, "60601");
+
+        CollectionAssert.AreEqual(poco.PesonsList, new List<Person>(0));
+        CollectionAssert.AreEqual(poco.StringList, new List<string>(0));
+        CollectionAssert.AreEqual(poco.NestedListsHolderList, new List<ListsHolder>(0));
+        CollectionAssert.AreEqual((List<int>)poco.IntIList, new List<int>(0));
+        CollectionAssert.AreEqual((List<int>)poco.IntIList, new List<int>(0));
+        CollectionAssert.AreEqual((List<ListsHolder>)poco.NestedListsHolderIList, new List<ListsHolder>(0));
+    }
+
+    [DataTestMethod]
+    public void TestMultiDimentionalArrayHolder()
+    {
+        var poco = new MultiDimentionalArrayHolder();
+        PocoDataFiller.PopulatePoco(poco);
+        CollectionAssert.AreEqual(poco.Matrix2, new int[,] { });
+        CollectionAssert.AreEqual(poco.Matrix3, new int[,,] { });
     }
 
     [DataTestMethod]
@@ -47,43 +60,6 @@ public sealed class PocoDataFillerTests
         Assert.AreEqual(poco.Vehicle.VehicleType.MPG, 3.0);
         Assert.AreEqual(poco.Vehicle.VehicleType.Type, VehicleTypeEnum.Bus);
         Assert.AreEqual(poco.Vehicle.VehicleType.VehicleMake.Name, "Benjamin");
-    }
-
-    [DataTestMethod]
-    public void TestCollectionHolder()
-    {
-        var poco = new ListsHolder();
-        PocoDataFiller.PopulatePoco(poco);
-
-        CollectionAssert.AreEqual(poco.PesonsList, new List<Person>(0));
-        CollectionAssert.AreEqual(poco.StringList, new List<string>(0));
-        CollectionAssert.AreEqual(poco.NestedListsHolderList, new List<ListsHolder>(0));
-        CollectionAssert.AreEqual((List<int>)poco.IntIList, new List<int>(0));
-        CollectionAssert.AreEqual((List<int>)poco.IntIList, new List<int>(0));
-        CollectionAssert.AreEqual((List<ListsHolder>)poco.NestedListsHolderIList, new List<ListsHolder>(0));
-    }
-
-    [DataTestMethod]
-    public void TestSimpleArrayHolder()
-    {
-        var poco = new SimpleTypesArraysHolder();
-        PocoDataFiller.PopulatePoco(poco);
-        CollectionAssert.AreEqual(poco.ByteArray, new byte[] {});
-        CollectionAssert.AreEqual(poco.IntArray, new int[] { });
-        CollectionAssert.AreEqual(poco.ObjectArray, new object[] { });
-        CollectionAssert.AreEqual(poco.JaggedStringArray2, new string[][] { });
-        CollectionAssert.AreEqual(poco.JaggedIntArray3, new int[][][] { });
-        CollectionAssert.AreEqual(poco.JaggedLongArray4, new long[][][][] { });
-        CollectionAssert.AreEqual(poco.JaggedShortArray5, new short[][][][][] { });
-    }
-
-    [DataTestMethod]
-    public void TestMultiDimentionalArrayHolder()
-    {
-        var poco = new MultiDimentionalArrayHolder();
-        PocoDataFiller.PopulatePoco(poco);
-        CollectionAssert.AreEqual(poco.Matrix2, new int[,] { });
-        CollectionAssert.AreEqual(poco.Matrix3, new int[,,] { });
     }
 
     [DataTestMethod]
@@ -163,6 +139,30 @@ public sealed class PocoDataFillerTests
         Assert.AreEqual(poco.Right.Right.Left.Right, null);
         Assert.AreEqual(poco.Right.Right.Right.Left, null);
         Assert.AreEqual(poco.Right.Right.Right.Right, null);
+    }
+
+    [DataTestMethod]
+    public void TestSimpleArrayHolder()
+    {
+        var poco = new SimpleTypesArraysHolder();
+        PocoDataFiller.PopulatePoco(poco);
+        CollectionAssert.AreEqual(poco.ByteArray, new byte[] { });
+        CollectionAssert.AreEqual(poco.IntArray, new int[] { });
+        CollectionAssert.AreEqual(poco.ObjectArray, new object[] { });
+        CollectionAssert.AreEqual(poco.JaggedStringArray2, new string[][] { });
+        CollectionAssert.AreEqual(poco.JaggedIntArray3, new int[][][] { });
+        CollectionAssert.AreEqual(poco.JaggedLongArray4, new long[][][][] { });
+        CollectionAssert.AreEqual(poco.JaggedShortArray5, new short[][][][][] { });
+    }
+
+    [DataTestMethod]
+    public void TestSimplePoco()
+    {
+        var poco = new Address();
+        PocoDataFiller.PopulatePoco(poco);
+        Assert.AreEqual(poco.City, "Dallas");
+        Assert.AreEqual(poco.Province, "Lombardy");
+        Assert.AreEqual(poco.ZipCode, "60601");
     }
 
     [DataTestMethod]

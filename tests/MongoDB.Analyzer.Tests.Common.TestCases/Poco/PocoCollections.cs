@@ -19,13 +19,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoCollections : TestCasesBase
     {
-        [PocoJson("{ \"IntList\" : [], \"PesonsList\" : [], \"StringList\" : [], \"NestedListsHolderList\" : [], \"IntIList\" : [], \"NestedListsHolderIList\" : [] }")]
-        public void ListsHolder()
+        [PocoJson("{ \"Enumerable1\" : [], \"Enumerable2\" : [] }")]
+        public void EnumerableHolder()
         {
         }
 
-        [PocoJson("{ \"Enumerable1\" : [], \"Enumerable2\" : [] }")]
-        public void EnumerableHolder()
+        [PocoJson("{ \"IntList\" : [], \"PesonsList\" : [], \"StringList\" : [], \"NestedListsHolderList\" : [], \"IntIList\" : [], \"NestedListsHolderIList\" : [] }")]
+        public void ListsHolder()
         {
         }
 
@@ -36,6 +36,12 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 
         public class TestClasses
         {
+            public class EnumerableHolder
+            {
+                public IEnumerable<int> Enumerable1 { get; set; }
+                public System.Collections.Generic.IEnumerable<EnumerableHolder> Enumerable2 { get; set; }
+            }
+
             public class ListsHolder
             {
                 public List<int> IntList { get; set; }
@@ -45,12 +51,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 
                 public IList<int> IntIList { get; set; }
                 public System.Collections.Generic.IList<ListsHolder> NestedListsHolderIList { get; set; }
-            }
-
-            public class EnumerableHolder
-            {
-                public IEnumerable<int> Enumerable1 { get; set; }
-                public System.Collections.Generic.IEnumerable<EnumerableHolder> Enumerable2 { get; set; }
             }
 
             public class NestedCollectionHolder

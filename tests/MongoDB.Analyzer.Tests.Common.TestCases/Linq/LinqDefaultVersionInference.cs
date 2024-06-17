@@ -19,14 +19,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqDefaultVersionInference : TestCasesBase
     {
-        // DriverVersion = (,2.14.0-beta1]
-        // DefaultLinqProvider = V2
-        [InvalidLinq("{document}{Name}.Trim() is not supported.", DriverVersions.Linq2OrLower, LinqVersion.V2)]
-        // DefaultLinqProvider = V3
-        [InvalidLinq("{document}{Name}.Trim() is not supported.", DriverVersions.Linq2OrLower, LinqVersion.V3)]
-        // DefaultLinqProvider = Undefined
-        [InvalidLinq("{document}{Name}.Trim() is not supported.", DriverVersions.Linq2OrLower, LinqVersion.Undefined)]
-        public void Expression_should_not_be_supported_in_LINQ2_only()
+        //// DriverVersion = [2.19.0,)
+        //// DefaultLinqProvider = V2
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])", version: DriverVersions.Linq3DefaultOrGreater)]
+        //// DefaultLinqProvider = V3
+        [MQL("db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])", DriverVersions.Linq3DefaultOrGreater, LinqVersion.V3)]
+        //// DefaultLinqProvider = Undefined
+        [MQL("db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])", DriverVersions.Linq3DefaultOrGreater, LinqVersion.Undefined)]
+        public void Expression_should_be_supported_in_default_LINQ3()
         {
             _ = GetMongoQueryable()
                 .Where(u => u.Name.Trim() == "123");
@@ -34,7 +34,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 
         // DriverVersion = [2.14.0-beta1, 2.19.0)
         // DefaultLinqProvider = V2
-        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])", version: DriverVersions.Linq3NonDefault, linqVersion:LinqVersion.V2)]
+        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])", version: DriverVersions.Linq3NonDefault, linqVersion: LinqVersion.V2)]
         // DefaultLinqProvider = V3
         [MQL("db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])", DriverVersions.Linq3NonDefault, LinqVersion.V3)]
         // DefaultLinqProvider = Undefined
@@ -45,14 +45,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(u => u.Name.Trim() == "123");
         }
 
-        //// DriverVersion = [2.19.0,)
-        //// DefaultLinqProvider = V2
-        [NotSupportedLinq2("Supported in LINQ3 only: db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])", version: DriverVersions.Linq3DefaultOrGreater)]
-        //// DefaultLinqProvider = V3
-        [MQL("db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])", DriverVersions.Linq3DefaultOrGreater, LinqVersion.V3)]
-        //// DefaultLinqProvider = Undefined
-        [MQL("db.coll.Aggregate([{ \"$match\" : { \"Name\" : /^\\s*(?!\\s)123(?<!\\s)\\s*$/s } }])", DriverVersions.Linq3DefaultOrGreater, LinqVersion.Undefined)]
-        public void Expression_should_be_supported_in_default_LINQ3()
+        // DriverVersion = (,2.14.0-beta1]
+        // DefaultLinqProvider = V2
+        [InvalidLinq("{document}{Name}.Trim() is not supported.", DriverVersions.Linq2OrLower, LinqVersion.V2)]
+        // DefaultLinqProvider = V3
+        [InvalidLinq("{document}{Name}.Trim() is not supported.", DriverVersions.Linq2OrLower, LinqVersion.V3)]
+        // DefaultLinqProvider = Undefined
+        [InvalidLinq("{document}{Name}.Trim() is not supported.", DriverVersions.Linq2OrLower, LinqVersion.Undefined)]
+        public void Expression_should_not_be_supported_in_LINQ2_only()
         {
             _ = GetMongoQueryable()
                 .Where(u => u.Name.Trim() == "123");

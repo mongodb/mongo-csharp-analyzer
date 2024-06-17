@@ -52,6 +52,11 @@ internal sealed class SegmentTelemetryService : ITelemetryService
     {
     }
 
+    public void Event(string eventName, params (string, object)[] data)
+    {
+        _events.Add((eventName, data));
+    }
+
     public void Flush()
     {
         foreach (var (eventName, data) in _events)
@@ -61,11 +66,6 @@ internal sealed class SegmentTelemetryService : ITelemetryService
 
             Analytics.Client.Track(s_userId, eventName, traits);
         }
-    }
-
-    public void Event(string eventName, params (string, object)[] data)
-    {
-        _events.Add((eventName, data));
     }
 
     private void Initialize(string secret)

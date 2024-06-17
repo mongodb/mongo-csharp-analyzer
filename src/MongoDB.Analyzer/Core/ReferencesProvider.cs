@@ -21,6 +21,8 @@ internal static class ReferencesProvider
 
     private static readonly string[] s_additionalDependencies = new[] { "System.Runtime.dll" };
 
+    private static readonly ConcurrentDictionary<Version, IDictionary<string, string>> s_mongodbAssemblyPaths = new();
+
     private static readonly HashSet<string> s_mongodbDriverAssemblies = new(new[]
     {
         "MongoDB.Bson.dll",
@@ -28,7 +30,8 @@ internal static class ReferencesProvider
         "MongoDB.Driver.dll"
     });
 
-    private static readonly ConcurrentDictionary<Version, IDictionary<string, string>> s_mongodbAssemblyPaths = new();
+    public static string GetDriverVersion(Assembly assembly) =>
+        assembly.GetReferencedAssemblies().FirstOrDefault(a => a.Name.Contains("MongoDB"))?.Version?.ToString();
 
     public static Version GetMongoDBDriverVersion(IEnumerable<MetadataReference> metadataReferences)
     {
@@ -117,22 +120,6 @@ internal static class ReferencesProvider
         .Where(r => s_mongodbDriverAssemblies.Contains(Path.GetFileName(r.FilePath)))
         .ToArray();
 
-    private static string GetNetStandardPath(IEnumerable<MetadataReference> metadataReferences)
-    {
-        var netStandardDllPath = Path.Combine(Path.GetFullPath(Path.Combine(typeof(object).Assembly.Location, "..\\")), NetstandardDll);
-        if (File.Exists(netStandardDllPath))
-        {
-            return netStandardDllPath;
-        }
-        else
-        {
-            return metadataReferences
-                .OfType<PortableExecutableReference>()
-                .FirstOrDefault(r => r.FilePath.Contains(NetstandardDll))?
-                .FilePath;
-        }
-    }
-
     private static (Version, IDictionary<string, string>, string MissingAssembly) GetNetstandard20DriverAssemblyLocation(PortableExecutableReference[] driverReferences)
     {
         IDictionary<string, string> nameToPathMapping = null;
@@ -172,6 +159,19 @@ internal static class ReferencesProvider
         return (version, nameToPathMapping, null);
     }
 
-    public static string GetDriverVersion(Assembly assembly) =>
-        assembly.GetReferencedAssemblies().FirstOrDefault(a => a.Name.Contains("MongoDB"))?.Version?.ToString();
+    private static string GetNetStandardPath(IEnumerable<MetadataReference> metadataReferences)
+    {
+        var netStandardDllPath = Path.Combine(Path.GetFullPath(Path.Combine(typeof(object).Assembly.Location, "..\\")), NetstandardDll);
+        if (File.Exists(netStandardDllPath))
+        {
+            return netStandardDllPath;
+        }
+        else
+        {
+            return metadataReferences
+                .OfType<PortableExecutableReference>()
+                .FirstOrDefault(r => r.FilePath.Contains(NetstandardDll))?
+                .FilePath;
+        }
+    }
 }

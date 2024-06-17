@@ -20,6 +20,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersCollections : TestCasesBase
     {
+        [BuildersMQL("{ \"$or\" : [{ \"Enumerable1.0\" : 2 }, { \"Enumerable2.1.Enumerable1.0\" : 2 }] }")]
+        public void Enumerables()
+        {
+            _ = Builders<EnumerableHolder>.Filter.Eq(t => t.Enumerable1.ElementAt(0), 2) |
+                Builders<EnumerableHolder>.Filter.Eq(t => t.Enumerable2.ElementAt(1).Enumerable1.ElementAt(0), 2);
+        }
+
         [BuildersMQL("{ \"$or\" : [{ \"IntList.2\" : 1 }, { \"StringList.3\" : \"Value\" }, { \"PesonsList.4.Name\" : \"Bob\" }, { \"NestedListsHolderList.5.IntList.1\" : 1 }, { \"IntIList.4\" : 3 }, { \"NestedListsHolderIList.15.IntList.3\" : 3 }] }")]
         public void Lists()
         {
@@ -29,13 +36,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<ListsHolder>.Filter.Eq(t => t.NestedListsHolderList[5].IntList[1], 1) |
                 Builders<ListsHolder>.Filter.Eq(t => t.IntIList[4], 3) |
                 Builders<ListsHolder>.Filter.Eq(t => t.NestedListsHolderIList[15].IntList[3], 3);
-        }
-
-        [BuildersMQL("{ \"$or\" : [{ \"Enumerable1.0\" : 2 }, { \"Enumerable2.1.Enumerable1.0\" : 2 }] }")]
-        public void Enumerables()
-        {
-            _ = Builders<EnumerableHolder>.Filter.Eq(t => t.Enumerable1.ElementAt(0), 2) |
-                Builders<EnumerableHolder>.Filter.Eq(t => t.Enumerable2.ElementAt(1).Enumerable1.ElementAt(0), 2);
         }
     }
 }
