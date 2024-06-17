@@ -25,17 +25,17 @@ internal static class DriverVersionHelper
     static DriverVersionHelper()
     {
         var driverVersion = Environment.GetEnvironmentVariable("DRIVER_VERSION");
-        //DriverVersions = new[] { NuGetVersion.Parse(driverVersion) };
+        DriverVersions = new[] { NuGetVersion.Parse(driverVersion) };
 
         // For running tests in IDE with specific driver version, either set DRIVER_VERSION or adjust DriverVersions explicitly
-        DriverVersions = new[]
-        {
-           NuGetVersion.Parse("2.12.4"),
-           NuGetVersion.Parse("2.18.0"),
-           NuGetVersion.Parse("2.19.0"),
-           NuGetVersion.Parse("2.21.0"),
-           NuGetVersion.Parse("2.25.0")
-         };
+        //DriverVersions = new[]
+        //{
+        //   NuGetVersion.Parse("2.12.4"),
+        //   NuGetVersion.Parse("2.18.0"),
+        //   NuGetVersion.Parse("2.19.0"),
+        //   NuGetVersion.Parse("2.21.0"),
+        //   NuGetVersion.Parse("2.25.0")
+        // }
     }
 
     public static NuGetVersion[] FilterVersionForRange(string versionRange)
