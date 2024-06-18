@@ -55,6 +55,12 @@ internal static class BuilderExpressionProcessor
                         collectionNode = expressionNode
                             .NestedInvocations()
                             .FirstOrDefault(n => semanticModel.GetTypeInfo(n).Type.IsSupportedIMongoCollection());
+
+                        if (collectionNode == null)
+                        {
+                            continue;
+                        }
+
                         break;
                     }
                 case NodeType.Invalid:
