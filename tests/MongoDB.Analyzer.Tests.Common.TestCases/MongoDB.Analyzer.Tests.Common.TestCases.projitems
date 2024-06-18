@@ -13,6 +13,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Jira\VS78.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\*.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Poco\*.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Jira\VS114.cs" />
   </ItemGroup>
 </Project>

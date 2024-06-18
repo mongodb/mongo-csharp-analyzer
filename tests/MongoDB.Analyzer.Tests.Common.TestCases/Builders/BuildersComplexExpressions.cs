@@ -16,13 +16,9 @@ using System;
 using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver;
 
-// DO NOT INCLUDE 'MongoDB.Driver.Linq' USING IN THIS FILE.
-// The tests test IMongoQueryable type inference without direct MongoDB.Driver.Linq reference.
-
-
-namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
+namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
-    internal sealed class VS114 : TestCasesBase
+    public sealed class BuildersComplexExpressions : TestCasesBase
     {
         [NoDiagnostics]
         public void SortByFluentFunction()
@@ -70,4 +66,3 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
         }
     }
 }
-

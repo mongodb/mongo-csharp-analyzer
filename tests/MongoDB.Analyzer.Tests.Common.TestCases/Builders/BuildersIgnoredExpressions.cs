@@ -21,6 +21,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersIgnoredExpressions : TestCasesBase
     {
+        [BuildersMQL("{ \"Address.City\" : \"Vienna\" }")]
+        public void Simple_valid_expression_as_baseline_1()
+        {
+            var person = new Person();
+            _ = Builders<Person>.Filter.Eq(t => t.Address.City, "Vienna");
+        }
+
         [NoDiagnostics]
         public void Arrays_reference_should_be_ignored()
         {
@@ -62,7 +69,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         }
 
         [BuildersMQL("{ \"Address.City\" : \"Vienna\" }")]
-        public void Simple_valid_expression_as_baseline()
+        public void Simple_valid_expression_as_baseline_2()
         {
             var person = new Person();
             _ = Builders<Person>.Filter.Eq(t => t.Address.City, "Vienna");
