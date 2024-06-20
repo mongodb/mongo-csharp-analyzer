@@ -27,10 +27,6 @@
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-  </PropertyGroup>
-
   <ItemGroup>
     <None Include="..\..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
