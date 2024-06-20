@@ -41,14 +41,14 @@ internal static class BuilderExpressionProcessor
 
         foreach (var node in root.DescendantNodesWithSkipList(nodesProcessed))
         {
-            SyntaxNode[] nodesToRewrite = null;
+            IEnumerable<SyntaxNode> nodesToRewrite = null;
             var (nodeType, namedType, expressionNode) = GetNodeType(semanticModel, node);
 
             switch (nodeType)
             {
                 case NodeType.Builders:
                     {
-                        nodesToRewrite = GetBuildersDefinitionNodes(semanticModel, expressionNode).ToArray();
+                        nodesToRewrite = GetBuildersDefinitionNodes(semanticModel, expressionNode);
                         break;
                     }
                 case NodeType.Fluent:

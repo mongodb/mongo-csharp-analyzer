@@ -23,12 +23,12 @@ internal static class ExpressionProcessor
     public record RewriteContext(
         AnalysisType AnalysisType,
         SyntaxNode Expression,
-        SyntaxNode[] RootNodes,
+        IEnumerable<SyntaxNode> RootNodes,
         SemanticModel SemanticModel,
         TypesProcessor TypesProcessor,
         ConstantsMapper ConstantsMapper)
     {
-        public static RewriteContext Builders(SyntaxNode Expression, SyntaxNode[] RootNodes, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
+        public static RewriteContext Builders(SyntaxNode Expression, IEnumerable<SyntaxNode> RootNodes, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
             new(AnalysisType.Builders, Expression, RootNodes, SemanticModel, TypesProcessor, new());
 
         public static RewriteContext Linq(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
