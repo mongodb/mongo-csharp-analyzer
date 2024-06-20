@@ -53,9 +53,17 @@ internal static class BuilderExpressionProcessor
                     }
                 case NodeType.Fluent:
                     {
-                        nodesToRewrite = new SyntaxNode[] {expressionNode
+                        var collectionNode = expressionNode
                             .NestedInvocations()
-                            .FirstOrDefault(n => semanticModel.GetTypeInfo(n).Type.IsSupportedIMongoCollection()) };
+                            .FirstOrDefault(n => semanticModel.GetTypeInfo(n).Type.IsSupportedIMongoCollection());
+
+                        if (collectionNode == null)
+                        {
+                            continue;
+                        }
+
+                        nodesToRewrite = new SyntaxNode[] {collectionNode};
+
                         break;
                     }
                 case NodeType.Invalid:
