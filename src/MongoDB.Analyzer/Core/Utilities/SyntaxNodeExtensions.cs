@@ -69,7 +69,7 @@ internal static class SyntaxNodeExtensions
     public static MethodDeclarationSyntax GetSingleMethod(this SyntaxNode syntaxNode, string name) =>
         syntaxNode.DescendantNodes().OfType<MethodDeclarationSyntax>().Single(m => m.Identifier.Text == name);
 
-    public static SyntaxNode GetTopMostInvocationOrBinaryExpressionSyntax(SimpleNameSyntax identifier, IdentifierNameSyntax[] lambdaAndQueryIdentifiers)
+    public static SyntaxNode GetTopMostInvocationOrBinaryExpressionSyntax(NameSyntax identifier, IdentifierNameSyntax[] lambdaAndQueryIdentifiers)
     {
         SyntaxNode previous = null;
         SyntaxNode result = identifier;
@@ -119,7 +119,7 @@ internal static class SyntaxNodeExtensions
         return result;
     }
 
-    public static bool IsLeaf(this SimpleNameSyntax identifier)
+    public static bool IsLeaf(this NameSyntax identifier)
     {
         // parent is access expression
         if (identifier.Parent is MemberAccessExpressionSyntax memberAccessExpressionSyntax)

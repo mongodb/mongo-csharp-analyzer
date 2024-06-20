@@ -76,6 +76,23 @@ internal static class SymbolExtensions
             _ => (false, typeSymbol)
         };
 
+    public static string GetBuilderDefinitionName(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.Name switch
+        {
+            "FilterDefinitionBuilder" => "Filter",
+            "IndexKeysDefinitionBuilder" => "IndexKeys",
+            "IndexKeysDefinitionExtensions" => "IndexKeys",
+            "ProjectionDefinitionBuilder" => "Projection",
+            "ProjectionDefinitionExtensions" => "Projection",
+            "PipelineDefinitionBuilder" => "Projection",
+            "SearchDefinitionBuilder" => "Search",
+            "SearchSpanDefinitionBuilder" => "SearchSpan",
+            "SortDefinitionBuilder" => "Sort",
+            "SortDefinitionExtensions" => "Sort",
+            "UpdateDefinitionBuilder" => "Update",
+            _ => null
+        };
+
     public static SyntaxToken[] GetFieldModifiers(this IFieldSymbol fieldSymbol) =>
         fieldSymbol.IsReadOnly ? GetReadOnlyPublicFieldModifiers() : GetPublicFieldModifiers();
 
@@ -95,11 +112,15 @@ internal static class SymbolExtensions
             "ProjectionDefinitionExtensions" or
             "PipelineDefinitionBuilder" or
             "SearchDefinitionBuilder" or
+            "SearchSpanDefinitionBuilder" or
             "SortDefinitionBuilder" or
             "SortDefinitionExtensions" or
             "UpdateDefinitionBuilder" => true,
             _ => false
         };
+
+    public static bool IsBuildersContainer(this INamedTypeSymbol namedSymbol) =>
+        namedSymbol?.Name == "Builders" && IsDefinedInMongoDriver(namedSymbol);
 
     public static bool IsBuilderDefinition(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
@@ -134,6 +155,8 @@ internal static class SymbolExtensions
         _ => symbol.IsContainedInLambda(parentNode)
     };
 
+    public static bool IsDefinedInMongoDriver(this ISymbol symbol) => symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
+
     public static bool IsDefinedInMongoLinqOrSystemLinq(this ISymbol symbol)
     {
         var containingNamespace = symbol?.ContainingNamespace?.ToDisplayString();
@@ -144,6 +167,8 @@ internal static class SymbolExtensions
             containingNamespace == NamespaceMongoDBLinq &&
             symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
     }
+
+    public static bool IsDefinedInSystem(this ISymbol symbol) => symbol?.ContainingNamespace?.ToDisplayString().StartsWith(NamespaceSystem) ?? false;
 
     public static bool IsFindFluent(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
