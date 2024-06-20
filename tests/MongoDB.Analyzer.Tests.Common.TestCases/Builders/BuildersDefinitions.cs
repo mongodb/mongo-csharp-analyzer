@@ -43,7 +43,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
         [BuildersMQL("{ \"Scores.1\" : 100, \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
         [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
-        [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
         public void FilterDefinition()
         {
             var filterDefinition = Builders<User>.Filter;
@@ -65,17 +64,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<User>.Filter.Gt(u => u.Age, 20) |
                 (filterDefinition.Ne(u => u.Name, "Bob") &
                  filterDefinition.Exists(u => u.LastName));
-
-            _ = MongoDB.Driver.Builders<MongoDB.Analyzer.Tests.Common.DataModel.User>.Filter.Eq(u => u.Name, "User Name1");
-
-            //_ = GetMongoCollection<VehicleType>().AsQueryable()
-            //    .Where(v => v.MPG > 20)
-            //    .Select(v => new System.Collections.Generic.List<VehicleTypeEnum> { VehicleTypeEnum.Bus, VehicleTypeEnum.Car, VehicleTypeEnum.Motorcylce });
-
-            //_ = _ = GetMongoCollection().AsQueryable()
-            //    .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-            //    .Where(u => u.Height == 180)
-            //    .Select(u => new MongoDB.Analyzer.Tests.Common.DataModel.User { Scores = u.Scores });
         }
 
         [BuildersMQL("{ \"Address\" : -1 }")]

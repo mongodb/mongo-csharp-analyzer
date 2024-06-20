@@ -122,14 +122,13 @@ internal static class ExpressionProcessor
         var processGenerics = false;
         var removeFluentParameters = false;
         IdentifierNameSyntax[] lambdaAndQueryIdentifiers = null;
-        NameSyntax[] expressionDescendants;
+        SimpleNameSyntax[] expressionDescendants;
 
         switch (rewriteContext.AnalysisType)
         {
             case AnalysisType.Builders:
                 {
-                    //Capture QualifiedNameSyntax and SimpleNameSyntax(Identifiers and Generic Names)
-                    expressionDescendants = expressionNode.DescendantNodesWithSkipList<NameSyntax>(nodesProcessed).ToArray();
+                    expressionDescendants = expressionNode.DescendantNodesWithSkipList<SimpleNameSyntax>(nodesProcessed).ToArray();
                     processGenerics = true;
                     removeFluentParameters = true;
                     break;
@@ -156,16 +155,21 @@ internal static class ExpressionProcessor
                 throw new ArgumentOutOfRangeException(nameof(rewriteContext.AnalysisType), rewriteContext.AnalysisType, "Unsupported analysis type");
         }
 
-        foreach (var qualifiedNameOrIdentifier in expressionDescendants)
+        foreach (var identifierNode in expressionDescendants)
         {
-            if (rootNodes.Contains(qualifiedNameOrIdentifier) ||
-                !qualifiedNameOrIdentifier.IsLeaf() ||
-                nodesProcessed.Any(e => e.Contains(qualifiedNameOrIdentifier)))
+            if (rootNodes.Contains(identifierNode) ||
+                !identifierNode.IsLeaf() ||
+                nodesProcessed.Any(e => e.Contains(identifierNode)))
             {
                 continue;
             }
 
-            var nodeToHandle = SyntaxNodeExtensions.GetTopMostInvocationOrBinaryExpressionSyntax(qualifiedNameOrIdentifier, lambdaAndQueryIdentifiers);
+            var nodeToHandle = SyntaxNodeExtensions.GetTopMostInvocationOrBinaryExpressionSyntax(identifierNode, lambdaAndQueryIdentifiers);
+
+            if (nodeToHandle != identifierNode)
+            {
+                nodesProcessed.Add(nodeToHandle);
+            }
 
             var symbolInfo = rewriteContext.SemanticModel.GetSymbolInfo(nodeToHandle);
             if (symbolInfo.Symbol == null)
@@ -183,7 +187,7 @@ internal static class ExpressionProcessor
                 {
                     SymbolKind.Field => HandleField(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
                     SymbolKind.Method => HandleMethod(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
-                    SymbolKind.NamedType => HandleRemappedType(rewriteContext, nodeToHandle, typeInfo, processGenerics),
+                    SymbolKind.NamedType => HandleRemappedType(rewriteContext, identifierNode, typeInfo, processGenerics),
                     SymbolKind.Local or
                     SymbolKind.Parameter or
                     SymbolKind.Property => SubstituteExpressionWithConstant(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
@@ -201,7 +205,6 @@ internal static class ExpressionProcessor
                         }
 
                         nodesRemapping[rewriteResult.NodeToReplace] = rewriteResult.NewNode;
-                        nodesProcessed.Add(nodeToHandle);
                         break;
                     }
                 case RewriteAction.Invalid:
@@ -382,16 +385,16 @@ internal static class ExpressionProcessor
 
     private static RewriteResult HandleRemappedType(
         RewriteContext rewriteContext,
-        SyntaxNode qualifiedNameOrIdentifier,
+        SyntaxNode identifierNode,
         TypeInfo typeInfo,
         bool processGenericTypes = false)
     {
-        var remappedType = processGenericTypes && qualifiedNameOrIdentifier is GenericNameSyntax ?
+        var remappedType = processGenericTypes && identifierNode is GenericNameSyntax ?
             rewriteContext.TypesProcessor.ProcessTypeSymbol(typeInfo.Type) :
             rewriteContext.TypesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeInfo.Type);
 
         var result = remappedType != null ?
-            new(qualifiedNameOrIdentifier, SyntaxFactory.IdentifierName(remappedType)) :
+            new(identifierNode, SyntaxFactory.IdentifierName(remappedType)) :
             RewriteResult.Invalid;
 
         return result;
