@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using MongoDB.Analyzer.Core.HelperResources;
-using static MongoDB.Analyzer.Core.ExpressionProcessor;
 using TypeInfo = Microsoft.CodeAnalysis.TypeInfo;
 
 namespace MongoDB.Analyzer.Core;
