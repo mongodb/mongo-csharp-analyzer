@@ -168,8 +168,6 @@ internal static class SymbolExtensions
             symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
     }
 
-    public static bool IsDefinedInSystem(this ISymbol symbol) => symbol?.ContainingNamespace?.ToDisplayString().StartsWith(NamespaceSystem) ?? false;
-
     public static bool IsFindFluent(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
         {
