@@ -164,7 +164,6 @@ internal static class ExpressionProcessor
             }
 
             var nodeToHandle = SyntaxNodeExtensions.GetTopMostInvocationOrBinaryExpressionSyntax(identifierNode, lambdaAndQueryIdentifiers);
-
             if (nodeToHandle != identifierNode)
             {
                 nodesProcessed.Add(nodeToHandle);
@@ -384,7 +383,7 @@ internal static class ExpressionProcessor
 
     private static RewriteResult HandleRemappedType(
         RewriteContext rewriteContext,
-        SyntaxNode identifierNode,
+        SimpleNameSyntax identifierNode,
         TypeInfo typeInfo,
         bool processGenericTypes = false)
     {
