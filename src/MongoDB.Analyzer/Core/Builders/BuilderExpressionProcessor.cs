@@ -48,7 +48,7 @@ internal static class BuilderExpressionProcessor
             {
                 case NodeType.Builders:
                     {
-                        nodesToRewrite = GetBuildersDefinitionNodes(semanticModel, expressionNode);
+                        nodesToRewrite = GetBuildersDefinitionNodes(semanticModel, expressionNode).ToArray();
                         break;
                     }
                 case NodeType.Fluent:
@@ -124,7 +124,7 @@ internal static class BuilderExpressionProcessor
         return builderAnalysis;
     }
 
-    private static SyntaxNode[] GetBuildersDefinitionNodes(SemanticModel semanticModel, SyntaxNode expressionNode)
+    private static IEnumerable<SyntaxNode> GetBuildersDefinitionNodes(SemanticModel semanticModel, SyntaxNode expressionNode)
     {
         var nodesProcessed = new HashSet<SyntaxNode>();
         var builderDefinitionNodes = new List<SyntaxNode>();
@@ -150,7 +150,7 @@ internal static class BuilderExpressionProcessor
             }
         }
 
-        return builderDefinitionNodes.ToArray();
+        return builderDefinitionNodes;
     }
 
     private static (NodeType NodeType, INamedTypeSymbol NamedSymbol, SyntaxNode ExpressionNode) GetNodeType(SemanticModel semanticModel, SyntaxNode node)
