@@ -51,6 +51,10 @@ public sealed class BuildersTests : DiagnosticsTestCasesRunner
     public Task ComplexDataModel(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersComplexExpressions))]
+    public Task ComplexExpressions(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersConstantsReplacement))]
     public Task ConstantsReplacement(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
