@@ -85,6 +85,10 @@ namespace BasicSample
 
             // MQL for the combined filter
             moviesCollection.Find(filterCombined);
+
+            // MQL for a builder defined in variable
+            var movieFilterBuilder = Builders<Movie>.Filter;
+            var filterReviews = movieFilterBuilder.Size(p => p.Reviews, 5);
         }
 
         public void NotSupportedFilter()
