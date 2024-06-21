@@ -155,7 +155,6 @@ internal static class ExpressionProcessor
                       .ToArray();
 
                     expressionDescendants = expressionNode.DescendantNodes(n => !rootNodes.Contains(n)).OfType<IdentifierNameSyntax>();
-                    processGenerics = false;
                     break;
                 }
             default:
