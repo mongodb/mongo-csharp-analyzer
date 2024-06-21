@@ -14,7 +14,7 @@
     <Authors>MongoDB Inc.</Authors>
     <Title>MongoDB.Analyzer</Title>
     <PackageIcon>packageIcon.png</PackageIcon>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.mongodb.com/docs/mongodb-analyzer/current/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mongodb/mongo-csharp-analyzer</RepositoryUrl>
     <PackageReleaseNotes>https://github.com/mongodb/mongo-csharp-analyzer/releases/tag/v$(Version)</PackageReleaseNotes>
@@ -27,13 +27,8 @@
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-  </PropertyGroup>
-
   <ItemGroup>
     <None Include="..\..\.editorconfig" Link=".editorconfig" />
-    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
   </ItemGroup>
 
   <ItemGroup>
