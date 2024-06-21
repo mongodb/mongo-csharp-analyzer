@@ -41,18 +41,19 @@ internal static class BuilderExpressionProcessor
 
         foreach (var node in root.DescendantNodesWithSkipList(nodesProcessed))
         {
-            SyntaxNode collectionNode = null;
+            IEnumerable<SyntaxNode> nodesToRewrite = null;
             var (nodeType, namedType, expressionNode) = GetNodeType(semanticModel, node);
 
             switch (nodeType)
             {
                 case NodeType.Builders:
                     {
+                        nodesToRewrite = GetBuildersDefinitionNodes(semanticModel, expressionNode);
                         break;
                     }
                 case NodeType.Fluent:
                     {
-                        collectionNode = expressionNode
+                        var collectionNode = expressionNode
                             .NestedInvocations()
                             .FirstOrDefault(n => semanticModel.GetTypeInfo(n).Type.IsSupportedIMongoCollection());
 
@@ -60,6 +61,8 @@ internal static class BuilderExpressionProcessor
                         {
                             continue;
                         }
+
+                        nodesToRewrite = new SyntaxNode[] {collectionNode};
 
                         break;
                     }
@@ -83,7 +86,7 @@ internal static class BuilderExpressionProcessor
                     typesProcessor.ProcessTypeSymbol(typeArgument);
                 }
 
-                var rewriteContext = RewriteContext.Builders(expressionNode, collectionNode, semanticModel, typesProcessor);
+                var rewriteContext = RewriteContext.Builders(expressionNode, nodesToRewrite, semanticModel, typesProcessor);
                 var (newBuildersExpression, constantsMapper) = RewriteExpression(rewriteContext);
 
                 if (newBuildersExpression != null)
@@ -127,6 +130,33 @@ internal static class BuilderExpressionProcessor
         context.Logger.Log($"Builders: Found {builderAnalysis.AnalysisNodeContexts.Length} expressions.");
 
         return builderAnalysis;
+    }
+
+    private static IEnumerable<SyntaxNode> GetBuildersDefinitionNodes(SemanticModel semanticModel, SyntaxNode expressionNode)
+    {
+        var nodesProcessed = new HashSet<SyntaxNode>();
+        var builderDefinitionNodes = new List<SyntaxNode>();
+
+        foreach (var node in expressionNode.DescendantNodesWithSkipList(nodesProcessed))
+        {
+            if (semanticModel.GetTypeInfo(node).Type.IsBuilder())
+            {
+                nodesProcessed.Add(node);
+
+                // Skip MongoDB.Driver.Builders<T> nodes
+                if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
+                    semanticModel.GetSymbolInfo(memberAccessExpressionSyntax.Expression).Symbol is INamedTypeSymbol namedTypeSymbol &&
+                    namedTypeSymbol.IsBuildersContainer() &&
+                    semanticModel.GetAliasInfo(memberAccessExpressionSyntax.Expression) == null)
+                {
+                    continue;
+                }
+
+                builderDefinitionNodes.Add(node);
+            }
+        }
+
+        return builderDefinitionNodes;
     }
 
     private static (NodeType NodeType, INamedTypeSymbol NamedSymbol, SyntaxNode ExpressionNode) GetNodeType(SemanticModel semanticModel, SyntaxNode node)

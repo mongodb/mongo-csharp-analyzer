@@ -18,6 +18,7 @@ internal static class MqlGeneratorSyntaxElements
 {
     internal static class Builders
     {
+        public const string BuildersName = "Builders";
         public const string CollectionName = "collection";
         public const string FilterName = "Gt";
         public const string GetDriverVersion = nameof(GetDriverVersion);
