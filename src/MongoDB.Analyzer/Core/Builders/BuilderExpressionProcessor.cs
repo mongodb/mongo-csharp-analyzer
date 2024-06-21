@@ -145,8 +145,6 @@ internal static class BuilderExpressionProcessor
 
                 // Skip MongoDB.Driver.Builders<T> nodes
                 if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
-                    semanticModel.GetSymbolInfo(memberAccessExpressionSyntax).Symbol is IPropertySymbol propertyTypeSymbol &&
-                    propertyTypeSymbol.IsDefinedInMongoDriver() &&
                     semanticModel.GetSymbolInfo(memberAccessExpressionSyntax.Expression).Symbol is INamedTypeSymbol namedTypeSymbol &&
                     namedTypeSymbol.IsBuildersContainer() &&
                     semanticModel.GetAliasInfo(memberAccessExpressionSyntax.Expression) == null)

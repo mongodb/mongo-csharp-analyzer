@@ -12,13 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//
-using System;
-using System.Linq;
-using MongoDB.Analyzer.Tests.Common.DataModel;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
-//
 
 using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver;
@@ -36,8 +29,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         public FilterDefinitionBuilder<User> GetFilterDefinitionBuilder() => Builders<User>.Filter;
         public static FilterDefinitionBuilder<User> GetFilterDefinitionBuilderStatic() => Builders<User>.Filter;
 
-        public BuildersDefinitions GetClass() => new BuildersDefinitions();
-        public static BuildersDefinitions GetClassStatic() => new BuildersDefinitions();
+        public BuildersDefinitions GetClass() => new();
+        public static BuildersDefinitions GetClassStatic() => new();
 
         [BuildersMQL("{ \"Name\" : \"User Name1\" }")]
         [BuildersMQL("{ \"$or\" : [{ \"Age\" : { \"$lt\" : 10 } }, { \"Age\" : { \"$gt\" : 20 } }, { \"Name\" : { \"$ne\" : \"Bob\" }, \"LastName\" : { \"$exists\" : true } }] }")]
@@ -190,6 +183,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = builder.Update.Set(u => u.Age, 22);
         }
     }
-    }
+}
 
 #pragma warning disable IDE0001

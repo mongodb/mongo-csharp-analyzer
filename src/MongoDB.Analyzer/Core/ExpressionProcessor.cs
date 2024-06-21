@@ -19,6 +19,14 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class ExpressionProcessor
 {
+    private enum RewriteAction
+    {
+        Unknown,
+        Rewrite,
+        Ignore,
+        Invalid
+    }
+
     public record RewriteContext(
         AnalysisType AnalysisType,
         SyntaxNode Expression,
@@ -32,14 +40,6 @@ internal static class ExpressionProcessor
 
         public static RewriteContext Linq(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
             new(AnalysisType.Linq, Expression, new SyntaxNode[] { RootNode }, SemanticModel, TypesProcessor, new());
-    }
-
-    private enum RewriteAction
-    {
-        Unknown,
-        Rewrite,
-        Ignore,
-        Invalid
     }
 
     private record RewriteResult(
@@ -56,9 +56,8 @@ internal static class ExpressionProcessor
         public static RewriteResult Invalid { get; } = new(RewriteAction.Invalid, null, null);
     }
 
-    private static void RewriteRootNodes(RewriteContext rewriteContext, HashSet<SyntaxNode> nodesProcessed, Dictionary<SyntaxNode, SyntaxNode> nodesRemapping)
+    private static bool RewriteRootNodes(RewriteContext rewriteContext, HashSet<SyntaxNode> nodesProcessed, Dictionary<SyntaxNode, SyntaxNode> nodesRemapping)
     {
-        var expressionNode = rewriteContext.Expression;
         var rootNodes = rewriteContext.RootNodes;
         var typesProcessor = rewriteContext.TypesProcessor;
 
@@ -76,13 +75,22 @@ internal static class ExpressionProcessor
                         }
                         else if (rootType.IsBuilder())
                         {
-                            var rootTypeArguments = rootType.TypeArguments.ToArray();
+                            var rewrittenTypeArguments = new List<TypeSyntax>();
 
-                            var typeArguments = rootTypeArguments.Select(rootTypeArgument => SyntaxFactory.ParseTypeName(typesProcessor
-                                .GetTypeSymbolToGeneratedTypeMapping(rootTypeArgument))).ToArray();
+                            foreach (var rootTypeArgument in rootType.TypeArguments)
+                            {
+                                var remappedType = typesProcessor.GetTypeSymbolToGeneratedTypeMapping(rootTypeArgument);
 
-                            var buildersGenericType = SyntaxFactory.GenericName("Builders").WithTypeArgumentList(
-                                SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(typeArguments)));
+                                if (remappedType == null)
+                                {
+                                    return false;
+                                }
+
+                                rewrittenTypeArguments.Add(SyntaxFactory.ParseTypeName(remappedType));
+                            }
+
+                            var buildersGenericType = SyntaxFactory.GenericName(MqlGeneratorSyntaxElements.Builders.BuildersName).WithTypeArgumentList(
+                                SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(rewrittenTypeArguments)));
 
                             var buildersDefinitionNode = SyntaxFactory.MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
@@ -109,9 +117,11 @@ internal static class ExpressionProcessor
             default:
                 throw new ArgumentOutOfRangeException(nameof(rewriteContext.AnalysisType), rewriteContext.AnalysisType, "Unsupported analysis type");
         }
+
+        return true;
     }
 
-    private static void RewriteIdentifiers(RewriteContext rewriteContext, HashSet<SyntaxNode> nodesProcessed, Dictionary<SyntaxNode, SyntaxNode> nodesRemapping)
+    private static bool RewriteIdentifiers(RewriteContext rewriteContext, HashSet<SyntaxNode> nodesProcessed, Dictionary<SyntaxNode, SyntaxNode> nodesRemapping)
     {
         var expressionNode = rewriteContext.Expression;
         var rootNodes = rewriteContext.RootNodes;
@@ -121,13 +131,13 @@ internal static class ExpressionProcessor
         var processGenerics = false;
         var removeFluentParameters = false;
         IdentifierNameSyntax[] lambdaAndQueryIdentifiers = null;
-        SimpleNameSyntax[] expressionDescendants;
+        IEnumerable<SimpleNameSyntax> expressionDescendants;
 
         switch (rewriteContext.AnalysisType)
         {
             case AnalysisType.Builders:
                 {
-                    expressionDescendants = expressionNode.DescendantNodesWithSkipList<SimpleNameSyntax>(nodesProcessed).ToArray();
+                    expressionDescendants = expressionNode.DescendantNodesWithSkipList<SimpleNameSyntax>(nodesProcessed);
                     processGenerics = true;
                     removeFluentParameters = true;
                     break;
@@ -144,9 +154,7 @@ internal static class ExpressionProcessor
                       })
                       .ToArray();
 
-
-                    //Ignoring generics, process only IdentifierNameSyntax
-                    expressionDescendants = expressionNode.DescendantNodes(n => !rootNodes.Contains(n)).OfType<IdentifierNameSyntax>().ToArray();
+                    expressionDescendants = expressionNode.DescendantNodes(n => !rootNodes.Contains(n)).OfType<IdentifierNameSyntax>();
                     processGenerics = false;
                     break;
                 }
@@ -172,8 +180,7 @@ internal static class ExpressionProcessor
             var symbolInfo = rewriteContext.SemanticModel.GetSymbolInfo(nodeToHandle);
             if (symbolInfo.Symbol == null)
             {
-                nodesRemapping.Clear();
-                return;
+                return false;
             }
 
             var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(nodeToHandle);
@@ -207,13 +214,14 @@ internal static class ExpressionProcessor
                     }
                 case RewriteAction.Invalid:
                     {
-                        nodesRemapping.Clear();
-                        return;
+                        return false;
                     }
                 default:
                     continue;
             }
         }
+
+        return true;
     }
 
     public static (SyntaxNode RewrittenLinqExpression, ConstantsMapper ConstantsMapper) RewriteExpression(RewriteContext rewriteContext)
@@ -229,13 +237,8 @@ internal static class ExpressionProcessor
         }
         rewriteContext.ConstantsMapper.FinalizeLiteralsRegistration();
 
-        //Get Node Remappings for Root Nodes
-        RewriteRootNodes(rewriteContext, nodesProcessed, nodesRemapping);
-
-        //Get Node Remappings for Identifiers
-        RewriteIdentifiers(rewriteContext, nodesProcessed, nodesRemapping);
-
-        if (nodesRemapping.EmptyOrNull())
+        if (!RewriteRootNodes(rewriteContext, nodesProcessed, nodesRemapping) ||
+            !RewriteIdentifiers(rewriteContext, nodesProcessed, nodesRemapping))
         {
             return default;
         }
