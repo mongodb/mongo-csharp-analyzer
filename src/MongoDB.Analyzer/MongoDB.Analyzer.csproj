@@ -7,11 +7,9 @@
 
     <PackageId>MongoDBAnalyzerCore</PackageId>
 
-    <AssemblyVersion>$(Version)</AssemblyVersion>
     <Company>MongoDB Inc.</Company>
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>MongoDB Roslyn analyzer for MongoDB .Net driver.</Description>
-    <InformationalVersion>$(Version)</InformationalVersion>
     <Product>MongoDB.Analyzer</Product>
     <ImplicitUsings>enable</ImplicitUsings>
 
