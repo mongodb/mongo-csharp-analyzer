@@ -18,7 +18,7 @@ fi
 echo Creating nuget package...
 
 dotnet clean "./MongoDB.Analyzer.sln"
-dotnet build "./MongoDB.Analyzer.sln" -c Release
+dotnet build "./MongoDB.Analyzer.sln" -c Release -p:Version="$PACKAGE_VERSION"
 dotnet pack ./src/MongoDB.Analyzer.Package/MongoDB.Analyzer.Package.csproj -o ./artifacts/nuget -c Release -p:Version="$PACKAGE_VERSION" -p:ContinuousIntegrationBuild=true
 
 echo "${ARTIFACTORY_PASSWORD}" | docker login --password-stdin --username "${ARTIFACTORY_USERNAME}" artifactory.corp.mongodb.com
