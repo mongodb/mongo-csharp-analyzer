@@ -33,4 +33,10 @@
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Core\EF\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Core\EF\" />
+  </ItemGroup>
 </Project>

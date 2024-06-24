@@ -24,4 +24,10 @@
     <PackageReference Include="MongoDB.Driver" Version="2.19.0" Condition="'$(Configuration)' == 'DRIVER_2_19'" />
     <PackageReference Include="MongoDB.Driver" Version="2.21.0" Condition="'$(Configuration)' == 'DRIVER_2_21'" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="EF\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EF\" />
+  </ItemGroup>
 </Project>

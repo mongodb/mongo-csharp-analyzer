@@ -38,6 +38,9 @@ internal static class ExpressionProcessor
         public static RewriteContext Builders(SyntaxNode Expression, IEnumerable<SyntaxNode> RootNodes, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
             new(AnalysisType.Builders, Expression, RootNodes, SemanticModel, TypesProcessor, new());
 
+        public static RewriteContext EF(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
+            new(AnalysisType.EF, Expression, new SyntaxNode[] { RootNode }, SemanticModel, TypesProcessor, new());
+
         public static RewriteContext Linq(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
             new(AnalysisType.Linq, Expression, new SyntaxNode[] { RootNode }, SemanticModel, TypesProcessor, new());
     }
@@ -104,7 +107,7 @@ internal static class ExpressionProcessor
 
                     break;
                 }
-            case AnalysisType.Linq:
+            case AnalysisType.Linq or AnalysisType.EF:
                 {
                     foreach (var rootNode in rootNodes)
                     {
@@ -142,7 +145,7 @@ internal static class ExpressionProcessor
                     removeFluentParameters = true;
                     break;
                 }
-            case AnalysisType.Linq:
+            case AnalysisType.Linq or AnalysisType.EF:
                 {
                     lambdaAndQueryIdentifiers = expressionNode
                       .DescendantNodes(n => !rootNodes.Contains(n))
@@ -351,7 +354,7 @@ internal static class ExpressionProcessor
                     }
                     break;
                 }
-            case AnalysisType.Linq:
+            case AnalysisType.Linq or AnalysisType.EF:
                 {
                     if (methodSymbol.ReceiverType.IsIQueryable() ||
                         methodSymbol.ReturnType.IsIQueryable())
