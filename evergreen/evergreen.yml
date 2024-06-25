@@ -211,7 +211,7 @@ functions:
         env:
           NUGET_SIGN_CERTIFICATE_FINGERPRINT: ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}
           PRODUCT_NAME: "mongo-csharp-analyzer"
-          github_commit: ${github_commit}
+          task_id: ${task_id}
         script: |
           ${PREPARE_SHELL}
           ./evergreen/generate-ssdlc-report.sh
