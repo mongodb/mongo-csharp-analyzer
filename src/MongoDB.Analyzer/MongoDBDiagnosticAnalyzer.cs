@@ -14,6 +14,7 @@
 
 using MongoDB.Analyzer.Core;
 using MongoDB.Analyzer.Core.Builders;
+using MongoDB.Analyzer.Core.EF;
 using MongoDB.Analyzer.Core.Linq;
 using MongoDB.Analyzer.Core.Poco;
 
@@ -51,6 +52,7 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
 
             flushTelemetry |= LinqAnalyzer.AnalyzeIMongoQueryable(mongoAnalyzerContext);
             flushTelemetry |= BuildersAnalyzer.AnalyzeBuilders(mongoAnalyzerContext);
+            flushTelemetry |= EFAnalyzer.AnalyzeEF(mongoAnalyzerContext);
             flushTelemetry |= PocoAnalyzer.AnalyzePoco(mongoAnalyzerContext);
         }
         catch (Exception ex)

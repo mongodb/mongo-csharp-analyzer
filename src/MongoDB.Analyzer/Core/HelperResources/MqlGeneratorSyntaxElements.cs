@@ -30,6 +30,22 @@ internal static class MqlGeneratorSyntaxElements
         public const string MqlGeneratorTemplateType = nameof(MqlGeneratorTemplateType);
     }
 
+    internal static class EF
+    {
+        public const string GetDriverVersion = nameof(GetDriverVersion);
+        public const string IQueryableProviderV2 = nameof(IQueryableProviderV2);
+        public const string IQueryableProviderV3 = nameof(IQueryableProviderV3);
+        public const string LinqMethodName = "Where";
+
+        public const string MqlGenerator = nameof(MqlGenerator);
+        public const string MqlGeneratorFullName = MqlGeneratorNamespace + "." + MqlGenerator;
+        public const string MqlGeneratorMainMethodName = "GetMQL";
+        public const string MqlGeneratorNamespace = "MongoDB.Analyzer.Helpers.EF";
+        public const string MqlGeneratorTemplateType = nameof(MqlGeneratorTemplateType);
+
+        public const string QueryableName = "queryable";
+    }
+
     internal static class Linq
     {
         public const string GetDriverVersion = nameof(GetDriverVersion);

@@ -23,12 +23,20 @@
     </PackageReference>
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
     <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MongoDB.Analyzer\MongoDB.Analyzer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="EF\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EF\" />
+  </ItemGroup>
   <Import Project="..\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems" Label="Shared" />
 
   <Import Project="..\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems" Label="Shared" />

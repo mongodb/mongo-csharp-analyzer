@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Builders\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EF\*.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Jira\VS78.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linq\*.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Poco\*.cs" />

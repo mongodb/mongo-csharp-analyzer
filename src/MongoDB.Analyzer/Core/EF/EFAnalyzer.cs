@@ -15,56 +15,49 @@
 using MongoDB.Analyzer.Core.HelperResources;
 using MongoDB.Analyzer.Core.Utilities;
 
-namespace MongoDB.Analyzer.Core.Linq;
+namespace MongoDB.Analyzer.Core.EF;
 
-internal static class LinqAnalyzer
+internal static class EFAnalyzer
 {
-    public static bool AnalyzeIMongoQueryable(MongoAnalysisContext context)
+    public static bool AnalyzeEF(MongoAnalysisContext context)
     {
         var sw = Stopwatch.StartNew();
         var stats = AnalysisStats.Empty;
-        ExpressionsAnalysis linqAnalysis = null;
+        ExpressionsAnalysis EFAnalysis = null;
 
         try
         {
-            context.Logger.Log("Started LINQ analysis");
+            context.Logger.Log("Started MQL analysis");
 
-            //linqAnalysis = LinqExpressionProcessor.ProcessSemanticModel(context);
-            linqAnalysis = ExpressionProcessor.ProcessSemanticModel(context, AnalysisType.Linq);
+            //EFAnalysis = EFExpressionProcessor.ProcessSemanticModel(context);
+            EFAnalysis = ExpressionProcessor.ProcessSemanticModel(context, AnalysisType.EF);
 
-            ReportInvalidExpressions(context, linqAnalysis);
-            stats = ReportMqlOrInvalidExpressions(context, linqAnalysis);
+            ReportInvalidExpressions(context, EFAnalysis);
+            stats = ReportMqlOrInvalidExpressions(context, EFAnalysis);
 
             sw.Stop();
-            context.Logger.Log($"LINQ analysis ended: with {stats.MqlCount} mql translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}ms.");
+            context.Logger.Log($"MQL analysis ended: with {stats.MqlCount} MQL translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}ms.");
         }
         catch (Exception ex)
         {
             sw.Stop();
-            context.Logger.Log($"LINQ analysis ended after {sw.ElapsedMilliseconds}ms with exception {ex}");
+            context.Logger.Log($"MQL analysis ended after {sw.ElapsedMilliseconds}ms with exception {ex}");
         }
 
-        var telemetry = AnalysisUtilities.GetTelemetry(linqAnalysis, stats, sw);
+        var telemetry = AnalysisUtilities.GetTelemetry(EFAnalysis, stats, sw);
         if (telemetry.ExpressionsFound > 0)
         {
-            context.Telemetry.LinqAnalysisResult(telemetry);
+            context.Telemetry.EFAnalysisResult(AnalysisUtilities.GetTelemetry(EFAnalysis, stats, sw));
         }
 
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static bool IsDriverOrLinqException(MQLResult mqlResult)
-    {
-        var source = mqlResult.Exception.InnerException?.Source;
-        return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
-            source.Contains("MongoDB.Bson") || source.Contains("System.Linq"));
-    }
-
-    private static void ReportInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
+    private static void ReportInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis EFExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
 
-        if (linqExpressionAnalysis.InvalidExpressionNodes.EmptyOrNull())
+        if (EFExpressionAnalysis.InvalidExpressionNodes.EmptyOrNull())
         {
             return;
         }
@@ -72,48 +65,48 @@ internal static class LinqAnalyzer
         var driverVersion = ReferencesProvider.GetMongoDBDriverVersion(semanticContext.SemanticModel.Compilation.References);
         var driverVersionString = driverVersion?.ToString(3);
 
-        foreach (var invalidLinqNode in linqExpressionAnalysis.InvalidExpressionNodes)
+        foreach (var invalidExpression in EFExpressionAnalysis.InvalidExpressionNodes)
         {
             var diagnostics = Diagnostic.Create(
-                DiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression,
-                invalidLinqNode.OriginalExpression.GetLocation(),
-                AnalysisUtilities.DecorateMessage(invalidLinqNode.Errors.FirstOrDefault(), driverVersionString, context.Settings));
+                DiagnosticsRules.DiagnosticRuleNotSupportedEFExpression,
+                invalidExpression.OriginalExpression.GetLocation(),
+                AnalysisUtilities.DecorateMessage(invalidExpression.Errors.FirstOrDefault(), driverVersionString, context.Settings));
 
             semanticContext.ReportDiagnostic(diagnostics);
         }
     }
 
-    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
+    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis EFExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
 
-        if (linqExpressionAnalysis.AnalysisNodeContexts.EmptyOrNull())
+        if (EFExpressionAnalysis.AnalysisNodeContexts.EmptyOrNull())
         {
             return AnalysisStats.Empty;
         }
 
-        var compilationResult = AnalysisCodeGenerator.Compile(context, linqExpressionAnalysis);
+        var compilationResult = AnalysisCodeGenerator.Compile(context, EFExpressionAnalysis);
         if (!compilationResult.Success)
         {
             return AnalysisStats.Empty;
         }
 
-        var driverVersion = compilationResult.LinqTestCodeExecutor.DriverVersion;
+        var driverVersion = compilationResult.EFTestCodeExecutor.DriverVersion;
         var settings = context.Settings;
         int mqlCount = 0, internalExceptionsCount = 0, driverExceptionsCount = 0;
         var typesMapper = new TypesMapper(
-          MqlGeneratorSyntaxElements.Linq.MqlGeneratorNamespace,
+          MqlGeneratorSyntaxElements.EF.MqlGeneratorNamespace,
           context.TypesProcessor.GeneratedTypeToOriginalTypeMapping);
 
-        foreach (var analysisContext in linqExpressionAnalysis.AnalysisNodeContexts)
+        foreach (var analysisContext in EFExpressionAnalysis.AnalysisNodeContexts)
         {
-            var mqlResult = compilationResult.LinqTestCodeExecutor.GenerateMql(analysisContext.EvaluationMethodName);
+            var mqlResult = compilationResult.EFTestCodeExecutor.GenerateMql(analysisContext.EvaluationMethodName);
             var locations = analysisContext.Node.Locations;
 
             if (mqlResult.Mql != null)
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
-                var diagnosticDescriptor = mqlResult.Linq3Only ? DiagnosticsRules.DiagnosticRuleNotSupportedLinq2Expression : DiagnosticsRules.DiagnosticRuleLinq2MQL;
+                var diagnosticDescriptor = mqlResult.Linq3Only ? DiagnosticsRules.DiagnosticRuleNotSupportedEFExpression : DiagnosticsRules.DiagnosticRuleEF2MQL;
                 var decoratedMessage = AnalysisUtilities.DecorateMessage(mql, driverVersion, settings);
                 semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
@@ -124,8 +117,8 @@ internal static class LinqAnalyzer
 
                 if (isDriverOrLinqException || settings.OutputInternalExceptions)
                 {
-                    var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression;
-                    var message = AnalysisUtilities.GetExceptionMessage(mqlResult.Exception, typesMapper, AnalysisType.Linq);
+                    var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleNotSupportedEFExpression;
+                    var message = AnalysisUtilities.GetExceptionMessage(mqlResult.Exception, typesMapper, AnalysisType.EF);
                     var decoratedMessage = AnalysisUtilities.DecorateMessage(message, driverVersion, context.Settings);
 
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
@@ -144,5 +137,12 @@ internal static class LinqAnalyzer
         }
 
         return new AnalysisStats(mqlCount, 0, internalExceptionsCount, driverExceptionsCount, compilationResult.MongoDBDriverVersion.ToString(3), null);
+    }
+
+    private static bool IsDriverOrLinqException(MQLResult mqlResult)
+    {
+        var source = mqlResult.Exception.InnerException?.Source;
+        return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
+            source.Contains("MongoDB.Bson") || source.Contains("System.Linq"));
     }
 }
