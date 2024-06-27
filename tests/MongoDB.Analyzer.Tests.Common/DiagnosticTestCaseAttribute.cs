@@ -139,6 +139,13 @@ namespace MongoDB.Analyzer.Tests.Common
                 codeLines: codeLines)
         {
         }
+
+        public BuildersMQLAttribute(string message, PocoAnalysisVerbosity pocoAnalysisVerbosity) :
+            base(DiagnosticRulesConstants.Builders2MQL,
+                message,
+                pocoAnalysisVerbosity: pocoAnalysisVerbosity)
+        {
+        }
     }
 
     public sealed class NotSupportedBuildersAttribute : DiagnosticRuleTestCaseAttribute
