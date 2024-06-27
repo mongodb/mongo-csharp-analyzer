@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using static MongoDB.Analyzer.Core.ExpressionProcessor;
+using static MongoDB.Analyzer.Core.ExpressionRewriter;
 
 namespace MongoDB.Analyzer.Core.Builders;
 

@@ -29,7 +29,9 @@ internal static class EFAnalyzer
         {
             context.Logger.Log("Started MQL analysis");
 
-            EFAnalysis = EFExpressionProcessor.ProcessSemanticModel(context);
+            //EFAnalysis = EFExpressionProcessor.ProcessSemanticModel(context);
+            EFAnalysis = ExpressionProcessor.ProcessSemanticModel(context, AnalysisType.EF);
+
             ReportInvalidExpressions(context, EFAnalysis);
             stats = ReportMqlOrInvalidExpressions(context, EFAnalysis);
 

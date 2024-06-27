@@ -29,7 +29,8 @@ internal static class BuildersAnalyzer
         {
             context.Logger.Log("Started builders analysis");
 
-            buildersAnalysis = BuilderExpressionProcessor.ProcessSemanticModel(context);
+            //buildersAnalysis = BuilderExpressionProcessor.ProcessSemanticModel(context);
+            buildersAnalysis = ExpressionProcessor.ProcessSemanticModel(context, AnalysisType.Builders);
 
             stats = ReportMqlOrInvalidExpressions(context, buildersAnalysis);
 

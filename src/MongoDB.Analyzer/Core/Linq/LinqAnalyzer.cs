@@ -29,7 +29,8 @@ internal static class LinqAnalyzer
         {
             context.Logger.Log("Started LINQ analysis");
 
-            linqAnalysis = LinqExpressionProcessor.ProcessSemanticModel(context);
+            //linqAnalysis = LinqExpressionProcessor.ProcessSemanticModel(context);
+            linqAnalysis = ExpressionProcessor.ProcessSemanticModel(context, AnalysisType.Linq);
 
             ReportInvalidExpressions(context, linqAnalysis);
             stats = ReportMqlOrInvalidExpressions(context, linqAnalysis);

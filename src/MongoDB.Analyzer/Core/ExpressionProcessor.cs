@@ -12,531 +12,474 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Analyzer.Core.HelperResources;
+using MongoDB.Analyzer.Core.Builders;
+using MongoDB.Analyzer.Core.Linq;
+using static MongoDB.Analyzer.Core.ExpressionRewriter;
 using TypeInfo = Microsoft.CodeAnalysis.TypeInfo;
 
 namespace MongoDB.Analyzer.Core;
 
 internal static class ExpressionProcessor
 {
-    private enum RewriteAction
+    private enum NodeType
     {
-        Unknown,
-        Rewrite,
+        Unknown = 0,
         Ignore,
-        Invalid
+        Invalid,
+        Builders,
+        Fluent,
+        EF,
+        Linq,
+        Poco
     }
 
-    public record RewriteContext(
-        AnalysisType AnalysisType,
-        SyntaxNode Expression,
-        IEnumerable<SyntaxNode> RootNodes,
-        SemanticModel SemanticModel,
-        TypesProcessor TypesProcessor,
-        ConstantsMapper ConstantsMapper)
+    public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context, AnalysisType analysisType)
     {
-        public static RewriteContext Builders(SyntaxNode Expression, IEnumerable<SyntaxNode> RootNodes, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
-            new(AnalysisType.Builders, Expression, RootNodes, SemanticModel, TypesProcessor, new());
-
-        public static RewriteContext EF(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
-            new(AnalysisType.EF, Expression, new SyntaxNode[] { RootNode }, SemanticModel, TypesProcessor, new());
-
-        public static RewriteContext Linq(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
-            new(AnalysisType.Linq, Expression, new SyntaxNode[] { RootNode }, SemanticModel, TypesProcessor, new());
-    }
-
-    private record RewriteResult(
-        RewriteAction RewriteAction,
-        SyntaxNode NodeToReplace,
-        SyntaxNode NewNode)
-    {
-        public RewriteResult(SyntaxNode NodeToReplace, SyntaxNode NewNode) :
-            this(RewriteAction.Rewrite, NodeToReplace, NewNode)
-        {
-        }
-
-        public static RewriteResult Ignore { get; } = new(RewriteAction.Ignore, null, null);
-        public static RewriteResult Invalid { get; } = new(RewriteAction.Invalid, null, null);
-    }
-
-    private static bool RewriteRootNodes(RewriteContext rewriteContext, HashSet<SyntaxNode> nodesProcessed, Dictionary<SyntaxNode, SyntaxNode> nodesRemapping)
-    {
-        var rootNodes = rewriteContext.RootNodes;
-        var typesProcessor = rewriteContext.TypesProcessor;
-
-        switch (rewriteContext.AnalysisType)
-        {
-            case AnalysisType.Builders:
-                {
-                    foreach (var rootNode in rootNodes)
-                    {
-                        var rootType = rewriteContext.SemanticModel.GetTypeInfo(rootNode).Type as INamedTypeSymbol;
-                        if (rootType.IsSupportedIMongoCollection())
-                        {
-                            nodesProcessed.Add(rootNode);
-                            nodesRemapping.Add(rootNode, SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Builders.CollectionName));
-                        }
-                        else if (rootType.IsBuilder())
-                        {
-                            var rewrittenTypeArguments = new List<TypeSyntax>();
-
-                            foreach (var rootTypeArgument in rootType.TypeArguments)
-                            {
-                                var remappedType = typesProcessor.GetTypeSymbolToGeneratedTypeMapping(rootTypeArgument);
-
-                                if (remappedType == null)
-                                {
-                                    return false;
-                                }
-
-                                rewrittenTypeArguments.Add(SyntaxFactory.ParseTypeName(remappedType));
-                            }
-
-                            var buildersGenericType = SyntaxFactory.GenericName(MqlGeneratorSyntaxElements.Builders.BuildersName).WithTypeArgumentList(
-                                SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(rewrittenTypeArguments)));
-
-                            var buildersDefinitionNode = SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                buildersGenericType,
-                                SyntaxFactory.IdentifierName(rootType.GetBuilderDefinitionName()));
-
-                            nodesProcessed.Add(rootNode);
-                            nodesRemapping.Add(rootNode, buildersDefinitionNode);
-                        }
-                    }
-
-                    break;
-                }
-            case AnalysisType.Linq or AnalysisType.EF:
-                {
-                    foreach (var rootNode in rootNodes)
-                    {
-                        nodesProcessed.Add(rootNode);
-                        nodesRemapping.Add(rootNode, SyntaxFactory.IdentifierName(MqlGeneratorSyntaxElements.Linq.QueryableName));
-                    }
-                    
-                    break;
-                }
-            default:
-                throw new ArgumentOutOfRangeException(nameof(rewriteContext.AnalysisType), rewriteContext.AnalysisType, "Unsupported analysis type");
-        }
-
-        return true;
-    }
-
-    private static bool RewriteIdentifiers(RewriteContext rewriteContext, HashSet<SyntaxNode> nodesProcessed, Dictionary<SyntaxNode, SyntaxNode> nodesRemapping)
-    {
-        var expressionNode = rewriteContext.Expression;
-        var rootNodes = rewriteContext.RootNodes;
-        var typesProcessor = rewriteContext.TypesProcessor;
-
-        // Set analysis specific parameters
-        var processGenerics = false;
-        var removeFluentParameters = false;
-        IdentifierNameSyntax[] lambdaAndQueryIdentifiers = null;
-        IEnumerable<SimpleNameSyntax> expressionDescendants;
-
-        switch (rewriteContext.AnalysisType)
-        {
-            case AnalysisType.Builders:
-                {
-                    expressionDescendants = expressionNode.DescendantNodesWithSkipList<SimpleNameSyntax>(nodesProcessed);
-                    processGenerics = true;
-                    removeFluentParameters = true;
-                    break;
-                }
-            case AnalysisType.Linq or AnalysisType.EF:
-                {
-                    lambdaAndQueryIdentifiers = expressionNode
-                      .DescendantNodes(n => !rootNodes.Contains(n))
-                      .OfType<IdentifierNameSyntax>()
-                      .Where(identifierNode =>
-                      {
-                          var symbolInfo = rewriteContext.SemanticModel.GetSymbolInfo(identifierNode);
-                          return symbolInfo.Symbol != null && IsChildOfLambdaOrQueryOrBuildersParameter(rewriteContext, identifierNode, symbolInfo);
-                      })
-                      .ToArray();
-
-                    expressionDescendants = expressionNode.DescendantNodes(n => !rootNodes.Contains(n)).OfType<IdentifierNameSyntax>();
-                    break;
-                }
-            default:
-                throw new ArgumentOutOfRangeException(nameof(rewriteContext.AnalysisType), rewriteContext.AnalysisType, "Unsupported analysis type");
-        }
-
-        foreach (var identifierNode in expressionDescendants)
-        {
-            if (rootNodes.Contains(identifierNode) ||
-                !identifierNode.IsLeaf() ||
-                nodesProcessed.Any(e => e.Contains(identifierNode)))
-            {
-                continue;
-            }
-
-            var nodeToHandle = SyntaxNodeExtensions.GetTopMostInvocationOrBinaryExpressionSyntax(identifierNode, lambdaAndQueryIdentifiers);
-            if (nodeToHandle != identifierNode)
-            {
-                nodesProcessed.Add(nodeToHandle);
-            }
-
-            var symbolInfo = rewriteContext.SemanticModel.GetSymbolInfo(nodeToHandle);
-            if (symbolInfo.Symbol == null)
-            {
-                return false;
-            }
-
-            var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(nodeToHandle);
-            var rewriteResult = removeFluentParameters ? RemoveNonFluentParameters(nodeToHandle, symbolInfo, typeInfo) : null;
-
-            if (rewriteResult == null)
-            {
-                rewriteResult = symbolInfo.Symbol.Kind switch
-                {
-                    SymbolKind.Field => HandleField(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
-                    SymbolKind.Method => HandleMethod(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
-                    SymbolKind.NamedType => HandleRemappedType(rewriteContext, identifierNode, typeInfo, processGenerics),
-                    SymbolKind.Local or
-                    SymbolKind.Parameter or
-                    SymbolKind.Property => SubstituteExpressionWithConstant(rewriteContext, nodeToHandle, symbolInfo, typeInfo),
-                    _ => RewriteResult.Ignore
-                };
-            }
-
-            switch (rewriteResult.RewriteAction)
-            {
-                case RewriteAction.Rewrite:
-                    {
-                        if (rewriteResult.NodeToReplace != nodeToHandle)
-                        {
-                            nodesProcessed.Add(rewriteResult.NodeToReplace);
-                        }
-
-                        nodesRemapping[rewriteResult.NodeToReplace] = rewriteResult.NewNode;
-                        break;
-                    }
-                case RewriteAction.Invalid:
-                    {
-                        return false;
-                    }
-                default:
-                    continue;
-            }
-        }
-
-        return true;
-    }
-
-    public static (SyntaxNode RewrittenLinqExpression, ConstantsMapper ConstantsMapper) RewriteExpression(RewriteContext rewriteContext)
-    {
-        var nodesProcessed = new HashSet<SyntaxNode>();
-        var nodesRemapping = new Dictionary<SyntaxNode, SyntaxNode>();
-        var expressionNode = rewriteContext.Expression;
-
-        // Register literals
-        foreach (var literalSyntax in expressionNode.DescendantNodes().OfType<LiteralExpressionSyntax>())
-        {
-            rewriteContext.ConstantsMapper.RegisterLiteral(literalSyntax);
-        }
-        rewriteContext.ConstantsMapper.FinalizeLiteralsRegistration();
-
-        if (!RewriteRootNodes(rewriteContext, nodesProcessed, nodesRemapping) ||
-            !RewriteIdentifiers(rewriteContext, nodesProcessed, nodesRemapping))
+        //Early Exit for Poco Analysis
+        if (analysisType == AnalysisType.Poco && 
+            (context.Settings.PocoAnalysisVerbosity == PocoAnalysisVerbosity.None ||
+            context.Settings.PocoLimit <= 0))
         {
             return default;
         }
 
-        var result = expressionNode.ReplaceNodes(nodesRemapping.Keys, (n, _) => nodesRemapping[n]);
+        //Context Parameters
+        var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
+        var syntaxTree = semanticModel.SyntaxTree;
+        var rootNode = syntaxTree.GetRoot();
 
-        return (result, rewriteContext.ConstantsMapper);
-    }
+        //Expression Processing Variables
+        var processedSyntaxNodes = new HashSet<SyntaxNode>();
+        var analysisContexts = new List<ExpressionAnalysisContext>();
+        var invalidExpressionNodes = new List<InvalidExpressionAnalysisNode>();
+        var typesProcessor = context.TypesProcessor;
 
-    private static SyntaxNode GetConstantReplacementNode(
-       RewriteContext rewriteContext,
-       ITypeSymbol typeSymbol,
-       string originalNodeFullName = null)
-    {
-        ExpressionSyntax replacementNode = null;
-        var (isNullable, underlingTypeSymbol) = typeSymbol.DiscardNullable();
+        //Builders Specific Parameters
+        var buildersToAnalysisContextMap = context.Settings.EnableVariableTracking ? new Dictionary<SyntaxNode, ExpressionAnalysisContext>() : null;
 
-        if (underlingTypeSymbol.TypeKind == TypeKind.Enum)
+        //Get Candidate Nodes
+        var candidateNodes = GetDescendantNodes(rootNode, analysisType, processedSyntaxNodes);
+
+        //Iterate through Descendant Nodes
+        foreach (var node in candidateNodes)
         {
-            var underlyingEnumType = (underlingTypeSymbol as INamedTypeSymbol).EnumUnderlyingType.SpecialType;
-            var literalSyntax = rewriteContext.ConstantsMapper.GetExpressionByType(underlyingEnumType, originalNodeFullName);
-            replacementNode = GetEnumCastNode(underlingTypeSymbol, literalSyntax.Token.Value, rewriteContext.TypesProcessor, isNullable);
-        }
-        else if (underlingTypeSymbol.SpecialType != SpecialType.None)
-        {
-            replacementNode = rewriteContext.ConstantsMapper.GetExpressionByType(underlingTypeSymbol.SpecialType, originalNodeFullName);
-
-            if (isNullable)
+            if (analysisType == AnalysisType.Poco &&
+                analysisContexts.Count == context.Settings.PocoLimit)
             {
-                replacementNode = SyntaxFactory.CastExpression(
-                    SyntaxFactoryUtilities.GetNullableType(underlingTypeSymbol.Name),
-                    replacementNode);
+                break;
+            }
+
+            IEnumerable<SyntaxNode> nodesToRewrite = null;
+            var (nodeType, namedType, expressionNode) = GetNodeType(semanticModel, node, analysisType);
+
+            switch (nodeType)
+            {
+                case NodeType.Builders:
+                    nodesToRewrite = GetBuildersDefinitionNodes(semanticModel, expressionNode);
+                    processedSyntaxNodes.Add(node);
+                    break;
+                case NodeType.Fluent:
+                    var collectionNode = expressionNode
+                        .NestedInvocations()
+                        .FirstOrDefault(n => semanticModel.GetTypeInfo(n).Type.IsSupportedIMongoCollection());
+
+                    if (collectionNode == null)
+                    {
+                        continue;
+                    }
+
+                    nodesToRewrite = new SyntaxNode[] { collectionNode };
+                    processedSyntaxNodes.Add(node);
+                    break;
+                case NodeType.Linq or NodeType.EF:
+                    var (deepestMongoQueryableNode, isValid) = ValidateMethodChain(context, node);
+                    processedSyntaxNodes.Add(node);
+
+                    var mongoQueryableTypeInfo = semanticModel.GetTypeInfo(deepestMongoQueryableNode);
+                    if (IsInvalidCollectionOrQueryableType(mongoQueryableTypeInfo, analysisType))
+                    {
+                        continue;
+                    }
+
+                    nodesToRewrite = new SyntaxNode[] { deepestMongoQueryableNode };
+                    break;
+                case NodeType.Poco:
+                    break;
+                case NodeType.Invalid:
+                    {
+                        processedSyntaxNodes.Add(node);
+                        continue;
+                    }
+                default:
+                    {
+                        continue;
+                    }
+            }
+
+            try
+            {
+                if (Preanalyze(context, analysisType, expressionNode, invalidExpressionNodes))
+                {
+                    if (analysisType == AnalysisType.Poco)
+                    {
+                        var generatedClassName = typesProcessor.ProcessTypeSymbol(namedType);
+                        var generatedClassNode = (ClassDeclarationSyntax)(typesProcessor.GetTypeSymbolToMemberDeclarationMapping(namedType));
+                        var expressionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(node, null, generatedClassNode, null, node.GetLocation()));
+                        analysisContexts.Add(expressionContext);
+                        continue;
+                    }
+
+                    foreach (var typeArgument in namedType?.TypeArguments)
+                    {
+                        typesProcessor.ProcessTypeSymbol(typeArgument);
+                    }
+
+                    var rewriteContext = GenerateRewriteContext(expressionNode, nodesToRewrite, analysisType, context);
+                    var (newExpression, constantsMapper) = RewriteExpression(rewriteContext);
+
+                    if (newExpression != null)
+                    {
+                        var expressionContext = new ExpressionAnalysisContext(new(
+                            expressionNode,
+                            typesProcessor.GetTypeSymbolToGeneratedTypeMapping(namedType.TypeArguments.First()),
+                            newExpression,
+                            constantsMapper,
+                            expressionNode.GetLocation()));
+
+                        analysisContexts.Add(expressionContext);
+                        buildersToAnalysisContextMap?.Add(expressionNode, expressionContext);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed analyzing {node.NormalizeWhitespace()} with {ex.Message}");
             }
         }
 
-        return replacementNode;
-    }
-
-    private static ExpressionSyntax GetEnumCastNode(
-        ITypeSymbol typeSymbol,
-        object constantValue,
-        TypesProcessor typesProcessor,
-        bool isNullable = false)
-    {
-        var remappedEnumTypeName = typesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeSymbol);
-
-        if (remappedEnumTypeName.IsNullOrWhiteSpace())
+        if (context.Settings.EnableVariableTracking)
         {
-            return null;
-        }
-
-        return SyntaxFactoryUtilities.GetCastConstantExpression(remappedEnumTypeName, constantValue, isNullable);
-    }
-
-    private static RewriteResult HandleField(
-       RewriteContext rewriteContext,
-       SyntaxNode identifierNode,
-       SymbolInfo symbolInfo,
-       TypeInfo typeInfo)
-    {
-        var fieldSymbol = symbolInfo.Symbol as IFieldSymbol;
-        if (fieldSymbol?.HasConstantValue != true)
-        {
-            return SubstituteExpressionWithConstant(rewriteContext, identifierNode, symbolInfo, typeInfo);
-        }
-
-        if (!identifierNode.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-        {
-            return RewriteResult.Ignore;
-        }
-
-        SyntaxNode replacementNode;
-        if (fieldSymbol.Type.TypeKind == TypeKind.Enum)
-        {
-            replacementNode = GetEnumCastNode(fieldSymbol.Type, fieldSymbol.ConstantValue, rewriteContext.TypesProcessor);
-        }
-        else if (fieldSymbol.Type.SpecialType != SpecialType.None)
-        {
-            replacementNode = rewriteContext.ConstantsMapper.GetExpressionForConstant(fieldSymbol.Type.SpecialType, fieldSymbol.ConstantValue);
-        }
-        else
-        {
-            return RewriteResult.Invalid;
-        }
-
-        return new RewriteResult(identifierNode.Parent, replacementNode);
-    }
-
-    private static RewriteResult HandleMethod(
-        RewriteContext rewriteContext,
-        SyntaxNode identifierNode,
-        SymbolInfo symbolInfo,
-        TypeInfo typeInfo)
-    {
-        var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
-        if (methodSymbol.ReturnType == null)
-        {
-            return RewriteResult.Ignore;
-        }
-
-        switch (rewriteContext.AnalysisType)
-        {
-            case AnalysisType.Builders:
-                {
-                    if (methodSymbol.ReceiverType.IsIMongoQueryable() ||
-                        methodSymbol.ReturnType.IsIMongoQueryable() ||
-                        methodSymbol.IsBuilderMethod() ||
-                        methodSymbol.IsFindFluentMethod())
-                    {
-                        return RewriteResult.Ignore;
-                    }
-                    break;
-                }
-            case AnalysisType.Linq or AnalysisType.EF:
-                {
-                    if (methodSymbol.ReceiverType.IsIQueryable() ||
-                        methodSymbol.ReturnType.IsIQueryable())
-                    {
-                        return RewriteResult.Ignore;
-                    }
-
-                    break;
-                }
-        }
-
-        if (IsChildOfLambdaOrQueryOrBuildersParameter(rewriteContext, identifierNode, symbolInfo))
-        {
-            return RewriteResult.Ignore;
-        }
-
-        var typeSymbol = typeInfo.ConvertedType ?? methodSymbol.ReturnType;
-        var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(identifierNode);
-        var replacementNode = GetConstantReplacementNode(
-            rewriteContext,
-            typeSymbol,
-            nodeToReplace.ToString());
-
-        if (replacementNode == null)
-        {
-            return RewriteResult.Invalid;
-        }
-
-        return new RewriteResult(nodeToReplace, replacementNode);
-    }
-
-    private static RewriteResult HandleRemappedType(
-        RewriteContext rewriteContext,
-        SimpleNameSyntax identifierNode,
-        TypeInfo typeInfo,
-        bool processGenericTypes = false)
-    {
-        var remappedType = processGenericTypes && identifierNode is GenericNameSyntax ?
-            rewriteContext.TypesProcessor.ProcessTypeSymbol(typeInfo.Type) :
-            rewriteContext.TypesProcessor.GetTypeSymbolToGeneratedTypeMapping(typeInfo.Type);
-
-        var result = remappedType != null ?
-            new(identifierNode, SyntaxFactory.IdentifierName(remappedType)) :
-            RewriteResult.Invalid;
-
-        return result;
-    }
-
-    private static bool IsChildOfLambdaOrQueryOrBuildersParameter(
-        RewriteContext rewriteContext,
-        SyntaxNode identifier,
-        SymbolInfo symbolInfo)
-    {
-        if (symbolInfo.Symbol.IsContainedInLambdaOrQueryParameter(rewriteContext.Expression))
-        {
-            return true;
-        }
-
-        var underlyingIdentifier = SyntaxFactoryUtilities.GetUnderlyingIdentifier(identifier);
-        if (underlyingIdentifier == null)
-        {
-            return false;
-        }
-
-        if (rewriteContext.AnalysisType == AnalysisType.Builders &&
-            underlyingIdentifier.Identifier.Text == "Builders")
-        {
-            return true;
-        }
-
-        var result = rewriteContext.SemanticModel
-            .GetSymbolInfo(underlyingIdentifier)
-            .Symbol?
-            .IsContainedInLambdaOrQueryParameter(rewriteContext.Expression) == true;
-
-        return result;
-    }
-
-    private static GenericNameSyntax ProcessGenericType(RewriteContext rewriteContext, GenericNameSyntax genericNameSyntax)
-    {
-        var typeInfo = rewriteContext.SemanticModel.GetTypeInfo(genericNameSyntax);
-        var remappedType = rewriteContext.TypesProcessor.ProcessTypeSymbol(typeInfo.Type);
-
-        if (remappedType == null)
-        {
-            return null;
-        }
-
-        var typeArguments = new List<TypeSyntax>();
-
-        foreach (var typeArgument in genericNameSyntax.TypeArgumentList.Arguments)
-        {
-            TypeSyntax typeSyntax;
-
-            if (typeArgument is GenericNameSyntax nestedGenericNameSyntax)
+            try
             {
-                typeSyntax = ProcessGenericType(rewriteContext, nestedGenericNameSyntax);
+                analysisContexts = BuildersVariablesResolver.ResolveVariables(analysisContexts, buildersToAnalysisContextMap, semanticModel);
+            }
+            catch (Exception ex)
+            {
+                context.Logger.Log($"Failed resolving variables with {ex.Message}.");
+            }
+        }
 
-                if (typeSyntax == null)
+        var analysis = new ExpressionsAnalysis()
+        {
+            AnalysisNodeContexts = analysisContexts.ToArray(),
+            InvalidExpressionNodes = invalidExpressionNodes.ToArray(),
+            TypesDeclarations = typesProcessor.TypesDeclarations
+        };
+
+        context.Logger.Log($"MQL/JSON: Found {analysis.AnalysisNodeContexts.Length} expressions.");
+
+        return analysis;
+    }
+
+    private static bool Preanalyze(MongoAnalysisContext context, AnalysisType analysisType, SyntaxNode expressionNode, List<InvalidExpressionAnalysisNode> invalidExpressionNodes) =>
+        analysisType switch
+        {
+            AnalysisType.Linq => PreanalyzeLinqExpression(expressionNode, context.SemanticModelAnalysisContext.SemanticModel, invalidExpressionNodes),
+            AnalysisType.EF => PreanalyzeLinqExpression(expressionNode, context.SemanticModelAnalysisContext.SemanticModel, invalidExpressionNodes),
+            AnalysisType.Poco => PreanalyzeClassDeclaration(context, context.SemanticModelAnalysisContext.SemanticModel.GetDeclaredSymbol(expressionNode as ClassDeclarationSyntax)),
+            _ => true
+        };
+    
+    private static bool PreanalyzeLinqExpression(SyntaxNode linqExpressionNode, SemanticModel semanticModel, List<InvalidExpressionAnalysisNode> invalidLinqExpressionNodes)
+    {
+        var result = true;
+
+        foreach (var expression in linqExpressionNode.DescendantNodes().Where(node => node is QueryClauseSyntax || node is SimpleLambdaExpressionSyntax))
+        {
+            foreach (var methodInvocation in expression.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                var symbolInfo = semanticModel.GetSymbolInfo(methodInvocation);
+
+                // find methods referencing lambda parameter
+                if (symbolInfo.Symbol is IMethodSymbol methodSymbol)
                 {
-                    return null;
+                    foreach (var arg in methodInvocation.ArgumentList.Arguments)
+                    {
+                        var underlyingNode = SyntaxFactoryUtilities.GetUnderlyingNameSyntax(arg.Expression);
+                        if (underlyingNode == null)
+                        {
+                            continue;
+                        }
+
+                        var argSymbol = semanticModel.GetSymbolInfo(underlyingNode).Symbol;
+
+                        if (argSymbol.IsContainedInLambdaOrQueryParameter(linqExpressionNode))
+                        {
+                            invalidLinqExpressionNodes.Add(new(
+                                methodInvocation,
+                                LinqAnalysisErrorMessages.MethodInvocationNotSupported));
+
+                            result = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static bool ContainsBsonAttributes(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
+        classSymbol.GetAttributes().Where(attribute => IsValidBsonAttribute(context, attribute)).AnySafe();
+
+    private static bool ContainsFieldsWithBsonAttributes(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
+        classSymbol.GetMembers().OfType<IFieldSymbol>().SelectMany(field => field.GetAttributes().Where(attribute => IsValidBsonAttribute(context, attribute))).AnySafe();
+
+    private static bool ContainsPropertiesWithBsonAttributes(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
+        classSymbol.GetMembers().OfType<IPropertySymbol>().SelectMany(property => property.GetAttributes().Where(attribute => IsValidBsonAttribute(context, attribute))).AnySafe();
+
+    private static bool IsValidBsonAttribute(MongoAnalysisContext context, AttributeData attribute) =>
+        attribute.AttributeClass.IsSupportedBsonAttribute() || context.TypesProcessor.GetTypeSymbolToMemberDeclarationMapping(attribute.AttributeClass) != null;
+
+
+    private static bool PreanalyzeClassDeclaration(MongoAnalysisContext context, INamedTypeSymbol classSymbol) =>
+        context.Settings.PocoAnalysisVerbosity == PocoAnalysisVerbosity.All ||
+        (classSymbol != null &&
+        (context.TypesProcessor.IsUserTypeProcessed(classSymbol) ||
+         ContainsBsonAttributes(context, classSymbol) ||
+         ContainsPropertiesWithBsonAttributes(context, classSymbol) ||
+         ContainsFieldsWithBsonAttributes(context, classSymbol)));
+
+    private static RewriteContext GenerateRewriteContext(SyntaxNode expression, IEnumerable<SyntaxNode> rootNodes, AnalysisType analysisType, MongoAnalysisContext context) =>
+        analysisType switch
+        {
+            AnalysisType.Linq => RewriteContext.Linq(expression, rootNodes.First(), context.SemanticModelAnalysisContext.SemanticModel, context.TypesProcessor),
+            AnalysisType.EF => RewriteContext.EF(expression, rootNodes.First(), context.SemanticModelAnalysisContext.SemanticModel, context.TypesProcessor),
+            AnalysisType.Builders => RewriteContext.Builders(expression, rootNodes, context.SemanticModelAnalysisContext.SemanticModel, context.TypesProcessor),
+            _ => null,
+        };
+
+    //Get Nodes that are Builder Definitions: DONE
+    private static IEnumerable<SyntaxNode> GetBuildersDefinitionNodes(SemanticModel semanticModel, SyntaxNode expressionNode)
+    {
+        var nodesProcessed = new HashSet<SyntaxNode>();
+        var builderDefinitionNodes = new List<SyntaxNode>();
+
+        foreach (var node in expressionNode.DescendantNodesWithSkipList(nodesProcessed))
+        {
+            if (semanticModel.GetTypeInfo(node).Type.IsBuilder())
+            {
+                nodesProcessed.Add(node);
+
+                // Skip MongoDB.Driver.Builders<T> nodes
+                if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
+                    semanticModel.GetSymbolInfo(memberAccessExpressionSyntax.Expression).Symbol is INamedTypeSymbol namedTypeSymbol &&
+                    namedTypeSymbol.IsBuildersContainer() &&
+                    semanticModel.GetAliasInfo(memberAccessExpressionSyntax.Expression) == null)
+                {
+                    continue;
+                }
+
+                builderDefinitionNodes.Add(node);
+            }
+        }
+
+        return builderDefinitionNodes;
+    }
+
+    private static IEnumerable<SyntaxNode> GetDescendantNodes(SyntaxNode rootNode, AnalysisType analysisType, HashSet<SyntaxNode> processedSyntaxNodes) =>
+        analysisType switch
+        {
+            AnalysisType.Linq => rootNode.DescendantNodesWithSkipList<ExpressionSyntax>(processedSyntaxNodes),
+            AnalysisType.EF => rootNode.DescendantNodesWithSkipList<ExpressionSyntax>(processedSyntaxNodes),
+            AnalysisType.Builders => rootNode.DescendantNodesWithSkipList(processedSyntaxNodes),
+            AnalysisType.Poco => rootNode.DescendantNodesAndSelf().OfType<ClassDeclarationSyntax>(),
+            _ => rootNode.DescendantNodesWithSkipList(processedSyntaxNodes)
+        };
+
+    //Get the Type of Node, Symbol Corresponding to the Query Definition, and the Expression itself
+    private static (NodeType NodeType, INamedTypeSymbol NamedSymbol, SyntaxNode ExpressionNode) GetNodeType(SemanticModel semanticModel, SyntaxNode node, AnalysisType analysisType)
+    {
+        if (analysisType == AnalysisType.Linq || analysisType == AnalysisType.EF)
+        {
+            //LINQ Query Expression Syntax
+            if (node is QueryExpressionSyntax queryExpressionSyntax)
+            {
+                var expression = queryExpressionSyntax.FromClause.Expression;
+                var queryMethodSymbol = semanticModel.GetTypeInfo(expression).Type;
+                if (!queryMethodSymbol.IsIMongoQueryable())
+                {
+                    return (NodeType.Ignore, default, default);
+                }
+
+                var deepestMongoQueryableNode = expression;
+                var mongoQueryableNamedType = semanticModel.GetTypeInfo(deepestMongoQueryableNode).Type as INamedTypeSymbol;
+                return (NodeType.Linq, mongoQueryableNamedType, node);
+            }
+
+            else if (node is InvocationExpressionSyntax invocationExpressionSyntax)
+            {
+                var methodSymbol = invocationExpressionSyntax.GetMethodSymbol(semanticModel);
+
+                if (!methodSymbol.IsDefinedInMongoLinqOrSystemLinq() ||
+                    !methodSymbol.ReceiverType.IsIQueryable() ||
+                    !methodSymbol.ReturnType.IsIQueryable())
+                {
+                    return (NodeType.Ignore, default, default);
+                }
+
+                var deepestMongoQueryableNode = invocationExpressionSyntax
+                    .NestedInvocations()
+                    .FirstOrDefault(n =>
+                    {
+                        var currentMethodSymbol = n.GetMethodSymbol(semanticModel);
+
+                        // Find the first method that is not receiving IQueryable or is not defined in System.Linq or MongoDB.Driver.Linq
+                        return !((currentMethodSymbol?.ReceiverType).IsIQueryable() && currentMethodSymbol.IsDefinedInMongoLinqOrSystemLinq());
+                    });
+
+                var mongoQueryableNamedType = semanticModel.GetTypeInfo(deepestMongoQueryableNode).Type as INamedTypeSymbol;
+                return (NodeType.Linq, mongoQueryableNamedType, node);
+            }
+
+            return (NodeType.Ignore, default, default);
+        }
+        else if (analysisType == AnalysisType.Poco)
+        {
+            var namedTypeSymbol = semanticModel.GetDeclaredSymbol(node as ClassDeclarationSyntax);
+            return (NodeType.Poco, namedTypeSymbol, node);
+        }
+        else if (analysisType == AnalysisType.Builders)
+        {
+            var expressionNode = node;
+            var nodeType = NodeType.Unknown;
+
+            if (expressionNode is AssignmentExpressionSyntax assignmentExpressionSyntax)
+            {
+                expressionNode = assignmentExpressionSyntax.Right;
+            }
+
+            expressionNode = expressionNode.TrimParenthesis();
+
+            if (expressionNode is not InvocationExpressionSyntax &&
+                expressionNode is not BinaryExpressionSyntax)
+            {
+                return default;
+            }
+
+            if (semanticModel.GetTypeInfo(expressionNode).Type is not INamedTypeSymbol namedType ||
+                namedType.TypeArguments.Length == 0)
+            {
+                return default;
+            }
+
+            if (namedType.IsFindFluent())
+            {
+                nodeType = NodeType.Fluent;
+            }
+            else if (namedType.IsBuilderDefinition())
+            {
+                nodeType = NodeType.Builders;
+
+                if (expressionNode is BinaryExpressionSyntax binaryExpressionSyntax)
+                {
+                    var childNodeType = GetNodeType(semanticModel, binaryExpressionSyntax.Left, analysisType);
+
+                    if (childNodeType.NodeType == NodeType.Builders)
+                    {
+                        childNodeType = GetNodeType(semanticModel, binaryExpressionSyntax.Right, analysisType);
+
+                        if (childNodeType.NodeType == NodeType.Builders)
+                        {
+                            return (nodeType, namedType, expressionNode);
+                        }
+                    }
+
+                    return default;
+                }
+
+                foreach (var invocationNode in expressionNode.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>())
+                {
+                    if (semanticModel.GetSymbolInfo(invocationNode).Symbol is not IMethodSymbol methodSymbol ||
+                        methodSymbol.ReturnType.IsBuilderDefinition() && !methodSymbol.IsBuilderMethod())
+                    {
+                        return default;
+                    }
                 }
             }
             else
             {
-                var typeArgumentTypeInfo = rewriteContext.SemanticModel.GetTypeInfo(typeArgument);
-                var typeArgumentRemappedType = rewriteContext.TypesProcessor.ProcessTypeSymbol(typeArgumentTypeInfo.Type);
-
-                if (typeArgumentRemappedType == null)
-                {
-                    return null;
-                }
-
-                typeSyntax = SyntaxFactory.IdentifierName(typeArgumentRemappedType);
+                return default;
             }
 
-            typeArguments.Add(typeSyntax);
+            if (namedType.TypeArguments.Any(t => !t.IsSupportedBuilderType()))
+            {
+                return (NodeType.Invalid, default, default);
+            }
+
+            return (nodeType, namedType, expressionNode);
         }
 
-        var newGenericNameSyntax = SyntaxFactory.GenericName(
-            SyntaxFactory.Identifier(remappedType),
-            SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(typeArguments)));
-
-        return newGenericNameSyntax;
+        return default;
     }
 
-    private static RewriteResult RemoveNonFluentParameters(
-        SyntaxNode syntaxNode,
-        SymbolInfo symbolInfo,
-        TypeInfo typeInfo)
-    {
-        var typeSymbol = symbolInfo.Symbol.Kind switch
+    //validate IMongoQueryable, DBSet, etc
+    private static bool IsInvalidCollectionOrQueryableType(TypeInfo queryableTypeInfo, AnalysisType analysisType) =>
+        analysisType switch
         {
-            SymbolKind.Field => (symbolInfo.Symbol as IFieldSymbol).Type,
-            SymbolKind.Method => (symbolInfo.Symbol as IMethodSymbol).ReturnType,
-            SymbolKind.NamedType => symbolInfo.Symbol as INamedTypeSymbol,
-            SymbolKind.Local or
-            SymbolKind.Parameter or
-            SymbolKind.Property => typeInfo.Type,
-            _ => null
+            AnalysisType.EF => !queryableTypeInfo.Type.IsEF() ||
+                queryableTypeInfo.Type is not INamedTypeSymbol EFQueryableNamedType ||
+                EFQueryableNamedType.TypeArguments.Length != 1 ||
+                !EFQueryableNamedType.TypeArguments[0].IsSupportedMongoCollectionType(),
+            AnalysisType.Linq => !queryableTypeInfo.Type.IsIMongoQueryable() ||
+                queryableTypeInfo.Type is not INamedTypeSymbol mongoQueryableNamedType ||
+                mongoQueryableNamedType.TypeArguments.Length != 1 ||
+                !mongoQueryableNamedType.TypeArguments[0].IsSupportedMongoCollectionType(),
+            _ => false
         };
 
-        if (typeSymbol.IsFindOptions())
+    //Validate the LINQ Method chain
+    private static (SyntaxNode queryableNode, bool isValid) ValidateMethodChain(MongoAnalysisContext context, SyntaxNode node)
+    {
+        var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
+
+        if (node is QueryExpressionSyntax queryNode)
         {
-            var argumentNode = syntaxNode.GetParentArgumentSyntaxIfExists();
-            if (argumentNode == null)
+            var expression = queryNode.FromClause.Expression;
+            var queryMethodSymbol = semanticModel.GetTypeInfo(expression).Type;
+            if (!queryMethodSymbol.IsIMongoQueryable())
             {
-                return RewriteResult.Invalid;
+                return default;
             }
 
-            return new(argumentNode, SyntaxFactoryUtilities.NewFindOptionsArgument);
+            return (queryNode.FromClause.Expression, true);
         }
-
-        return null;
-    }
-
-    private static RewriteResult SubstituteExpressionWithConstant(
-        RewriteContext rewriteContext,
-        SyntaxNode simpleNameSyntax,
-        SymbolInfo symbolInfo,
-        TypeInfo typeInfo)
-    {
-        if (IsChildOfLambdaOrQueryOrBuildersParameter(rewriteContext, simpleNameSyntax, symbolInfo) ||
-            simpleNameSyntax.IsMemberOfAnonymousObject() ||
-            typeInfo.Type == null)
+        else if (node is InvocationExpressionSyntax invocationNode)
         {
-            return RewriteResult.Ignore;
+            var methodSymbol = invocationNode.GetMethodSymbol(semanticModel);
+
+            if (!methodSymbol.IsDefinedInMongoLinqOrSystemLinq() ||
+                !methodSymbol.ReceiverType.IsIQueryable() ||
+                !methodSymbol.ReturnType.IsIQueryable())
+            {
+                return default;
+            }
+
+            var deepestMongoQueryableNode = invocationNode
+                .NestedInvocations()
+                .FirstOrDefault(n =>
+                {
+                    var currentMethodSymbol = n.GetMethodSymbol(semanticModel);
+
+                    // Find the first method that is not receiving IQueryable or is not defined in System.Linq or MongoDB.Driver.Linq
+                    return !((currentMethodSymbol?.ReceiverType).IsIQueryable() && currentMethodSymbol.IsDefinedInMongoLinqOrSystemLinq());
+                });
+
+            return (deepestMongoQueryableNode, true);
         }
 
-        var nodeToReplace = SyntaxFactoryUtilities.ResolveAccessExpressionNode(simpleNameSyntax);
-        var type = rewriteContext.AnalysisType == AnalysisType.Builders ? typeInfo.Type : typeInfo.ConvertedType;
-
-        var replacementNode = GetConstantReplacementNode(
-            rewriteContext,
-            type,
-            nodeToReplace.ToString());
-
-        if (replacementNode == null)
-        {
-            return RewriteResult.Invalid;
-        }
-
-        return new(nodeToReplace, replacementNode);
+        return default;
     }
 }
+

@@ -29,7 +29,9 @@ internal static class PocoAnalyzer
         {
             context.Logger.Log("Started JSON analysis");
 
-            pocoAnalysis = PocoExpressionProcessor.ProcessSemanticModel(context);
+            //pocoAnalysis = PocoExpressionProcessor.ProcessSemanticModel(context);
+            pocoAnalysis = ExpressionProcessor.ProcessSemanticModel(context, AnalysisType.Poco);
+
             stats = ReportJsonOrInvalidExpressions(context, pocoAnalysis);
 
             sw.Stop();
