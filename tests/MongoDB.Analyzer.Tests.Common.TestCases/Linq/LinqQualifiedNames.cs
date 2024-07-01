@@ -17,6 +17,11 @@ using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
+#pragma warning disable IDE0005
+using user = MongoDB.Analyzer.Tests.Common.DataModel.User;
+using staticHolder = MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder;
+#pragma warning restore IDE0005
+
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqQualifiedNames : TestCasesBase
@@ -109,6 +114,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = from classWithObjectId in GetMongoQueryable<MongoDB.Analyzer.Tests.Common.DataModel.ClassWithObjectId>()
                 where classWithObjectId.StringField == "value"
                 select classWithObjectId;
+        }
+
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : staticHolder.ReadonlyByteNullable } }])")]
+        public void Qualified_alias()
+        {
+            _ = GetMongoQueryable<user>().Where(user => user.Age == 22);
+            _ = GetMongoQueryable<NullableHolder>().Where(n => n.ByteNullable == staticHolder.ReadonlyByteNullable);
         }
     }
 }

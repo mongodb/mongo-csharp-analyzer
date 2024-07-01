@@ -16,6 +16,11 @@ using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
+#pragma warning disable IDE0005
+using user = MongoDB.Analyzer.Tests.Common.DataModel.User;
+using staticHolder = MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder;
+#pragma warning restore IDE0005
+
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersQualifiedNames : TestCasesBase
@@ -83,6 +88,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<Person>.Filter.Eq(p => p.Name, StaticHolder.ReadonlyString) |
                 Builders<Person>.Filter.Eq(p => p.Vehicle.VehicleType.Type, MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyEnum) |
                 Builders<Person>.Filter.Eq(p => p.Vehicle.VehicleType.MPG, MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyDouble);
+        }
+
+        [BuildersMQL("{ \"Age\" : 22 }")]
+        [BuildersMQL("{ \"ByteNullable\" : staticHolder.ReadonlyByteNullable }")]
+        public void Qualified_alias()
+        {
+            _ = Builders<user>.Filter.Eq(user => user.Age, 22);
+            _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, staticHolder.ReadonlyByteNullable);
         }
     }
 }
