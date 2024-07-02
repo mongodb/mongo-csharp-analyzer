@@ -34,18 +34,20 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        [BuildersMQL("{ \"AirlineName\" : \"Lufthansa\" }", PocoAnalysisVerbosity.None)]
         public void Airline_used_in_expression1()
         {
             _ = Builders<TestClasses.Airline_used_in_expression1>.Filter.Eq(u => u.AirlineName, "Lufthansa");
         }
 
+        [BuildersMQL("{ \"AirlineName\" : \"Lufthansa\" }", PocoAnalysisVerbosity.Medium)]
         [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", PocoAnalysisVerbosity.Medium)]
         public void Airline_used_in_expression2()
         {
             _ = Builders<TestClasses.Airline_used_in_expression2>.Filter.Eq(u => u.AirlineName, "Lufthansa");
         }
 
+        [BuildersMQL("{ \"AirlineName\" : \"Lufthansa\" }")]
         [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", PocoAnalysisVerbosity.All)]
         public void Airline_used_in_expression3()
         {
