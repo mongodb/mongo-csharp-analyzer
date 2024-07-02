@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static MongoDB.Analyzer.Core.ExpressionProcessor;
 
 namespace MongoDB.Analyzer.Core.Builders;
@@ -143,11 +144,32 @@ internal static class BuilderExpressionProcessor
             {
                 nodesProcessed.Add(node);
 
-                // Skip MongoDB.Driver.Builders<T> nodes
+                var isBuildersContainer = false;
+                var containsAlias = false;
+
+                //Check if Member Expression is Builders Container
                 if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
                     semanticModel.GetSymbolInfo(memberAccessExpressionSyntax.Expression).Symbol is INamedTypeSymbol namedTypeSymbol &&
-                    namedTypeSymbol.IsBuildersContainer() &&
-                    semanticModel.GetAliasInfo(memberAccessExpressionSyntax.Expression) == null)
+                    namedTypeSymbol.IsBuildersContainer())
+                {
+                    isBuildersContainer = true;
+                }
+
+                //Check if Node contains alias
+                var syntaxNode = (node as MemberAccessExpressionSyntax)?.Expression;
+                while (syntaxNode != null)
+                {
+                    if (semanticModel.GetAliasInfo(syntaxNode) != null)
+                    {
+                        containsAlias = true;
+                        break;
+                    }
+
+                    syntaxNode = (syntaxNode as MemberAccessExpressionSyntax)?.Expression;
+                }
+
+                //Skip Nodes that are Builder Containers and that don't contain alias
+                if (isBuildersContainer && !containsAlias)
                 {
                     continue;
                 }

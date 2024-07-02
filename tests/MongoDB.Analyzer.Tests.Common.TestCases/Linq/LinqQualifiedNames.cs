@@ -20,7 +20,8 @@ using MongoDB.Driver.Linq;
 #pragma warning disable IDE0005
 using common = MongoDB.Analyzer.Tests.Common;
 using dataModel = MongoDB.Analyzer.Tests.Common.DataModel;
-using staticHolder = MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder;
+using driver = MongoDB.Driver;
+using mongo = MongoDB;
 using user = MongoDB.Analyzer.Tests.Common.DataModel.User;
 #pragma warning restore IDE0005
 
@@ -28,6 +29,21 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqQualifiedNames : TestCasesBase
     {
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : common::DataModel.StaticHolder.ReadonlyByteNullable } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : dataModel::StaticHolder.ReadonlyByteNullable } }])")]
+        public void Qualified_alias()
+        {
+            _ = GetMongoQueryable<user>().Where(user => user.Age == 22);
+            _ = GetMongoQueryable<dataModel::User>().Where(user => user.Age == 22);
+            _ = GetMongoQueryable<common::DataModel.User>().Where(user => user.Age == 22);
+
+            _ = GetMongoQueryable<NullableHolder>().Where(n => n.ByteNullable == common::DataModel.StaticHolder.ReadonlyByteNullable);
+            _ = GetMongoQueryable<NullableHolder>().Where(n => n.ByteNullable == dataModel::StaticHolder.ReadonlyByteNullable);
+        }
+
         [MQL("aggregate([{ \"$match\" : { \"Data\" : 1 } }, { \"$match\" : { \"DataT1\" : 32 } }, { \"$match\" : { \"DataT2\" : \"dataString\" } }, { \"$match\" : { \"DataT3.Vehicle.LicenceNumber\" : \"LicenceNumber\" } }, { \"$match\" : { \"DataT4\" : NumberLong(999) } }])")]
         [MQL("aggregate([{ \"$match\" : { \"Data\" : 1 } }, { \"$match\" : { \"DataT1.DataT1.DataT1.DataT2.DataT\" : \"str1\" } }, { \"$match\" : { \"DataT2.DataT2.Name\" : \"Kate\" } }])")]
         [MQL("aggregate([{ \"$match\" : { \"AbstractBaseData\" : \"base\", \"AbstractBaseDataT1\" : 0, \"AbstractBaseDataT2.Name\" : \"Bob\" } }, { \"$match\" : { \"NestedGenericClass1T1\" : 1, \"NestedGenericClass1T2.Name\" : \"Alice\" } }, { \"$match\" : { \"NestedGenericClass2T1\" : 0, \"NestedGenericClass2T2.Name\" : \"John\" } }])")]
@@ -55,81 +71,58 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => new System.Tuple<string, string, MongoDB.Analyzer.Tests.Common.DataModel.VehicleType, MongoDB.Analyzer.Tests.Common.DataModel.VehicleMake>(u.Name, u.LastName, u.Vehicle.VehicleType, u.Vehicle.VehicleType.VehicleMake));
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"MPG\" : { \"$gt\" : 20.0 } } }, { \"$project\" : { \"__fld0\" : [0, 1, 2], \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : { \"$gt\" : 10 } } }, { \"$project\" : { \"__fld0\" : { \"Bus\" : 0, \"Car\" : 1 }, \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropByte }, { \"SiblingsCount\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropShort }, { \"SiblingsCount\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropInt }, { \"TicksSinceBirth\" : NumberLong(MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropLong) }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString2 }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString2 }, { \"Vehicle.VehicleType.Type\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropEnum }, { \"Vehicle.VehicleType.MPG\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropDouble }] } }])")]
-        public void Qualified_in_method()
-        {
-            _ = GetMongoCollection<MongoDB.Analyzer.Tests.Common.DataModel.VehicleType>().AsQueryable()
-                .Where(v => v.MPG > 20)
-                .Select(v => new System.Collections.Generic.List<MongoDB.Analyzer.Tests.Common.DataModel.VehicleTypeEnum> { MongoDB.Analyzer.Tests.Common.DataModel.VehicleTypeEnum.Bus, MongoDB.Analyzer.Tests.Common.DataModel.VehicleTypeEnum.Car, MongoDB.Analyzer.Tests.Common.DataModel.VehicleTypeEnum.Motorcylce });
-
-            _ = GetMongoCollection<MongoDB.Analyzer.Tests.Common.DataModel.Person>().AsQueryable()
-                .Where(p => p.SiblingsCount > 10)
-                .Select(p => new System.Collections.Generic.Dictionary<string, MongoDB.Analyzer.Tests.Common.DataModel.VehicleTypeEnum> { { "Bus", MongoDB.Analyzer.Tests.Common.DataModel.VehicleTypeEnum.Bus }, { "Car", MongoDB.Analyzer.Tests.Common.DataModel.VehicleTypeEnum.Car } });
-
-            _ = GetMongoQueryable<Person>().Where(p =>
-                p.SiblingsCount == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropByte ||
-                p.SiblingsCount == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropShort ||
-                p.SiblingsCount == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropInt ||
-                p.TicksSinceBirth == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropLong ||
-                p.Name == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString ||
-                p.Name == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString ||
-                p.Name == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString2 ||
-                p.Name == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString2 ||
-                p.Vehicle.VehicleType.Type == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropEnum ||
-                p.Vehicle.VehicleType.MPG == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropDouble);
-        }
-
-        [MQL("aggregate([{ \"$match\" : { \"MPG\" : { \"$gt\" : 20.0 } } }, { \"$project\" : { \"__fld0\" : [0, 1, 2], \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : { \"$gt\" : 10 } } }, { \"$project\" : { \"__fld0\" : { \"Bus\" : 0, \"Car\" : 1 }, \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : DataModel.StaticHolder.PropByte }, { \"SiblingsCount\" : DataModel.StaticHolder.PropShort }, { \"SiblingsCount\" : Analyzer.Tests.Common.DataModel.StaticHolder.PropInt }, { \"TicksSinceBirth\" : NumberLong(Analyzer.Tests.Common.DataModel.StaticHolder.PropLong) }, { \"Name\" : DataModel.StaticHolder.PropString }, { \"Name\" : DataModel.StaticHolder.PropString }, { \"Name\" : Common.DataModel.StaticHolder.PropString2 }, { \"Name\" : Common.DataModel.StaticHolder.PropString2 }, { \"Vehicle.VehicleType.Type\" : Tests.Common.DataModel.StaticHolder.PropEnum }, { \"Vehicle.VehicleType.MPG\" : Tests.Common.DataModel.StaticHolder.PropDouble }] } }])")]
-        public void Qualified_in_namespace()
-        {
-            _ = GetMongoCollection<Tests.Common.DataModel.VehicleType>().AsQueryable()
-                .Where(v => v.MPG > 20)
-                .Select(v => new System.Collections.Generic.List<Tests.Common.DataModel.VehicleTypeEnum> { Tests.Common.DataModel.VehicleTypeEnum.Bus, Tests.Common.DataModel.VehicleTypeEnum.Car, Tests.Common.DataModel.VehicleTypeEnum.Motorcylce });
-
-            _ = GetMongoCollection<Common.DataModel.Person>().AsQueryable()
-                .Where(p => p.SiblingsCount > 10)
-                .Select(p => new System.Collections.Generic.Dictionary<string, Common.DataModel.VehicleTypeEnum> { { "Bus", Common.DataModel.VehicleTypeEnum.Bus }, { "Car", Common.DataModel.VehicleTypeEnum.Car } });
-
-            _ = GetMongoQueryable<Person>().Where(p =>
-                p.SiblingsCount == DataModel.StaticHolder.PropByte ||
-                p.SiblingsCount == DataModel.StaticHolder.PropShort ||
-                p.SiblingsCount == Analyzer.Tests.Common.DataModel.StaticHolder.PropInt ||
-                p.TicksSinceBirth == Analyzer.Tests.Common.DataModel.StaticHolder.PropLong ||
-                p.Name == DataModel.StaticHolder.PropString ||
-                p.Name == DataModel.StaticHolder.PropString ||
-                p.Name == Common.DataModel.StaticHolder.PropString2 ||
-                p.Name == Common.DataModel.StaticHolder.PropString2 ||
-                p.Vehicle.VehicleType.Type == Tests.Common.DataModel.StaticHolder.PropEnum ||
-                p.Vehicle.VehicleType.MPG == Tests.Common.DataModel.StaticHolder.PropDouble);
-        }
-
         [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
         [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
-        public void Qualified_type()
+        [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"MPG\" : { \"$gt\" : 20.0 } } }, { \"$project\" : { \"__fld0\" : [0, 1, 2], \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : { \"$gt\" : 10 } } }, { \"$project\" : { \"__fld0\" : { \"Bus\" : 0, \"Car\" : 1 }, \"_id\" : 0 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropByte }, { \"SiblingsCount\" : Analyzer.Tests.Common.DataModel.StaticHolder.PropShort }, { \"SiblingsCount\" : Tests.Common.DataModel.StaticHolder.PropInt }, { \"TicksSinceBirth\" : NumberLong(Common.DataModel.StaticHolder.PropLong) }, { \"Name\" : DataModel.StaticHolder.PropString }, { \"Name\" : StaticHolder.PropString }] } }])")]
+        public void Qualified_type_names()
         {
             _ = GetMongoQueryable<MongoDB.Analyzer.Tests.Common.DataModel.ClassWithObjectId>().Where(c => c.StringField == "value");
+            _ = GetMongoQueryable<Analyzer.Tests.Common.DataModel.ClassWithObjectId>().Where(c => c.StringField == "value");
+            _ = GetMongoQueryable<Tests.Common.DataModel.ClassWithObjectId>().Where(c => c.StringField == "value");
+            _ = GetMongoQueryable<Common.DataModel.ClassWithObjectId>().Where(c => c.StringField == "value");
+            _ = GetMongoQueryable<DataModel.ClassWithObjectId>().Where(c => c.StringField == "value");
 
             _ = from classWithObjectId in GetMongoQueryable<MongoDB.Analyzer.Tests.Common.DataModel.ClassWithObjectId>()
                 where classWithObjectId.StringField == "value"
                 select classWithObjectId;
-        }
+            _ = from classWithObjectId in GetMongoQueryable<Analyzer.Tests.Common.DataModel.ClassWithObjectId>()
+                where classWithObjectId.StringField == "value"
+                select classWithObjectId;
+            _ = from classWithObjectId in GetMongoQueryable<Tests.Common.DataModel.ClassWithObjectId>()
+                where classWithObjectId.StringField == "value"
+                select classWithObjectId;
+            _ = from classWithObjectId in GetMongoQueryable<Common.DataModel.ClassWithObjectId>()
+                where classWithObjectId.StringField == "value"
+                select classWithObjectId;
+            _ = from classWithObjectId in GetMongoQueryable<DataModel.ClassWithObjectId>()
+                where classWithObjectId.StringField == "value"
+                select classWithObjectId;
 
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : common::DataModel.StaticHolder.ReadonlyByteNullable } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : dataModel::StaticHolder.ReadonlyByteNullable } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : dataModel.StaticHolder.ReadonlyByteNullable } }])")]
-        public void Qualified_alias()
-        {
-            _ = GetMongoQueryable<user>().Where(user => user.Age == 22);
-            _ = GetMongoQueryable<dataModel::User>().Where(user => user.Age == 22);
-            _ = GetMongoQueryable<NullableHolder>().Where(n => n.ByteNullable == common::DataModel.StaticHolder.ReadonlyByteNullable);
-            _ = GetMongoQueryable<NullableHolder>().Where(n => n.ByteNullable == dataModel::StaticHolder.ReadonlyByteNullable);
-            _ = GetMongoQueryable<NullableHolder>().Where(n => n.ByteNullable == dataModel.StaticHolder.ReadonlyByteNullable);
+            _ = GetMongoCollection<MongoDB.Analyzer.Tests.Common.DataModel.VehicleType>().AsQueryable()
+                .Where(v => v.MPG > 20)
+                .Select(v => new System.Collections.Generic.List<MongoDB.Analyzer.Tests.Common.DataModel.VehicleTypeEnum> { Analyzer.Tests.Common.DataModel.VehicleTypeEnum.Bus, Tests.Common.DataModel.VehicleTypeEnum.Car, Common.DataModel.VehicleTypeEnum.Motorcylce });
+
+            _ = GetMongoCollection<MongoDB.Analyzer.Tests.Common.DataModel.Person>().AsQueryable()
+                .Where(p => p.SiblingsCount > 10)
+                .Select(p => new System.Collections.Generic.Dictionary<string, MongoDB.Analyzer.Tests.Common.DataModel.VehicleTypeEnum> { { "Bus", Analyzer.Tests.Common.DataModel.VehicleTypeEnum.Bus }, { "Car", Tests.Common.DataModel.VehicleTypeEnum.Car } });
+
+            _ = GetMongoQueryable<Person>().Where(p =>
+                p.SiblingsCount == MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropByte ||
+                p.SiblingsCount == Analyzer.Tests.Common.DataModel.StaticHolder.PropShort ||
+                p.SiblingsCount == Tests.Common.DataModel.StaticHolder.PropInt ||
+                p.TicksSinceBirth == Common.DataModel.StaticHolder.PropLong ||
+                p.Name == DataModel.StaticHolder.PropString ||
+                p.Name == StaticHolder.PropString);
         }
     }
 }
