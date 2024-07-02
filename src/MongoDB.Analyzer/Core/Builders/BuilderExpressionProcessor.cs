@@ -146,7 +146,8 @@ internal static class BuilderExpressionProcessor
                 var isBuildersContainer = false;
                 var containsAlias = false;
 
-                //Check if Member Expression is Builders Container
+                // Check if Member Expression is Builders Container
+                // Example: Builders<T>
                 if (node is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
                     semanticModel.GetSymbolInfo(memberAccessExpressionSyntax.Expression).Symbol is INamedTypeSymbol namedTypeSymbol &&
                     namedTypeSymbol.IsBuildersContainer())
@@ -154,7 +155,8 @@ internal static class BuilderExpressionProcessor
                     isBuildersContainer = true;
                 }
 
-                //Check if Node contains alias
+                // Check if Node contains alias
+                // Example: driverAlias.Builders<T>, mongoDBNamespaceAlias.Driver.Builders<T>
                 var syntaxNode = (node as MemberAccessExpressionSyntax)?.Expression;
                 while (syntaxNode != null)
                 {
@@ -167,7 +169,8 @@ internal static class BuilderExpressionProcessor
                     syntaxNode = (syntaxNode as MemberAccessExpressionSyntax)?.Expression;
                 }
 
-                //Skip Nodes that are Builder Containers and that don't contain alias
+                // Skip Nodes that are Builder Containers and that don't contain alias
+                // Examples: MongoDB.Driver.Builders
                 if (isBuildersContainer && !containsAlias)
                 {
                     continue;
