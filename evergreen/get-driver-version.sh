@@ -11,6 +11,8 @@ if [ "${DRIVER_VERSION}" == "latest" ]; then
     else
         DRIVER_VERSION=$(curl "https://www.myget.org/F/mongodb/api/v3/query?prerelease=true&take=1&q=PackageId:MongoDB.Driver" | jq ".data[0].version" -r)
     fi
+
+    dotnet nuget add source https://www.myget.org/F/mongodb/api/v3/index.json -n myget.org --configfile ./nuget.config
 fi;
 
 cat << EOF >> ./version-expansion.yml
