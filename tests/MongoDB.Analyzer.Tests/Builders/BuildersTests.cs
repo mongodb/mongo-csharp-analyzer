@@ -83,6 +83,10 @@ public sealed class BuildersTests : DiagnosticsTestCasesRunner
     public Task Projection(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersQualifiedNames))]
+    public Task QualifiedNames(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersVariables))]
     public Task Variables(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

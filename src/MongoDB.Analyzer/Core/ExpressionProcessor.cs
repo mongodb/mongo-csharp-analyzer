@@ -131,13 +131,13 @@ internal static class ExpressionProcessor
         var processGenerics = false;
         var removeFluentParameters = false;
         IdentifierNameSyntax[] lambdaAndQueryIdentifiers = null;
-        IEnumerable<SimpleNameSyntax> expressionDescendants;
+        IEnumerable<NameSyntax> expressionDescendants;
 
         switch (rewriteContext.AnalysisType)
         {
             case AnalysisType.Builders:
                 {
-                    expressionDescendants = expressionNode.DescendantNodesWithSkipList<SimpleNameSyntax>(nodesProcessed);
+                    expressionDescendants = expressionNode.DescendantNodesWithSkipList<NameSyntax>(nodesProcessed);
                     processGenerics = true;
                     removeFluentParameters = true;
                     break;
@@ -154,7 +154,15 @@ internal static class ExpressionProcessor
                       })
                       .ToArray();
 
-                    expressionDescendants = expressionNode.DescendantNodes(n => !rootNodes.Contains(n)).OfType<IdentifierNameSyntax>();
+                    expressionDescendants = expressionNode
+                        .DescendantNodes(n => !rootNodes.Contains(n))
+                        .OfType<NameSyntax>()
+                        .Where(nameSyntax =>
+                        {
+                            var qualifiedNameSyntax = nameSyntax as QualifiedNameSyntax;
+                            return nameSyntax is IdentifierNameSyntax || qualifiedNameSyntax?.Right is IdentifierNameSyntax;
+                        });
+
                     break;
                 }
             default:
@@ -385,7 +393,7 @@ internal static class ExpressionProcessor
 
     private static RewriteResult HandleRemappedType(
         RewriteContext rewriteContext,
-        SimpleNameSyntax identifierNode,
+        NameSyntax identifierNode,
         TypeInfo typeInfo,
         bool processGenericTypes = false)
     {
