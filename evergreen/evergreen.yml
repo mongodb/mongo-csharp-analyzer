@@ -53,9 +53,10 @@ functions:
           if [ "Windows_NT" != "$OS" ]; then
             # non windows OSs don't have dotnet in the PATH
             export PATH=$PATH:/usr/share/dotnet
+          else
+            export DOTNET_SDK_PATH=$(cygpath -m $DOTNET_SDK_PATH)
           fi
 
-          export MONGODB_BINARIES="$DRIVERS_TOOLS/mongodb/bin"
           export PROJECT_DIRECTORY="$(pwd)"
 
           cat <<EOT > expansion.yml
@@ -69,7 +70,7 @@ functions:
             export PACKAGE_VERSION="$PACKAGE_VERSION"
             export PROJECT_DIRECTORY="$PROJECT_DIRECTORY"
             export DOTNET_SDK_PATH="$DOTNET_SDK_PATH"
-            export PATH="$DOTNET_SDK_PATH:$MONGODB_BINARIES:$PATH"
+            export PATH="$DOTNET_SDK_PATH:$PATH"
             export PROJECT="${project}"
           EOT
           # See what we've done
