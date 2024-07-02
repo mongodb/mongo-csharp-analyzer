@@ -179,6 +179,10 @@ internal static class ExpressionProcessor
             }
 
             var nodeToHandle = SyntaxNodeExtensions.GetTopMostInvocationOrBinaryExpressionSyntax(identifierNode, lambdaAndQueryIdentifiers);
+            if (nodeToHandle != identifierNode)
+            {
+                nodesProcessed.Add(nodeToHandle);
+            }
 
             var symbolInfo = rewriteContext.SemanticModel.GetSymbolInfo(nodeToHandle);
             if (symbolInfo.Symbol == null)
@@ -213,7 +217,6 @@ internal static class ExpressionProcessor
                         }
 
                         nodesRemapping[rewriteResult.NodeToReplace] = rewriteResult.NewNode;
-                        nodesProcessed.Add(nodeToHandle);
                         break;
                     }
                 case RewriteAction.Invalid:
