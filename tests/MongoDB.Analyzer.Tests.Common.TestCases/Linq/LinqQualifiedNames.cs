@@ -18,8 +18,10 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
 #pragma warning disable IDE0005
-using user = MongoDB.Analyzer.Tests.Common.DataModel.User;
+using common = MongoDB.Analyzer.Tests.Common;
+using dataModel = MongoDB.Analyzer.Tests.Common.DataModel;
 using staticHolder = MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder;
+using user = MongoDB.Analyzer.Tests.Common.DataModel.User;
 #pragma warning restore IDE0005
 
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
@@ -117,11 +119,17 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
         [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : staticHolder.ReadonlyByteNullable } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : common::DataModel.StaticHolder.ReadonlyByteNullable } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : dataModel::StaticHolder.ReadonlyByteNullable } }])")]
+        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : dataModel.StaticHolder.ReadonlyByteNullable } }])")]
         public void Qualified_alias()
         {
             _ = GetMongoQueryable<user>().Where(user => user.Age == 22);
-            _ = GetMongoQueryable<NullableHolder>().Where(n => n.ByteNullable == staticHolder.ReadonlyByteNullable);
+            _ = GetMongoQueryable<dataModel::User>().Where(user => user.Age == 22);
+            _ = GetMongoQueryable<NullableHolder>().Where(n => n.ByteNullable == common::DataModel.StaticHolder.ReadonlyByteNullable);
+            _ = GetMongoQueryable<NullableHolder>().Where(n => n.ByteNullable == dataModel::StaticHolder.ReadonlyByteNullable);
+            _ = GetMongoQueryable<NullableHolder>().Where(n => n.ByteNullable == dataModel.StaticHolder.ReadonlyByteNullable);
         }
     }
 }

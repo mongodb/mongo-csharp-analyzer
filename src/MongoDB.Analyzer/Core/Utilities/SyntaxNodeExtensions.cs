@@ -146,6 +146,10 @@ internal static class SyntaxNodeExtensions
                 return true;
             }
         }
+        else if (identifier.Parent is AliasQualifiedNameSyntax || identifier.Parent is QualifiedNameSyntax)
+        {
+            return false;
+        }
         else if (IsMethodAndNotLeaf(identifier.Parent))
         {
             // part of methods access chain

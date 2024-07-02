@@ -17,8 +17,9 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 
 #pragma warning disable IDE0005
+using common = MongoDB.Analyzer.Tests.Common;
+using dataModel = MongoDB.Analyzer.Tests.Common.DataModel;
 using user = MongoDB.Analyzer.Tests.Common.DataModel.User;
-using staticHolder = MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder;
 #pragma warning restore IDE0005
 
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
@@ -91,11 +92,17 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         }
 
         [BuildersMQL("{ \"Age\" : 22 }")]
-        [BuildersMQL("{ \"ByteNullable\" : staticHolder.ReadonlyByteNullable }")]
+        [BuildersMQL("{ \"Age\" : 22 }")]
+        [BuildersMQL("{ \"ByteNullable\" : common::DataModel.StaticHolder.ReadonlyByteNullable }")]
+        [BuildersMQL("{ \"ByteNullable\" : dataModel::StaticHolder.ReadonlyByteNullable }")]
+        [BuildersMQL("{ \"ByteNullable\" : dataModel.StaticHolder.ReadonlyByteNullable }")]
         public void Qualified_alias()
         {
             _ = Builders<user>.Filter.Eq(user => user.Age, 22);
-            _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, staticHolder.ReadonlyByteNullable);
+            _ = Builders<dataModel::User>.Filter.Eq(user => user.Age, 22);
+            _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, common::DataModel.StaticHolder.ReadonlyByteNullable);
+            _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, dataModel::StaticHolder.ReadonlyByteNullable);
+            _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, dataModel.StaticHolder.ReadonlyByteNullable);
         }
     }
 }
