@@ -53,6 +53,7 @@ functions:
           if [ "Windows_NT" != "$OS" ]; then
             # non windows OSs don't have dotnet in the PATH
             export PATH=$PATH:/usr/share/dotnet
+          else
             export DOTNET_SDK_PATH=$(cygpath -m $DOTNET_SDK_PATH)
           fi
 
