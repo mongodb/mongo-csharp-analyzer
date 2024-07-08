@@ -67,6 +67,10 @@ public sealed class LinqTests : DiagnosticsTestCasesRunner
     public Task Nullables(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(LinqNullForgivingOperators))]
+    public Task NullForgivingOperators(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(LinqQualifiedNames))]
     public Task QualifiedNames(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
