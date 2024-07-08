@@ -159,7 +159,8 @@ internal static class SyntaxFactoryUtilities
             {
                 result = invocationExpressionSyntax.Expression;
             }
-            else if (result is PostfixUnaryExpressionSyntax postfixUnaryExpressionSyntax)
+            else if (result is PostfixUnaryExpressionSyntax postfixUnaryExpressionSyntax &&
+                postfixUnaryExpressionSyntax.Kind() == SyntaxKind.SuppressNullableWarningExpression)
             {
                 result = postfixUnaryExpressionSyntax.Operand;
             }
