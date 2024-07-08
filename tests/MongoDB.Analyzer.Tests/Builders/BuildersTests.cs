@@ -79,6 +79,10 @@ public sealed class BuildersTests : DiagnosticsTestCasesRunner
     public Task Nullables(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(BuildersNullForgivingOperators))]
+    public Task NullForgivingOperators(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(BuildersProjection))]
     public Task Projection(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 

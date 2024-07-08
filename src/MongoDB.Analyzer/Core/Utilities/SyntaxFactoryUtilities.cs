@@ -107,10 +107,10 @@ internal static class SyntaxFactoryUtilities
         {
             while (true)
             {
-                var trimmedExpression = TrimElementAccessAndInvocationSyntax(memberAccessExpressionSyntax.Expression);
+                var trimmedExpression = TrimElementAccessNullOperatorAndInvocationSyntax(memberAccessExpressionSyntax.Expression);
                 if (trimmedExpression is not MemberAccessExpressionSyntax nextMemberAccessExpressionSyntax)
                 {
-                    underlyingNameSyntax = memberAccessExpressionSyntax.Expression as SimpleNameSyntax;
+                    underlyingNameSyntax = trimmedExpression as SimpleNameSyntax;
 
                     break;
                 }
@@ -145,7 +145,7 @@ internal static class SyntaxFactoryUtilities
             SyntaxFactory.IdentifierName(source),
             SyntaxFactory.IdentifierName(member));
 
-    public static ExpressionSyntax TrimElementAccessAndInvocationSyntax(ExpressionSyntax expressionSyntax)
+    public static ExpressionSyntax TrimElementAccessNullOperatorAndInvocationSyntax(ExpressionSyntax expressionSyntax)
     {
         var result = expressionSyntax;
 
@@ -158,6 +158,11 @@ internal static class SyntaxFactoryUtilities
             else if (result is InvocationExpressionSyntax invocationExpressionSyntax)
             {
                 result = invocationExpressionSyntax.Expression;
+            }
+            else if (result is PostfixUnaryExpressionSyntax postfixUnaryExpressionSyntax &&
+                postfixUnaryExpressionSyntax.Kind() == SyntaxKind.SuppressNullableWarningExpression)
+            {
+                result = postfixUnaryExpressionSyntax.Operand;
             }
             else
             {
