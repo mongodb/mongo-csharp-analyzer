@@ -17,6 +17,7 @@ namespace MongoDB.Analyzer.Core;
 internal static class SymbolExtensions
 {
     private const string AssemblyMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceEF = "Microsoft.EntityFrameworkCore";
     private const string NamespaceMongoDBBson = "MongoDB.Bson";
     private const string NamespaceMongoDBBsonAttributes = "MongoDB.Bson.Serialization.Attributes";
     private const string NamespaceMongoDBDriver = "MongoDB.Driver";
@@ -167,6 +168,9 @@ internal static class SymbolExtensions
             containingNamespace == NamespaceMongoDBLinq &&
             symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
     }
+
+    public static bool IsEF(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceEF;
 
     public static bool IsFindFluent(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
