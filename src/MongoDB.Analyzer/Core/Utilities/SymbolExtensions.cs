@@ -226,14 +226,11 @@ internal static class SymbolExtensions
 
         while (namedTypeSymbol != null)
         {
-            //Is Supported Collection
             if (s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString()))
             {
                 return true;
             }
 
-            //Check Interfaces
-            var interfaces = namedTypeSymbol.Interfaces;
             if (namedTypeSymbol.Interfaces.Any(i => s_supportedCollections.Contains(i.ConstructedFrom?.ToDisplayString()))){
                 return true;
             }
