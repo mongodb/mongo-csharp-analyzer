@@ -217,9 +217,32 @@ internal static class SymbolExtensions
             _ => false
         };
 
-    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
-        typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-        s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString());
+    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
+        {
+            return false;
+        }
+
+        while (namedTypeSymbol != null)
+        {
+            //Is Supported Collection
+            if (s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString()))
+            {
+                return true;
+            }
+
+            //Check Interfaces
+            var interfaces = namedTypeSymbol.Interfaces;
+            if (namedTypeSymbol.Interfaces.Any(i => s_supportedCollections.Contains(i.ConstructedFrom?.ToDisplayString()))){
+                return true;
+            }
+
+            namedTypeSymbol = namedTypeSymbol.BaseType;
+        }
+
+        return false;
+    }
 
     public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
         typeSymbol.IsIMongoCollection() &&
