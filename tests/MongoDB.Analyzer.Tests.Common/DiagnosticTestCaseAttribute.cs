@@ -93,14 +93,14 @@ namespace MongoDB.Analyzer.Tests.Common
         public MQLEFAttribute(
             string message,
             params int[] codeLines) :
-            this(message, null, LinqVersion.V2, DriverTargetFramework.All, codeLines)
+            this(message, null, LinqVersion.V3, DriverTargetFramework.All, codeLines)
         {
         }
 
         public MQLEFAttribute(
             string message,
             string version = null,
-            LinqVersion linqProvider = LinqVersion.V2,
+            LinqVersion linqProvider = LinqVersion.V3,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
             params int[] codeLines) :
             base(DiagnosticRulesConstants.EF2MQL,

@@ -26,9 +26,16 @@ internal static class AnalysisUtilities
             _ => typesMapper.RemapTypes(exception.InnerException?.Message)
         };
 
+    public static bool IsDriverOrBsonException(Builders.MQLResult mqlResult)
+    {
+        var source = mqlResult.Exception?.InnerException?.Source ?? string.Empty;
+        return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
+            source.Contains("MongoDB.Bson"));
+    }
+
     public static bool IsDriverOrLinqException(Linq.MQLResult mqlResult)
     {
-        var source = mqlResult.Exception.InnerException?.Source;
+        var source = mqlResult.Exception?.InnerException?.Source ?? string.Empty;
         return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
             source.Contains("MongoDB.Bson") || source.Contains("System.Linq"));
     }

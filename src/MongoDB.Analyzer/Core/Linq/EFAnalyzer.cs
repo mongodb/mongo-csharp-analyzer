@@ -23,16 +23,16 @@ internal static class EFAnalyzer
     {
         var sw = Stopwatch.StartNew();
         var stats = AnalysisStats.Empty;
-        ExpressionsAnalysis EFAnalysis = null;
+        ExpressionsAnalysis efAnalysis = null;
 
         try
         {
             context.Logger.Log("Started EF analysis");
 
-            EFAnalysis = LinqExpressionProcessor.ProcessSemanticModel(context, AnalysisType.EF);
+            efAnalysis = LinqExpressionProcessor.ProcessSemanticModel(context, AnalysisType.EF);
 
-            ReportInvalidExpressions(context, EFAnalysis);
-            stats = ReportMqlOrInvalidExpressions(context, EFAnalysis);
+            ReportInvalidExpressions(context, efAnalysis);
+            stats = ReportMqlOrInvalidExpressions(context, efAnalysis);
 
             sw.Stop();
             context.Logger.Log($"EF analysis ended: with {stats.MqlCount} mql translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}ms.");
@@ -43,7 +43,7 @@ internal static class EFAnalyzer
             context.Logger.Log($"EF analysis ended after {sw.ElapsedMilliseconds} ms with exception {ex}");
         }
 
-        var telemetry = AnalysisUtilities.GetTelemetry(EFAnalysis, stats, sw);
+        var telemetry = AnalysisUtilities.GetTelemetry(efAnalysis, stats, sw);
         if (telemetry.ExpressionsFound > 0)
         {
             context.Telemetry.EFAnalysisResult(telemetry);
@@ -52,11 +52,11 @@ internal static class EFAnalyzer
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static void ReportInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis EFExpressionAnalysis)
+    private static void ReportInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis efExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
 
-        if (EFExpressionAnalysis.InvalidExpressionNodes.EmptyOrNull())
+        if (efExpressionAnalysis.InvalidExpressionNodes.EmptyOrNull())
         {
             return;
         }
@@ -64,27 +64,27 @@ internal static class EFAnalyzer
         var driverVersion = ReferencesProvider.GetMongoDBDriverVersion(semanticContext.SemanticModel.Compilation.References);
         var driverVersionString = driverVersion?.ToString(3);
 
-        foreach (var invalidLinqNode in EFExpressionAnalysis.InvalidExpressionNodes)
+        foreach (var invalidExpressionNode in efExpressionAnalysis.InvalidExpressionNodes)
         {
             var diagnostics = Diagnostic.Create(
-                DiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression,
-                invalidLinqNode.OriginalExpression.GetLocation(),
-                AnalysisUtilities.DecorateMessage(invalidLinqNode.Errors.FirstOrDefault(), driverVersionString, context.Settings));
+                DiagnosticsRules.DiagnosticRuleNotSupportedEFExpression,
+                invalidExpressionNode.OriginalExpression.GetLocation(),
+                AnalysisUtilities.DecorateMessage(invalidExpressionNode.Errors.FirstOrDefault(), driverVersionString, context.Settings));
 
             semanticContext.ReportDiagnostic(diagnostics);
         }
     }
 
-    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis EFExpressionAnalysis)
+    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis efExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
 
-        if (EFExpressionAnalysis.AnalysisNodeContexts.EmptyOrNull())
+        if (efExpressionAnalysis.AnalysisNodeContexts.EmptyOrNull())
         {
             return AnalysisStats.Empty;
         }
 
-        var compilationResult = AnalysisCodeGenerator.Compile(context, EFExpressionAnalysis);
+        var compilationResult = AnalysisCodeGenerator.Compile(context, efExpressionAnalysis);
         if (!compilationResult.Success)
         {
             return AnalysisStats.Empty;
@@ -97,7 +97,7 @@ internal static class EFAnalyzer
           MqlGeneratorSyntaxElements.Linq.MqlGeneratorNamespace,
           context.TypesProcessor.GeneratedTypeToOriginalTypeMapping);
 
-        foreach (var analysisContext in EFExpressionAnalysis.AnalysisNodeContexts)
+        foreach (var analysisContext in efExpressionAnalysis.AnalysisNodeContexts)
         {
             var mqlResult = compilationResult.LinqTestCodeExecutor.GenerateMql(analysisContext.EvaluationMethodName);
             var locations = analysisContext.Node.Locations;
@@ -105,7 +105,7 @@ internal static class EFAnalyzer
             if (mqlResult.Mql != null)
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
-                var diagnosticDescriptor = mqlResult.Linq3Only ? DiagnosticsRules.DiagnosticRuleNotSupportedEFExpression : DiagnosticsRules.DiagnosticRuleEF2MQL;
+                var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleEF2MQL;
                 var decoratedMessage = AnalysisUtilities.DecorateMessage(mql, driverVersion, settings);
                 semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
@@ -116,8 +116,8 @@ internal static class EFAnalyzer
 
                 if (isDriverOrLinqException || settings.OutputInternalExceptions)
                 {
-                    var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression;
-                    var message = AnalysisUtilities.GetExceptionMessage(mqlResult.Exception, typesMapper, AnalysisType.Linq);
+                    var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleNotSupportedEFExpression;
+                    var message = AnalysisUtilities.GetExceptionMessage(mqlResult.Exception, typesMapper, AnalysisType.EF);
                     var decoratedMessage = AnalysisUtilities.DecorateMessage(message, driverVersion, context.Settings);
 
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);

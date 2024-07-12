@@ -156,6 +156,9 @@ internal static class SymbolExtensions
         _ => symbol.IsContainedInLambda(parentNode)
     };
 
+    public static bool IsDBSet(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceEF;
+
     public static bool IsDefinedInMongoDriver(this ISymbol symbol) => symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
 
     public static bool IsDefinedInMongoLinqOrSystemLinq(this ISymbol symbol)
@@ -168,9 +171,6 @@ internal static class SymbolExtensions
             containingNamespace == NamespaceMongoDBLinq &&
             symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
     }
-
-    public static bool IsEF(this ITypeSymbol typeSymbol) =>
-        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceEF;
 
     public static bool IsFindFluent(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch

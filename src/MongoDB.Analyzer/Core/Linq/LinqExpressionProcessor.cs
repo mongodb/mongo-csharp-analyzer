@@ -85,7 +85,7 @@ internal static class LinqExpressionProcessor
 
             var mongoQueryableTypeInfo = semanticModel.GetTypeInfo(deepestMongoQueryableNode);
 
-            if ((!mongoQueryableTypeInfo.Type.IsIMongoQueryable() && analysisType == AnalysisType.Linq) || (!mongoQueryableTypeInfo.Type.IsEF() && analysisType == AnalysisType.EF) ||
+            if ((!mongoQueryableTypeInfo.Type.IsIMongoQueryable() && analysisType == AnalysisType.Linq) || (!mongoQueryableTypeInfo.Type.IsDBSet() && analysisType == AnalysisType.EF) ||
                 mongoQueryableTypeInfo.Type is not INamedTypeSymbol mongoQueryableNamedType ||
                 mongoQueryableNamedType.TypeArguments.Length != 1 ||
                 !mongoQueryableNamedType.TypeArguments[0].IsSupportedMongoCollectionType())
