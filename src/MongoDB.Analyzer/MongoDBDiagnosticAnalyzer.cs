@@ -50,6 +50,7 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
             telemetryService.AnalysisStarted(context, settings);
 
             flushTelemetry |= LinqAnalyzer.AnalyzeIMongoQueryable(mongoAnalyzerContext);
+            flushTelemetry |= EFAnalyzer.AnalyzeEFQueryable(mongoAnalyzerContext);
             flushTelemetry |= BuildersAnalyzer.AnalyzeBuilders(mongoAnalyzerContext);
             flushTelemetry |= PocoAnalyzer.AnalyzePoco(mongoAnalyzerContext);
         }

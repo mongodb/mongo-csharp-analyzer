@@ -11,6 +11,8 @@
     <PackageReference Include="MongoDB.Driver" Version="2.19.0">
          <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
   </ItemGroup>
 
 </Project>

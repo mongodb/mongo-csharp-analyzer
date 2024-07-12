@@ -23,6 +23,9 @@ namespace MongoDB.Analyzer.Tests.Common
         public const string Builders2MQL = "MABuilders1001";
         public const string NotSupportedBuildersExpression = "MABuilders2001";
 
+        public const string EF2MQL = "MAEF1001";
+        public const string NotSupportedEFExpression = "MAEF2001";
+
         public const string Poco2Json = "MAPoco1001";
         public const string NotSupportedPoco = "MAPoco2001";
 
@@ -35,6 +38,8 @@ namespace MongoDB.Analyzer.Tests.Common
             NotSupportedLinq2Expression,
             Builders2MQL,
             NotSupportedBuildersExpression,
+            EF2MQL,
+            NotSupportedEFExpression,
             Poco2Json,
             NotSupportedPoco,
             NoRule

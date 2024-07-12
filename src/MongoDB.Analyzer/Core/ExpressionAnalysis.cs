@@ -18,6 +18,7 @@ internal enum AnalysisType
 {
     Unknown,
     Builders,
+    EF,
     Linq,
     Poco
 }

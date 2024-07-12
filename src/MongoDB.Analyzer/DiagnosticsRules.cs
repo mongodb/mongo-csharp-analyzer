@@ -25,6 +25,11 @@ internal static class DiagnosticsRules
     private const string DiagnosticIdBuilders2MQL = "MABuilders1001";
     private const string DiagnosticIdNotSupportedBuilderExpression = "MABuilders2001";
 
+    //EF
+    private const string DiagnosticIdEF2MQL = "MAEF1001";
+    private const string DiagnosticIdNotSupportedEFExpression = "MAEF2001";
+    private const string EFCategory = "MongoDB.Analyzer.EF";
+
     // LINQ
     private const string DiagnosticIdLinq2MQL = "MALinq1001";
     private const string DiagnosticIdNotSupportedLinqExpression = "MALinq2001";
@@ -54,6 +59,25 @@ internal static class DiagnosticsRules
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         helpLinkUri: GetRuleUrl(DiagnosticIdNotSupportedBuilderExpression));
+
+    //EF
+    public static DiagnosticDescriptor DiagnosticRuleEF2MQL { get; } = new DiagnosticDescriptor(
+        id: DiagnosticIdEF2MQL,
+        title: "EF to MQL",
+        messageFormat: "{0}",
+        category: EFCategory,
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        helpLinkUri: GetRuleUrl(DiagnosticIdEF2MQL));
+
+    public static DiagnosticDescriptor DiagnosticRuleNotSupportedEFExpression { get; } = new DiagnosticDescriptor(
+        id: DiagnosticIdNotSupportedEFExpression,
+        title: "Not supported EF Expression",
+        messageFormat: "{0}",
+        category: EFCategory,
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: GetRuleUrl(DiagnosticIdNotSupportedEFExpression));
 
     // LINQ
     public static DiagnosticDescriptor DiagnosticRuleLinq2MQL { get; } = new DiagnosticDescriptor(
@@ -107,6 +131,10 @@ internal static class DiagnosticsRules
             // Builders
             DiagnosticRuleBuilder2MQL,
             DiagnosticRuleNotSupportedBuilderExpression,
+
+            //EF
+            DiagnosticRuleEF2MQL,
+            DiagnosticRuleNotSupportedEFExpression,
 
             // LINQ
             DiagnosticRuleLinq2MQL,

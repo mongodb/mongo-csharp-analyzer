@@ -88,6 +88,31 @@ namespace MongoDB.Analyzer.Tests.Common
         }
     }
 
+    public sealed class MQLEFAttribute : DiagnosticRuleTestCaseAttribute
+    {
+        public MQLEFAttribute(
+            string message,
+            params int[] codeLines) :
+            this(message, null, LinqVersion.V3, DriverTargetFramework.All, codeLines)
+        {
+        }
+
+        public MQLEFAttribute(
+            string message,
+            string version = null,
+            LinqVersion linqProvider = LinqVersion.V3,
+            DriverTargetFramework targetFramework = DriverTargetFramework.All,
+            params int[] codeLines) :
+            base(DiagnosticRulesConstants.EF2MQL,
+                message,
+                version,
+                linqProvider,
+                targetFramework,
+                codeLines: codeLines)
+        {
+        }
+    }
+
     public class InvalidLinqAttribute : DiagnosticRuleTestCaseAttribute
     {
         public InvalidLinqAttribute(

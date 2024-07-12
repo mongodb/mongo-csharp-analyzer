@@ -51,13 +51,6 @@ internal static class BuildersAnalyzer
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static bool IsDriverOrBsonException(MQLResult mqlResult)
-    {
-        var source = mqlResult.Exception.InnerException?.Source;
-        return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
-            source.Contains("MongoDB.Bson"));
-    }
-
     private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis buildersAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
@@ -94,7 +87,7 @@ internal static class BuildersAnalyzer
             }
             else if (mqlResult.Exception != null)
             {
-                var isDriverOrBsonException = IsDriverOrBsonException(mqlResult);
+                var isDriverOrBsonException = AnalysisUtilities.IsDriverOrBsonException(mqlResult);
 
                 if (isDriverOrBsonException || settings.OutputInternalExceptions)
                 {

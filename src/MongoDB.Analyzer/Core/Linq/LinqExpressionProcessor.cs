@@ -18,8 +18,13 @@ namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class LinqExpressionProcessor
 {
-    public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context)
+    public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context, AnalysisType analysisType = AnalysisType.Linq)
     {
+        if (analysisType != AnalysisType.Linq && analysisType != AnalysisType.EF)
+        {
+            throw new ArgumentOutOfRangeException(nameof(analysisType), analysisType, "Unsupported analysis type");
+        }
+
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var syntaxTree = semanticModel.SyntaxTree;
         var root = syntaxTree.GetRoot();
@@ -79,7 +84,8 @@ internal static class LinqExpressionProcessor
             }
 
             var mongoQueryableTypeInfo = semanticModel.GetTypeInfo(deepestMongoQueryableNode);
-            if (!mongoQueryableTypeInfo.Type.IsIMongoQueryable() ||
+
+            if ((!mongoQueryableTypeInfo.Type.IsIMongoQueryable() && analysisType == AnalysisType.Linq) || (!mongoQueryableTypeInfo.Type.IsDBSet() && analysisType == AnalysisType.EF) ||
                 mongoQueryableTypeInfo.Type is not INamedTypeSymbol mongoQueryableNamedType ||
                 mongoQueryableNamedType.TypeArguments.Length != 1 ||
                 !mongoQueryableNamedType.TypeArguments[0].IsSupportedMongoCollectionType())

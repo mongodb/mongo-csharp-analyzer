@@ -57,6 +57,9 @@ internal static class ITelemetryServiceExtensions
     public static void BuildersAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
     telemetryService.Event("Builders analyzed", analysisStatistics.ToKeyValues());
 
+    public static void EFAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
+        telemetryService.Event("EF analyzed", analysisStatistics.ToKeyValues());
+
     public static void LinqAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
         telemetryService.Event("LINQ analyzed", analysisStatistics.ToKeyValues());
 

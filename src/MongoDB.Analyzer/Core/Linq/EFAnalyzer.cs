@@ -17,46 +17,46 @@ using MongoDB.Analyzer.Core.Utilities;
 
 namespace MongoDB.Analyzer.Core.Linq;
 
-internal static class LinqAnalyzer
+internal static class EFAnalyzer
 {
-    public static bool AnalyzeIMongoQueryable(MongoAnalysisContext context)
+    public static bool AnalyzeEFQueryable(MongoAnalysisContext context)
     {
         var sw = Stopwatch.StartNew();
         var stats = AnalysisStats.Empty;
-        ExpressionsAnalysis linqAnalysis = null;
+        ExpressionsAnalysis efAnalysis = null;
 
         try
         {
-            context.Logger.Log("Started LINQ analysis");
+            context.Logger.Log("Started EF analysis");
 
-            linqAnalysis = LinqExpressionProcessor.ProcessSemanticModel(context);
+            efAnalysis = LinqExpressionProcessor.ProcessSemanticModel(context, AnalysisType.EF);
 
-            ReportInvalidExpressions(context, linqAnalysis);
-            stats = ReportMqlOrInvalidExpressions(context, linqAnalysis);
+            ReportInvalidExpressions(context, efAnalysis);
+            stats = ReportMqlOrInvalidExpressions(context, efAnalysis);
 
             sw.Stop();
-            context.Logger.Log($"LINQ analysis ended: with {stats.MqlCount} mql translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}ms.");
+            context.Logger.Log($"EF analysis ended: with {stats.MqlCount} mql translations, {stats.DriverExceptionsCount} unsupported expressions, {stats.InternalExceptionsCount} internal exceptions in {sw.ElapsedMilliseconds}ms.");
         }
         catch (Exception ex)
         {
             sw.Stop();
-            context.Logger.Log($"LINQ analysis ended after {sw.ElapsedMilliseconds}ms with exception {ex}");
+            context.Logger.Log($"EF analysis ended after {sw.ElapsedMilliseconds} ms with exception {ex}");
         }
 
-        var telemetry = AnalysisUtilities.GetTelemetry(linqAnalysis, stats, sw);
+        var telemetry = AnalysisUtilities.GetTelemetry(efAnalysis, stats, sw);
         if (telemetry.ExpressionsFound > 0)
         {
-            context.Telemetry.LinqAnalysisResult(telemetry);
+            context.Telemetry.EFAnalysisResult(telemetry);
         }
 
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static void ReportInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
+    private static void ReportInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis efExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
 
-        if (linqExpressionAnalysis.InvalidExpressionNodes.EmptyOrNull())
+        if (efExpressionAnalysis.InvalidExpressionNodes.EmptyOrNull())
         {
             return;
         }
@@ -64,27 +64,27 @@ internal static class LinqAnalyzer
         var driverVersion = ReferencesProvider.GetMongoDBDriverVersion(semanticContext.SemanticModel.Compilation.References);
         var driverVersionString = driverVersion?.ToString(3);
 
-        foreach (var invalidLinqNode in linqExpressionAnalysis.InvalidExpressionNodes)
+        foreach (var invalidExpressionNode in efExpressionAnalysis.InvalidExpressionNodes)
         {
             var diagnostics = Diagnostic.Create(
-                DiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression,
-                invalidLinqNode.OriginalExpression.GetLocation(),
-                AnalysisUtilities.DecorateMessage(invalidLinqNode.Errors.FirstOrDefault(), driverVersionString, context.Settings));
+                DiagnosticsRules.DiagnosticRuleNotSupportedEFExpression,
+                invalidExpressionNode.OriginalExpression.GetLocation(),
+                AnalysisUtilities.DecorateMessage(invalidExpressionNode.Errors.FirstOrDefault(), driverVersionString, context.Settings));
 
             semanticContext.ReportDiagnostic(diagnostics);
         }
     }
 
-    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
+    private static AnalysisStats ReportMqlOrInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis efExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
 
-        if (linqExpressionAnalysis.AnalysisNodeContexts.EmptyOrNull())
+        if (efExpressionAnalysis.AnalysisNodeContexts.EmptyOrNull())
         {
             return AnalysisStats.Empty;
         }
 
-        var compilationResult = AnalysisCodeGenerator.Compile(context, linqExpressionAnalysis);
+        var compilationResult = AnalysisCodeGenerator.Compile(context, efExpressionAnalysis);
         if (!compilationResult.Success)
         {
             return AnalysisStats.Empty;
@@ -97,7 +97,7 @@ internal static class LinqAnalyzer
           MqlGeneratorSyntaxElements.Linq.MqlGeneratorNamespace,
           context.TypesProcessor.GeneratedTypeToOriginalTypeMapping);
 
-        foreach (var analysisContext in linqExpressionAnalysis.AnalysisNodeContexts)
+        foreach (var analysisContext in efExpressionAnalysis.AnalysisNodeContexts)
         {
             var mqlResult = compilationResult.LinqTestCodeExecutor.GenerateMql(analysisContext.EvaluationMethodName);
             var locations = analysisContext.Node.Locations;
@@ -105,7 +105,7 @@ internal static class LinqAnalyzer
             if (mqlResult.Mql != null)
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
-                var diagnosticDescriptor = mqlResult.Linq3Only ? DiagnosticsRules.DiagnosticRuleNotSupportedLinq2Expression : DiagnosticsRules.DiagnosticRuleLinq2MQL;
+                var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleEF2MQL;
                 var decoratedMessage = AnalysisUtilities.DecorateMessage(mql, driverVersion, settings);
                 semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
@@ -116,8 +116,8 @@ internal static class LinqAnalyzer
 
                 if (isDriverOrLinqException || settings.OutputInternalExceptions)
                 {
-                    var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleNotSupportedLinqExpression;
-                    var message = AnalysisUtilities.GetExceptionMessage(mqlResult.Exception, typesMapper, AnalysisType.Linq);
+                    var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleNotSupportedEFExpression;
+                    var message = AnalysisUtilities.GetExceptionMessage(mqlResult.Exception, typesMapper, AnalysisType.EF);
                     var decoratedMessage = AnalysisUtilities.DecorateMessage(message, driverVersion, context.Settings);
 
                     semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
