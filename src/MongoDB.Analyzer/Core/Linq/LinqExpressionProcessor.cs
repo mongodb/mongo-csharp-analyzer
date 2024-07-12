@@ -20,6 +20,11 @@ internal static class LinqExpressionProcessor
 {
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context, AnalysisType analysisType = AnalysisType.Linq)
     {
+        if (analysisType != AnalysisType.Linq && analysisType != AnalysisType.EF)
+        {
+            throw new ArgumentOutOfRangeException(nameof(analysisType), analysisType, "Unsupported analysis type");
+        }
+
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
         var syntaxTree = semanticModel.SyntaxTree;
         var root = syntaxTree.GetRoot();

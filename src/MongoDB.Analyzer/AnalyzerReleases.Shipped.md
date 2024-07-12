@@ -18,3 +18,12 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
 MAPoco1001 | MongoDB.Analyzer.Poco | Info | Poco to Json [Documentation](https://www.mongodb.com/docs/mongodb-analyzer/current/rules/#mapoco1001)
 MAPoco2001 | MongoDB.Analyzer.Poco | Warning | Unsupported POCO [Documentation](https://www.mongodb.com/docs/mongodb-analyzer/current/rules/#mapoco2001)
+
+## Release 1.4.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|--------------------
+MAEF1001 | MongoDB.Analyzer.EF | Info | EF to MQL [Documentation](https://www.mongodb.com/docs/mongodb-analyzer/current/rules/#maef1001)
+MAEF2001 | MongoDB.Analyzer.EF | Warning | Unsupported EF [Documentation](https://www.mongodb.com/docs/mongodb-analyzer/current/rules/#maef2001)

@@ -52,13 +52,6 @@ internal static class LinqAnalyzer
         return telemetry.ExpressionsFound > 0;
     }
 
-    private static bool IsDriverOrLinqException(MQLResult mqlResult)
-    {
-        var source = mqlResult.Exception.InnerException?.Source;
-        return source.IsNotEmpty() && (source.Contains("MongoDB.Driver") ||
-            source.Contains("MongoDB.Bson") || source.Contains("System.Linq"));
-    }
-
     private static void ReportInvalidExpressions(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
     {
         var semanticContext = context.SemanticModelAnalysisContext;
@@ -119,7 +112,7 @@ internal static class LinqAnalyzer
             }
             else if (mqlResult.Exception != null)
             {
-                var isDriverOrLinqException = IsDriverOrLinqException(mqlResult);
+                var isDriverOrLinqException = AnalysisUtilities.IsDriverOrLinqException(mqlResult);
 
                 if (isDriverOrLinqException || settings.OutputInternalExceptions)
                 {
