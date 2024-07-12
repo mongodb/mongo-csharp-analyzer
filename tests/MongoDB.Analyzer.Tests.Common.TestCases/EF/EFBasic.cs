@@ -21,12 +21,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.EF;
 
 public sealed class EFBasic
 {
-    public MyDbContext GetDbContext() => new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().Options);
-    public DbContextOptions GetDbContextOptions() => new DbContextOptionsBuilder<MyDbContext>().Options;
-    public DbSet<Customer> GetDbSet_Customers() => new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().Options).Customers;
-    public DbSet<User> GetDbSet_Users() => new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().Options).Users;
-
-
     [MQLEF("db.coll.Aggregate([{ \"$group\" : { \"_id\" : \"$Address\", \"_elements\" : { \"$push\" : \"$$ROOT\" } } }])", DriverVersions.Linq3OrGreater)]
     [MQLEF("db.coll.Aggregate([{ \"$group\" : { \"_id\" : \"$LastName\", \"_elements\" : { \"$push\" : \"$$ROOT\" } } }])", DriverVersions.Linq3OrGreater)]
     public void GroupBy()
@@ -104,6 +98,11 @@ public sealed class EFBasic
         var users_query = db.Users.Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21);
         var customers_query = db.Customers.Where(c => c.Name == "Bob" & c.CustomerId == 21);
     }
+
+    public MyDbContext GetDbContext() => new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().Options);
+    public DbContextOptions GetDbContextOptions() => new DbContextOptionsBuilder<MyDbContext>().Options;
+    public DbSet<Customer> GetDbSet_Customers() => new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().Options).Customers;
+    public DbSet<User> GetDbSet_Users() => new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().Options).Users;
 }
 
 public class MyDbContext : DbContext

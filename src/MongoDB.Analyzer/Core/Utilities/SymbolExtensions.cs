@@ -157,6 +157,7 @@ internal static class SymbolExtensions
     };
 
     public static bool IsDBSet(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.Name == "DbSet" &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceEF;
 
     public static bool IsDefinedInMongoDriver(this ISymbol symbol) => symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
