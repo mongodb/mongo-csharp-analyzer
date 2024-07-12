@@ -40,6 +40,7 @@ internal static class DiagnosticsAnalyzer
 #elif NETCOREAPP3_1
         var netReferences = ReferenceAssemblies.NetCore.NetCoreApp31;
 #endif
+
         var packages = ImmutableArray.Create(new PackageIdentity("MongoDB.Driver", driverVersion));
         var EFPackage = ImmutableArray.Create(new PackageIdentity("Microsoft.EntityFrameworkCore", "3.1.0"));
 
