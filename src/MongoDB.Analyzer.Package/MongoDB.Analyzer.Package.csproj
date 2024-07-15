@@ -19,7 +19,6 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>https://github.com/mongodb/mongo-csharp-driver/releases/tag/v$(Version)</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/mongodb/mongo-csharp-analyzer</RepositoryUrl>
-    <PackageReleaseNotes>https://github.com/mongodb/mongo-csharp-analyzer/releases/tag/v$(Version)</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>MongoDB Roslyn analyzer for MongoDB .Net driver.</Description>
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
