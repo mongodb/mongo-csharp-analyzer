@@ -16,8 +16,9 @@
     <PackageIcon>packageIcon.png</PackageIcon>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.mongodb.com/docs/mongodb-analyzer/current/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/mongodb/mongo-csharp-analyzer</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>https://github.com/mongodb/mongo-csharp-analyzer/releases/tag/v$(Version)</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/mongodb/mongo-csharp-analyzer</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>MongoDB Roslyn analyzer for MongoDB .Net driver.</Description>
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
@@ -33,6 +34,7 @@
 
   <ItemGroup>
     <None Include="..\..\packageIcon.png" Pack="true" PackagePath="" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
