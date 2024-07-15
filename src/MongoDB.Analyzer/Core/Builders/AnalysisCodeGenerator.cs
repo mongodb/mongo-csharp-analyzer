@@ -69,16 +69,16 @@ internal static class AnalysisCodeGenerator
     private static SyntaxTree GenerateMqlGeneratorSyntaxTree(ExpressionsAnalysis builderExpressionAnalysis)
     {
         var testCodeBuilder = new BuildersMqlGeneratorTemplateBuilder(s_mqlGeneratorSyntaxElements);
+        var generatedMqlMethodDeclarations = new List<MethodDeclarationSyntax>();
 
         foreach (var builderContext in builderExpressionAnalysis.AnalysisNodeContexts)
         {
-            var analysisNode = builderContext.Node;
-
-            builderContext.EvaluationMethodName = testCodeBuilder.AddBuildersExpression(
-                analysisNode.ArgumentTypeName,
-                analysisNode.RewrittenExpression);
+            var (generatedMqlMethodName, generatedMqlMethodDeclaration) = testCodeBuilder.GenerateMqlGeneratorMethod(builderContext);
+            builderContext.EvaluationMethodName = generatedMqlMethodName;
+            generatedMqlMethodDeclarations.Add(generatedMqlMethodDeclaration);
         }
 
+        testCodeBuilder.AddMqlGeneratorMethods(generatedMqlMethodDeclarations.ToArray());
         return testCodeBuilder.GenerateSyntaxTree();
     } 
 }

@@ -38,23 +38,8 @@ internal sealed class LinqMqlGeneratorTemplateBuilder
         _mqlGeneratorDeclarationSyntaxNew = _syntaxElements.ClassDeclarationSyntax;
     }
 
-    public string AddLinqExpression(string collectionTypeName, SyntaxNode linqExpression)
-    {
-        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNodes(_syntaxElements.NodesToReplace, (n, _) =>
-            n.Kind() switch
-            {
-                _ when n == _syntaxElements.LinqExpressionNode => linqExpression,
-                _ when n == _syntaxElements.QueryableTypeNode => SyntaxFactory.IdentifierName(collectionTypeName),
-                _ => throw new Exception($"Unrecognized node {n}")
-            });
-
-        var newMqlGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{ _nextTestMethodIndex++}";
-        newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newMqlGeneratorMethodName));
-
-        _mqlGeneratorDeclarationSyntaxNew = _mqlGeneratorDeclarationSyntaxNew.AddMembers(newMethodDeclaration);
-
-        return newMqlGeneratorMethodName;
-    }
+    public void AddMqlGeneratorMethods(MemberDeclarationSyntax[] methodDeclarations) =>
+        _mqlGeneratorDeclarationSyntaxNew = _mqlGeneratorDeclarationSyntaxNew.AddMembers(methodDeclarations);
 
     public static SyntaxElements CreateSyntaxElements(SyntaxTree mqlGeneratorSyntaxTree)
     {
@@ -66,6 +51,25 @@ internal sealed class LinqMqlGeneratorTemplateBuilder
         var linqExpressionNode = mainTestMethodNode.GetSingleIdentifier(LinqMethodName).Parent.Parent;
 
         return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, linqExpressionNode, queryableTypeNode);
+    }
+
+    public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateMqlGeneratorMethod(ExpressionAnalysisContext linqContext)
+    {
+        var collectionTypeName = linqContext.Node.ArgumentTypeName;
+        var linqExpression = linqContext.Node.RewrittenExpression;
+
+        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNodes(_syntaxElements.NodesToReplace, (n, _) =>
+            n.Kind() switch
+            {
+                _ when n == _syntaxElements.LinqExpressionNode => linqExpression,
+                _ when n == _syntaxElements.QueryableTypeNode => SyntaxFactory.IdentifierName(collectionTypeName),
+                _ => throw new Exception($"Unrecognized node {n}")
+            });
+
+        var newMqlGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
+        newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newMqlGeneratorMethodName));
+
+        return (newMqlGeneratorMethodName, newMethodDeclaration);
     }
 
     public SyntaxTree GenerateSyntaxTree() =>
