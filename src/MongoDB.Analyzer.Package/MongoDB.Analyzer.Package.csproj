@@ -17,7 +17,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://www.mongodb.com/docs/mongodb-analyzer/current/</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>https://github.com/mongodb/mongo-csharp-driver/releases/tag/v$(Version)</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/mongodb/mongo-csharp-analyzer/releases/tag/v$(Version)</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/mongodb/mongo-csharp-analyzer</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>MongoDB Roslyn analyzer for MongoDB .Net driver.</Description>
