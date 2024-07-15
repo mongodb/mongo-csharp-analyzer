@@ -20,3 +20,10 @@ Feedback/Bug Reports
 * [MongoDB Community Forum](https://www.mongodb.com/community/forums/tag/dot-net)
 
 If you’ve identified a security vulnerability in the analyzer or any other MongoDB project, please report it according to the [instructions here](http://docs.mongodb.org/manual/tutorial/create-a-vulnerability-report).
+
+Contributing
+------------
+
+Please see our [guidelines](CONTRIBUTING.md) for contributing to this project.
+
+Thank you to [everyone](https://github.com/mongodb/mongo-csharp-analyzer/graphs/contributors) who has contributed to this project.
