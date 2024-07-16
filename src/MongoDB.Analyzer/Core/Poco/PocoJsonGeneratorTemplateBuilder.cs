@@ -37,15 +37,8 @@ internal sealed class PocoJsonGeneratorTemplateBuilder
         _jsonGeneratorDeclarationSyntaxNew = _syntaxElements.ClassDeclarationSyntax;
     }
 
-    public string AddPoco(ClassDeclarationSyntax poco)
-    {
-        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNode(_syntaxElements.PredefinedTypeNode, SyntaxFactory.IdentifierName(poco.Identifier.ValueText));
-        var newJsonGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
-        newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newJsonGeneratorMethodName));
-
-        _jsonGeneratorDeclarationSyntaxNew = _jsonGeneratorDeclarationSyntaxNew.AddMembers(newMethodDeclaration);
-        return newJsonGeneratorMethodName;
-    }
+    public void AddJsonGeneratorMethods(MemberDeclarationSyntax[] methodDeclarations) =>
+        _jsonGeneratorDeclarationSyntaxNew = _jsonGeneratorDeclarationSyntaxNew.AddMembers(methodDeclarations);
 
     public static SyntaxElements CreateSyntaxElements(SyntaxTree jsonGeneratorSyntaxTree)
     {
@@ -57,6 +50,14 @@ internal sealed class PocoJsonGeneratorTemplateBuilder
         var predefinedType = localDeclaration.DescendantNodes().OfType<PredefinedTypeSyntax>().FirstOrDefault();
 
         return new(root, classDeclarationSyntax, mainTestMethodNode, predefinedType);
+    }
+
+    public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateJsonGeneratorMethod(ClassDeclarationSyntax poco)
+    {
+        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNode(_syntaxElements.PredefinedTypeNode, SyntaxFactory.IdentifierName(poco.Identifier.ValueText));
+        var newJsonGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
+        newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newJsonGeneratorMethodName));
+        return (newJsonGeneratorMethodName, newMethodDeclaration);
     }
 
     public SyntaxTree GenerateSyntaxTree() =>
