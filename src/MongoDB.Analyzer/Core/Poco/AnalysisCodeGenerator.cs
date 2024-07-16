@@ -60,11 +60,11 @@ internal static class AnalysisCodeGenerator
     public static SyntaxTree GenerateJsonGeneratorSyntaxTree(ExpressionsAnalysis pocoExpressionAnalysis)
     {
         var testCodeBuilder = new PocoJsonGeneratorTemplateBuilder(s_jsonGeneratorSyntaxElements);
-        var generatedJsonMethodDeclarations = new List<MethodDeclarationSyntax>();
+        var generatedJsonMethodDeclarations = new List<MethodDeclarationSyntax>(pocoExpressionAnalysis.AnalysisNodeContexts.Length);
 
         foreach (var pocoContext in pocoExpressionAnalysis.AnalysisNodeContexts)
         {
-            var (generatedJsonMethodName, generatedJsonMethodDeclaration) = testCodeBuilder.GenerateJsonGeneratorMethod(pocoContext);
+            var (generatedJsonMethodName, generatedJsonMethodDeclaration) = testCodeBuilder.GenerateJsonGeneratorMethod(pocoContext.Node.RewrittenExpression as ClassDeclarationSyntax);
             pocoContext.EvaluationMethodName = generatedJsonMethodName;
             generatedJsonMethodDeclarations.Add(generatedJsonMethodDeclaration);
         }

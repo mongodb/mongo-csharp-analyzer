@@ -53,11 +53,8 @@ internal sealed class LinqMqlGeneratorTemplateBuilder
         return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, linqExpressionNode, queryableTypeNode);
     }
 
-    public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateMqlGeneratorMethod(ExpressionAnalysisContext linqContext)
+    public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateMqlGeneratorMethod(string collectionTypeName, SyntaxNode linqExpression)
     {
-        var collectionTypeName = linqContext.Node.ArgumentTypeName;
-        var linqExpression = linqContext.Node.RewrittenExpression;
-
         var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNodes(_syntaxElements.NodesToReplace, (n, _) =>
             n.Kind() switch
             {

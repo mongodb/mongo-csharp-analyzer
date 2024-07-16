@@ -53,18 +53,15 @@ internal sealed class BuildersMqlGeneratorTemplateBuilder
         return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, builderDefinitionNode, collectionTypeNode);
     }
 
-    public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateMqlGeneratorMethod(ExpressionAnalysisContext builderContext)
+    public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateMqlGeneratorMethod(string typeArgumentName, SyntaxNode buildersExpression)
     {
-        var typeArgumentName = builderContext.Node.ArgumentTypeName;
-        var buildersExpression = builderContext.Node.RewrittenExpression;
-
         var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNodes(_syntaxElements.NodesToReplace, (n, _) =>
-        n switch
-        {
-            _ when n == _syntaxElements.BuilderDefinitionNode => buildersExpression,
-            _ when n == _syntaxElements.CollectionTypeNode => SyntaxFactory.IdentifierName(typeArgumentName),
-            _ => throw new Exception($"Unrecognized node {n}")
-        });
+            n switch
+            {
+                _ when n == _syntaxElements.BuilderDefinitionNode => buildersExpression,
+                _ when n == _syntaxElements.CollectionTypeNode => SyntaxFactory.IdentifierName(typeArgumentName),
+                _ => throw new Exception($"Unrecognized node {n}")
+            });
 
         var newMqlGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
         newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newMqlGeneratorMethodName));

@@ -52,9 +52,8 @@ internal sealed class PocoJsonGeneratorTemplateBuilder
         return new(root, classDeclarationSyntax, mainTestMethodNode, predefinedType);
     }
 
-    public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateJsonGeneratorMethod(ExpressionAnalysisContext pocoContext)
+    public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateJsonGeneratorMethod(ClassDeclarationSyntax poco)
     {
-        var poco = pocoContext.Node.RewrittenExpression as ClassDeclarationSyntax;
         var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNode(_syntaxElements.PredefinedTypeNode, SyntaxFactory.IdentifierName(poco.Identifier.ValueText));
         var newJsonGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
         newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newJsonGeneratorMethodName));
