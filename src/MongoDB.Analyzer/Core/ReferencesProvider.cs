@@ -88,6 +88,7 @@ internal static class ReferencesProvider
         resultReferences.Add(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location));
         resultReferences.Add(MetadataReference.CreateFromFile(typeof(IEnumerator<int>).Assembly.Location));
         resultReferences.Add(MetadataReference.CreateFromFile(typeof(Queryable).Assembly.Location));
+        resultReferences.Add(MetadataReference.CreateFromFile(typeof(Stack<int>).Assembly.Location));
         resultReferences.Add(MetadataReference.CreateFromFile(typeof(System.Dynamic.DynamicObject).Assembly.Location));
         resultReferences.Add(MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location));
         resultReferences.Add(MetadataReference.CreateFromFile(typeof(Task).Assembly.Location));

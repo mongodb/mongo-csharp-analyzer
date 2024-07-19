@@ -69,6 +69,12 @@ internal sealed class TypesProcessor
 
         var rewrittenDeclarationSyntax = GetSyntaxNodeFromSymbol(typeSymbol, remappedName);
 
+        if (rewrittenDeclarationSyntax == null)
+        {
+            _processedTypes.Remove(fullTypeName);
+            return null;
+        }
+
         var typeCode = rewrittenDeclarationSyntax.ToFullString();
         var newTypeDeclaration = SyntaxFactory.ParseMemberDeclaration(typeCode);
 
@@ -93,17 +99,29 @@ internal sealed class TypesProcessor
             arrayRankSpecifiers = SyntaxFactory.List(new[] { SyntaxFactory.ArrayRankSpecifier(ranksList) });
             var nextTypeSyntax = CreateTypeSyntaxForSymbol(arrayTypeSymbol.ElementType);
 
+            if (nextTypeSyntax == null)
+            {
+                return null;
+            }
+
             result = SyntaxFactory.ArrayType(nextTypeSyntax, arrayRankSpecifiers.Value);
         }
         // TODO optimize
         else if (typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-            namedTypeSymbol.TypeArguments.Length == 1 &&
+            namedTypeSymbol.TypeArguments.Length >= 1 &&
             namedTypeSymbol.IsSupportedCollection())
         {
-            var underlyingTypeSyntax = CreateTypeSyntaxForSymbol(namedTypeSymbol.TypeArguments.Single());
-            var listSyntax = SyntaxFactory.GenericName(
-                SyntaxFactory.Identifier("List"),
-                SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(new[] { underlyingTypeSyntax })));
+            var underlyingTypeSyntaxes = namedTypeSymbol.TypeArguments.Select(typeArgument => CreateTypeSyntaxForSymbol(typeArgument));
+            if (underlyingTypeSyntaxes.Any(underlyingTypeSyntax => underlyingTypeSyntax == null))
+            {
+                return null;
+            }
+
+            var collectionIdentifier = namedTypeSymbol.Name;
+
+            var collectionSyntax = SyntaxFactory.GenericName(
+                SyntaxFactory.Identifier(collectionIdentifier),
+                SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(underlyingTypeSyntaxes)));
 
             result = SyntaxFactory.QualifiedName(
                         SyntaxFactory.QualifiedName(
@@ -111,13 +129,22 @@ internal sealed class TypesProcessor
                                 SyntaxFactory.IdentifierName("System"),
                                 SyntaxFactory.IdentifierName("Collections")),
                             SyntaxFactory.IdentifierName("Generic")),
-                        listSyntax);
+                        collectionSyntax);
+        }
+        else if (typeSymbol.IsUserDefinedCollection())
+        {
+            return null;
         }
         else
         {
             var (isNullable, underlingTypeSymbol) = typeSymbol.DiscardNullable();
-
             var newTypeName = ProcessTypeSymbol(underlingTypeSymbol);
+
+            if (newTypeName == null)
+            {
+                return null;
+            }
+
             result = isNullable ? SyntaxFactoryUtilities.GetNullableType(newTypeName) :
                 SyntaxFactory.ParseTypeName(newTypeName);
         }
@@ -171,7 +198,7 @@ internal sealed class TypesProcessor
             _ => null
         };
 
-    private void GenerateFields(ITypeSymbol typeSymbol, List<MemberDeclarationSyntax> members)
+    private bool GenerateFields(ITypeSymbol typeSymbol, List<MemberDeclarationSyntax> members)
     {
         var typeFields = typeSymbol
             .GetMembers()
@@ -184,6 +211,10 @@ internal sealed class TypesProcessor
         foreach (var fieldSymbol in typeFields)
         {
             var typeSyntax = CreateTypeSyntaxForSymbol(fieldSymbol.Type);
+            if (typeSyntax == null)
+            {
+                return false;
+            }
 
             var variableDeclaration = SyntaxFactory.VariableDeclaration(typeSyntax, SyntaxFactory.SingletonSeparatedList(SyntaxFactory.VariableDeclarator(fieldSymbol.Name)));
 
@@ -199,9 +230,11 @@ internal sealed class TypesProcessor
 
             members.Add(fieldDeclaration);
         }
+
+        return true;
     }
 
-    private void GenerateProperties(ITypeSymbol typeSymbol, List<MemberDeclarationSyntax> members)
+    private bool GenerateProperties(ITypeSymbol typeSymbol, List<MemberDeclarationSyntax> members)
     {
         var typeProperties = typeSymbol
               .GetMembers()
@@ -215,6 +248,10 @@ internal sealed class TypesProcessor
         foreach (var propertySymbol in typeProperties)
         {
             var typeSyntax = CreateTypeSyntaxForSymbol(propertySymbol.Type);
+            if (typeSyntax == null)
+            {
+                return false;
+            }
 
             var propertyDeclaration = SyntaxFactory.PropertyDeclaration(typeSyntax, propertySymbol.Name);
 
@@ -229,6 +266,8 @@ internal sealed class TypesProcessor
 
             members.Add(propertyDeclaration);
         }
+
+        return true;
     }
 
     private BaseListSyntax GetBaseListSyntax(string typeName)
@@ -244,7 +283,8 @@ internal sealed class TypesProcessor
 
     private (string RemappedName, string FullTypeName) GetGeneratedTypeMapping(ITypeSymbol typeSymbol, bool userOnlyTypes)
     {
-        if (typeSymbol == null)
+        if (typeSymbol == null ||
+            typeSymbol.IsUserDefinedCollection())
         {
             return default;
         }
@@ -285,8 +325,11 @@ internal sealed class TypesProcessor
 
         var members = new List<MemberDeclarationSyntax>();
 
-        GenerateProperties(typeSymbol, members);
-        GenerateFields(typeSymbol, members);
+        if (!GenerateProperties(typeSymbol, members) ||
+            !GenerateFields(typeSymbol, members))
+        {
+            return null;
+        }
 
         typeDeclaration = typeDeclaration
             .AddMembers(members.ToArray())
@@ -297,6 +340,11 @@ internal sealed class TypesProcessor
         if (baseSpecialType != SpecialType.System_Object && baseSpecialType != SpecialType.System_ValueType)
         {
             var baseTypeNameGenerated = ProcessTypeSymbol(typeSymbol.BaseType);
+
+            if (baseTypeNameGenerated == null)
+            {
+                return null;
+            }
 
             typeDeclaration = typeDeclaration.WithBaseList(GetBaseListSyntax(baseTypeNameGenerated));
         }
@@ -349,6 +397,11 @@ internal sealed class TypesProcessor
                 }
             default:
                 throw new NotSupportedException($"Symbol type {typeSymbol.TypeKind} is not supported.");
+        }
+
+        if (typeDeclaration == null)
+        {
+            return null;
         }
 
         typeDeclaration = typeDeclaration.NormalizeWhitespace();

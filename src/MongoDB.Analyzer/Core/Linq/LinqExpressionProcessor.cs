@@ -98,6 +98,10 @@ internal static class LinqExpressionProcessor
                 if (PreanalyzeLinqExpression(node, semanticModel, invalidExpressionNodes))
                 {
                     var generatedMongoQueryableTypeName = typesProcessor.ProcessTypeSymbol(mongoQueryableNamedType.TypeArguments[0]);
+                    if (generatedMongoQueryableTypeName == null)
+                    {
+                        continue;
+                    }
 
                     var rewriteContext = RewriteContext.Linq(node, deepestMongoQueryableNode, semanticModel, typesProcessor);
                     var (newLinqExpression, constantsMapper) = RewriteExpression(rewriteContext);

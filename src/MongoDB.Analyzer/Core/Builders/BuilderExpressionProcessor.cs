@@ -81,9 +81,9 @@ internal static class BuilderExpressionProcessor
 
             try
             {
-                foreach (var typeArgument in namedType.TypeArguments)
+                if (!ProcessTypeArguments(namedType.TypeArguments, typesProcessor))
                 {
-                    typesProcessor.ProcessTypeSymbol(typeArgument);
+                    continue;
                 }
 
                 var rewriteContext = RewriteContext.Builders(expressionNode, nodesToRewrite, semanticModel, typesProcessor);
@@ -252,5 +252,19 @@ internal static class BuilderExpressionProcessor
         }
 
         return (nodeType, namedType, expressionNode);
+    }
+
+    private static bool ProcessTypeArguments(IEnumerable<ITypeSymbol> typeArguments, TypesProcessor typesProcessor)
+    {
+        foreach (var typeArgument in typeArguments)
+        {
+            var remappedName = typesProcessor.ProcessTypeSymbol(typeArgument);
+            if (remappedName == null)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
