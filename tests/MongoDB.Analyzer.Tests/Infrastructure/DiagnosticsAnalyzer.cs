@@ -29,6 +29,7 @@ internal static class DiagnosticsAnalyzer
         string testCodeFilename,
         string driverVersion,
         Common.LinqVersion linqVersion,
+        int pocoLimit,
         Common.PocoAnalysisVerbosity jsonAnalyzerVerbosity)
     {
         PathUtilities.VerifyTestDataModelAssembly();
@@ -69,6 +70,7 @@ internal static class DiagnosticsAnalyzer
             OutputDriverVersion: true,
             DefaultLinqVersion: linqDefaultVersion,
             SendTelemetry: false,
+            PocoLimit: pocoLimit,
             PocoAnalysisVerbosity: (PocoAnalysisVerbosity)jsonAnalyzerVerbosity);
         var analyzerOptions = new AnalyzerOptions(ImmutableArray.Create<AdditionalText>(new AdditionalTextAnalyzerSettings(settings)));
 

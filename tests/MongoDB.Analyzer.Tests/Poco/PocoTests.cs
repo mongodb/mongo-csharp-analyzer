@@ -55,6 +55,10 @@ public sealed class PocoTests : DiagnosticsTestCasesRunner
     public Task IgnoredBsonAttributes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(PocoLimits))]
+    public Task Limits(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(PocoNestedTypes))]
     public Task NestedTypes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 

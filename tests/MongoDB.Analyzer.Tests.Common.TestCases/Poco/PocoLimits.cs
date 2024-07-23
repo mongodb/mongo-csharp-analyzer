@@ -17,79 +17,80 @@ using MongoDB.Driver;
 
 namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
-    public sealed class PocoVerbosity : TestCasesBase
+    public sealed class PocoLimits : TestCasesBase
     {
-        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void Airline_not_used_in_expression1()
         {
         }
 
-        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
+        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void Airline_not_used_in_expression2()
         {
         }
 
-        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
+        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void Airline_not_used_in_expression3()
         {
         }
 
-        [BuildersMQL("{ \"AirlineName\" : \"Lufthansa\" }", pocoLimit: 500, pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        [BuildersMQL("{ \"AirlineName\" : \"Lufthansa\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
+        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void Airline_used_in_expression1()
         {
             _ = Builders<TestClasses.Airline_used_in_expression1>.Filter.Eq(u => u.AirlineName, "Lufthansa");
         }
 
-        [BuildersMQL("{ \"AirlineName\" : \"Lufthansa\" }", pocoLimit: 500, pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
-        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
+        [BuildersMQL("{ \"AirlineName\" : \"Lufthansa\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
+        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void Airline_used_in_expression2()
         {
             _ = Builders<TestClasses.Airline_used_in_expression2>.Filter.Eq(u => u.AirlineName, "Lufthansa");
         }
 
-        [BuildersMQL("{ \"AirlineName\" : \"Lufthansa\" }")]
-        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
+        [BuildersMQL("{ \"AirlineName\" : \"Lufthansa\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
+        [PocoJson("{ \"AirlineName\" : \"Radiant Skies Aviation\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void Airline_used_in_expression3()
         {
             _ = Builders<TestClasses.Airline_used_in_expression3>.Filter.Eq(u => u.AirlineName, "Lufthansa");
         }
 
-        [PocoJson("{ \"StringProperty\" : \"StringProperty_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
+        [PocoJson("{ \"StringProperty\" : \"StringProperty_val\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void ClassWithBsonAttributes()
         {
         }
 
-        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        [PocoJson("{ \"StringProperty\" : \"StringProperty_val\" }", pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void ClassWithBsonAttributes2()
         {
         }
 
-        [PocoJson("{ \"string_field\" : \"StringField_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
+        [NoDiagnostics(pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void ClassWithFieldBsonAttributes()
         {
         }
 
-        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        [NoDiagnostics(pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void ClassWithFieldBsonAttributes2()
         {
         }
 
-        [PocoJson("{ \"string_field\" : \"StringField_val\", \"string_property\" : \"StringProperty_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
+        [NoDiagnostics(pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void ClassWithPropertyAndFieldAttributes()
         {
         }
 
-        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        [NoDiagnostics(pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void ClassWithPropertyAndFieldAttributes2()
         {
         }
 
-        [PocoJson("{ \"string_property\" : \"StringProperty_val\" }", pocoAnalysisVerbosity: PocoAnalysisVerbosity.Medium)]
+        [NoDiagnostics(pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void ClassWithPropertyBsonAttributes()
         {
         }
 
-        [NoDiagnostics(pocoAnalysisVerbosity: PocoAnalysisVerbosity.None)]
+        [NoDiagnostics(pocoLimit: 10, pocoAnalysisVerbosity: PocoAnalysisVerbosity.All)]
         public void ClassWithPropertyBsonAttributes2()
         {
         }
