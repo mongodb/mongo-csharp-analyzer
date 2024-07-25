@@ -31,7 +31,9 @@ internal static class DiagnosticsAnalyzer
         Common.LinqVersion linqVersion,
         Common.PocoAnalysisVerbosity jsonAnalyzerVerbosity)
     {
-        PathUtilities.VerifyTestDataModelAssembly();
+        var isDriverVersion_2_28_Or_Greater = PathUtilities.IsDriverVersion_2_28_Or_Greater(driverVersion);
+        var testDataModelAssembly = isDriverVersion_2_28_Or_Greater ? PathUtilities.TestDataModelAssemblyPathDRIVER_2_28_OR_Greater : PathUtilities.TestDataModelAssemblyPathDRIVER_2_27_OR_Lower;
+        PathUtilities.VerifyTestDataModelAssembly(testDataModelAssembly);
 
 #if NET472
         var netReferences = ReferenceAssemblies.NetFramework.Net472.Default.AddAssemblies(ImmutableArray.Create("System.Drawing"));
@@ -46,20 +48,18 @@ internal static class DiagnosticsAnalyzer
 
         var allReferences = netReferences
             .AddPackages(packages)
-            .AddAssemblies(ImmutableArray.Create(PathUtilities.TestDataModelAssemblyPath))
+            .AddAssemblies(ImmutableArray.Create(testDataModelAssembly))
             .WithNuGetConfigFilePath(PathUtilities.NugetConfigPath);
 
         var metadataReferences = await allReferences.ResolveAsync(LanguageNames.CSharp, default);
 
         var testCodeText = File.ReadAllText(testCodeFilename);
         var testCodeSyntaxTree = CSharpSyntaxTree.ParseText(testCodeText);
-        var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
 
-        var compilation = CSharpCompilation.Create(
-            "TestAssembly",
-            new[] { testCodeSyntaxTree },
-            metadataReferences,
-            compilationOptions);
+        var publicKey = new byte[160] { 0, 36, 0, 0, 4, 128, 0, 0, 148, 0, 0, 0, 6, 2, 0, 0, 0, 36, 0, 0, 82, 83, 65, 49, 0, 4, 0, 0, 1, 0, 1, 0, 53, 40, 127, 13, 56, 131, 192, 160, 117, 200, 142, 12, 218, 60, 233, 59, 98, 16, 3, 236, 189, 94, 146, 13, 74, 140, 114, 56, 86, 79, 77, 47, 79, 104, 17, 106, 202, 40, 201, 178, 19, 65, 220, 58, 135, 118, 121, 193, 69, 86, 25, 43, 43, 47, 95, 226, 193, 29, 98, 78, 8, 148, 211, 8, 255, 123, 148, 191, 111, 215, 42, 239, 27, 65, 1, 127, 254, 37, 114, 233, 144, 25, 209, 198, 25, 99, 230, 140, 208, 237, 103, 115, 74, 66, 203, 51, 59, 128, 142, 56, 103, 203, 230, 49, 147, 114, 20, 227, 46, 64, 159, 177, 250, 98, 253, 182, 157, 73, 76, 37, 48, 230, 74, 64, 228, 23, 214, 238 };
+        var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, publicSign: true, cryptoPublicKey: publicKey.ToImmutableArray());
+        var assemblyName = isDriverVersion_2_28_Or_Greater ? "DynamicProxyGenAssembly2" : "TestAssembly";
+        var compilation = CSharpCompilation.Create(assemblyName, new[] { testCodeSyntaxTree }, metadataReferences, compilationOptions);
 
         var mongodbAnalyzer = new MongoDBDiagnosticAnalyzer();
         var linqDefaultVersion = linqVersion == Common.LinqVersion.Undefined ? null : (LinqVersion?)linqVersion;

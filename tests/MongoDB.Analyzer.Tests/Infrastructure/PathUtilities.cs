@@ -13,6 +13,8 @@
 // limitations under the License.
 
 using System.IO;
+using MongoDB.Analyzer.Tests.Common;
+using NuGet.Versioning;
 
 namespace MongoDB.Analyzer.Tests.Infrastructure;
 
@@ -23,7 +25,8 @@ internal static class PathUtilities
     private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..");
     private static readonly string s_testCasesPath = GetFullPathRelativeToParent(s_testCasesBaseFolder);
 
-    public static string TestDataModelAssemblyPath { get; } = GetFullPathRelativeToParent("MongoDB.Analyzer.Tests.Common.ClassLibrary", "bin", "Debug", "netstandard2.0", "MongoDB.Analyzer.Tests.Common.ClassLibrary");
+    public static string TestDataModelAssemblyPathDRIVER_2_27_OR_Lower { get; } = GetFullPathRelativeToParent("MongoDB.Analyzer.Tests.Common.ClassLibrary", "bin", "DRIVER_2_27_OR_LOWER", "netstandard2.0", "MongoDB.Analyzer.Tests.Common.ClassLibrary");
+    public static string TestDataModelAssemblyPathDRIVER_2_28_OR_Greater { get; } = GetFullPathRelativeToParent("MongoDB.Analyzer.Tests.Common.ClassLibrary", "bin", "DRIVER_2_28_OR_GREATER", "netstandard2.0", "MongoDB.Analyzer.Tests.Common.ClassLibrary");
     public static string NugetConfigPath { get; } = GetFullPathRelativeToParent("..", "nuget.config");
 
     public static string GetTestCaseFileFullPathFromName(string testCaseFullyQualifiedName)
@@ -37,12 +40,13 @@ internal static class PathUtilities
         return result;
     }
 
-    public static void VerifyTestDataModelAssembly()
+    public static bool IsDriverVersion_2_28_Or_Greater(string driverVersion) => VersionRange.Parse(DriverVersions.V2_28_OrGreater).Satisfies(NuGetVersion.Parse(driverVersion));
+
+    public static void VerifyTestDataModelAssembly(string testDataModelAssembly)
     {
-        var fileName = $"{TestDataModelAssemblyPath}.dll";
-        if (!File.Exists(fileName))
+        if (!File.Exists($"{testDataModelAssembly}.dll"))
         {
-            throw new FileNotFoundException($"DataModel assembly {fileName} not found", fileName);
+            throw new FileNotFoundException($"DataModel assembly {testDataModelAssembly} not found", testDataModelAssembly);
         }
     }
 
