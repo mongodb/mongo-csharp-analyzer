@@ -33,7 +33,6 @@ internal static class AnalysisCodeGeneratorUtilities
 
         using var memoryStream = new MemoryStream();
         var emitResult = compilation.Emit(memoryStream);
-
         Type generatorType = null;
 
         if (emitResult.Success)
