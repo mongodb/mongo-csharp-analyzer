@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -73,8 +78,79 @@ internal static class DiagnosticsAnalyzer
         var analyzerOptions = new AnalyzerOptions(ImmutableArray.Create<AdditionalText>(new AdditionalTextAnalyzerSettings(settings)));
 
         var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(mongodbAnalyzer), analyzerOptions);
+
+        var test = PrintAssemblyVersion(compilation, "MongoDB.Bson");
+        var test2 = PrintSpecificReferencedAssemblyVersion($"{testDataModelAssembly}.dll", "MongoDB.Bson");
+        var test3 = PrintSpecificReferencedAssemblyVersion($"{testDataModelAssembly}.dll", "MongoDB.Driver");
+
         var diagnostics = await compilationWithAnalyzers.GetAllDiagnosticsAsync();
 
         return diagnostics;
+    }
+
+    public static string PrintAssemblyVersion(CSharpCompilation compilation, string assemblyName)
+    {
+        var assemblyReference = compilation.References
+        .OfType<PortableExecutableReference>()
+        .FirstOrDefault(r => Path.GetFileNameWithoutExtension(r.FilePath).Equals(assemblyName, StringComparison.OrdinalIgnoreCase));
+
+        if (assemblyReference != null)
+        {
+            // Read the assembly from the file path
+            using var stream = new FileStream(assemblyReference.FilePath, FileMode.Open, FileAccess.Read);
+            var reader = new PEReader(stream);
+            var metadataReader = reader.GetMetadataReader();
+            var assemblyDefinition = metadataReader.GetAssemblyDefinition();
+            var version = assemblyDefinition.Version;
+
+            return $"Assembly: {assemblyName}, Version: {version}";
+        }
+        else
+        {
+            return $"Assembly: {assemblyName} not found in the compilation references.";
+        }
+    }
+
+    public static string PrintAssemblyVersion2(string dllPath)
+    {
+        try
+        {
+            var assembly = Assembly.LoadFrom(dllPath);
+            var version = assembly.GetName().Version;
+            return $"Assembly version: {version}";
+        }
+        catch (Exception ex)
+        {
+            return $"Failed to load assembly: {ex.Message}";
+        }
+    }
+
+    public static string PrintSpecificReferencedAssemblyVersion(string dllPath, string targetAssemblyName)
+    {
+        try
+        {
+            using var stream = new FileStream(dllPath, FileMode.Open, FileAccess.Read);
+            var peReader = new PEReader(stream);
+            var metadataReader = peReader.GetMetadataReader();
+
+            foreach (var reference in metadataReader.AssemblyReferences)
+            {
+                var assemblyReference = metadataReader.GetAssemblyReference(reference);
+                var name = metadataReader.GetString(assemblyReference.Name);
+
+                // Check if the name matches the target assembly
+                if (name.Equals(targetAssemblyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    var version = assemblyReference.Version;
+                    return $"Assembly: {name}, Version: {version}";
+                }
+            }
+
+            return $"Assembly: {targetAssemblyName} not found in the references.";
+        }
+        catch (Exception ex)
+        {
+            return $"Failed to read assembly: {ex.Message}";
+        }
     }
 }
