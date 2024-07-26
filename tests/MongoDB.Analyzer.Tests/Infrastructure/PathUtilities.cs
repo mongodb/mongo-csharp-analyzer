@@ -55,5 +55,5 @@ internal static class PathUtilities
     private static string GetFullPathRelativeToParent(params string[] pathComponents) =>
         Path.GetFullPath(Path.Combine(s_projectParentFolderPrefix, pathComponents.Length == 1 ? pathComponents[0] : Path.Combine(pathComponents)));
 
-    public static bool IsDriverVersion_2_28_OrGreater(string driverVersion) => VersionRange.Parse(DriverVersions.V2_28_OrGreater).Satisfies(NuGetVersion.Parse(driverVersion));
+    private static bool IsDriverVersion_2_28_OrGreater(string driverVersion) => VersionRange.Parse(DriverVersions.V2_28_OrGreater).Satisfies(NuGetVersion.Parse(driverVersion));
 }
