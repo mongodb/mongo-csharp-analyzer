@@ -31,8 +31,8 @@ internal static class DiagnosticsAnalyzer
         Common.LinqVersion linqVersion,
         Common.PocoAnalysisVerbosity jsonAnalyzerVerbosity)
     {
-        var isDriverVersion_2_28_Or_Greater = PathUtilities.IsDriverVersion_2_28_Or_Greater(driverVersion);
-        var testDataModelAssembly = isDriverVersion_2_28_Or_Greater ? PathUtilities.TestDataModelAssemblyPathDRIVER_2_28_OR_Greater : PathUtilities.TestDataModelAssemblyPathDRIVER_2_27_OR_Lower;
+        var isDriverVersion_2_28_OrGreater = PathUtilities.IsDriverVersion_2_28_OrGreater(driverVersion);
+        var testDataModelAssembly = isDriverVersion_2_28_OrGreater ? PathUtilities.TestDataModelAssemblyPathDriver_2_28_OrGreater : PathUtilities.TestDataModelAssemblyPathDriver_2_27_OrLower;
         PathUtilities.VerifyTestDataModelAssembly(testDataModelAssembly);
 
 #if NET472
@@ -57,7 +57,11 @@ internal static class DiagnosticsAnalyzer
         var testCodeSyntaxTree = CSharpSyntaxTree.ParseText(testCodeText);
 
         var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
-        var compilation = CSharpCompilation.Create("TestAssembly", new[] { testCodeSyntaxTree }, metadataReferences, compilationOptions);
+        var compilation = CSharpCompilation.Create(
+            "TestAssembly",
+            new[] { testCodeSyntaxTree },
+            metadataReferences,
+            compilationOptions);
 
         var mongodbAnalyzer = new MongoDBDiagnosticAnalyzer();
         var linqDefaultVersion = linqVersion == Common.LinqVersion.Undefined ? null : (LinqVersion?)linqVersion;
