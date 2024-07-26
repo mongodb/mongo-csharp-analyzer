@@ -40,15 +40,19 @@ internal static class PathUtilities
         return result;
     }
 
-    public static bool IsDriverVersion_2_28_OrGreater(string driverVersion) => VersionRange.Parse(DriverVersions.V2_28_OrGreater).Satisfies(NuGetVersion.Parse(driverVersion));
-
-    public static void VerifyTestDataModelAssembly(string testDataModelAssembly)
+    public static string GetTestDataModelAssemblyPath(string driverVersion)
     {
+        var testDataModelAssembly = IsDriverVersion_2_28_OrGreater(driverVersion) ? TestDataModelAssemblyPathDriver_2_28_OrGreater : TestDataModelAssemblyPathDriver_2_27_OrLower;
+
         if (!File.Exists($"{testDataModelAssembly}.dll"))
         {
             throw new FileNotFoundException($"DataModel assembly {testDataModelAssembly} not found", testDataModelAssembly);
         }
+
+        return testDataModelAssembly;
     }
+
+    public static bool IsDriverVersion_2_28_OrGreater(string driverVersion) => VersionRange.Parse(DriverVersions.V2_28_OrGreater).Satisfies(NuGetVersion.Parse(driverVersion));
 
     private static string GetFullPathRelativeToParent(params string[] pathComponents) =>
         Path.GetFullPath(Path.Combine(s_projectParentFolderPrefix, pathComponents.Length == 1 ? pathComponents[0] : Path.Combine(pathComponents)));

@@ -25,7 +25,7 @@ internal static class AnalysisCodeGeneratorUtilities
 
     public static Type CompileAndGetGeneratorType(AnalysisType analysisType, MongoAnalysisContext context, ReferencesContainer referencesContainer, IEnumerable<SyntaxTree> syntaxTrees)
     {
-        var assemblyName = IsDriverVersion_2_28_Or_Greater(referencesContainer.Version) ? AnalysisAssemblyNameDriver_2_28_OrGreater : AnalysisAssemblyNameDriver_2_27_OrLower;
+        var assemblyName = referencesContainer.Version >= s_driverVersion_2_28 ? AnalysisAssemblyNameDriver_2_28_OrGreater : AnalysisAssemblyNameDriver_2_27_OrLower;
         var compilation = CSharpCompilation.Create(
             assemblyName,
             syntaxTrees,
@@ -60,7 +60,5 @@ internal static class AnalysisCodeGeneratorUtilities
             AnalysisType.Poco => JsonSyntaxElements.Poco.JsonGeneratorFullName,
             _ => throw new ArgumentOutOfRangeException(nameof(analysisType), analysisType, "Unsupported analysis type")
         };
-
-    private static bool IsDriverVersion_2_28_Or_Greater(Version driverVersion) => driverVersion >= s_driverVersion_2_28;
 }
 

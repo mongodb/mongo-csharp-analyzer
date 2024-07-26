@@ -31,9 +31,7 @@ internal static class DiagnosticsAnalyzer
         Common.LinqVersion linqVersion,
         Common.PocoAnalysisVerbosity jsonAnalyzerVerbosity)
     {
-        var isDriverVersion_2_28_OrGreater = PathUtilities.IsDriverVersion_2_28_OrGreater(driverVersion);
-        var testDataModelAssembly = isDriverVersion_2_28_OrGreater ? PathUtilities.TestDataModelAssemblyPathDriver_2_28_OrGreater : PathUtilities.TestDataModelAssemblyPathDriver_2_27_OrLower;
-        PathUtilities.VerifyTestDataModelAssembly(testDataModelAssembly);
+        var testDataModelAssembly = PathUtilities.GetTestDataModelAssemblyPath(driverVersion);
 
 #if NET472
         var netReferences = ReferenceAssemblies.NetFramework.Net472.Default.AddAssemblies(ImmutableArray.Create("System.Drawing"));
