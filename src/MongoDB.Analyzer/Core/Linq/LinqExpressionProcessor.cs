@@ -63,12 +63,12 @@ internal static class LinqExpressionProcessor
                 deepestMongoQueryableNode = invocationNode
                     .NestedInvocations()
                     .FirstOrDefault(n =>
-                        {
-                            var currentMethodSymbol = n.GetMethodSymbol(semanticModel);
+                    {
+                        var currentMethodSymbol = n.GetMethodSymbol(semanticModel);
 
-                            // Find the first method that is not receiving IQueryable or is not defined in System.Linq or MongoDB.Driver.Linq
-                            return !((currentMethodSymbol?.ReceiverType).IsIQueryable() && currentMethodSymbol.IsDefinedInMongoLinqOrSystemLinq());
-                        });
+                        // Find the first method that is not receiving IQueryable or is not defined in System.Linq or MongoDB.Driver.Linq
+                        return !((currentMethodSymbol?.ReceiverType).IsIQueryable() && currentMethodSymbol.IsDefinedInMongoLinqOrSystemLinq());
+                    });
             }
             else
             {
@@ -95,7 +95,8 @@ internal static class LinqExpressionProcessor
 
             try
             {
-                if (PreanalyzeLinqExpression(node, semanticModel, invalidExpressionNodes))
+                if ((analysisType == AnalysisType.Linq && PreanalyzeLinqExpression(node, semanticModel, invalidExpressionNodes)) ||
+                    (analysisType == AnalysisType.EF && PreanalyzeEFExpression(node, semanticModel, invalidExpressionNodes, mongoQueryableNamedType)))
                 {
                     var generatedMongoQueryableTypeName = typesProcessor.ProcessTypeSymbol(mongoQueryableNamedType.TypeArguments[0]);
 
@@ -166,6 +167,72 @@ internal static class LinqExpressionProcessor
                             break;
                         }
                     }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static bool PreanalyzeEFExpression(SyntaxNode efExpressionNode, SemanticModel semanticModel, List<InvalidExpressionAnalysisNode> invalidEFExpressionNodes, INamedTypeSymbol mongoQueryableNamedType)
+    {
+        var result = true;
+
+        var typeArgument = mongoQueryableNamedType.TypeArguments[0];
+        foreach (var member in typeArgument.GetMembers())
+        {
+            if (member is IPropertySymbol propertySymbol)
+            {
+                //Check TypeArgument for Binary/Byte Array Properties
+                if (propertySymbol.Type is IArrayTypeSymbol arrayTypeSymbol &&
+                    arrayTypeSymbol.ElementType.SpecialType == SpecialType.System_Byte)
+                {
+                    invalidEFExpressionNodes.Add(new(
+                                efExpressionNode,
+                                EFAnalysisErrorMessages.ByteArraysNotSupported));
+
+                    return false;
+                }
+
+                //Check TypeArgument for Dictionary Properties
+                if (propertySymbol.Type is INamedTypeSymbol namedTypeSymbol &&
+                    namedTypeSymbol.ConstructedFrom?.ToDisplayString() == "System.Collections.Generic.Dictionary<TKey, TValue>")
+                {
+                    invalidEFExpressionNodes.Add(new(
+                                efExpressionNode,
+                                EFAnalysisErrorMessages.DictionaryPropertiesNotSupported));
+
+                    return false;
+                }
+            }
+        }
+
+        foreach (var methodInvocation in efExpressionNode.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>())
+        {
+            var symbolInfo = semanticModel.GetSymbolInfo(methodInvocation);
+
+            if (symbolInfo.Symbol is IMethodSymbol methodSymbol)
+            {
+                //GroupBy Methods
+                if (methodSymbol.Name == "GroupBy")
+                {
+                    invalidEFExpressionNodes.Add(new(
+                                methodInvocation,
+                                EFAnalysisErrorMessages.GroupByMethodNotSupported));
+
+                    result = false;
+                    break;
+                }
+
+                //Select Methods(i.e. Client Side Projections)
+                if (methodSymbol.Name == "Select")
+                {
+                    invalidEFExpressionNodes.Add(new(
+                                methodInvocation,
+                                EFAnalysisErrorMessages.ClientSideProjectionsNotSupported));
+
+                    result = false;
+                    break;
                 }
             }
         }
