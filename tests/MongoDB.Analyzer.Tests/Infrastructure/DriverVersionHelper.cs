@@ -34,8 +34,10 @@ internal static class DriverVersionHelper
         //   NuGetVersion.Parse("2.18.0"),
         //   NuGetVersion.Parse("2.19.0"),
         //   NuGetVersion.Parse("2.21.0"),
-        //   NuGetVersion.Parse("2.25.0")
-        // }
+        //   NuGetVersion.Parse("2.25.0"),
+        //   NuGetVersion.Parse("2.27.0"),
+        //   NuGetVersion.Parse("2.28.0")
+        // };
     }
 
     public static NuGetVersion[] FilterVersionForRange(string versionRange)
