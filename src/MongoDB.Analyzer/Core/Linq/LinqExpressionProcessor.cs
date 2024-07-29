@@ -63,12 +63,12 @@ internal static class LinqExpressionProcessor
                 deepestMongoQueryableNode = invocationNode
                     .NestedInvocations()
                     .FirstOrDefault(n =>
-                    {
-                        var currentMethodSymbol = n.GetMethodSymbol(semanticModel);
+                        {
+                            var currentMethodSymbol = n.GetMethodSymbol(semanticModel);
 
-                        // Find the first method that is not receiving IQueryable or is not defined in System.Linq or MongoDB.Driver.Linq
-                        return !((currentMethodSymbol?.ReceiverType).IsIQueryable() && currentMethodSymbol.IsDefinedInMongoLinqOrSystemLinq());
-                    });
+                            // Find the first method that is not receiving IQueryable or is not defined in System.Linq or MongoDB.Driver.Linq
+                            return !((currentMethodSymbol?.ReceiverType).IsIQueryable() && currentMethodSymbol.IsDefinedInMongoLinqOrSystemLinq());
+                        });
             }
             else
             {
