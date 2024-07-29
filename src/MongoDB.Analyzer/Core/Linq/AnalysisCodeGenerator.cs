@@ -21,7 +21,7 @@ namespace MongoDB.Analyzer.Core.Linq;
 internal static class AnalysisCodeGenerator
 {
     private static readonly SyntaxTreesCache s_syntaxTreesCache;
-    private static readonly LinqMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElements;
+    private static readonly MqlAndJsonGeneratorUtilities.SyntaxElements s_mqlGeneratorSyntaxElements;
     private static readonly CSharpParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
