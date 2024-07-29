@@ -31,7 +31,7 @@ internal static class DiagnosticsAnalyzer
         Common.LinqVersion linqVersion,
         Common.PocoAnalysisVerbosity jsonAnalyzerVerbosity)
     {
-        PathUtilities.VerifyTestDataModelAssembly();
+        var testDataModelAssembly = PathUtilities.GetTestDataModelAssemblyPath(driverVersion);
 
 #if NET472
         var netReferences = ReferenceAssemblies.NetFramework.Net472.Default.AddAssemblies(ImmutableArray.Create("System.Drawing"));
@@ -46,15 +46,15 @@ internal static class DiagnosticsAnalyzer
 
         var allReferences = netReferences
             .AddPackages(packages)
-            .AddAssemblies(ImmutableArray.Create(PathUtilities.TestDataModelAssemblyPath))
+            .AddAssemblies(ImmutableArray.Create(testDataModelAssembly))
             .WithNuGetConfigFilePath(PathUtilities.NugetConfigPath);
 
         var metadataReferences = await allReferences.ResolveAsync(LanguageNames.CSharp, default);
 
         var testCodeText = File.ReadAllText(testCodeFilename);
         var testCodeSyntaxTree = CSharpSyntaxTree.ParseText(testCodeText);
-        var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
 
+        var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
         var compilation = CSharpCompilation.Create(
             "TestAssembly",
             new[] { testCodeSyntaxTree },
