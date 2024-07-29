@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using MongoDB.Analyzer.Core.HelperResources;
-
 namespace MongoDB.Analyzer.Core.Utilities;
 
 internal static class AnalysisCodeGeneratorUtilities
