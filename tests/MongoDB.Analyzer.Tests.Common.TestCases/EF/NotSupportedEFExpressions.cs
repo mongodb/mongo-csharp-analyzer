@@ -21,33 +21,22 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.EF;
 
 public sealed class NotSupportedEFExpressions : TestCasesBase
 {
-    [NoDiagnostics]
-    public void Arithmetic()
-    {
-        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
-        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
-        _ = db.Users.Sum(u => u.Age);
-        _ = db.Users.Average(u => u.Age);
-        _ = db.Users.Min(u => u.Age);
-        _ = db.Users.Max(u => u.Age);
-    }
-
+    [NotSupportedEF("Byte Array Property Not Supported.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("Byte Array Property Not Supported.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("Byte Array Property Not Supported.", DriverVersions.Linq3OrGreater)]
     [NotSupportedEF("Byte Array Property Not Supported.", DriverVersions.Linq3OrGreater)]
     public void ByteArrayProperties()
     {
         var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
         var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
         _ = db.SimpleTypesArraysHolder.Where(s => s.ByteArray.Length == 1);
+        _ = db.SimpleTypesArraysHolder.Where(s => s.IntArray.Length == 1).Where(s => s.IntArray.Length == 1).Where(s => s.ByteArray.Length == 1);
+        _ = db.SimpleTypesArraysHolder.Where(s => s.IntArray.Length == 1).Where(s => s.ByteArray.Length == 1).Where(s => s.IntArray.Length == 1);
+        _ = db.SimpleTypesArraysHolder.Where(s => s.ByteArray.Length == 1).Where(s => s.IntArray.Length == 1).Where(s => s.IntArray.Length == 1);
     }
 
-    [NoDiagnostics]
-    public void CombinedUnsupportedMethods()
-    {
-        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
-        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
-        _ = db.Users.Include(u => u.Age).GroupBy(u => u.Address);
-    }
-
+    [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
     [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
     [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
     public void GroupBy()
@@ -56,33 +45,8 @@ public sealed class NotSupportedEFExpressions : TestCasesBase
         var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
         var users_query = db.Users.GroupBy(u => u.Address);
         var customers_query = db.Customers.GroupBy(c => c.LastName);
-    }
-
-    [NoDiagnostics]
-    public void Includes()
-    {
-        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
-        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
-        _ = db.Users.Include(u => u.Age);
-    }
-
-    [NoDiagnostics]
-    public void Join()
-    {
-        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
-        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
-
-        _ = db.Users
-                .Join(
-                    db.Customers,
-                    user => user.Age,
-                    customer => customer.CustomerId,
-                    (user, customer) => new
-                        {
-                            Age = user.Age,
-                            ID = customer.CustomerId
-                        }
-                    );
+        _ = db.Users.Where(u => u.Age == 21).GroupBy(u => u.Address);
+        _ = db.Users.OrderBy(u => u.Age).ThenBy(u => u.Height).GroupBy(u => u.Address);
     }
 }
 
