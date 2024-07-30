@@ -48,14 +48,6 @@ public sealed class NotSupportedEFExpressions : TestCasesBase
         _ = db.Users.Include(u => u.Age).GroupBy(u => u.Address);
     }
 
-    [NotSupportedEF("Dictionary Property Not Supported.", DriverVersions.Linq3OrGreater)]
-    public void DictionaryProperties()
-    {
-        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
-        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
-        _ = db.DictionariesHolder.Where(s => s.IntDictionary["key"] == 1);
-    }
-
     [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
     [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
     public void GroupBy()
@@ -96,7 +88,6 @@ public sealed class NotSupportedEFExpressions : TestCasesBase
 
 public class DbContextUnsupportedEFExpressions : DbContext
 {
-    public DbSet<DictionariesHolder> DictionariesHolder { get; set; }
     public DbSet<SimpleTypesArraysHolder> SimpleTypesArraysHolder { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Customer> Customers { get; set; }

@@ -75,15 +75,4 @@ namespace MongoDB.Analyzer.Tests.Common.DataModel
         public IList<int> IntIList { get; set; }
         public System.Collections.Generic.IList<ListsHolder> NestedListsHolderIList { get; set; }
     }
-
-    public class DictionariesHolder
-    {
-        public Dictionary<string, int> IntDictionary { get; set; }
-        public Dictionary<string, Person> PesonsDictionary { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> StringDictionary { get; set; }
-        public System.Collections.Generic.Dictionary<string, DictionariesHolder> NestedDictionariesHolderDictionary { get; set; }
-
-        public IDictionary<string, int> IntIDictionary { get; set; }
-        public System.Collections.Generic.IDictionary<string, DictionariesHolder> NestedDictionariesHolderIDictionary { get; set; }
-    }
 }

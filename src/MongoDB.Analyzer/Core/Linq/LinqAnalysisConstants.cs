@@ -29,7 +29,5 @@ internal static class LinqAnalysisErrorMessages
 internal static class EFAnalysisErrorMessages
 {
     public const string ByteArraysNotSupported = "Byte Array Property Not Supported.";
-    public const string ClientSideProjectionsNotSupported = "Client Side Projections Not Supported.";
-    public const string DictionaryPropertiesNotSupported = "Dictionary Property Not Supported.";
     public const string GroupByMethodNotSupported = "GroupBy Not Supported in EF.";
 }

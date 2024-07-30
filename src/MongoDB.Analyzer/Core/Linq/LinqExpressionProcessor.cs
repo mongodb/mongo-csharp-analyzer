@@ -177,8 +177,8 @@ internal static class LinqExpressionProcessor
     private static bool PreanalyzeEFExpression(SyntaxNode efExpressionNode, SemanticModel semanticModel, List<InvalidExpressionAnalysisNode> invalidEFExpressionNodes, INamedTypeSymbol mongoQueryableNamedType)
     {
         var result = true;
-
         var typeArgument = mongoQueryableNamedType.TypeArguments[0];
+
         foreach (var member in typeArgument.GetMembers())
         {
             if (member is IPropertySymbol propertySymbol)
@@ -190,17 +190,6 @@ internal static class LinqExpressionProcessor
                     invalidEFExpressionNodes.Add(new(
                         efExpressionNode,
                         EFAnalysisErrorMessages.ByteArraysNotSupported));
-
-                    return false;
-                }
-
-                // Check TypeArgument for Dictionary Properties
-                if (propertySymbol.Type is INamedTypeSymbol namedTypeSymbol &&
-                    namedTypeSymbol.ConstructedFrom?.ToDisplayString() == "System.Collections.Generic.Dictionary<TKey, TValue>")
-                {
-                    invalidEFExpressionNodes.Add(new(
-                        efExpressionNode,
-                        EFAnalysisErrorMessages.DictionaryPropertiesNotSupported));
 
                     return false;
                 }
