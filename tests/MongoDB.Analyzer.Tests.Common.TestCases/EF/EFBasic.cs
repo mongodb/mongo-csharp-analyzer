@@ -51,6 +51,16 @@ public sealed class EFBasic
         var customers_query = db.Customers.OrderBy(c => c.DateOfBirth);
     }
 
+    [MQLEF("db.coll.Aggregate([{ \"$match\" : { \"Age\" : { \"$lte\" : 21 } } }, { \"$project\" : { \"_v\" : \"$Address\", \"_id\" : 0 } }])", DriverVersions.Linq3OrGreater)]
+    [MQLEF("db.coll.Aggregate([{ \"$match\" : { \"Name\" : \"Bob\" } }, { \"$project\" : { \"_v\" : \"$LastName\", \"_id\" : 0 } }])", DriverVersions.Linq3OrGreater)]
+    public void Select()
+    {
+        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext>();
+        var db = new MyDbContext(dbContextOptions.Options);
+        var users_query = db.Users.Where(u => u.Age <= 21).Select(u => u.Address);
+        var customers_query = db.Customers.Where(c => c.Name == "Bob").Select(c => c.LastName);
+    }
+
     [MQLEF("db.coll.Aggregate([{ \"$project\" : { \"_v\" : \"$Scores\", \"_id\" : 0 } }, { \"$unwind\" : \"$_v\" }])", DriverVersions.Linq3OrGreater)]
     public void SelectMany()
     {

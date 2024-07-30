@@ -183,24 +183,24 @@ internal static class LinqExpressionProcessor
         {
             if (member is IPropertySymbol propertySymbol)
             {
-                //Check TypeArgument for Binary/Byte Array Properties
+                // Check TypeArgument for Binary/Byte Array Properties
                 if (propertySymbol.Type is IArrayTypeSymbol arrayTypeSymbol &&
                     arrayTypeSymbol.ElementType.SpecialType == SpecialType.System_Byte)
                 {
                     invalidEFExpressionNodes.Add(new(
-                                efExpressionNode,
-                                EFAnalysisErrorMessages.ByteArraysNotSupported));
+                        efExpressionNode,
+                        EFAnalysisErrorMessages.ByteArraysNotSupported));
 
                     return false;
                 }
 
-                //Check TypeArgument for Dictionary Properties
+                // Check TypeArgument for Dictionary Properties
                 if (propertySymbol.Type is INamedTypeSymbol namedTypeSymbol &&
                     namedTypeSymbol.ConstructedFrom?.ToDisplayString() == "System.Collections.Generic.Dictionary<TKey, TValue>")
                 {
                     invalidEFExpressionNodes.Add(new(
-                                efExpressionNode,
-                                EFAnalysisErrorMessages.DictionaryPropertiesNotSupported));
+                        efExpressionNode,
+                        EFAnalysisErrorMessages.DictionaryPropertiesNotSupported));
 
                     return false;
                 }
@@ -213,23 +213,12 @@ internal static class LinqExpressionProcessor
 
             if (symbolInfo.Symbol is IMethodSymbol methodSymbol)
             {
-                //GroupBy Methods
+                // Check for GroupBy Methods
                 if (methodSymbol.Name == "GroupBy")
                 {
                     invalidEFExpressionNodes.Add(new(
-                                methodInvocation,
-                                EFAnalysisErrorMessages.GroupByMethodNotSupported));
-
-                    result = false;
-                    break;
-                }
-
-                //Select Methods(i.e. Client Side Projections)
-                if (methodSymbol.Name == "Select")
-                {
-                    invalidEFExpressionNodes.Add(new(
-                                methodInvocation,
-                                EFAnalysisErrorMessages.ClientSideProjectionsNotSupported));
+                        methodInvocation,
+                        EFAnalysisErrorMessages.GroupByMethodNotSupported));
 
                     result = false;
                     break;

@@ -24,8 +24,8 @@ public sealed class NotSupportedEFExpressions : TestCasesBase
     [NoDiagnostics]
     public void Arithmetic()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext2>();
-        var db = new MyDbContext2(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
+        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
         _ = db.Users.Sum(u => u.Age);
         _ = db.Users.Average(u => u.Age);
         _ = db.Users.Min(u => u.Age);
@@ -35,24 +35,24 @@ public sealed class NotSupportedEFExpressions : TestCasesBase
     [NotSupportedEF("Byte Array Property Not Supported.", DriverVersions.Linq3OrGreater)]
     public void ByteArrayProperties()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext2>();
-        var db = new MyDbContext2(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
+        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
         _ = db.SimpleTypesArraysHolder.Where(s => s.ByteArray.Length == 1);
     }
 
-    [NotSupportedEF("Client Side Projections Not Supported.", DriverVersions.Linq3OrGreater)]
-    public void ClientSideProjections()
+    [NoDiagnostics]
+    public void CombinedUnsupportedMethods()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext2>();
-        var db = new MyDbContext2(dbContextOptions.Options);
-        _ = db.Users.Where(u => u.Age <= 21).Select(u => u.Address);
+        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
+        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
+        _ = db.Users.Include(u => u.Age).GroupBy(u => u.Address);
     }
 
     [NotSupportedEF("Dictionary Property Not Supported.", DriverVersions.Linq3OrGreater)]
     public void DictionaryProperties()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext2>();
-        var db = new MyDbContext2(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
+        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
         _ = db.DictionariesHolder.Where(s => s.IntDictionary["key"] == 1);
     }
 
@@ -60,8 +60,8 @@ public sealed class NotSupportedEFExpressions : TestCasesBase
     [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
     public void GroupBy()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext2>();
-        var db = new MyDbContext2(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
+        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
         var users_query = db.Users.GroupBy(u => u.Address);
         var customers_query = db.Customers.GroupBy(c => c.LastName);
     }
@@ -69,16 +69,16 @@ public sealed class NotSupportedEFExpressions : TestCasesBase
     [NoDiagnostics]
     public void Includes()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext2>();
-        var db = new MyDbContext2(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
+        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
         _ = db.Users.Include(u => u.Age);
     }
 
     [NoDiagnostics]
     public void Join()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext2>();
-        var db = new MyDbContext2(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
+        var db = new DbContextUnsupportedEFExpressions(dbContextOptions.Options);
 
         _ = db.Users
                 .Join(
@@ -86,21 +86,22 @@ public sealed class NotSupportedEFExpressions : TestCasesBase
                     user => user.Age,
                     customer => customer.CustomerId,
                     (user, customer) => new
-                    {
-                        Age = user.Age,
-                        ID = customer.CustomerId
-                    });
+                        {
+                            Age = user.Age,
+                            ID = customer.CustomerId
+                        }
+                    );
     }
 }
 
-public class MyDbContext2 : DbContext
+public class DbContextUnsupportedEFExpressions : DbContext
 {
     public DbSet<DictionariesHolder> DictionariesHolder { get; set; }
     public DbSet<SimpleTypesArraysHolder> SimpleTypesArraysHolder { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Customer> Customers { get; set; }
 
-    public MyDbContext2(DbContextOptions options) : base(options)
+    public DbContextUnsupportedEFExpressions(DbContextOptions options) : base(options)
     {
     }
 
