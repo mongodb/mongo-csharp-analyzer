@@ -28,6 +28,6 @@ internal static class LinqAnalysisErrorMessages
 
 internal static class EFAnalysisErrorMessages
 {
-    public const string ByteArraysNotSupported = "Byte Array Property Not Supported.";
-    public const string GroupByMethodNotSupported = "GroupBy Not Supported in EF.";
+    public const string ByteArraysNotSupported = "Byte array type is not supported by this version of the EF provider.";
+    public const string GroupByMethodNotSupported = "GroupBy is not supported by this version of the EF provider.";
 }

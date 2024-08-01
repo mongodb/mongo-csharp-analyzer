@@ -21,10 +21,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.EF;
 
 public sealed class NotSupportedEFExpressions : TestCasesBase
 {
-    [NotSupportedEF("Byte Array Property Not Supported.", DriverVersions.Linq3OrGreater)]
-    [NotSupportedEF("Byte Array Property Not Supported.", DriverVersions.Linq3OrGreater)]
-    [NotSupportedEF("Byte Array Property Not Supported.", DriverVersions.Linq3OrGreater)]
-    [NotSupportedEF("Byte Array Property Not Supported.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("Byte array type is not supported by this version of the EF provider.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("Byte array type is not supported by this version of the EF provider.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("Byte array type is not supported by this version of the EF provider.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("Byte array type is not supported by this version of the EF provider.", DriverVersions.Linq3OrGreater)]
     public void ByteArrayProperties()
     {
         var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
@@ -35,10 +35,10 @@ public sealed class NotSupportedEFExpressions : TestCasesBase
         _ = db.SimpleTypesArraysHolder.Where(s => s.ByteArray.Length == 1).Where(s => s.IntArray.Length == 1).Where(s => s.IntArray.Length == 1);
     }
 
-    [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
-    [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
-    [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
-    [NotSupportedEF("GroupBy Not Supported in EF.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("GroupBy is not supported by this version of the EF provider.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("GroupBy is not supported by this version of the EF provider.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("GroupBy is not supported by this version of the EF provider.", DriverVersions.Linq3OrGreater)]
+    [NotSupportedEF("GroupBy is not supported by this version of the EF provider.", DriverVersions.Linq3OrGreater)]
     public void GroupBy()
     {
         var dbContextOptions = new DbContextOptionsBuilder<DbContextUnsupportedEFExpressions>();
