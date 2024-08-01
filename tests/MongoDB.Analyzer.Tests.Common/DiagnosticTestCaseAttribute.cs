@@ -116,6 +116,14 @@ namespace MongoDB.Analyzer.Tests.Common
         }
     }
 
+    public sealed class NotSupportedEFAttribute : DiagnosticRuleTestCaseAttribute
+    {
+        public NotSupportedEFAttribute(string message, string version = null, LinqVersion linqProvider = LinqVersion.V3, DriverTargetFramework targetFramework = DriverTargetFramework.All, params int[] codeLines) :
+            base(DiagnosticRulesConstants.NotSupportedEFExpression, message, version, linqProvider, targetFramework, codeLines: codeLines)
+        {
+        }
+    }
+
     public class InvalidLinqAttribute : DiagnosticRuleTestCaseAttribute
     {
         public InvalidLinqAttribute(

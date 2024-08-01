@@ -25,3 +25,9 @@ internal static class LinqAnalysisErrorMessages
 {
     public const string MethodInvocationNotSupported = "Method referencing lambda parameter is not supported LINQ expression.";
 }
+
+internal static class EFAnalysisErrorMessages
+{
+    public const string ByteArraysNotSupported = "Byte array type is not supported by this version of the EF provider.";
+    public const string GroupByMethodNotSupported = "GroupBy is not supported by this version of the EF provider.";
+}
