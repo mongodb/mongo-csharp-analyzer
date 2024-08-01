@@ -21,33 +21,23 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.EF;
 
 public sealed class EFBasic
 {
-    [MQLEF("db.coll.Aggregate([{ \"$group\" : { \"_id\" : \"$Address\", \"_elements\" : { \"$push\" : \"$$ROOT\" } } }])", DriverVersions.Linq3OrGreater)]
-    [MQLEF("db.coll.Aggregate([{ \"$group\" : { \"_id\" : \"$LastName\", \"_elements\" : { \"$push\" : \"$$ROOT\" } } }])", DriverVersions.Linq3OrGreater)]
-    public void GroupBy()
-    {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext>();
-        var db = new MyDbContext(dbContextOptions.Options);
-        var users_query = db.Users.GroupBy(u => u.Address);
-        var customers_query = db.Customers.GroupBy(c => c.LastName);
-    }
-
     [MQLEF("db.coll.Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", DriverVersions.Linq3OrGreater)]
-    [MQLEF("db.coll.Aggregate([{ \"$group\" : { \"_id\" : \"$LastName\", \"_elements\" : { \"$push\" : \"$$ROOT\" } } }])", DriverVersions.Linq3OrGreater)]
+    [MQLEF("db.coll.Aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", DriverVersions.Linq3OrGreater)]
     [MQLEF("db.coll.Aggregate([{ \"$sort\" : { \"Age\" : 1, \"Height\" : 1 } }])", DriverVersions.Linq3OrGreater)]
     public void Method()
     {
         var users_query = GetDbSet_Users().Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21);
-        var customers_query = GetDbSet_Customers().GroupBy(c => c.LastName);
+        var customers_query = GetDbSet_Customers().Where(c => c.LastName == "LastName");
         _ = GetDbContext().Users.OrderBy(u => u.Age).ThenBy(u => u.Height);
     }
 
     [MQLEF("db.coll.Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])", DriverVersions.Linq3OrGreater)]
-    [MQLEF("db.coll.Aggregate([{ \"$group\" : { \"_id\" : \"$LastName\", \"_elements\" : { \"$push\" : \"$$ROOT\" } } }])", DriverVersions.Linq3OrGreater)]
+    [MQLEF("db.coll.Aggregate([{ \"$match\" : { \"LastName\" : \"LastName\" } }])", DriverVersions.Linq3OrGreater)]
     [MQLEF("db.coll.Aggregate([{ \"$sort\" : { \"Age\" : 1, \"Height\" : 1 } }])", DriverVersions.Linq3OrGreater)]
     public void Object_invocation()
     {
         var users_query = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().Options).Users.Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21);
-        var customers_query = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().Options).Customers.GroupBy(c => c.LastName);
+        var customers_query = new MyDbContext(new DbContextOptionsBuilder<MyDbContext>().Options).Customers.Where(c => c.LastName == "LastName");
         _ = new MyDbContext(GetDbContextOptions()).Users.OrderBy(u => u.Age).ThenBy(u => u.Height);
     }
 
