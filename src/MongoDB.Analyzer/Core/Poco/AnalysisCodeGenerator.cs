@@ -19,7 +19,7 @@ namespace MongoDB.Analyzer.Core.Poco;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly PocoJsonGeneratorTemplateBuilder.SyntaxElements s_jsonGeneratorSyntaxElements;
+    private static readonly MqlAndJsonGeneratorUtilities.SyntaxElements s_jsonGeneratorSyntaxElements;
     private static readonly ParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()

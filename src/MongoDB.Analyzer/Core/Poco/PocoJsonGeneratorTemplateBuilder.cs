@@ -13,20 +13,12 @@
 // limitations under the License.
 
 using static MongoDB.Analyzer.Core.HelperResources.JsonSyntaxElements.Poco;
+using static MongoDB.Analyzer.Core.Utilities.MqlAndJsonGeneratorUtilities;
 
 namespace MongoDB.Analyzer.Core.Poco;
 
 internal sealed class PocoJsonGeneratorTemplateBuilder
 {
-    internal record SyntaxElements(
-        SyntaxNode Root,
-        ClassDeclarationSyntax ClassDeclarationSyntax,
-        MethodDeclarationSyntax TestMethodNode,
-        PredefinedTypeSyntax PredefinedTypeNode)
-    {
-        public SyntaxNode[] NodesToReplace { get; } = new[] { PredefinedTypeNode };
-    }
-
     private readonly SyntaxElements _syntaxElements;
     private ClassDeclarationSyntax _jsonGeneratorDeclarationSyntaxNew;
     private int _nextTestMethodIndex;
@@ -49,12 +41,12 @@ internal sealed class PocoJsonGeneratorTemplateBuilder
         var localDeclaration = mainTestMethodNode.DescendantNodes().OfType<LocalDeclarationStatementSyntax>().FirstOrDefault();
         var predefinedType = localDeclaration.DescendantNodes().OfType<PredefinedTypeSyntax>().FirstOrDefault();
 
-        return new(root, classDeclarationSyntax, mainTestMethodNode, predefinedType);
+        return new(root, classDeclarationSyntax, mainTestMethodNode, null, predefinedType, AnalysisType.Poco);
     }
 
     public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateJsonGeneratorMethod(ClassDeclarationSyntax poco)
     {
-        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNode(_syntaxElements.PredefinedTypeNode, SyntaxFactory.IdentifierName(poco.Identifier.ValueText));
+        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNode(_syntaxElements.TypeNode, SyntaxFactory.IdentifierName(poco.Identifier.ValueText));
         var newJsonGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
         newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newJsonGeneratorMethodName));
         return (newJsonGeneratorMethodName, newMethodDeclaration);

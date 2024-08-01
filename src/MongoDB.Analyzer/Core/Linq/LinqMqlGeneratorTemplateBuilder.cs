@@ -13,21 +13,12 @@
 // limitations under the License.
 
 using static MongoDB.Analyzer.Core.HelperResources.MqlGeneratorSyntaxElements.Linq;
+using static MongoDB.Analyzer.Core.Utilities.MqlAndJsonGeneratorUtilities;
 
 namespace MongoDB.Analyzer.Core.Linq;
 
 internal sealed class LinqMqlGeneratorTemplateBuilder
 {
-    internal record SyntaxElements(
-      SyntaxNode Root,
-      ClassDeclarationSyntax ClassDeclarationSyntax,
-      MethodDeclarationSyntax TestMethodNode,
-      SyntaxNode LinqExpressionNode,
-      SyntaxNode QueryableTypeNode)
-    {
-        public SyntaxNode[] NodesToReplace { get; } = new[] { LinqExpressionNode, QueryableTypeNode };
-    }
-
     private readonly SyntaxElements _syntaxElements;
     private ClassDeclarationSyntax _mqlGeneratorDeclarationSyntaxNew;
     private int _nextTestMethodIndex;
@@ -50,7 +41,7 @@ internal sealed class LinqMqlGeneratorTemplateBuilder
         var queryableTypeNode = mainTestMethodNode.GetSingleIdentifier(MqlGeneratorTemplateType);
         var linqExpressionNode = mainTestMethodNode.GetSingleIdentifier(LinqMethodName).Parent.Parent;
 
-        return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, linqExpressionNode, queryableTypeNode);
+        return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, linqExpressionNode, queryableTypeNode, AnalysisType.Linq);
     }
 
     public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateMqlGeneratorMethod(string collectionTypeName, SyntaxNode linqExpression)
@@ -58,8 +49,8 @@ internal sealed class LinqMqlGeneratorTemplateBuilder
         var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNodes(_syntaxElements.NodesToReplace, (n, _) =>
             n.Kind() switch
             {
-                _ when n == _syntaxElements.LinqExpressionNode => linqExpression,
-                _ when n == _syntaxElements.QueryableTypeNode => SyntaxFactory.IdentifierName(collectionTypeName),
+                _ when n == _syntaxElements.ExpressionNode => linqExpression,
+                _ when n == _syntaxElements.TypeNode => SyntaxFactory.IdentifierName(collectionTypeName),
                 _ => throw new Exception($"Unrecognized node {n}")
             });
 

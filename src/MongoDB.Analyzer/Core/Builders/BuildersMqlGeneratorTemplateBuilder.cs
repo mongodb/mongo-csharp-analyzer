@@ -13,21 +13,12 @@
 // limitations under the License.
 
 using static MongoDB.Analyzer.Core.HelperResources.MqlGeneratorSyntaxElements.Builders;
+using static MongoDB.Analyzer.Core.Utilities.MqlAndJsonGeneratorUtilities;
 
 namespace MongoDB.Analyzer.Core.Builders;
 
 internal sealed class BuildersMqlGeneratorTemplateBuilder
 {
-    internal record SyntaxElements(
-        SyntaxNode Root,
-        ClassDeclarationSyntax ClassDeclarationSyntax,
-        MethodDeclarationSyntax TestMethodNode,
-        SyntaxNode BuilderDefinitionNode,
-        SyntaxNode CollectionTypeNode)
-    {
-        public SyntaxNode[] NodesToReplace { get; } = new[] { BuilderDefinitionNode, CollectionTypeNode };
-    }
-
     private ClassDeclarationSyntax _mqlGeneratorDeclarationSyntaxNew;
     private int _nextTestMethodIndex;
     private readonly SyntaxElements _syntaxElements;
@@ -50,7 +41,7 @@ internal sealed class BuildersMqlGeneratorTemplateBuilder
         var builderDefinitionNode = mainTestMethodNode.GetSingleIdentifier(FilterName).Parent.Parent;
         var collectionTypeNode = mainTestMethodNode.GetIdentifiers(MqlGeneratorTemplateType).ElementAt(0);
 
-        return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, builderDefinitionNode, collectionTypeNode);
+        return new SyntaxElements(root, classDeclarationSyntax, mainTestMethodNode, builderDefinitionNode, collectionTypeNode, AnalysisType.Builders);
     }
 
     public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateMqlGeneratorMethod(string typeArgumentName, SyntaxNode buildersExpression)
@@ -58,8 +49,8 @@ internal sealed class BuildersMqlGeneratorTemplateBuilder
         var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNodes(_syntaxElements.NodesToReplace, (n, _) =>
             n switch
             {
-                _ when n == _syntaxElements.BuilderDefinitionNode => buildersExpression,
-                _ when n == _syntaxElements.CollectionTypeNode => SyntaxFactory.IdentifierName(typeArgumentName),
+                _ when n == _syntaxElements.ExpressionNode => buildersExpression,
+                _ when n == _syntaxElements.TypeNode => SyntaxFactory.IdentifierName(typeArgumentName),
                 _ => throw new Exception($"Unrecognized node {n}")
             });
 

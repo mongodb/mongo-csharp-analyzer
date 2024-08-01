@@ -20,7 +20,7 @@ namespace MongoDB.Analyzer.Core.Builders;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly BuildersMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElements;
+    private static readonly MqlAndJsonGeneratorUtilities.SyntaxElements s_mqlGeneratorSyntaxElements;
     private static readonly CSharpParseOptions s_parseOptions;
     private static readonly SyntaxTreesCache s_syntaxTreesCache;
 
