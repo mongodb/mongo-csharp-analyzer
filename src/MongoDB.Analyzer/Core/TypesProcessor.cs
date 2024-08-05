@@ -67,17 +67,18 @@ internal sealed class TypesProcessor
         remappedName = GetNewNameForSymbol(typeSymbol);
         BaseTypeDeclarationSyntax rewrittenDeclarationSyntax;
 
+        _processedTypes[fullTypeName] = (remappedName, null); // Cache the name, for self referencing types
+
         try
         {
-            _processedTypes[fullTypeName] = (remappedName, null); // Cache the name, for self referencing types
             rewrittenDeclarationSyntax = GetSyntaxNodeFromSymbol(typeSymbol, remappedName);
-
-            if (rewrittenDeclarationSyntax == null)
-            {
-                throw new NotSupportedException("This type symbol is not supported.");
-            }
         }
         catch
+        {
+            throw new NotSupportedException($"Symbol type {typeSymbol.ToDisplayString()} is not supported.");
+        }
+
+        if (rewrittenDeclarationSyntax == null)
         {
             _processedTypes.Remove(fullTypeName);
             return null;
