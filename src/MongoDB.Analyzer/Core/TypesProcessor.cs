@@ -65,11 +65,19 @@ internal sealed class TypesProcessor
         }
 
         remappedName = GetNewNameForSymbol(typeSymbol);
-        _processedTypes[fullTypeName] = (remappedName, null); // Cache the name, for self referencing types
+        BaseTypeDeclarationSyntax rewrittenDeclarationSyntax;
 
-        var rewrittenDeclarationSyntax = GetSyntaxNodeFromSymbol(typeSymbol, remappedName);
+        try
+        {
+            _processedTypes[fullTypeName] = (remappedName, null); // Cache the name, for self referencing types
+            rewrittenDeclarationSyntax = GetSyntaxNodeFromSymbol(typeSymbol, remappedName);
 
-        if (rewrittenDeclarationSyntax == null)
+            if (rewrittenDeclarationSyntax == null)
+            {
+                throw new NotSupportedException("This type symbol is not supported.");
+            }
+        }
+        catch
         {
             _processedTypes.Remove(fullTypeName);
             return null;
@@ -109,7 +117,7 @@ internal sealed class TypesProcessor
         // TODO optimize
         else if (typeSymbol is INamedTypeSymbol namedTypeSymbol &&
             namedTypeSymbol.TypeArguments.Length >= 1 &&
-            namedTypeSymbol.IsSupportedCollection())
+            namedTypeSymbol.IsDerivedFromSystemCollectionGenerics())
         {
             var underlyingTypeSyntaxes = namedTypeSymbol.TypeArguments.Select(typeArgument => CreateTypeSyntaxForSymbol(typeArgument));
             if (underlyingTypeSyntaxes.Any(underlyingTypeSyntax => underlyingTypeSyntax == null))
@@ -131,7 +139,7 @@ internal sealed class TypesProcessor
                             SyntaxFactory.IdentifierName("Generic")),
                         collectionSyntax);
         }
-        else if (typeSymbol.IsUserDefinedCollection())
+        else if (typeSymbol.IsDerivedFromSystemCollectionGenerics(recursive: true))
         {
             return null;
         }
@@ -205,7 +213,7 @@ internal sealed class TypesProcessor
             .OfType<IFieldSymbol>()
             .Where(p =>
                 !p.IsStatic &&
-                (p.Type.TypeKind != TypeKind.Interface || p.Type.IsSupportedCollection()) &&
+                (p.Type.TypeKind != TypeKind.Interface || p.Type.IsDerivedFromSystemCollectionGenerics()) &&
                 p.DeclaredAccessibility == Accessibility.Public);
 
         foreach (var fieldSymbol in typeFields)
@@ -242,7 +250,7 @@ internal sealed class TypesProcessor
               .Where(p =>
                 !p.IsStatic &&
                 !p.IsIndexer &&
-                (p.Type.TypeKind != TypeKind.Interface || p.Type.IsSupportedCollection()) &&
+                (p.Type.TypeKind != TypeKind.Interface || p.Type.IsDerivedFromSystemCollectionGenerics()) &&
                 p.DeclaredAccessibility == Accessibility.Public);
 
         foreach (var propertySymbol in typeProperties)
@@ -284,7 +292,7 @@ internal sealed class TypesProcessor
     private (string RemappedName, string FullTypeName) GetGeneratedTypeMapping(ITypeSymbol typeSymbol, bool userOnlyTypes)
     {
         if (typeSymbol == null ||
-            typeSymbol.IsUserDefinedCollection())
+            typeSymbol.IsDerivedFromSystemCollectionGenerics(recursive: true))
         {
             return default;
         }

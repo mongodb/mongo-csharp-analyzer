@@ -66,42 +66,42 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         public void CustomLists()
         {
             _ = GetMongoQueryable<CustomListsHolder>()
-                .Where(t => t.IntList[0] == 2)
-                .Where(t => t.StringList.Count == 12)
-                .Where(t => t.PesonsList[2].Address.City == "Hamburg")
-                .Where(t => t.NestedListsHolderList[2].StringList[4] == "Nested")
-                .Where(t => t.IntIList[1] == 12)
-                .Where(t => t.NestedListsHolderIList[12].IntIList[12] == 2);
+                    .Where(t => t.IntList[0] == 2)
+                    .Where(t => t.StringList.Count == 12)
+                    .Where(t => t.PesonsList[2].Address.City == "Hamburg")
+                    .Where(t => t.NestedListsHolderList[2].StringList[4] == "Nested")
+                    .Where(t => t.IntIList[1] == 12)
+                    .Where(t => t.NestedListsHolderIList[12].IntIList[12] == 2);
         }
 
         [NoDiagnostics]
         public void CustomQueues()
         {
             _ = GetMongoQueryable<CustomQueueHolder>()
-                .Where(t => t.IntQueue.ElementAt(0) == 1)
-                .Where(t => t.PesonsQueue.ElementAt(0).Name == "Name")
-                .Where(t => t.StringQueue.ElementAt(0) == "Value")
-                .Where(t => t.NestedQueuesHolderQueue.ElementAt(0).IntQueue.ElementAt(0) == 1);
+                    .Where(t => t.IntQueue.ElementAt(0) == 1)
+                    .Where(t => t.PesonsQueue.ElementAt(0).Name == "Name")
+                    .Where(t => t.StringQueue.ElementAt(0) == "Value")
+                    .Where(t => t.NestedQueuesHolderQueue.ElementAt(0).IntQueue.ElementAt(0) == 1);
         }
 
         [NoDiagnostics]
         public void CustomSortedDictionaries()
         {
             _ = GetMongoQueryable<CustomSortedDictionaryHolder>()
-                .Where(t => t.IntSortedDictionary["key"] == 1)
-                .Where(t => t.StringSortedDictionary["key"] == "Value")
-                .Where(t => t.PesonsSortedDictionary["string"].Name == "Bob")
-                .Where(t => t.NestedSortedDictionariesHolderSortedDictionary["key"].IntSortedDictionary["key"] == 1);
+                    .Where(t => t.IntSortedDictionary["key"] == 1)
+                    .Where(t => t.StringSortedDictionary["key"] == "Value")
+                    .Where(t => t.PesonsSortedDictionary["string"].Name == "Bob")
+                    .Where(t => t.NestedSortedDictionariesHolderSortedDictionary["key"].IntSortedDictionary["key"] == 1);
         }
 
         [NoDiagnostics]
         public void CustomStacks()
         {
             _ = GetMongoQueryable<CustomStackHolder>()
-                .Where(t => t.IntStack.ElementAt(0) == 1)
-                .Where(t => t.PesonsStack.ElementAt(0).Name == "Name")
-                .Where(t => t.StringStack.ElementAt(0) == "Value")
-                .Where(t => t.NestedStacksHolderStack.ElementAt(0).IntStack.ElementAt(0) == 1);
+                    .Where(t => t.IntStack.ElementAt(0) == 1)
+                    .Where(t => t.PesonsStack.ElementAt(0).Name == "Name")
+                    .Where(t => t.StringStack.ElementAt(0) == "Value")
+                    .Where(t => t.NestedStacksHolderStack.ElementAt(0).IntStack.ElementAt(0) == 1);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"IntDictionary.key\" : 1, \"StringDictionary.key\" : \"Value\", \"PesonsDictionary.string.Name\" : \"Bob\", \"NestedDictionariesHolderDictionary.key.IntDictionary.key\" : 1, \"IntIDictionary.key\" : 3, \"NestedDictionariesHolderIDictionary.key.IntDictionary.key\" : 3 } }])")]
@@ -160,12 +160,12 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         public void Lists()
         {
             _ = GetMongoQueryable<ListsHolder>()
-                .Where(t => t.IntList[0] == 2)
-                .Where(t => t.StringList.Count == 12)
-                .Where(t => t.PesonsList[2].Address.City == "Hamburg")
-                .Where(t => t.NestedListsHolderList[2].StringList[4] == "Nested")
-                .Where(t => t.IntIList[1] == 12)
-                .Where(t => t.NestedListsHolderIList[12].IntIList[12] == 2);
+                    .Where(t => t.IntList[0] == 2)
+                    .Where(t => t.StringList.Count == 12)
+                    .Where(t => t.PesonsList[2].Address.City == "Hamburg")
+                    .Where(t => t.NestedListsHolderList[2].StringList[4] == "Nested")
+                    .Where(t => t.IntIList[1] == 12)
+                    .Where(t => t.NestedListsHolderIList[12].IntIList[12] == 2);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"IntDictionary.key\" : 1 } }, { \"$match\" : { \"StringDictionary.key\" : \"Value\" } }, { \"$match\" : { \"PesonsDictionary.string.Name\" : \"Bob\" } }, { \"$match\" : { \"NestedDictionariesHolderDictionary.key.IntDictionary.key\" : 1 } }, { \"$match\" : { \"IntIDictionary.key\" : 3 } }, { \"$match\" : { \"NestedDictionariesHolderIDictionary.key.IntDictionary.key\" : 3 } }])")]
@@ -312,30 +312,30 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         public void Queues()
         {
             _ = GetMongoQueryable<QueueHolder>()
-                .Where(t => t.IntQueue.ElementAt(0) == 1)
-                .Where(t => t.PesonsQueue.ElementAt(0).Name == "Name")
-                .Where(t => t.StringQueue.ElementAt(0) == "Value")
-                .Where(t => t.NestedQueuesHolderQueue.ElementAt(0).IntQueue.ElementAt(0) == 1);
+                    .Where(t => t.IntQueue.ElementAt(0) == 1)
+                    .Where(t => t.PesonsQueue.ElementAt(0).Name == "Name")
+                    .Where(t => t.StringQueue.ElementAt(0) == "Value")
+                    .Where(t => t.NestedQueuesHolderQueue.ElementAt(0).IntQueue.ElementAt(0) == 1);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"IntSortedDictionary.key\" : 1 } }, { \"$match\" : { \"StringSortedDictionary.key\" : \"Value\" } }, { \"$match\" : { \"PesonsSortedDictionary.string.Name\" : \"Bob\" } }, { \"$match\" : { \"NestedSortedDictionariesHolderSortedDictionary.key.IntSortedDictionary.key\" : 1 } }])")]
         public void SortedDictionaries()
         {
             _ = GetMongoQueryable<SortedDictionaryHolder>()
-                .Where(t => t.IntSortedDictionary["key"] == 1)
-                .Where(t => t.StringSortedDictionary["key"] == "Value")
-                .Where(t => t.PesonsSortedDictionary["string"].Name == "Bob")
-                .Where(t => t.NestedSortedDictionariesHolderSortedDictionary["key"].IntSortedDictionary["key"] == 1);
+                    .Where(t => t.IntSortedDictionary["key"] == 1)
+                    .Where(t => t.StringSortedDictionary["key"] == "Value")
+                    .Where(t => t.PesonsSortedDictionary["string"].Name == "Bob")
+                    .Where(t => t.NestedSortedDictionariesHolderSortedDictionary["key"].IntSortedDictionary["key"] == 1);
         }
 
         [MQL("aggregate([{ \"$match\" : { \"IntStack.0\" : 1 } }, { \"$match\" : { \"PesonsStack.0.Name\" : \"Name\" } }, { \"$match\" : { \"StringStack.0\" : \"Value\" } }, { \"$match\" : { \"NestedStacksHolderStack.0.IntStack.0\" : 1 } }])")]
         public void Stacks()
         {
             _ = GetMongoQueryable<StackHolder>()
-                .Where(t => t.IntStack.ElementAt(0) == 1)
-                .Where(t => t.PesonsStack.ElementAt(0).Name == "Name")
-                .Where(t => t.StringStack.ElementAt(0) == "Value")
-                .Where(t => t.NestedStacksHolderStack.ElementAt(0).IntStack.ElementAt(0) == 1);
+                    .Where(t => t.IntStack.ElementAt(0) == 1)
+                    .Where(t => t.PesonsStack.ElementAt(0).Name == "Name")
+                    .Where(t => t.StringStack.ElementAt(0) == "Value")
+                    .Where(t => t.NestedStacksHolderStack.ElementAt(0).IntStack.ElementAt(0) == 1);
         }
     }
 }

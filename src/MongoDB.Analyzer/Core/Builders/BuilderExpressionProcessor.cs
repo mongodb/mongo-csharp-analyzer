@@ -81,7 +81,7 @@ internal static class BuilderExpressionProcessor
 
             try
             {
-                if (!ProcessTypeArguments(namedType.TypeArguments, typesProcessor))
+                if (!namedType.TypeArguments.All(t => typesProcessor.ProcessTypeSymbol(t) != null))
                 {
                     continue;
                 }
@@ -252,19 +252,5 @@ internal static class BuilderExpressionProcessor
         }
 
         return (nodeType, namedType, expressionNode);
-    }
-
-    private static bool ProcessTypeArguments(IEnumerable<ITypeSymbol> typeArguments, TypesProcessor typesProcessor)
-    {
-        foreach (var typeArgument in typeArguments)
-        {
-            var remappedName = typesProcessor.ProcessTypeSymbol(typeArgument);
-            if (remappedName == null)
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

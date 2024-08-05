@@ -56,6 +56,12 @@ internal static class SymbolExtensions
         "MongoDB.Bson.Serialization.Options.TimeSpanUnits"
     };
 
+    private static readonly HashSet<string> s_supportedCollectionInterfaces = new()
+    {
+        "System.Collections.Generic.ICollection<T>",
+        "System.Collections.Generic.IReadOnlyCollection<T>"
+    };
+
     private static readonly HashSet<string> s_supportedSystemTypes = new()
     {
         "System.DateTime",
@@ -188,6 +194,41 @@ internal static class SymbolExtensions
         return false;
     }
 
+    public static bool IsDerivedFromSystemCollectionGenerics(this ITypeSymbol typeSymbol, bool recursive = false)
+    {
+        if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
+        {
+            return false;
+        }
+
+        if (!recursive)
+        {
+            return namedTypeSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric;
+        }
+
+        // Check Interfaces
+        if (namedTypeSymbol.AllInterfaces.Any(interfaceSymbol => interfaceSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric) &&
+            !namedTypeSymbol.IsDefinedInMongoBson() &&
+            !namedTypeSymbol.IsDefinedInMongoDriver() &&
+            !namedTypeSymbol.IsDefinedInSystem())
+        {
+            return true;
+        }
+
+        // Check Base Types
+        while (namedTypeSymbol != null)
+        {
+            if (namedTypeSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric)
+            {
+                return true;
+            }
+
+            namedTypeSymbol = namedTypeSymbol.BaseType;
+        }
+
+        return false;
+    }
+
     public static bool IsFindFluent(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
         {
@@ -237,10 +278,6 @@ internal static class SymbolExtensions
             _ => false
         };
 
-    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
-        typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-        namedTypeSymbol.ContainingNamespace.ToDisplayString() == NamespaceCollectionGeneric;
-
     public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
         typeSymbol.IsIMongoCollection() &&
         typeSymbol is INamedTypeSymbol namedType &&
@@ -254,34 +291,6 @@ internal static class SymbolExtensions
     public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol, string fullTypeName) =>
         (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
-
-    public static bool IsUserDefinedCollection(this ITypeSymbol typeSymbol)
-    {
-        if (typeSymbol is not INamedTypeSymbol namedTypeSymbol ||
-            namedTypeSymbol.IsDefinedInMongoBson() ||
-            namedTypeSymbol.IsDefinedInMongoDriver() ||
-            namedTypeSymbol.IsDefinedInSystem())
-        {
-            return false;
-        }
-
-        while (namedTypeSymbol != null)
-        {
-            if (namedTypeSymbol.IsSupportedCollection())
-            {
-                return true;
-            }
-
-            if (namedTypeSymbol.Interfaces.Any(i => i.IsSupportedCollection()))
-            {
-                return true;
-            }
-
-            namedTypeSymbol = namedTypeSymbol.BaseType;
-        }
-
-        return false;
-    }
 
     private static SyntaxToken[] GetPublicFieldModifiers() =>
         new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) };
