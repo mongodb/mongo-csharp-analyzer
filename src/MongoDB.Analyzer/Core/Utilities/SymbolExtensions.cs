@@ -16,7 +16,6 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class SymbolExtensions
 {
-    private const string AssemblyMongoDBBson = "MongoDB.Bson";
     private const string AssemblyMongoDBDriver = "MongoDB.Driver";
     private const string NamespaceCollectionGeneric = "System.Collections.Generic";
     private const string NamespaceEF = "Microsoft.EntityFrameworkCore";
@@ -54,12 +53,6 @@ internal static class SymbolExtensions
         "MongoDB.Bson.BsonType",
         "MongoDB.Bson.BsonValue",
         "MongoDB.Bson.Serialization.Options.TimeSpanUnits"
-    };
-
-    private static readonly HashSet<string> s_supportedCollectionInterfaces = new()
-    {
-        "System.Collections.Generic.ICollection<T>",
-        "System.Collections.Generic.IReadOnlyCollection<T>"
     };
 
     private static readonly HashSet<string> s_supportedSystemTypes = new()
@@ -161,9 +154,6 @@ internal static class SymbolExtensions
         typeSymbol?.Name == "DbSet" &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceEF;
 
-    public static bool IsDefinedInMongoBson(this ISymbol symbol) => symbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBBson &&
-        symbol?.ContainingAssembly.Name == AssemblyMongoDBBson;
-
     public static bool IsDefinedInMongoDriver(this ISymbol symbol) => symbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBDriver &&
         symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
 
@@ -176,57 +166,6 @@ internal static class SymbolExtensions
         return containingNamespace == NamespaceSystemLinq ||
             containingNamespace == NamespaceMongoDBLinq &&
             symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
-    }
-
-    public static bool IsDefinedInSystem(this ISymbol symbol)
-    {
-        var containingNamespace = symbol?.ContainingNamespace;
-        while (containingNamespace != null)
-        {
-            if (containingNamespace.Name == NamespaceSystem)
-            {
-                return true;
-            }
-
-            containingNamespace = containingNamespace.ContainingNamespace;
-        }
-
-        return false;
-    }
-
-    public static bool IsDerivedFromSystemCollectionGenerics(this ITypeSymbol typeSymbol, bool recursive = false)
-    {
-        if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
-        {
-            return false;
-        }
-
-        if (!recursive)
-        {
-            return namedTypeSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric;
-        }
-
-        // Check Interfaces
-        if (namedTypeSymbol.AllInterfaces.Any(interfaceSymbol => interfaceSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric) &&
-            !namedTypeSymbol.IsDefinedInMongoBson() &&
-            !namedTypeSymbol.IsDefinedInMongoDriver() &&
-            !namedTypeSymbol.IsDefinedInSystem())
-        {
-            return true;
-        }
-
-        // Check Base Types
-        while (namedTypeSymbol != null)
-        {
-            if (namedTypeSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric)
-            {
-                return true;
-            }
-
-            namedTypeSymbol = namedTypeSymbol.BaseType;
-        }
-
-        return false;
     }
 
     public static bool IsFindFluent(this ITypeSymbol typeSymbol) =>
@@ -291,6 +230,36 @@ internal static class SymbolExtensions
     public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol, string fullTypeName) =>
         (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
+
+    public static bool IsSystemCollection(this ITypeSymbol typeSymbol, bool includeBaseTypesAndInterfaces = false)
+    {
+        if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
+        {
+            return default;
+        }
+
+        if (!includeBaseTypesAndInterfaces)
+        {
+            return namedTypeSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric;
+        }
+
+        if (namedTypeSymbol.AllInterfaces.Any(interfaceSymbol => interfaceSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric))
+        {
+            return true;
+        }
+
+        while (namedTypeSymbol != null)
+        {
+            if (namedTypeSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric)
+            {
+                return true;
+            }
+
+            namedTypeSymbol = namedTypeSymbol.BaseType;
+        }
+
+        return false;
+    }
 
     private static SyntaxToken[] GetPublicFieldModifiers() =>
         new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) };
