@@ -17,6 +17,7 @@ namespace MongoDB.Analyzer.Core;
 internal static class SymbolExtensions
 {
     private const string AssemblyMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceCollectionGeneric = "System.Collections.Generic";
     private const string NamespaceEF = "Microsoft.EntityFrameworkCore";
     private const string NamespaceMongoDBBson = "MongoDB.Bson";
     private const string NamespaceMongoDBBsonAttributes = "MongoDB.Bson.Serialization.Attributes";
@@ -52,13 +53,6 @@ internal static class SymbolExtensions
         "MongoDB.Bson.BsonType",
         "MongoDB.Bson.BsonValue",
         "MongoDB.Bson.Serialization.Options.TimeSpanUnits"
-    };
-
-    private static readonly HashSet<string> s_supportedCollections = new()
-    {
-        "System.Collections.Generic.IEnumerable<T>",
-        "System.Collections.Generic.IList<T>",
-        "System.Collections.Generic.List<T>"
     };
 
     private static readonly HashSet<string> s_supportedSystemTypes = new()
@@ -160,7 +154,8 @@ internal static class SymbolExtensions
         typeSymbol?.Name == "DbSet" &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceEF;
 
-    public static bool IsDefinedInMongoDriver(this ISymbol symbol) => symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
+    public static bool IsDefinedInMongoDriver(this ISymbol symbol) => symbol?.ContainingNamespace?.ToDisplayString() == NamespaceMongoDBDriver &&
+        symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
 
     public static bool IsDefinedInMongoLinqOrSystemLinq(this ISymbol symbol)
     {
@@ -222,30 +217,6 @@ internal static class SymbolExtensions
             _ => false
         };
 
-    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol)
-    {
-        if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
-        {
-            return false;
-        }
-
-        while (namedTypeSymbol != null)
-        {
-            if (s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString()))
-            {
-                return true;
-            }
-
-            if (namedTypeSymbol.Interfaces.Any(i => s_supportedCollections.Contains(i.ConstructedFrom?.ToDisplayString()))){
-                return true;
-            }
-
-            namedTypeSymbol = namedTypeSymbol.BaseType;
-        }
-
-        return false;
-    }
-
     public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
         typeSymbol.IsIMongoCollection() &&
         typeSymbol is INamedTypeSymbol namedType &&
@@ -259,6 +230,36 @@ internal static class SymbolExtensions
     public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol, string fullTypeName) =>
         (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
+
+    public static bool IsSystemCollection(this ITypeSymbol typeSymbol, bool includeBaseTypesAndInterfaces = false)
+    {
+        if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
+        {
+            return default;
+        }
+
+        if (!includeBaseTypesAndInterfaces)
+        {
+            return namedTypeSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric;
+        }
+
+        if (namedTypeSymbol.AllInterfaces.Any(interfaceSymbol => interfaceSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric))
+        {
+            return true;
+        }
+
+        while (namedTypeSymbol != null)
+        {
+            if (namedTypeSymbol.ContainingNamespace?.ToDisplayString() == NamespaceCollectionGeneric)
+            {
+                return true;
+            }
+
+            namedTypeSymbol = namedTypeSymbol.BaseType;
+        }
+
+        return false;
+    }
 
     private static SyntaxToken[] GetPublicFieldModifiers() =>
         new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) };
