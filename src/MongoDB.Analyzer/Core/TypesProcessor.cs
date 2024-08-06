@@ -73,9 +73,10 @@ internal sealed class TypesProcessor
         {
             rewrittenDeclarationSyntax = GetSyntaxNodeFromSymbol(typeSymbol, remappedName);
         }
-        catch (Exception ex)
+        catch
         {
-            throw new NotSupportedException($"Symbol type {typeSymbol.ToDisplayString()} is not supported with {ex.Message}.");
+            _processedTypes.Remove(fullTypeName);
+            throw;
         }
 
         if (rewrittenDeclarationSyntax == null)
