@@ -19,7 +19,7 @@ Rule ID | Category | Severity | Notes
 MAPoco1001 | MongoDB.Analyzer.Poco | Info | Poco to Json [Documentation](https://www.mongodb.com/docs/mongodb-analyzer/current/rules/#mapoco1001)
 MAPoco2001 | MongoDB.Analyzer.Poco | Warning | Unsupported POCO [Documentation](https://www.mongodb.com/docs/mongodb-analyzer/current/rules/#mapoco2001)
 
-## Release 1.4.0
+## Release 1.5.0
 
 ### New Rules
 

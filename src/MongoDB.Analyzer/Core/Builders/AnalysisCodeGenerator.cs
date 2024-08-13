@@ -20,14 +20,14 @@ namespace MongoDB.Analyzer.Core.Builders;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly BuildersMqlGeneratorTemplateBuilder.SyntaxElements s_mqlGeneratorSyntaxElements;
+    private static readonly MqlGeneratorTestMethodTemplate s_testMethodTemplate;
     private static readonly CSharpParseOptions s_parseOptions;
     private static readonly SyntaxTreesCache s_syntaxTreesCache;
 
     static AnalysisCodeGenerator()
     {
         var mqlGeneratorSyntaxTree = GetCodeResource(ResourceNames.Builders.MqlGenerator);
-        s_mqlGeneratorSyntaxElements = BuildersMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree);
+        s_testMethodTemplate = BuildersMqlGeneratorTemplateBuilder.CreateTestMethodTemplate(mqlGeneratorSyntaxTree);
 
         s_parseOptions = (CSharpParseOptions)mqlGeneratorSyntaxTree.Options;
         s_syntaxTreesCache = new SyntaxTreesCache(s_parseOptions, ResourceNames.Builders.Renderer);
@@ -68,7 +68,7 @@ internal static class AnalysisCodeGenerator
 
     private static SyntaxTree GenerateMqlGeneratorSyntaxTree(ExpressionsAnalysis builderExpressionAnalysis)
     {
-        var testCodeBuilder = new BuildersMqlGeneratorTemplateBuilder(s_mqlGeneratorSyntaxElements);
+        var testCodeBuilder = new BuildersMqlGeneratorTemplateBuilder(s_testMethodTemplate);
         var generatedMqlMethodDeclarations = new List<MethodDeclarationSyntax>(builderExpressionAnalysis.AnalysisNodeContexts.Length);
 
         foreach (var builderContext in builderExpressionAnalysis.AnalysisNodeContexts)
