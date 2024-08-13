@@ -14,28 +14,17 @@
 
 namespace MongoDB.Analyzer.Core.Utilities;
 
-public class MqlAndJsonGeneratorUtilities
+internal sealed record MqlGeneratorTestMethodTemplate(
+    SyntaxNode Root,
+    ClassDeclarationSyntax ClassDeclarationSyntax,
+    MethodDeclarationSyntax TestMethodNode,
+    SyntaxNode ExpressionNode,
+    SyntaxNode TypeNode,
+    AnalysisType AnalysisType)
 {
-    internal record SyntaxElements(
-        SyntaxNode Root,
-        ClassDeclarationSyntax ClassDeclarationSyntax,
-        MethodDeclarationSyntax TestMethodNode,
-        SyntaxNode ExpressionNode,
-        SyntaxNode TypeNode,
-        AnalysisType AnalysisType
-        )
+    public SyntaxNode[] NodesToReplace => AnalysisType switch
     {
-        public SyntaxNode[] NodesToReplace
-        {
-            get
-            {
-                return AnalysisType switch
-                {
-                    AnalysisType.Poco => new[] { TypeNode },
-                    _ => new[] { ExpressionNode, TypeNode },
-                };
-            }
-        }
-    }
+        AnalysisType.Poco => new[] { TypeNode },
+        _ => new[] { ExpressionNode, TypeNode },
+    };
 }
-

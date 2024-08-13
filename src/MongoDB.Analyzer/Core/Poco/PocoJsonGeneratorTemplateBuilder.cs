@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Analyzer.Core.Utilities;
 using static MongoDB.Analyzer.Core.HelperResources.JsonSyntaxElements.Poco;
-using static MongoDB.Analyzer.Core.Utilities.MqlAndJsonGeneratorUtilities;
 
 namespace MongoDB.Analyzer.Core.Poco;
 
 internal sealed class PocoJsonGeneratorTemplateBuilder
 {
-    private readonly SyntaxElements _syntaxElements;
+    private readonly MqlGeneratorTestMethodTemplate _testMethodTemplate;
     private ClassDeclarationSyntax _jsonGeneratorDeclarationSyntaxNew;
     private int _nextTestMethodIndex;
 
-    public PocoJsonGeneratorTemplateBuilder(SyntaxElements syntaxElements)
+    public PocoJsonGeneratorTemplateBuilder(MqlGeneratorTestMethodTemplate syntaxElements)
     {
-        _syntaxElements = syntaxElements;
-        _jsonGeneratorDeclarationSyntaxNew = _syntaxElements.ClassDeclarationSyntax;
+        _testMethodTemplate = syntaxElements;
+        _jsonGeneratorDeclarationSyntaxNew = _testMethodTemplate.ClassDeclarationSyntax;
     }
 
     public void AddJsonGeneratorMethods(MemberDeclarationSyntax[] methodDeclarations) =>
         _jsonGeneratorDeclarationSyntaxNew = _jsonGeneratorDeclarationSyntaxNew.AddMembers(methodDeclarations);
 
-    public static SyntaxElements CreateSyntaxElements(SyntaxTree jsonGeneratorSyntaxTree)
+    public static MqlGeneratorTestMethodTemplate CreateTestMethodTemplate(SyntaxTree jsonGeneratorSyntaxTree)
     {
         var root = jsonGeneratorSyntaxTree.GetRoot();
         var classDeclarationSyntax = root.GetSingleClassDeclaration(JsonGenerator);
@@ -46,12 +46,12 @@ internal sealed class PocoJsonGeneratorTemplateBuilder
 
     public (string newMethodName, MethodDeclarationSyntax newMethodDeclaration) GenerateJsonGeneratorMethod(ClassDeclarationSyntax poco)
     {
-        var newMethodDeclaration = _syntaxElements.TestMethodNode.ReplaceNode(_syntaxElements.TypeNode, SyntaxFactory.IdentifierName(poco.Identifier.ValueText));
-        var newJsonGeneratorMethodName = $"{_syntaxElements.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
+        var newMethodDeclaration = _testMethodTemplate.TestMethodNode.ReplaceNode(_testMethodTemplate.TypeNode, SyntaxFactory.IdentifierName(poco.Identifier.ValueText));
+        var newJsonGeneratorMethodName = $"{_testMethodTemplate.TestMethodNode.Identifier.Value}_{_nextTestMethodIndex++}";
         newMethodDeclaration = newMethodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newJsonGeneratorMethodName));
         return (newJsonGeneratorMethodName, newMethodDeclaration);
     }
 
     public SyntaxTree GenerateSyntaxTree() =>
-        _syntaxElements.Root.ReplaceNode(_syntaxElements.ClassDeclarationSyntax, _jsonGeneratorDeclarationSyntaxNew).SyntaxTree;
+        _testMethodTemplate.Root.ReplaceNode(_testMethodTemplate.ClassDeclarationSyntax, _jsonGeneratorDeclarationSyntaxNew).SyntaxTree;
 }

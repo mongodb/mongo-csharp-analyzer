@@ -21,13 +21,13 @@ namespace MongoDB.Analyzer.Core.Linq;
 internal static class AnalysisCodeGenerator
 {
     private static readonly SyntaxTreesCache s_syntaxTreesCache;
-    private static readonly MqlAndJsonGeneratorUtilities.SyntaxElements s_mqlGeneratorSyntaxElements;
+    private static readonly MqlGeneratorTestMethodTemplate s_testMethodTemplate;
     private static readonly CSharpParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
     {
         var mqlGeneratorSyntaxTree = GetCodeResource(ResourceNames.Linq.MqlGenerator);
-        s_mqlGeneratorSyntaxElements = LinqMqlGeneratorTemplateBuilder.CreateSyntaxElements(mqlGeneratorSyntaxTree);
+        s_testMethodTemplate = LinqMqlGeneratorTemplateBuilder.CreateTestMethodTemplate(mqlGeneratorSyntaxTree);
 
         s_parseOptions = (CSharpParseOptions)mqlGeneratorSyntaxTree.Options;
         s_syntaxTreesCache = new SyntaxTreesCache(s_parseOptions, ResourceNames.Linq.QueryableProvider);
@@ -72,7 +72,7 @@ internal static class AnalysisCodeGenerator
 
     private static SyntaxTree GenerateMqlGeneratorSyntaxTree(ExpressionsAnalysis linqExpressionAnalysis)
     {
-        var testCodeBuilder = new LinqMqlGeneratorTemplateBuilder(s_mqlGeneratorSyntaxElements);
+        var testCodeBuilder = new LinqMqlGeneratorTemplateBuilder(s_testMethodTemplate);
         var generatedMqlMethodDeclarations = new List<MethodDeclarationSyntax>(linqExpressionAnalysis.AnalysisNodeContexts.Length);
 
         foreach (var linqContext in linqExpressionAnalysis.AnalysisNodeContexts)

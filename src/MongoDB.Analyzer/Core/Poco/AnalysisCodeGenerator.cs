@@ -19,13 +19,13 @@ namespace MongoDB.Analyzer.Core.Poco;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly MqlAndJsonGeneratorUtilities.SyntaxElements s_jsonGeneratorSyntaxElements;
+    private static readonly MqlGeneratorTestMethodTemplate s_testMethodTemplate;
     private static readonly ParseOptions s_parseOptions;
 
     static AnalysisCodeGenerator()
     {
         var jsonGeneratorSyntaxTree = GetCodeResource(ResourceNames.Poco.JsonGenerator);
-        s_jsonGeneratorSyntaxElements = PocoJsonGeneratorTemplateBuilder.CreateSyntaxElements(jsonGeneratorSyntaxTree);
+        s_testMethodTemplate = PocoJsonGeneratorTemplateBuilder.CreateTestMethodTemplate(jsonGeneratorSyntaxTree);
         s_parseOptions = jsonGeneratorSyntaxTree.Options;
     }
 
@@ -59,7 +59,7 @@ internal static class AnalysisCodeGenerator
 
     public static SyntaxTree GenerateJsonGeneratorSyntaxTree(ExpressionsAnalysis pocoExpressionAnalysis)
     {
-        var testCodeBuilder = new PocoJsonGeneratorTemplateBuilder(s_jsonGeneratorSyntaxElements);
+        var testCodeBuilder = new PocoJsonGeneratorTemplateBuilder(s_testMethodTemplate);
         var generatedJsonMethodDeclarations = new List<MethodDeclarationSyntax>(pocoExpressionAnalysis.AnalysisNodeContexts.Length);
 
         foreach (var pocoContext in pocoExpressionAnalysis.AnalysisNodeContexts)
