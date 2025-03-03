@@ -47,6 +47,11 @@ internal static class PocoExpressionProcessor
                 if (PreanalyzeClassDeclaration(context, classSymbol))
                 {
                     var generatedClassName = typesProcessor.ProcessTypeSymbol(classSymbol);
+                    if (generatedClassName == null)
+                    {
+                        continue;
+                    }
+
                     var generatedClassNode = (ClassDeclarationSyntax)(typesProcessor.GetTypeSymbolToMemberDeclarationMapping(classSymbol));
                     var expressionContext = new ExpressionAnalysisContext(new ExpressionAnalysisNode(classNode, null, generatedClassNode, null, classNode.GetLocation()));
                     analysisContexts.Add(expressionContext);

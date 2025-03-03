@@ -81,9 +81,9 @@ internal static class BuilderExpressionProcessor
 
             try
             {
-                foreach (var typeArgument in namedType.TypeArguments)
+                if (!namedType.TypeArguments.All(t => typesProcessor.ProcessTypeSymbol(t) != null))
                 {
-                    typesProcessor.ProcessTypeSymbol(typeArgument);
+                    continue;
                 }
 
                 var rewriteContext = RewriteContext.Builders(expressionNode, nodesToRewrite, semanticModel, typesProcessor);
