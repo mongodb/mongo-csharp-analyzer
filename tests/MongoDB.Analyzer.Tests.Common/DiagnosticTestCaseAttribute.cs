@@ -26,6 +26,7 @@ namespace MongoDB.Analyzer.Tests.Common
         public Location[] Locations { get; }
         public DriverTargetFramework TargetFramework { get; }
         public LinqVersion LinqProvider { get; }
+        public int PocoLimit { get; }
         public PocoAnalysisVerbosity PocoAnalysisVerbosity { get; }
 
         public DiagnosticRuleTestCaseAttribute(
@@ -34,6 +35,7 @@ namespace MongoDB.Analyzer.Tests.Common
             string version = null,
             LinqVersion linqProvider = LinqVersion.V2,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
+            int pocoLimit = 500,
             PocoAnalysisVerbosity pocoAnalysisVerbosity = PocoAnalysisVerbosity.All,
             int[] codeLines = null)
         {
@@ -43,6 +45,7 @@ namespace MongoDB.Analyzer.Tests.Common
             LinqProvider = linqProvider;
             TargetFramework = targetFramework;
             Locations = codeLines?.Any() == true ? codeLines.Select(l => new Location(l, -1)).ToArray() : new[] { Location.Empty };
+            PocoLimit = pocoLimit;
             PocoAnalysisVerbosity = pocoAnalysisVerbosity;
         }
     }
@@ -50,7 +53,7 @@ namespace MongoDB.Analyzer.Tests.Common
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class NoDiagnosticsAttribute : DiagnosticRuleTestCaseAttribute
     {
-        public NoDiagnosticsAttribute(string version = null, PocoAnalysisVerbosity pocoAnalysisVerbosity = PocoAnalysisVerbosity.All) : base(DiagnosticRulesConstants.NoRule, null, version, pocoAnalysisVerbosity: pocoAnalysisVerbosity) { }
+        public NoDiagnosticsAttribute(string version = null, int pocoLimit = 500, PocoAnalysisVerbosity pocoAnalysisVerbosity = PocoAnalysisVerbosity.All) : base(DiagnosticRulesConstants.NoRule, null, version, pocoLimit: pocoLimit, pocoAnalysisVerbosity: pocoAnalysisVerbosity) { }
     }
 
     public class MQLAttribute : DiagnosticRuleTestCaseAttribute
@@ -173,9 +176,10 @@ namespace MongoDB.Analyzer.Tests.Common
         {
         }
 
-        public BuildersMQLAttribute(string message, PocoAnalysisVerbosity pocoAnalysisVerbosity) :
+        public BuildersMQLAttribute(string message, int pocoLimit, PocoAnalysisVerbosity pocoAnalysisVerbosity) :
             base(DiagnosticRulesConstants.Builders2MQL,
                 message,
+                pocoLimit: pocoLimit,
                 pocoAnalysisVerbosity: pocoAnalysisVerbosity)
         {
         }
@@ -193,8 +197,8 @@ namespace MongoDB.Analyzer.Tests.Common
     public sealed class PocoJsonAttribute : DiagnosticRuleTestCaseAttribute
     {
         public PocoJsonAttribute(
-            string message, PocoAnalysisVerbosity pocoAnalysisVerbosity = PocoAnalysisVerbosity.All) :
-            base(DiagnosticRulesConstants.Poco2Json, message, null, targetFramework: DriverTargetFramework.All, pocoAnalysisVerbosity: pocoAnalysisVerbosity, codeLines: null)
+            string message, int pocoLimit = 500, PocoAnalysisVerbosity pocoAnalysisVerbosity = PocoAnalysisVerbosity.All) :
+            base(DiagnosticRulesConstants.Poco2Json, message, null, targetFramework: DriverTargetFramework.All, pocoLimit: pocoLimit, pocoAnalysisVerbosity: pocoAnalysisVerbosity, codeLines: null)
         {
         }
     }
@@ -202,8 +206,8 @@ namespace MongoDB.Analyzer.Tests.Common
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class NotSupportedPocoAttribute : DiagnosticRuleTestCaseAttribute
     {
-        public NotSupportedPocoAttribute(string message, string version = null, PocoAnalysisVerbosity pocoAnalysisVerbosity = PocoAnalysisVerbosity.All) :
-            base(DiagnosticRulesConstants.NotSupportedPoco, message, version, pocoAnalysisVerbosity: pocoAnalysisVerbosity)
+        public NotSupportedPocoAttribute(string message, string version = null, int pocoLimit = 500, PocoAnalysisVerbosity pocoAnalysisVerbosity = PocoAnalysisVerbosity.All) :
+            base(DiagnosticRulesConstants.NotSupportedPoco, message, version, pocoLimit: pocoLimit, pocoAnalysisVerbosity: pocoAnalysisVerbosity)
         {
         }
     }
