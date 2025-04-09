@@ -129,10 +129,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                     projectionDefinition.Include(new { Field = "LastName" }.Field));
         }
 
-        [BuildersMQL("{ \"equals\" : { \"value\" : true, \"path\" : \"IsRetired\" } }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"span\" : { \"first\" : { \"operator\" : { \"term\" : { \"query\" : \"foo\", \"path\" : \"Name\" } }, \"endPositionLte\" : 5 } } }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"span\" : { \"or\" : { \"clauses\" : [{ \"term\" : { \"query\" : \"a\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"b\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"c\", \"path\" : \"Name\" } }] } } }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"span\" : { \"or\" : { \"clauses\" : [{ \"term\" : { \"query\" : \"a\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"b\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"c\", \"path\" : \"Name\" } }] } } }", DriverVersions.V2_19_OrGreater)]
+        [BuildersMQL("{ \"equals\" : { \"value\" : true, \"path\" : \"IsRetired\" } }")]
+        [BuildersMQL("{ \"span\" : { \"first\" : { \"operator\" : { \"term\" : { \"query\" : \"foo\", \"path\" : \"Name\" } }, \"endPositionLte\" : 5 } } }")]
+        [BuildersMQL("{ \"span\" : { \"or\" : { \"clauses\" : [{ \"term\" : { \"query\" : \"a\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"b\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"c\", \"path\" : \"Name\" } }] } } }")]
+        [BuildersMQL("{ \"span\" : { \"or\" : { \"clauses\" : [{ \"term\" : { \"query\" : \"a\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"b\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"c\", \"path\" : \"Name\" } }] } } }")]
         public void Variable_definition_search()
         {
             var searchDefinition = Builders<Person>.Search;

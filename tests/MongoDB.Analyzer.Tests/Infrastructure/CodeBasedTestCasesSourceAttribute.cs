@@ -49,9 +49,8 @@ public sealed class CodeBasedTestCasesSourceAttribute : Attribute, ITestDataSour
     public string GetDisplayName(MethodInfo methodInfo, object[] data)
     {
         var testCase = (DiagnosticTestCase)data[0];
-        var linqVersion = testCase.LinqVersion == Common.LinqVersion.V3 ? "V3" : testCase.LinqVersion == Common.LinqVersion.Undefined ? "U" : "";
 
-        return $"v{testCase.Version}_{linqVersion}_{testCase.MethodName}";
+        return $"v{testCase.Version}_{testCase.MethodName}";
     }
 
     private DiagnosticTestCase[] CreateTestCases(MemberInfo memberInfo)
@@ -71,8 +70,8 @@ public sealed class CodeBasedTestCasesSourceAttribute : Attribute, ITestDataSour
                 location.StartLine >= 0 ? location.StartLine : 0,
                 location.StartLine >= 0 ? attribute.Message : null
             group new DiagnosticRule(attribute.RuleId, $"{attribute.Message}_v{version.ToString("V", new VersionFormatter())}", location)
-                by new { version, attribute.LinqProvider, attribute.PocoAnalysisVerbosity } into g
-            select new DiagnosticTestCase(fileName, memberInfo.Name, g.Key.version.ToString(), g.Key.LinqProvider, g.Key.PocoAnalysisVerbosity, g.ToArray());
+                by new { version, attribute.PocoAnalysisVerbosity } into g
+            select new DiagnosticTestCase(fileName, memberInfo.Name, g.Key.version.ToString(), g.Key.PocoAnalysisVerbosity, g.ToArray());
 
         return diagnosticsTestCases.ToArray();
     }

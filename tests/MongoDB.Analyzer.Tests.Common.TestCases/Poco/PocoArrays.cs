@@ -33,7 +33,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"BooleanArray\" : [], \"ByteArray\" : new BinData(0, \"\"), \"SByteArray\" : [], \"ShortArray\" : [], \"UShortArray\" : [], \"IntArray\" : [], \"UIntArray\" : [], \"LongArray\" : [], \"ULongArray\" : [], \"CharArray\" : [], \"DoubleArray\" : [], \"StringArray\" : [], \"FloatArray\" : [], \"ObjectArray\" : [], \"JaggedStringArray2\" : [], \"JaggedIntArray3\" : [], \"JaggedLongArray4\" : [], \"JaggedShortArray5\" : [] }")]
+        [PocoJson("{ \"BooleanArray\" : [], \"ByteArray\" : { \"$binary\" : { \"base64\" : \"\", \"subType\" : \"00\" } }, \"SByteArray\" : [], \"ShortArray\" : [], \"UShortArray\" : [], \"IntArray\" : [], \"UIntArray\" : [], \"LongArray\" : [], \"ULongArray\" : [], \"CharArray\" : [], \"DoubleArray\" : [], \"StringArray\" : [], \"FloatArray\" : [], \"ObjectArray\" : [], \"JaggedStringArray2\" : [], \"JaggedIntArray3\" : [], \"JaggedLongArray4\" : [], \"JaggedShortArray5\" : [] }")]
         public void SimpleTypesArraysHolder()
         {
         }

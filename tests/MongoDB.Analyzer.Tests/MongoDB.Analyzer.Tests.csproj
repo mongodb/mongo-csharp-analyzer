@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
-    <LangVersion>10</LangVersion>
+    <LangVersion>12</LangVersion>
 
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.0" />
 
-    <PackageReference Include="MongoDB.Driver" Version="2.21.0">
+    <PackageReference Include="MongoDB.Driver" Version="3.0.0">
         <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="System.Text.Json" Version="5.0.2" />

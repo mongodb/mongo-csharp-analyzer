@@ -16,19 +16,8 @@ namespace MongoDB.Analyzer.Tests.Common
 {
     public static class DriverVersions
     {
-        public const string Linq3OrGreater = "[2.14.0-beta1,)";
-        public const string Linq2OrLower = "(,2.14.0-beta1)";
-        public const string Linq3NonDefault = "[2.14.0-beta1, 2.19.0)";
-        public const string Linq3DefaultOrGreater = V2_19_OrGreater;
-        public const string Linq2DefaultAndLower = V2_18_OrLower;
-        public const string V2_18_OrLower = "(, 2.19.0)";
-        public const string V2_19_OrGreater = "[2.19.0,)";
-        public const string V2_20_OrLower = "(, 2.20.0)";
-        public const string V2_21_OrGreater = "[2.21.0,)";
-        public const string V2_22_OrLower = "(, 2.23.0)";
-        public const string V2_23_OrGreater = "[2.23.0,)";
-        public const string V2_19_to_2_20= "[2.19.0, 2.20.0)";
-        public const string V2_27_OrLower = "(, 2.28.0)";
-        public const string V2_28_OrGreater = "[2.28.0, )";
+        public const string V3_0_OrGreater = "[3.0.0, )";
+        public const string V3_1_AndLower = "[3.0.0, 3.2.0)";
+        public const string V3_2_OrGreater = "[3.2.0, )";
     }
 }

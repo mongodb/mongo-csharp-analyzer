@@ -350,8 +350,8 @@ internal static class ExpressionProcessor
         {
             case AnalysisType.Builders:
                 {
-                    if (methodSymbol.ReceiverType.IsIMongoQueryable() ||
-                        methodSymbol.ReturnType.IsIMongoQueryable() ||
+                    if (methodSymbol.ReceiverType.IsIQueryable() ||
+                        methodSymbol.ReturnType.IsIQueryable() ||
                         methodSymbol.IsBuilderMethod() ||
                         methodSymbol.IsFindFluentMethod())
                     {

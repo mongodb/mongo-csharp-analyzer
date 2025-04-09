@@ -21,7 +21,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersConstantsReplacement : TestCasesBase
     {
-        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : byteConstant }, { \"SiblingsCount\" : 0 }, { \"SiblingsCount\" : intConstant1 }, { \"SiblingsCount\" : 1 }, { \"SiblingsCount\" : intConstant2 }, { \"SiblingsCount\" : 2 }, { \"TicksSinceBirth\" : NumberLong(longConstant1) }, { \"TicksSinceBirth\" : NumberLong(3) }, { \"TicksSinceBirth\" : NumberLong(longConstant2) }, { \"Name\" : stringConstant1 }, { \"Name\" : \"s__5\" }, { \"Name\" : stringConstant2 }, { \"Name\" : \"s__6\" }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : byteConstant }, { \"SiblingsCount\" : 0 }, { \"SiblingsCount\" : intConstant1 }, { \"SiblingsCount\" : 1 }, { \"SiblingsCount\" : intConstant2 }, { \"SiblingsCount\" : 2 }, { \"TicksSinceBirth\" : longConstant1 }, { \"TicksSinceBirth\" : 3 }, { \"TicksSinceBirth\" : longConstant2 }, { \"Name\" : stringConstant1 }, { \"Name\" : \"s__5\" }, { \"Name\" : stringConstant2 }, { \"Name\" : \"s__6\" }] }")]
         public void Colliding_constants_and_variables()
         {
             const byte byteConstant = 0;
@@ -101,7 +101,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<Person>.Filter.Eq(p => p.Vehicle.VehicleType.MPG, StaticHolder.Person.Vehicle.VehicleType.MPG);
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"Name\" : personA.Name }, { \"Name\" : personB.Name }, { \"Vehicle.VehicleType.MPG\" : personA.Vehicle.VehicleType.MPG }, { \"Vehicle.VehicleType.MPG\" : personB.Vehicle.VehicleType.MPG }, { \"Vehicle.VehicleType.Type\" : personA.Vehicle.VehicleType.Type }, { \"Vehicle.VehicleType.Type\" : personB.Vehicle.VehicleType.Type }, { \"TicksSinceBirth\" : NumberLong(personA.TicksSinceBirth) }, { \"TicksSinceBirth\" : NumberLong(personB.TicksSinceBirth) }, { \"SiblingsCount\" : personA.SiblingsCount }, { \"SiblingsCount\" : personB.SiblingsCount }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"Name\" : personA.Name }, { \"Name\" : personB.Name }, { \"Vehicle.VehicleType.MPG\" : personA.Vehicle.VehicleType.MPG }, { \"Vehicle.VehicleType.MPG\" : personB.Vehicle.VehicleType.MPG }, { \"Vehicle.VehicleType.Type\" : personA.Vehicle.VehicleType.Type }, { \"Vehicle.VehicleType.Type\" : personB.Vehicle.VehicleType.Type }, { \"TicksSinceBirth\" : personA.TicksSinceBirth }, { \"TicksSinceBirth\" : personB.TicksSinceBirth }, { \"SiblingsCount\" : personA.SiblingsCount }, { \"SiblingsCount\" : personB.SiblingsCount }] }")]
         public void Custom_types_variables_referenced_in_expression()
         {
             var personA = new Person();
@@ -218,7 +218,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<Person>.Filter.Eq(p => p.Vehicle.VehicleType.Type, objB.GetSelf().GetSelf().GetPerson("NewName").Vehicle.VehicleType.Type);
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"Name\" : GetName() }, { \"Name\" : GetName(\"Smith\", 12) }, { \"Vehicle.VehicleType.MPG\" : GetMpg() }, { \"TicksSinceBirth\" : NumberLong(GetPerson(13).TicksSinceBirth) }, { \"Vehicle.VehicleType.Type\" : GetPerson().Vehicle.VehicleType.Type }, { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum() }, { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum(VehicleTypeEnum.Bus) }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"Name\" : GetName() }, { \"Name\" : GetName(\"Smith\", 12) }, { \"Vehicle.VehicleType.MPG\" : GetMpg() }, { \"TicksSinceBirth\" : GetPerson(13).TicksSinceBirth }, { \"Vehicle.VehicleType.Type\" : GetPerson().Vehicle.VehicleType.Type }, { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum() }, { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum(VehicleTypeEnum.Bus) }] }")]
         public void Method_referenced_in_expression()
         {
             _ = Builders<Person>.Filter.Eq(p => p.Name, GetName()) |
@@ -256,7 +256,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<Person>.Filter.Eq(p => p.Vehicle.VehicleType.Type, enumParam);
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"Nested.Nested.Nested.Nested.BsonType\" : GetBsonDocument().ElementCount }, { \"Nested.Nested.Nested.BsonDocument.ElementCount\" : BsonDocument.ElementCount }, { \"Nested.Nested.BsonDocument.ElementCount\" : GetBsonDocument().ElementCount }] }")]
+        // VS-166
+        [BuildersMQL("{ \"$or\" : [{ \"Nested.Nested.Nested.Nested.BsonType\" : BsonDocument.ElementCount }, { \"Nested.Nested.Nested.BsonDocument.ElementCount\" : BsonDocument.ElementCount }, { \"Nested.Nested.BsonDocument.ElementCount\" : GetBsonDocument().ElementCount }] }")]
         public void Query_containing_bson_types()
         {
             _ = Builders<ClassWithBsonTypes>.Filter.Eq(o => o.Nested.Nested.Nested.Nested.BsonType, BsonType.Double) |
@@ -272,7 +273,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<ClassWithSystemTypes>.Filter.Eq(o => o.Nested.Point.X, GetDrawingPoint().X);
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : StaticHolder.ReadonlyByte }, { \"SiblingsCount\" : StaticHolder.ReadonlyShort }, { \"SiblingsCount\" : StaticHolder.ReadonlyInt }, { \"TicksSinceBirth\" : NumberLong(StaticHolder.ReadonlyLong) }, { \"Name\" : StaticHolder.ReadonlyString }, { \"Name\" : DataModel.StaticHolder.ReadonlyString }, { \"Name\" : DataModel.StaticHolder.ReadonlyString2 }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyString }, { \"Vehicle.VehicleType.Type\" : StaticHolder.ReadonlyEnum }, { \"Vehicle.VehicleType.MPG\" : StaticHolder.ReadonlyDouble }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : StaticHolder.ReadonlyByte }, { \"SiblingsCount\" : StaticHolder.ReadonlyShort }, { \"SiblingsCount\" : StaticHolder.ReadonlyInt }, { \"TicksSinceBirth\" : StaticHolder.ReadonlyLong }, { \"Name\" : StaticHolder.ReadonlyString }, { \"Name\" : DataModel.StaticHolder.ReadonlyString }, { \"Name\" : DataModel.StaticHolder.ReadonlyString2 }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyString }, { \"Vehicle.VehicleType.Type\" : StaticHolder.ReadonlyEnum }, { \"Vehicle.VehicleType.MPG\" : StaticHolder.ReadonlyDouble }] }")]
         public void Readonly_values_defined_in_static_class_in_expression()
         {
             _ = Builders<Person>.Filter.Eq(p => p.SiblingsCount, StaticHolder.ReadonlyByte) |
@@ -299,7 +300,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<Person>.Filter.Eq(p => p.Vehicle.VehicleType.MPG, mpg);
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : StaticHolder.PropByte }, { \"SiblingsCount\" : StaticHolder.PropShort }, { \"SiblingsCount\" : StaticHolder.PropInt }, { \"TicksSinceBirth\" : NumberLong(StaticHolder.PropLong) }, { \"Name\" : StaticHolder.PropString }, { \"Name\" : DataModel.StaticHolder.PropString }, { \"Name\" : DataModel.StaticHolder.PropString2 }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString2 }, { \"Vehicle.VehicleType.Type\" : StaticHolder.PropEnum }, { \"Vehicle.VehicleType.MPG\" : StaticHolder.PropDouble }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : StaticHolder.PropByte }, { \"SiblingsCount\" : StaticHolder.PropShort }, { \"SiblingsCount\" : StaticHolder.PropInt }, { \"TicksSinceBirth\" : StaticHolder.PropLong }, { \"Name\" : StaticHolder.PropString }, { \"Name\" : DataModel.StaticHolder.PropString }, { \"Name\" : DataModel.StaticHolder.PropString2 }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString2 }, { \"Vehicle.VehicleType.Type\" : StaticHolder.PropEnum }, { \"Vehicle.VehicleType.MPG\" : StaticHolder.PropDouble }] }")]
         public void Simple_typed_properties_defined_in_static_class_in_expression()
         {
             _ = Builders<Person>.Filter.Eq(p => p.SiblingsCount, StaticHolder.PropByte) |
@@ -331,8 +332,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         private string GetName(string suffix, int count) => "Alice " + suffix + count;
 
         private double GetMpg() => 123.123;
-        private VehicleTypeEnum GetVehicleTypeEnum() => VehicleTypeEnum.Motorcylce;
-        private VehicleTypeEnum GetVehicleTypeEnum(VehicleTypeEnum vehicleTypeEnum) => VehicleTypeEnum.Motorcylce;
+        private VehicleTypeEnum GetVehicleTypeEnum() => VehicleTypeEnum.Motorcycle;
+        private VehicleTypeEnum GetVehicleTypeEnum(VehicleTypeEnum vehicleTypeEnum) => VehicleTypeEnum.Motorcycle;
 
         private Point GetDrawingPoint() => new(1, 2);
 

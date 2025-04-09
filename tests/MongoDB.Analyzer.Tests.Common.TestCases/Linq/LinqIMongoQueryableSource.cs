@@ -20,7 +20,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqIMongoQueryableSource : TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
         public void DirectQueryableAccess()
         {
             var collection = GetMongoCollection();
@@ -32,7 +32,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => u.Name);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
         public void Queryable_from_collection_method()
         {
             var queryable = GetMongoCollection().AsQueryable()
@@ -41,7 +41,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => u.Name);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
         public void Queryable_from_collection_variable()
         {
             var collection = GetMongoCollection();
@@ -52,7 +52,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => u.Name);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
         public void Queryable_from_method()
         {
             var queryable = GetMongoQueryable()
@@ -61,7 +61,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => u.Name);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
         public void Queryable_from_method_nested_1()
         {
             var queryable = GetThis().GetMongoQueryable()
@@ -70,7 +70,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => u.Name);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob1\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,11}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob1\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,11}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
         public void Queryable_from_method_nested_2()
         {
             var queryable = GetThis()
@@ -81,7 +81,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => u.Name);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob2\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,10}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob2\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,10}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
         public void Queryable_from_method_nested_3()
         {
             var queryable = ReturnArgument(ReturnArgument(GetThis().GetThis()
@@ -92,11 +92,11 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(u => u.Name);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob2\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,10}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob2\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,10}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
         public void Query_Syntax()
         {
             var collection = GetMongoCollection();

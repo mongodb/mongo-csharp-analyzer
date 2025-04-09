@@ -36,7 +36,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
         {
         }
 
-        [PocoJson("{ \"BooleanValue\" : true, \"ByteValue\" : 9, \"SByteValue\" : 0, \"ShortValue\" : 0, \"UShortValue\" : 1, \"IntValue\" : 8, \"UIntValue\" : 9, \"LongValue\" : NumberLong(9), \"ULongValue\" : NumberLong(0), \"CharValue\" : 9, \"DoubleValue\" : 1.0, \"StringValue\" : \"StringValue_val\", \"FloatValue\" : 0.0 }")]
+        [PocoJson("{ \"BooleanValue\" : true, \"ByteValue\" : 9, \"SByteValue\" : 0, \"ShortValue\" : 0, \"UShortValue\" : 1, \"IntValue\" : 8, \"UIntValue\" : 9, \"LongValue\" : 9, \"ULongValue\" : 0, \"CharValue\" : 9, \"DoubleValue\" : 1.0, \"StringValue\" : \"StringValue_val\", \"FloatValue\" : 0.0 }")]
         public void PrimitiveTypeHolder()
         {
         }

@@ -46,7 +46,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<SingleTypeGeneric<Person>>.Filter.Gte(t => t.DataT.Address.City, "Berlin");
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"Data\" : { \"$lte\" : 1 } }, { \"DataT\" : { \"$mod\" : [NumberLong(10), NumberLong(2)] } }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"Data\" : { \"$lte\" : 1 } }, { \"DataT\" : { \"$mod\" : [10, 2] } }] }")]
         public void Generics_single_predefined_type()
         {
             _ = Builders<SingleTypeGeneric<int>>.Filter.Lte(t => t.Data, 1) |

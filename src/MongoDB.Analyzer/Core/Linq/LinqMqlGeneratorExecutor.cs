@@ -16,66 +16,37 @@ using MongoDB.Analyzer.Core.HelperResources;
 
 namespace MongoDB.Analyzer.Core.Linq;
 
-internal record MQLResult(string Mql, bool Linq3Only, Exception Exception);
+internal record MQLResult(string Mql, Exception Exception);
 
 internal sealed class LinqMqlGeneratorExecutor
 {
     private readonly Type _testClassType;
-    private readonly bool _isLinq3Driver;
-    private readonly bool _isLinq3Default;
 
     public string DriverVersion { get; }
 
-    public LinqMqlGeneratorExecutor(Type testClassType, LinqVersion maxSupportedLinqVersion, LinqVersion defaultLinqVersion)
+    public LinqMqlGeneratorExecutor(Type testClassType)
     {
         _testClassType = testClassType;
-        _isLinq3Driver = maxSupportedLinqVersion == LinqVersion.V3;
-        _isLinq3Default = defaultLinqVersion == LinqVersion.V3;
 
         DriverVersion = GetDriverVersion();
     }
 
     public MQLResult GenerateMql(string methodName)
     {
-        MQLResult result;
-
         var mqlMethod = _testClassType.GetMethod(methodName);
-
-        if (!_isLinq3Driver) // not LINQ3 driver
-        {
-            result = Execute(mqlMethod, isLinq3: false);
-        }
-        else if (_isLinq3Default) // LINQ3 is default in LINQ3 driver
-        {
-            result = Execute(mqlMethod, isLinq3: true);
-        }
-        else // LINQ2 is default in LINQ3 driver
-        {
-            var resultLinq2 = Execute(mqlMethod, isLinq3: false);
-
-            if (resultLinq2.Exception != null)
-            {
-                var resultLinq3 = Execute(mqlMethod, isLinq3: true);
-
-                result = new MQLResult(resultLinq3.Mql, true, resultLinq2.Exception);
-            }
-            else
-            {
-                result = resultLinq2;
-            }
-        }
+        var result = Execute(mqlMethod);
 
         return result;
     }
 
-    private MQLResult Execute(MethodInfo mqlMethod, bool isLinq3)
+    private MQLResult Execute(MethodInfo mqlMethod)
     {
         Exception exception = null;
         string mql = null;
 
         try
         {
-            var executeResult = mqlMethod.Invoke(null, new object[] { isLinq3 });
+            var executeResult = mqlMethod.Invoke(null, []);
 
             if (executeResult is string executeResultString)
             {
@@ -87,7 +58,7 @@ internal sealed class LinqMqlGeneratorExecutor
             exception = ex;
         }
 
-        return new MQLResult(mql, false, exception);
+        return new(mql, exception);
     }
 
     private string GetDriverVersion()

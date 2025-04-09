@@ -351,30 +351,10 @@ axes:
         display_name: "latest"
         variables:
           DRIVER_VERSION: "latest"
-      - id: "2.25"
-        display_name: "2.25.0"
+      - id: "3.0.0"
+        display_name: "3.0.0"
         variables:
-          DRIVER_VERSION: "2.25.0"
-      - id: "2.23"
-        display_name: "2.23.0"
-        variables:
-          DRIVER_VERSION: "2.23.0"
-      - id: "2.21"
-        display_name: "2.21.0"
-        variables:
-          DRIVER_VERSION: "2.21.0"
-      - id: "2.19.0"
-        display_name: "2.19.0"
-        variables:
-          DRIVER_VERSION: "2.19.0"
-      - id: "2.18.0"
-        display_name: "2.18.0"
-        variables:
-          DRIVER_VERSION: "2.18.0"
-      - id: "2.12.4"
-        display_name: "2.12.4"
-        variables:
-          DRIVER_VERSION: "2.12.4"
+          DRIVER_VERSION: "3.0.0"
 
   - id: os
     display_name: OS
@@ -390,12 +370,12 @@ axes:
           OS: "ubuntu-2004"
           python3_binary: "/opt/python/3.8/bin/python3"
         run_on: ubuntu2004-test
-      - id: "macos-1100"
-        display_name: "macOS 11.00"
+      - id: "macos-14"
+        display_name: "macOS 14.00"
         variables:
-          OS: "macos-1100"
+          OS: "macos-1400"
           python3_binary: /Library/Frameworks/Python.framework/Versions/3.8/bin/python3
-        run_on: macos-1100
+        run_on: macos-14
 
 buildvariants:
 - matrix_name: "tests-linux" 
@@ -406,7 +386,7 @@ buildvariants:
     - name: test-netcoreapp31
 
 - matrix_name: "tests-mac" 
-  matrix_spec: { os: ["macos-1100"], driver: "*"}
+  matrix_spec: { os: ["macos-14"], driver: "*"}
   display_name: "${driver} CSharp Analyzer on ${os}, driver version ${driver}"
   tags: ["tests-variant"]
   tasks:

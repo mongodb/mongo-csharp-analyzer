@@ -27,9 +27,7 @@ internal static class LinqMqlGeneratorProvider
 
     public static LinqMqlGeneratorExecutor GetLinqMqlGeneratorExecutor(
         ReferencesContainer referencesContainer,
-        MemoryStream assemblyMemoryStream,
-        LinqVersion driverLinqVersion,
-        LinqVersion defaultLinqVersion)
+        MemoryStream assemblyMemoryStream)
     {
         LinqMqlGeneratorExecutor result;
         try
@@ -41,7 +39,7 @@ internal static class LinqMqlGeneratorProvider
 
             var assembly = Assembly.Load(assemblyMemoryStream.ToArray());
             var testClassType = assembly.GetType(MqlGeneratorSyntaxElements.Linq.MqlGeneratorFullName);
-            result = testClassType != null ? new LinqMqlGeneratorExecutor(testClassType, driverLinqVersion, defaultLinqVersion) : null;
+            result = testClassType != null ? new LinqMqlGeneratorExecutor(testClassType) : null;
         }
         catch
         {

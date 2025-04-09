@@ -24,56 +24,54 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Analyzer.Tests.Common.ClassLibrary", "tests\MongoDB.Analyzer.Tests.Common.ClassLibrary\MongoDB.Analyzer.Tests.Common.ClassLibrary.csproj", "{8335EFD4-C859-4E7B-B7D5-C57FC443700C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Analyzer.Tests.Common.ClassLibrary", "tests\MongoDB.Analyzer.Tests.Common.ClassLibrary\MongoDB.Analyzer.Tests.Common.ClassLibrary.csproj", "{8335EFD4-C859-4E7B-B7D5-C57FC443700C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
 		DRIVER_2_27_OR_LOWER|Any CPU = DRIVER_2_27_OR_LOWER|Any CPU
 		DRIVER_2_28_OR_GREATER|Any CPU = DRIVER_2_28_OR_GREATER|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.DRIVER_2_27_OR_LOWER|Any CPU.ActiveCfg = Debug|Any CPU
 		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.DRIVER_2_27_OR_LOWER|Any CPU.Build.0 = Debug|Any CPU
 		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.DRIVER_2_28_OR_GREATER|Any CPU.ActiveCfg = Debug|Any CPU
 		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.DRIVER_2_28_OR_GREATER|Any CPU.Build.0 = Debug|Any CPU
+		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F65EE23C-7B5B-4B8B-B9A7-386D08BDD3F5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.Release|Any CPU.Build.0 = Release|Any CPU
 		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.DRIVER_2_27_OR_LOWER|Any CPU.ActiveCfg = Debug|Any CPU
 		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.DRIVER_2_27_OR_LOWER|Any CPU.Build.0 = Debug|Any CPU
 		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.DRIVER_2_28_OR_GREATER|Any CPU.ActiveCfg = Debug|Any CPU
 		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.DRIVER_2_28_OR_GREATER|Any CPU.Build.0 = Debug|Any CPU
+		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{612B7D09-FEF8-4C12-B31A-04B02EC1F297}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.DRIVER_2_27_OR_LOWER|Any CPU.ActiveCfg = Debug|Any CPU
 		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.DRIVER_2_27_OR_LOWER|Any CPU.Build.0 = Debug|Any CPU
 		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.DRIVER_2_28_OR_GREATER|Any CPU.ActiveCfg = Debug|Any CPU
 		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.DRIVER_2_28_OR_GREATER|Any CPU.Build.0 = Debug|Any CPU
+		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACB908A0-7F5C-44DA-B9D2-CCFBCAEADD1D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Debug|Any CPU.ActiveCfg = DRIVER_2_19|Any CPU
 		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Debug|Any CPU.Build.0 = DRIVER_2_19|Any CPU
-		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Release|Any CPU.ActiveCfg = DRIVER_2_19|Any CPU
-		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Release|Any CPU.Build.0 = DRIVER_2_19|Any CPU
 		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.DRIVER_2_27_OR_LOWER|Any CPU.ActiveCfg = DRIVER_2_12|Any CPU
 		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.DRIVER_2_27_OR_LOWER|Any CPU.Build.0 = DRIVER_2_12|Any CPU
 		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.DRIVER_2_28_OR_GREATER|Any CPU.ActiveCfg = DRIVER_2_12|Any CPU
 		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.DRIVER_2_28_OR_GREATER|Any CPU.Build.0 = DRIVER_2_12|Any CPU
-		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.Debug|Any CPU.ActiveCfg = DRIVER_2_28_OR_GREATER|Any CPU
-		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.Debug|Any CPU.Build.0 = DRIVER_2_28_OR_GREATER|Any CPU
-		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.Release|Any CPU.ActiveCfg = DRIVER_2_27_OR_LOWER|Any CPU
-		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.Release|Any CPU.Build.0 = DRIVER_2_27_OR_LOWER|Any CPU
-		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.DRIVER_2_27_OR_LOWER|Any CPU.ActiveCfg = DRIVER_2_27_OR_LOWER|Any CPU
-		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.DRIVER_2_27_OR_LOWER|Any CPU.Build.0 = DRIVER_2_27_OR_LOWER|Any CPU
-		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.DRIVER_2_28_OR_GREATER|Any CPU.ActiveCfg = DRIVER_2_28_OR_GREATER|Any CPU
-		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.DRIVER_2_28_OR_GREATER|Any CPU.Build.0 = DRIVER_2_28_OR_GREATER|Any CPU
+		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Release|Any CPU.ActiveCfg = DRIVER_2_19|Any CPU
+		{C9D49CAA-3F1F-4969-BDC1-0D17F9DB2B65}.Release|Any CPU.Build.0 = DRIVER_2_19|Any CPU
+		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.DRIVER_2_27_OR_LOWER|Any CPU.ActiveCfg = Debug|Any CPU
+		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.DRIVER_2_27_OR_LOWER|Any CPU.Build.0 = Debug|Any CPU
+		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.DRIVER_2_28_OR_GREATER|Any CPU.ActiveCfg = Debug|Any CPU
+		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{8335EFD4-C859-4E7B-B7D5-C57FC443700C}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,8 +90,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{1845551f-deff-4082-b2db-3548a44f83af}*SharedItemsImports = 13
-		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{41218684-a8e3-41ac-8f85-58b9b2f43b09}*SharedItemsImports = 5
 		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{4f59be68-9ab5-4dcc-8049-04ad7bb36ab6}*SharedItemsImports = 13
+		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{8335efd4-c859-4e7b-b7d5-c57fc443700c}*SharedItemsImports = 5
 		tests\MongoDB.Analyzer.Tests.Common.TestCases\MongoDB.Analyzer.Tests.Common.TestCases.projitems*{acb908a0-7f5c-44da-b9d2-ccfbcaeadd1d}*SharedItemsImports = 5
 		tests\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems*{acb908a0-7f5c-44da-b9d2-ccfbcaeadd1d}*SharedItemsImports = 5
 	EndGlobalSection

@@ -59,7 +59,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 
         [BuildersMQL("{ \"field\" : { \"$elemMatch\" : { \"field\" : fieldValue } } }")]
         [BuildersMQL("{ \"ByteNullable\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyByteNullable }")]
-        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyByte }, { \"SiblingsCount\" : Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyShort }, { \"SiblingsCount\" : Tests.Common.DataModel.StaticHolder.ReadonlyInt }, { \"TicksSinceBirth\" : NumberLong(Common.DataModel.StaticHolder.ReadonlyLong) }, { \"Name\" : DataModel.StaticHolder.ReadonlyString }, { \"Name\" : StaticHolder.ReadonlyString }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyByte }, { \"SiblingsCount\" : Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyShort }, { \"SiblingsCount\" : Tests.Common.DataModel.StaticHolder.ReadonlyInt }, { \"TicksSinceBirth\" : Common.DataModel.StaticHolder.ReadonlyLong }, { \"Name\" : DataModel.StaticHolder.ReadonlyString }, { \"Name\" : StaticHolder.ReadonlyString }] }")]
         [BuildersMQL("{ \"Age\" : 22 }")]
         [BuildersMQL("{ \"Age\" : 22 }")]
         [BuildersMQL("{ \"Age\" : 22 }")]

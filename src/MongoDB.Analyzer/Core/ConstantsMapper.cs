@@ -31,15 +31,15 @@ internal sealed class ConstantsMapper
     private HashSet<long> _registeredNumericConstants;
     private HashSet<string> _registeredStringConstants;
 
-    private int _nextConstant = 0;
+    private int _nextConstant = 1;
     private int _overflowConstantInt8;
 
     private bool _allConstantsRegistered = false;
     
     public void CopyRegisteredConstants(ConstantsMapper mapper)
     {
-        _registeredNumericConstants ??= new HashSet<long>();
-        _registeredStringConstants ??= new HashSet<string>();
+        _registeredNumericConstants ??= [];
+        _registeredStringConstants ??= [];
         _registeredNumericConstants.AddRange(mapper._registeredNumericConstants);
         _registeredStringConstants.AddRange(mapper._registeredStringConstants);
     }
@@ -219,14 +219,11 @@ internal sealed class ConstantsMapper
 
     private void AddMapping(string source, string target, bool isString)
     {
-        if (_mqlRemapping == null)
-        {
-            _mqlRemapping = new Dictionary<string, string>
+        _mqlRemapping ??= new Dictionary<string, string>
             {
                 // Overflow for byte/sbyte constants amount. For simplicity support up to 126 byte/sbyte constants per expression
                 [$"{RegexLookbehind}{_overflowConstantInt8}{RegexLookahead}"] = "Unknown"
             };
-        }
 
         if (isString)
         {
@@ -283,13 +280,13 @@ internal sealed class ConstantsMapper
 
     private void RegisterNumeric(long value)
     {
-        _registeredNumericConstants ??= new HashSet<long>();
+        _registeredNumericConstants ??= [];
         _registeredNumericConstants.Add(value);
     }
 
     private void RegisterString(string value)
     {
-        _registeredStringConstants ??= new HashSet<string>();
+        _registeredStringConstants ??= [];
         _registeredStringConstants.Add(value);
     }
 }

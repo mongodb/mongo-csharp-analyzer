@@ -19,13 +19,6 @@ using Newtonsoft.Json.Converters;
 namespace MongoDB.Analyzer.Core;
 
 [JsonConverter(typeof(StringEnumConverter))]
-internal enum LinqVersion
-{
-    V2,
-    V3
-}
-
-[JsonConverter(typeof(StringEnumConverter))]
 internal enum PocoAnalysisVerbosity
 {
     None,
@@ -39,7 +32,6 @@ internal record MongoDBAnalyzerSettings(
     [DefaultValue(false)] bool OutputInternalLogsToFile = false,
     [DefaultValue(null)] string LogFileName = null,
     [DefaultValue(true)] bool SendTelemetry = true,
-    [DefaultValue(null)] LinqVersion? DefaultLinqVersion = null,
     [DefaultValue(PocoAnalysisVerbosity.Medium)] PocoAnalysisVerbosity PocoAnalysisVerbosity = PocoAnalysisVerbosity.Medium,
     [DefaultValue(500)] int PocoLimit = 500,
     [DefaultValue(true)] bool EnableVariableTracking = true)

@@ -36,7 +36,7 @@ namespace MongoDB.Analyzer.Helpers.Builders
         }
 
         public static string GetDriverVersion() => typeof(Builders<>).Assembly.GetName().Version.ToString(3);
-        public static int[] LinqReference => Enumerable.Range(1, 10).ToArray();
+        public static int[] SystemLinqReference => Enumerable.Range(1, 10).ToArray();
 
         public static string GetMQL()
         {

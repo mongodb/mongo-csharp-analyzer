@@ -28,4 +28,3 @@ namespace MongoDB.Analyzer.Helpers
         public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default) => Task.FromResult(false);
     }
 }
-

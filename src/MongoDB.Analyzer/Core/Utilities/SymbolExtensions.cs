@@ -192,15 +192,8 @@ internal static class SymbolExtensions
 
     public static bool IsIMongoCollection(this ITypeSymbol typeSymbol) => ImplementsOrIsInterface(typeSymbol, NamespaceMongoDBDriver, "IMongoCollection");
 
-    public static bool IsIMongoQueryable(this ITypeSymbol typeSymbol) =>
-        ImplementsOrIsInterface(typeSymbol, NamespaceMongoDBLinq, "IMongoQueryable") ||
-        ImplementsOrIsInterface(typeSymbol, NamespaceMongoDBLinq, "IOrderedMongoQueryable");
-
     public static bool IsIQueryable(this ITypeSymbol typeSymbol) =>
         ImplementsOrIsInterface(typeSymbol, NamespaceSystemLinq, nameof(IQueryable));
-
-    public static bool IsMongoQueryable(this ITypeSymbol typeSymbol) =>
-        typeSymbol?.Name == "MongoQueryable";
 
     public static bool IsString(this ITypeSymbol typeSymbol) =>
         typeSymbol?.SpecialType == SpecialType.System_String;

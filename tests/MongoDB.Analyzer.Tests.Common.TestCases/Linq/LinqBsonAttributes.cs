@@ -22,15 +22,15 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqBsonAttributes : TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"Cost\" : 22.5 } }])")]
-        [MQL("aggregate([{ \"$project\" : { \"Name\" : \"$_id\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$sort\" : { \"Weight\" : 1 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Color\" : \"Red\" } }])")]
-        [MQL("aggregate([{ \"$group\" : { \"_id\" : \"$ExpiryDate\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Price\" : { \"$lt\" : 20.0 } } }, { \"$skip\" : 2 }])")]
-        [MQL("aggregate([{ \"$match\" : { \"GreenAppleCost\" : { \"$lt\" : 35.0 } } }, { \"$project\" : { \"Name\" : \"$_id\", \"TotalCost\" : \"$Cost\", \"_id\" : 0 } }, { \"$skip\" : 5 }])")]
-        [MQL("aggregate([{ \"$match\" : { \"AppleType\" : \"Green Apple\" } }, { \"$project\" : { \"Name\" : \"$_id\", \"TotalCost\" : \"$Cost\", \"_id\" : 0 } }, { \"$limit\" : 5 }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Quantity\" : DateTimeOffset.Now.Day } }, { \"$project\" : { \"TimeSpanField\" : \"$TimeSpanField\", \"DateTimeOffset\" : \"$DateTimeOffset\", \"_id\" : DateTimeOffset.Now.Day } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Cost\" : 22.5 } }])")]
+        [MQL("Aggregate([{ \"$project\" : { \"Name\" : \"$_id\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$sort\" : { \"Weight\" : 1 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Color\" : \"Red\" } }])")]
+        [MQL("Aggregate([{ \"$group\" : { \"_id\" : \"$ExpiryDate\", \"_elements\" : { \"$push\" : \"$$ROOT\" } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Price\" : { \"$lt\" : 20.0 } } }, { \"$skip\" : 2 }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"GreenAppleCost\" : { \"$lt\" : 35.0 } } }, { \"$project\" : { \"Name\" : \"$_id\", \"TotalCost\" : \"$Cost\", \"_id\" : 0 } }, { \"$skip\" : 5 }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"AppleType\" : \"Green Apple\" } }, { \"$project\" : { \"Name\" : \"$_id\", \"TotalCost\" : \"$Cost\", \"_id\" : 0 } }, { \"$limit\" : 5 }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Quantity\" : DateTimeOffset.Now.Day } }, { \"$project\" : { \"TimeSpanField\" : \"$TimeSpanField\", \"DateTimeOffset\" : \"$DateTimeOffset\", \"_id\" : 0 } }])")]
         public void Basic_bson_attributes()
         {
             _ = GetMongoCollection<Fruit>().AsQueryable().Where(f => f.TotalCost == 22.5);
@@ -57,13 +57,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(p => new { p.TimeSpanField, p.DateTimeOffset });
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Cost\" : 22.5 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Cost\" : 22.5 } }])")]
         public void Custom_bson_serializer()
         {
             _ = GetMongoCollection<RedApple>().AsQueryable().Where(r => r.TotalCost == 22.5);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"GrannyAppleCost\" : 22.0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"GrannyAppleCost\" : 22.0 } }])")]
         public void Unsupported_bson_attributes_should_be_ignored_and_MQL_should_still_be_rendered()
         {
             _ = GetMongoCollection<GrannyApple>().AsQueryable()

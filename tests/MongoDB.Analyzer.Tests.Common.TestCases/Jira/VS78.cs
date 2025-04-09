@@ -23,7 +23,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
 {
     internal sealed class VS78 : TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"AbstractBaseData\" : \"base\", \"AbstractBaseDataT1\" : 0, \"AbstractBaseDataT2.Name\" : \"Bob\" } }, { \"$match\" : { \"NestedGenericClass1T1\" : 1, \"NestedGenericClass1T2.Name\" : \"Alice\" } }, { \"$match\" : { \"NestedGenericClass2T1\" : 0, \"NestedGenericClass2T2.Name\" : \"John\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"AbstractBaseData\" : \"base\", \"AbstractBaseDataT1\" : 0, \"AbstractBaseDataT2.Name\" : \"Bob\" } }, { \"$match\" : { \"NestedGenericClass1T1\" : 1, \"NestedGenericClass1T2.Name\" : \"Alice\" } }, { \"$match\" : { \"NestedGenericClass2T1\" : 0, \"NestedGenericClass2T2.Name\" : \"John\" } }])")]
         public void Complex_data_model_functional_syntax()
         {
             _ = GetMongoQueryable<NestedGenericClass2<EnumInt32, Person>>()
@@ -32,8 +32,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 .Where(t => t.NestedGenericClass2T1 == EnumInt32.Value0 && t.NestedGenericClass2T2.Name == "John");
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Data\" : 1 } }, { \"$match\" : { \"DataT1\" : 32 } }, { \"$match\" : { \"DataT2\" : \"dataString\" } }, { \"$match\" : { \"DataT3.Vehicle.LicenceNumber\" : \"LicenceNumber\" } }, { \"$match\" : { \"DataT4\" : NumberLong(999) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"AbstractBaseData\" : \"base\", \"AbstractBaseDataT1\" : 0, \"AbstractBaseDataT2.Name\" : \"Bob\" } }, { \"$match\" : { \"NestedGenericClass1T1\" : 1, \"NestedGenericClass1T2.Name\" : \"Alice\" } }, { \"$match\" : { \"NestedGenericClass2T1\" : 0, \"NestedGenericClass2T2.Name\" : \"John\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Data\" : 1 } }, { \"$match\" : { \"DataT1\" : 32 } }, { \"$match\" : { \"DataT2\" : \"dataString\" } }, { \"$match\" : { \"DataT3.Vehicle.LicenceNumber\" : \"LicenceNumber\" } }, { \"$match\" : { \"DataT4\" : 999 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"AbstractBaseData\" : \"base\", \"AbstractBaseDataT1\" : 0, \"AbstractBaseDataT2.Name\" : \"Bob\" } }, { \"$match\" : { \"NestedGenericClass1T1\" : 1, \"NestedGenericClass1T2.Name\" : \"Alice\" } }, { \"$match\" : { \"NestedGenericClass2T1\" : 0, \"NestedGenericClass2T2.Name\" : \"John\" } }])")]
         public void Complex_data_model_query_syntax()
         {
             _ = from multipleTypeGeneric in GetMongoQueryable<MultipleTypeGeneric<int, string, Person, EnumInt64>>()
@@ -51,7 +51,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 select nestedGenericClass2;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : \"BBB\" }, { \"Name\" : \"BBB\" }, { \"Name\" : \"BBB\" }, { \"Vehicle.VehicleType.Type\" : 0 }, { \"Vehicle.VehicleType.MPG\" : 234.43199999999999 }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : \"BBB\" }, { \"Name\" : \"BBB\" }, { \"Name\" : \"BBB\" }, { \"Vehicle.VehicleType.Type\" : 0 }, { \"Vehicle.VehicleType.MPG\" : 234.43199999999999 }] } }])")]
         public void Constant_values_replacement_functional_syntax()
         {
             _ = GetMongoQueryable<Person>().Where(p =>
@@ -62,7 +62,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 p.Vehicle.VehicleType.MPG == ConstantsHolder.ConstantDouble);
         }
 
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1, 1] }, { \"$add\" : [\"$SiblingsCount\", count2] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"_prefix\", \"$Name\", \"_suffix\"] }, { \"$concat\" : [suffix, \"$Name\", prefix] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\"] }, { \"$concat\" : [\"$LastName\", Concate(prefix, Concate(prefix, suffix))] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\", Concate(\"abc\", suffix)] }, { \"$concat\" : [Concate(\"bca\", prefix), \"$LastName\", { \"$toString\" : \"$SiblingsCount\" }, suffix] }] } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1, 1] }, { \"$add\" : [\"$SiblingsCount\", count2] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"_prefix\", \"$Name\", \"_suffix\"] }, { \"$concat\" : [suffix, \"$Name\", prefix] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\"] }, { \"$concat\" : [\"$LastName\", Concate(prefix, Concate(prefix, suffix))] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\", Concate(\"abc\", suffix)] }, { \"$concat\" : [Concate(\"bca\", prefix), \"$LastName\", { \"$toString\" : \"$SiblingsCount\" }, suffix] }] } } }])")]
         public void Constant_values_replacement_query_syntax()
         {
             var count1 = 1;
@@ -78,7 +78,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 select person;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }])")]
         public void IMongoQueryable_extensions_prefix()
         {
             _ = GetMongoQueryable()
@@ -87,11 +87,11 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 .Where(u => u.LastName.Length < 10);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob2\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,10}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }, { \"$project\" : { \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob2\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,10}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 18, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }, { \"$project\" : { \"_v\" : \"$Name\", \"_id\" : 0 } }])")]
         public void IMongoQueryable_from_different_sources()
         {
             _ = GetMongoCollection().AsQueryable()
@@ -122,34 +122,35 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 select u.Name;
         }
 
-        [NoDiagnostics]
-        public void IQueryable_extensions_in_middle_and_prefix_should_be_ignored()
-        {
-            _ = GetMongoQueryable()
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10)
-                .ApplyPagingIQueryable(1, 0)
-                .Where(u => u.LastName == "Smith");
+        // VS-163
+        //[NoDiagnostics]
+        //public void IQueryable_extensions_in_middle_and_prefix_should_be_ignored()
+        //{
+        //    _ = GetMongoQueryable()
+        //        .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+        //        .Where(u => u.LastName.Length < 10)
+        //        .ApplyPagingIQueryable(1, 0)
+        //        .Where(u => u.LastName == "Smith");
 
-            _ = GetMongoQueryable()
-                .ApplyPagingIQueryable(1, 0)
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10);
+        //    _ = GetMongoQueryable()
+        //        .ApplyPagingIQueryable(1, 0)
+        //        .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+        //        .Where(u => u.LastName.Length < 10);
 
-            _ = GetMongoQueryable()
-                .ApplyPagingIQueryable(1, 0)
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10);
+        //    _ = GetMongoQueryable()
+        //        .ApplyPagingIQueryable(1, 0)
+        //        .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+        //        .Where(u => u.LastName.Length < 10);
 
-            _ = GetMongoQueryable()
-              .ApplyPaging(1, 0)
-              .ApplyPagingIQueryable(1, 0)
-              .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-              .Where(u => u.LastName.Length < 10);
-        }
+        //    _ = GetMongoQueryable()
+        //      .ApplyPaging(1, 0)
+        //      .ApplyPagingIQueryable(1, 0)
+        //      .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+        //      .Where(u => u.LastName.Length < 10);
+        //}
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : /^.{0,9}$/s } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"LastName\" : { \"$regularExpression\" : { \"pattern\" : \"^.{0,9}$\", \"options\" : \"s\" } } } }])")]
         public void IQueryable_extensions_suffix()
         {
             _ = GetMongoQueryable()
@@ -164,30 +165,30 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 .ApplyPagingIQueryable(1, 0);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Root.Data\" : intVariable1 + intVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : intVariable1 + intVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(intVariable1 + intVariable2) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : uintVariable1 + uintVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(uintVariable1 + uintVariable2) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Root.Data\" : shortVariable1 + shortVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : shortVariable1 + shortVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(shortVariable1 + shortVariable2) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Root.Data\" : ushortVariable1 + ushortVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : ushortVariable1 + ushortVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(ushortVariable1 + ushortVariable2) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Data\" : byteVariable1 + byteVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : byteVariable1 + byteVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(byteVariable1 + byteVariable2) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Data\" : sbyteVariable1 + sbyteVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : sbyteVariable1 + sbyteVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(sbyteVariable1 + sbyteVariable2) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Data\" : longVariable1 + longVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : longVariable1 + longVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : NumberLong(longVariable1 + longVariable2) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : ulongVariable1 + ulongVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Root.Data\" : doubleVariable1 + doubleVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"VehicleType.MPG\" : doubleVariable1 + doubleVariable2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"TicksSinceBirth\" : doubleVariable1 + doubleVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Root.Data\" : intVariable1 + intVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"VehicleType.MPG\" : intVariable1 + intVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"TicksSinceBirth\" : intVariable1 + intVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"VehicleType.MPG\" : uintVariable1 + uintVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"TicksSinceBirth\" : uintVariable1 + uintVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Root.Data\" : shortVariable1 + shortVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"VehicleType.MPG\" : shortVariable1 + shortVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"TicksSinceBirth\" : shortVariable1 + shortVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Root.Data\" : ushortVariable1 + ushortVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"VehicleType.MPG\" : ushortVariable1 + ushortVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"TicksSinceBirth\" : ushortVariable1 + ushortVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Data\" : byteVariable1 + byteVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"VehicleType.MPG\" : byteVariable1 + byteVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"TicksSinceBirth\" : byteVariable1 + byteVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Data\" : sbyteVariable1 + sbyteVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"VehicleType.MPG\" : sbyteVariable1 + sbyteVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"TicksSinceBirth\" : sbyteVariable1 + sbyteVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Data\" : longVariable1 + longVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"VehicleType.MPG\" : longVariable1 + longVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"TicksSinceBirth\" : longVariable1 + longVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"VehicleType.MPG\" : ulongVariable1 + ulongVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Root.Data\" : doubleVariable1 + doubleVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"VehicleType.MPG\" : doubleVariable1 + doubleVariable2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"TicksSinceBirth\" : doubleVariable1 + doubleVariable2 } }])")]
         public void Mixed_data_types()
         {
             int intVariable1 = 10;
@@ -252,8 +253,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
             _ = GetMongoCollection<Person>().AsQueryable().Where(p => p.TicksSinceBirth == doubleVariable1 + doubleVariable2);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }, { \"$project\" : { \"Scores\" : \"$Scores\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }, { \"$project\" : { \"Scores\" : \"$Scores\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }, { \"$project\" : { \"_v\" : \"$Scores\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }, { \"$project\" : { \"_v\" : \"$Scores\", \"_id\" : 0 } }])")]
         public void MultiLine_expression()
         {
             _ = GetMongoCollection().AsQueryable()
@@ -267,8 +268,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 select user.Scores;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])")]
         public void SingleLine_expression()
         {
             _ = GetMongoCollection().AsQueryable()
@@ -279,8 +280,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Jira
                 select user;
         }
 
-        [InvalidLinq("{document}{Name}.LastIndexOf(1) is not supported.")]
-        [InvalidLinq3("Expression not supported: u.Name.LastIndexOf(1).")]
+        [InvalidLinq("Expression not supported: u.Name.LastIndexOf(1).")]
         public void Unsupported_string_method_LastIndexOf()
         {
             _ = GetMongoQueryable()

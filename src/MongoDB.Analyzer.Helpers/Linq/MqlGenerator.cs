@@ -35,11 +35,11 @@ namespace MongoDB.Analyzer.Helpers.Linq
             public Tuple<int, int> Field { get; set; }
         }
 
-        public static string GetDriverVersion() => typeof(IMongoQueryable<>).Assembly.GetName().Version.ToString(3);
+        public static string GetDriverVersion() => typeof(MongoQueryable).Assembly.GetName().Version.ToString(3);
 
-        public static string GetMQL(bool isV3)
+        public static string GetMQL()
         {
-            var queryable = QueryableProvider.GetQueryable<MqlGeneratorTemplateType>(isV3);
+            var queryable = new MongoCollectionMock<MqlGeneratorTemplateType>().AsQueryable();
             var queryableWithExpression = queryable.Where(t => t.Field.Item1 == 1);
 
             queryableWithExpression.FirstOrDefault();

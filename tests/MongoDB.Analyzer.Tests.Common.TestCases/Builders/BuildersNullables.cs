@@ -30,10 +30,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<NullableHolder?>.Filter.Eq(n => n.ShortNullable, GetNullableShort());
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"EnumInt8\" : nullableEnumInt8 }, { \"EnumUInt8\" : nullableEnumUInt8 }, { \"EnumInt16\" : nullableEnumInt16 }, { \"EnumUInt16\" : nullableEnumUInt16 }, { \"EnumInt32\" : nullableEnumInt32 }, { \"EnumUInt32\" : nullableEnumUInt32 }, { \"EnumInt64\" : NumberLong(nullableEnumInt64) }, { \"EnumUInt64\" : NumberLong(nullableEnumUInt64) }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"EnumInt8\" : nullableEnumInt8 }, { \"EnumUInt8\" : nullableEnumUInt8 }, { \"EnumInt16\" : nullableEnumInt16 }, { \"EnumUInt16\" : nullableEnumUInt16 }, { \"EnumInt32\" : nullableEnumInt32 }, { \"EnumUInt32\" : nullableEnumUInt32 }, { \"EnumInt64\" : nullableEnumInt64 }, { \"EnumUInt64\" : nullableEnumUInt64 }] }")]
         [BuildersMQL("{ \"$or\" : [{ \"EnumInt8\" : null }, { \"EnumUInt8\" : null }, { \"EnumInt16\" : null }, { \"EnumUInt16\" : null }, { \"EnumInt32\" : null }, { \"EnumUInt32\" : null }, { \"EnumInt64\" : null }, { \"EnumUInt64\" : null }] }")]
-        [BuildersMQL("{ \"$or\" : [{ \"EnumInt8\" : 0 }, { \"EnumUInt8\" : 0 }, { \"EnumInt16\" : 0 }, { \"EnumUInt16\" : 0 }, { \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : NumberLong(0) }, { \"EnumUInt64\" : NumberLong(0) }] }")]
-        [BuildersMQL("{ \"$or\" : [{ \"EnumInt8\" : nullableEnumInt8 }, { \"EnumUInt8\" : nullableEnumUInt8 }, { \"EnumInt16\" : nullableEnumInt16 }, { \"EnumUInt16\" : nullableEnumUInt16 }, { \"EnumInt32\" : nullableEnumInt32 }, { \"EnumUInt32\" : nullableEnumUInt32 }, { \"EnumInt64\" : NumberLong(nullableEnumInt64) }, { \"EnumUInt64\" : NumberLong(nullableEnumUInt64) }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"EnumInt8\" : 0 }, { \"EnumUInt8\" : 0 }, { \"EnumInt16\" : 0 }, { \"EnumUInt16\" : 0 }, { \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : 0 }, { \"EnumUInt64\" : 0 }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"EnumInt8\" : nullableEnumInt8 }, { \"EnumUInt8\" : nullableEnumUInt8 }, { \"EnumInt16\" : nullableEnumInt16 }, { \"EnumUInt16\" : nullableEnumUInt16 }, { \"EnumInt32\" : nullableEnumInt32 }, { \"EnumUInt32\" : nullableEnumUInt32 }, { \"EnumInt64\" : nullableEnumInt64 }, { \"EnumUInt64\" : nullableEnumUInt64 }] }")]
         public void Nullables_enum()
         {
             EnumInt8? nullableEnumInt8 = null;
@@ -88,13 +88,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<Person?>.Filter.Eq(p => p.Address.City, "New York City");
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"ByteNullable\" : StaticHolder.ReadonlyByteNullable }, { \"DoubleNullable\" : StaticHolder.ReadonlyDoubleNullable }, { \"IntNullable\" : StaticHolder.ReadonlyIntNullable }, { \"LongNullable\" : NumberLong(StaticHolder.ReadonlyLongNullable) }, { \"ShortNullable\" : StaticHolder.ReadonlyShortNullable }, { \"StringNullable\" : StaticHolder.ReadonlyStringNullable }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"ByteNullable\" : StaticHolder.ReadonlyByteNullable }, { \"DoubleNullable\" : StaticHolder.ReadonlyDoubleNullable }, { \"IntNullable\" : StaticHolder.ReadonlyIntNullable }, { \"LongNullable\" : StaticHolder.ReadonlyLongNullable }, { \"ShortNullable\" : StaticHolder.ReadonlyShortNullable }, { \"StringNullable\" : StaticHolder.ReadonlyStringNullable }] }")]
         [BuildersMQL("{ \"$or\" : [{ \"ByteNullable\" : null }, { \"DoubleNullable\" : null }, { \"IntNullable\" : null }, { \"LongNullable\" : null }, { \"ShortNullable\" : null }, { \"StringNullable\" : null }] }")]
-        [BuildersMQL("{ \"$or\" : [{ \"ByteNullable\" : 1 }, { \"DoubleNullable\" : 4.5 }, { \"IntNullable\" : 21 }, { \"LongNullable\" : NumberLong(22) }, { \"ShortNullable\" : 2 }, { \"StringNullable\" : \"String\" }] }")]
-        [BuildersMQL("{ \"$or\" : [{ \"ByteNullable\" : 1 }, { \"DoubleNullable\" : 4.5 }, { \"IntNullable\" : 21 }, { \"LongNullable\" : NumberLong(22) }, { \"ShortNullable\" : 2 }, { \"StringNullable\" : \"String\" }] }")]
-        [BuildersMQL("{ \"$or\" : [{ \"ByteNullable\" : 1 }, { \"DoubleNullable\" : 4.5 }, { \"IntNullable\" : 21 }, { \"LongNullable\" : NumberLong(22) }, { \"ShortNullable\" : 2 }, { \"StringNullable\" : \"String\" }] }")]
-        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : StaticHolder.ReadonlyIntNullable }, { \"TicksSinceBirth\" : NumberLong(StaticHolder.ReadonlyLongNullable) }, { \"Name\" : StaticHolder.ReadonlyStringNullable }, { \"Address.City\" : StaticHolder.ReadonlyStringNullable }] }")]
-        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : 1 }, { \"TicksSinceBirth\" : NumberLong(2) }, { \"Name\" : \"Name\" }, { \"Address.City\" : \"City\" }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"ByteNullable\" : 1 }, { \"DoubleNullable\" : 4.5 }, { \"IntNullable\" : 21 }, { \"LongNullable\" : 22 }, { \"ShortNullable\" : 2 }, { \"StringNullable\" : \"String\" }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"ByteNullable\" : 1 }, { \"DoubleNullable\" : 4.5 }, { \"IntNullable\" : 21 }, { \"LongNullable\" : 22 }, { \"ShortNullable\" : 2 }, { \"StringNullable\" : \"String\" }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"ByteNullable\" : 1 }, { \"DoubleNullable\" : 4.5 }, { \"IntNullable\" : 21 }, { \"LongNullable\" : 22 }, { \"ShortNullable\" : 2 }, { \"StringNullable\" : \"String\" }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : StaticHolder.ReadonlyIntNullable }, { \"TicksSinceBirth\" : StaticHolder.ReadonlyLongNullable }, { \"Name\" : StaticHolder.ReadonlyStringNullable }, { \"Address.City\" : StaticHolder.ReadonlyStringNullable }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"SiblingsCount\" : 1 }, { \"TicksSinceBirth\" : 2 }, { \"Name\" : \"Name\" }, { \"Address.City\" : \"City\" }] }")]
         public void Nullable_primitive_types()
         {
             _ = Builders<NullableHolder>.Filter.Eq(n => n.ByteNullable, StaticHolder.ReadonlyByteNullable) |

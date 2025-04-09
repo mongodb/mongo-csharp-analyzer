@@ -23,8 +23,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqNullables : TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum() } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ShortNullable\" : GetNullableShort() } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum() } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ShortNullable\" }, GetNullableShort()] } } }])")]
         public void Method_with_nullable_return_type()
         {
             _ = GetMongoQueryable<Person>()
@@ -34,8 +34,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(n => n.ShortNullable == GetNullableShort());
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum() } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ShortNullable\" : GetNullableShort() } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum() } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ShortNullable\" }, GetNullableShort()] } } }])")]
         public void Method_with_nullable_return_type_with_query_syntax()
         {
             _ = from person in GetMongoQueryable<Person?>()
@@ -47,10 +47,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select nullableHolder;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : nullableEnumInt8 }, { \"EnumUInt8\" : nullableEnumUInt8 }, { \"EnumInt16\" : nullableEnumInt16 }, { \"EnumUInt16\" : nullableEnumUInt16 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : nullableEnumInt32 }, { \"EnumUInt32\" : nullableEnumUInt32 }, { \"EnumInt64\" : NumberLong(nullableEnumInt64) }, { \"EnumUInt64\" : NumberLong(nullableEnumUInt64) }] } }, { \"$project\" : { \"EnumInt16\" : \"$EnumInt16\", \"_id\" : nullableEnumInt8 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : null }, { \"EnumUInt8\" : null }, { \"EnumInt16\" : null }, { \"EnumUInt16\" : null }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : null }, { \"EnumUInt32\" : null }, { \"EnumInt64\" : null }, { \"EnumUInt64\" : null }] } }, { \"$project\" : { \"EnumInt16\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : 0 }, { \"EnumUInt8\" : 0 }, { \"EnumInt16\" : 0 }, { \"EnumUInt16\" : 0 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : NumberLong(0) }, { \"EnumUInt64\" : NumberLong(0) }] } }, { \"$project\" : { \"EnumInt16\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : 0 }, { \"EnumUInt8\" : 0 }, { \"EnumInt16\" : 0 }, { \"EnumUInt16\" : 0 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : NumberLong(0) }, { \"EnumUInt64\" : NumberLong(0) }] } }, { \"$project\" : { \"EnumInt16\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumInt8\" }, nullableEnumInt8] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumUInt8\" }, nullableEnumUInt8] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumInt16\" }, nullableEnumInt16] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumUInt16\" }, nullableEnumUInt16] } }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : nullableEnumInt32 }, { \"EnumUInt32\" : nullableEnumUInt32 }, { \"EnumInt64\" : nullableEnumInt64 }, { \"EnumUInt64\" : nullableEnumUInt64 }] } }, { \"$project\" : { \"_v\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : null }, { \"EnumUInt8\" : null }, { \"EnumInt16\" : null }, { \"EnumUInt16\" : null }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : null }, { \"EnumUInt32\" : null }, { \"EnumInt64\" : null }, { \"EnumUInt64\" : null }] } }, { \"$project\" : { \"_v\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumInt8\" }, 0] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumUInt8\" }, 0] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumInt16\" }, 0] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumUInt16\" }, 0] } }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : 0 }, { \"EnumUInt64\" : 0 }] } }, { \"$project\" : { \"_v\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : 0 }, { \"EnumUInt8\" : 0 }, { \"EnumInt16\" : 0 }, { \"EnumUInt16\" : 0 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : 0 }, { \"EnumUInt64\" : 0 }] } }, { \"$project\" : { \"_v\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
         public void Nullables_enum()
         {
             EnumInt8? nullableEnumInt8 = null;
@@ -83,10 +83,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(e => e.EnumInt16);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : nullableEnumInt8 }, { \"EnumUInt8\" : nullableEnumUInt8 }, { \"EnumInt16\" : nullableEnumInt16 }, { \"EnumUInt16\" : nullableEnumUInt16 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : nullableEnumInt32 }, { \"EnumUInt32\" : nullableEnumUInt32 }, { \"EnumInt64\" : NumberLong(nullableEnumInt64) }, { \"EnumUInt64\" : NumberLong(nullableEnumUInt64) }] } }, { \"$project\" : { \"EnumInt16\" : \"$EnumInt16\", \"_id\" : nullableEnumInt8 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : null }, { \"EnumUInt8\" : null }, { \"EnumInt16\" : null }, { \"EnumUInt16\" : null }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : null }, { \"EnumUInt32\" : null }, { \"EnumInt64\" : null }, { \"EnumUInt64\" : null }] } }, { \"$project\" : { \"EnumInt16\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : 0 }, { \"EnumUInt8\" : 0 }, { \"EnumInt16\" : 0 }, { \"EnumUInt16\" : 0 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : NumberLong(0) }, { \"EnumUInt64\" : NumberLong(0) }] } }, { \"$project\" : { \"EnumInt16\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : 0 }, { \"EnumUInt8\" : 0 }, { \"EnumInt16\" : 0 }, { \"EnumUInt16\" : 0 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : NumberLong(0) }, { \"EnumUInt64\" : NumberLong(0) }] } }, { \"$project\" : { \"EnumInt16\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumInt8\" }, nullableEnumInt8] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumUInt8\" }, nullableEnumUInt8] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumInt16\" }, nullableEnumInt16] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumUInt16\" }, nullableEnumUInt16] } }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : nullableEnumInt32 }, { \"EnumUInt32\" : nullableEnumUInt32 }, { \"EnumInt64\" : nullableEnumInt64 }, { \"EnumUInt64\" : nullableEnumUInt64 }] } }, { \"$project\" : { \"_v\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : null }, { \"EnumUInt8\" : null }, { \"EnumInt16\" : null }, { \"EnumUInt16\" : null }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : null }, { \"EnumUInt32\" : null }, { \"EnumInt64\" : null }, { \"EnumUInt64\" : null }] } }, { \"$project\" : { \"_v\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumInt8\" }, 0] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumUInt8\" }, 0] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumInt16\" }, 0] } }, { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$EnumUInt16\" }, 0] } }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : 0 }, { \"EnumUInt64\" : 0 }] } }, { \"$project\" : { \"_v\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"EnumInt8\" : 0 }, { \"EnumUInt8\" : 0 }, { \"EnumInt16\" : 0 }, { \"EnumUInt16\" : 0 }] } }, { \"$match\" : { \"$or\" : [{ \"EnumInt32\" : 0 }, { \"EnumUInt32\" : 0 }, { \"EnumInt64\" : 0 }, { \"EnumUInt64\" : 0 }] } }, { \"$project\" : { \"_v\" : \"$EnumInt16\", \"_id\" : 0 } }])")]
         public void Nullables_enum_with_query_syntax()
         {
             EnumInt8? nullableEnumInt8 = null;
@@ -119,27 +119,27 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select enumHolder.EnumInt16;
         }
 
-        [MQL("aggregate([{ \"$project\" : { \"Name\" : \"$Name\", \"City\" : \"$Address.City\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$project\" : { \"Name\" : \"$Name\", \"City\" : \"$Address.City\", \"_id\" : 0 } }])")]
         public void Nullable_mongo_queryable()
         {
             _ = GetMongoQueryable<Person?>()
                 .Select(p => new { p.Name, p.Address.City });
         }
 
-        [MQL("aggregate([{ \"$project\" : { \"Name\" : \"$Name\", \"City\" : \"$Address.City\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$project\" : { \"Name\" : \"$Name\", \"City\" : \"$Address.City\", \"_id\" : 0 } }])")]
         public void Nullable_mongo_queryable_with_query_syntax()
         {
             _ = from person in GetMongoQueryable<Person?>()
                 select new { person.Name, person.Address.City };
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : StaticHolder.ReadonlyByteNullable } }, { \"$match\" : { \"DoubleNullable\" : StaticHolder.ReadonlyDoubleNullable } }, { \"$match\" : { \"IntNullable\" : StaticHolder.ReadonlyIntNullable } }, { \"$match\" : { \"LongNullable\" : NumberLong(StaticHolder.ReadonlyLongNullable) } }, { \"$match\" : { \"ShortNullable\" : StaticHolder.ReadonlyShortNullable } }, { \"$match\" : { \"StringNullable\" : StaticHolder.ReadonlyStringNullable } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : null } }, { \"$match\" : { \"DoubleNullable\" : null } }, { \"$match\" : { \"IntNullable\" : null } }, { \"$match\" : { \"LongNullable\" : null } }, { \"$match\" : { \"ShortNullable\" : null } }, { \"$match\" : { \"StringNullable\" : null } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : 1 } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : NumberLong(22) } }, { \"$match\" : { \"ShortNullable\" : 2 } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : 1 } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : NumberLong(22) } }, { \"$match\" : { \"ShortNullable\" : 2 } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : 1 } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : NumberLong(22) } }, { \"$match\" : { \"ShortNullable\" : 2 } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : StaticHolder.ReadonlyIntNullable } }, { \"$match\" : { \"TicksSinceBirth\" : NumberLong(StaticHolder.ReadonlyLongNullable) } }, { \"$match\" : { \"Name\" : StaticHolder.ReadonlyStringNullable } }, { \"$match\" : { \"Address.City\" : StaticHolder.ReadonlyStringNullable } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : 1 } }, { \"$match\" : { \"TicksSinceBirth\" : NumberLong(2) } }, { \"$match\" : { \"Name\" : \"Name\" } }, { \"$match\" : { \"Address.City\" : \"City\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, StaticHolder.ReadonlyByteNullable] } } }, { \"$match\" : { \"DoubleNullable\" : StaticHolder.ReadonlyDoubleNullable } }, { \"$match\" : { \"IntNullable\" : StaticHolder.ReadonlyIntNullable } }, { \"$match\" : { \"LongNullable\" : StaticHolder.ReadonlyLongNullable } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ShortNullable\" }, StaticHolder.ReadonlyShortNullable] } } }, { \"$match\" : { \"StringNullable\" : StaticHolder.ReadonlyStringNullable } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"ByteNullable\" : null } }, { \"$match\" : { \"DoubleNullable\" : null } }, { \"$match\" : { \"IntNullable\" : null } }, { \"$match\" : { \"LongNullable\" : null } }, { \"$match\" : { \"ShortNullable\" : null } }, { \"$match\" : { \"StringNullable\" : null } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, 1] } } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : 22 } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ShortNullable\" }, 2] } } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, 1] } } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : 22 } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ShortNullable\" }, 2] } } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, 1] } } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : 22 } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ShortNullable\" }, 2] } } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : StaticHolder.ReadonlyIntNullable } }, { \"$match\" : { \"TicksSinceBirth\" : StaticHolder.ReadonlyLongNullable } }, { \"$match\" : { \"Name\" : StaticHolder.ReadonlyStringNullable } }, { \"$match\" : { \"Address.City\" : StaticHolder.ReadonlyStringNullable } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : 1 } }, { \"$match\" : { \"TicksSinceBirth\" : 2 } }, { \"$match\" : { \"Name\" : \"Name\" } }, { \"$match\" : { \"Address.City\" : \"City\" } }])")]
         public void Nullable_primitive_types()
         {
             _ = GetMongoQueryable<NullableHolder?>()
@@ -195,13 +195,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(p => p.Address.City == (string?)"City");
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : StaticHolder.ReadonlyByteNullable } }, { \"$match\" : { \"DoubleNullable\" : StaticHolder.ReadonlyDoubleNullable } }, { \"$match\" : { \"IntNullable\" : StaticHolder.ReadonlyIntNullable } }, { \"$match\" : { \"LongNullable\" : NumberLong(StaticHolder.ReadonlyLongNullable) } }, { \"$match\" : { \"ShortNullable\" : StaticHolder.ReadonlyShortNullable } }, { \"$match\" : { \"StringNullable\" : StaticHolder.ReadonlyStringNullable } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : null } }, { \"$match\" : { \"DoubleNullable\" : null } }, { \"$match\" : { \"IntNullable\" : null } }, { \"$match\" : { \"LongNullable\" : null } }, { \"$match\" : { \"ShortNullable\" : null } }, { \"$match\" : { \"StringNullable\" : null } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : 1 } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : NumberLong(22) } }, { \"$match\" : { \"ShortNullable\" : 2 } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : 1 } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : NumberLong(22) } }, { \"$match\" : { \"ShortNullable\" : 2 } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"ByteNullable\" : 1 } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : NumberLong(22) } }, { \"$match\" : { \"ShortNullable\" : 2 } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : StaticHolder.ReadonlyIntNullable } }, { \"$match\" : { \"TicksSinceBirth\" : NumberLong(StaticHolder.ReadonlyLongNullable) } }, { \"$match\" : { \"Name\" : StaticHolder.ReadonlyStringNullable } }, { \"$match\" : { \"Address.City\" : StaticHolder.ReadonlyStringNullable } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : 1 } }, { \"$match\" : { \"TicksSinceBirth\" : NumberLong(2) } }, { \"$match\" : { \"Name\" : \"Name\" } }, { \"$match\" : { \"Address.City\" : \"City\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, StaticHolder.ReadonlyByteNullable] } } }, { \"$match\" : { \"DoubleNullable\" : StaticHolder.ReadonlyDoubleNullable } }, { \"$match\" : { \"IntNullable\" : StaticHolder.ReadonlyIntNullable } }, { \"$match\" : { \"LongNullable\" : StaticHolder.ReadonlyLongNullable } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ShortNullable\" }, StaticHolder.ReadonlyShortNullable] } } }, { \"$match\" : { \"StringNullable\" : StaticHolder.ReadonlyStringNullable } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"ByteNullable\" : null } }, { \"$match\" : { \"DoubleNullable\" : null } }, { \"$match\" : { \"IntNullable\" : null } }, { \"$match\" : { \"LongNullable\" : null } }, { \"$match\" : { \"ShortNullable\" : null } }, { \"$match\" : { \"StringNullable\" : null } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, 1] } } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : 22 } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ShortNullable\" }, 2] } } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, 1] } } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : 22 } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ShortNullable\" }, 2] } } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, 1] } } }, { \"$match\" : { \"DoubleNullable\" : 4.5 } }, { \"$match\" : { \"IntNullable\" : 21 } }, { \"$match\" : { \"LongNullable\" : 22 } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ShortNullable\" }, 2] } } }, { \"$match\" : { \"StringNullable\" : \"String\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : StaticHolder.ReadonlyIntNullable } }, { \"$match\" : { \"TicksSinceBirth\" : StaticHolder.ReadonlyLongNullable } }, { \"$match\" : { \"Name\" : StaticHolder.ReadonlyStringNullable } }, { \"$match\" : { \"Address.City\" : StaticHolder.ReadonlyStringNullable } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : 1 } }, { \"$match\" : { \"TicksSinceBirth\" : 2 } }, { \"$match\" : { \"Name\" : \"Name\" } }, { \"$match\" : { \"Address.City\" : \"City\" } }])")]
         public void Nullable_primitive_types_with_query_syntax()
         {
             _ = from nullableHolder in GetMongoQueryable<NullableHolder?>()

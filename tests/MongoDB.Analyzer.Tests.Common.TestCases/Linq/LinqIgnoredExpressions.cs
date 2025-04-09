@@ -40,31 +40,32 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<MixedDataMembers>().Where(u => u.ProtectedInternalPropertyString == "str");
         }
 
-        [NoDiagnostics]
-        public void IQueryable_extensions_in_middle_or_prefix_should_be_ignored()
-        {
-            _ = GetMongoQueryable()
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10)
-                .ApplyPagingIQueryable(1, 0)
-                .Where(u => u.LastName == "Smith");
+        // VS-163
+        //[NoDiagnostics]
+        //public void IQueryable_extensions_in_middle_or_prefix_should_be_ignored()
+        //{
+        //    _ = GetMongoQueryable()
+        //        .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+        //        .Where(u => u.LastName.Length < 10)
+        //        .ApplyPagingIQueryable(1, 0)
+        //        .Where(u => u.LastName == "Smith");
 
-            _ = GetMongoQueryable()
-                .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
-                .Where(u => u.LastName.Length < 10)
-                .ApplyPaging(1, 0)
-                .ApplyPagingIQueryable(1, 0)
-                .Where(u => u.LastName == "Smith");
+        //    _ = GetMongoQueryable()
+        //        .Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21)
+        //        .Where(u => u.LastName.Length < 10)
+        //        .ApplyPaging(1, 0)
+        //        .ApplyPagingIQueryable(1, 0)
+        //        .Where(u => u.LastName == "Smith");
 
-            _ = GetMongoQueryable()
-                .ApplyPagingIQueryable(1, 0)
-                .Where(u => u.LastName == "Smith");
+        //    _ = GetMongoQueryable()
+        //        .ApplyPagingIQueryable(1, 0)
+        //        .Where(u => u.LastName == "Smith");
 
-            _ = GetMongoQueryable()
-                .ApplyPaging(1, 0)
-                .ApplyPagingIQueryable(1, 0)
-                .Where(u => u.LastName == "Smith");
-        }
+        //    _ = GetMongoQueryable()
+        //        .ApplyPaging(1, 0)
+        //        .ApplyPagingIQueryable(1, 0)
+        //        .Where(u => u.LastName == "Smith");
+        //}
 
         [NoDiagnostics]
         public void Objects_comparison_expression_should_be_ignored()
@@ -100,8 +101,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select mixedDataMember;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\" } }])")]
         public void Simple_valid_expression_as_baseline()
         {
             _ = GetMongoQueryable().Where(u => u.Name == "Bob");

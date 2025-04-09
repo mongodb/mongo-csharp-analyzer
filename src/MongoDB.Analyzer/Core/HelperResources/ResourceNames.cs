@@ -21,7 +21,6 @@ internal static class ResourceNames
     internal static class Linq
     {
         public const string MqlGenerator = $"Linq.{nameof(MqlGenerator)}";
-        public const string QueryableProvider = $"Linq.{nameof(QueryableProvider)}";
     }
 
     internal static class Builders

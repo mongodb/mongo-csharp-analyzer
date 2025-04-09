@@ -47,10 +47,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<ListsHolder>.Projection.ElemMatch(u => u.PesonsList, g => g.SiblingsCount < 12 && g.SiblingsCount > 3).ElemMatch(u => u.NestedListsHolderIList, g => g.PesonsList.Count == 22);
         }
 
-        [BuildersMQL("{ \"Address\" : 1, \"_id\" : 0 }", DriverVersions.V2_18_OrLower)]
-        [BuildersMQL("{ \"_v\" : \"$Address\", \"_id\" : 0 }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"Address\" : 1, \"LastName\" : 1, \"Name\" : 1, \"_id\" : 0 }", DriverVersions.V2_18_OrLower)]
-        [BuildersMQL("{ \"_v\" : { \"$add\" : [{ \"$strLenCP\" : \"$LastName\" }, { \"$strLenCP\" : \"$Address\" }, { \"$strLenCP\" : \"$Name\" }] }, \"_id\" : 0 }", DriverVersions.V2_19_OrGreater)]
+        [BuildersMQL("{ \"_v\" : \"$Address\", \"_id\" : 0 }")]
+        [BuildersMQL("{ \"_v\" : { \"$add\" : [{ \"$strLenCP\" : \"$LastName\" }, { \"$strLenCP\" : \"$Address\" }, { \"$strLenCP\" : \"$Name\" }] }, \"_id\" : 0 }")]
         public void Expression()
         {
             _ = Builders<Person>.Projection.Expression(u => u.Address);
@@ -73,10 +71,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 .Include(u => u.Vehicle).Exclude(u => u.Address);
         }
 
-        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [10, 5] } }", DriverVersions.V2_22_OrLower)]
-        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [\"$IntArray\", 10, 5] } }", DriverVersions.V2_23_OrGreater)]
-        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [10, 5] }, \"JaggedStringArray2\" : { \"$slice\" : [3, 9] } }", DriverVersions.V2_22_OrLower)]
-        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [\"$IntArray\", 10, 5] }, \"JaggedStringArray2\" : { \"$slice\" : [\"$JaggedStringArray2\", 3, 9] } }", DriverVersions.V2_23_OrGreater)]
+        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [\"$IntArray\", 10, 5] } }")]
+        [BuildersMQL("{ \"IntArray\" : { \"$slice\" : [\"$IntArray\", 10, 5] }, \"JaggedStringArray2\" : { \"$slice\" : [\"$JaggedStringArray2\", 3, 9] } }")]
         public void Slice()
         {
             _ = Builders<SimpleTypesArraysHolder>.Projection.Slice(u => u.IntArray, 10, 5);
