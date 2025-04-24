@@ -65,7 +65,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
         [MQL("Aggregate([{ \"$match\" : { \"AbstractBaseData\" : \"base\" } }, { \"$match\" : { \"NestedClass1Data\" : \"nested1\" } }, { \"$match\" : { \"NestedClass2Data\" : \"nested2\" } }, { \"$match\" : { \"NestedClass3Data\" : \"nested3\" } }])")]
-        public void Inheritance_predifined_types()
+        public void Inheritance_predefined_types()
         {
             _ = GetMongoQueryable<NestedClass3>()
                 .Where(t => t.AbstractBaseData == "base")
