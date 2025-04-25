@@ -21,7 +21,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
     public sealed class NotSupportedLinqExpressions : TestCasesBase
     {
         [InvalidLinq("Method referencing lambda parameter is not supported LINQ expression.")]
-        [InvalidLinq3("Method referencing lambda parameter is not supported LINQ expression.")]
         public void Query_syntax()
         {
             _ = from person in GetMongoQueryable<Person>()
@@ -29,41 +28,21 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select person;
         }
 
-#if !NET472
-        [InvalidLinq("The binary operator Equal is not defined for the types 'MongoDB.Bson.BsonValue' and 'System.Int32'.")]
-#endif
-        [InvalidLinq3("Unable to cast object of type 'System.Int32' to type 'MongoDB.Bson.BsonValue'.", DriverVersions.V2_19_to_2_20)]
-        [InvalidLinq3("Expression not supported: 10 in (o.BsonDocument.ElementCount == 10) because it was not possible to determine how to serialize the constant.", DriverVersions.V2_21_OrGreater)]
+        [InvalidLinq("Expression not supported: 10 in (o.BsonDocument.ElementCount == 10) because it was not possible to determine how to serialize the constant.", DriverVersions.V3_1_AndLower)]
+        [InvalidLinq("Expression not supported: o.BsonDocument.ElementCount.", DriverVersions.V3_2_OrGreater)]
         public void Unsupported_bson_types()
         {
             _ = GetMongoQueryable<ClassWithBsonTypes>().Where(o => o.BsonDocument.ElementCount == 10);
         }
 
-        [InvalidLinq("Convert({document}{ByteArray}[0]) is not supported.", targetFramework: DriverTargetFramework.NetFramework)]
-        [InvalidLinq("Convert({document}{ByteArray}[0], Int32) is not supported.", targetFramework: DriverTargetFramework.NetStandard)]
-        [InvalidLinq3("MongoDB.Bson.Serialization.Serializers.ByteArraySerializer must implement IBsonArraySerializer to be used with LINQ.")]
+        [InvalidLinq("MongoDB.Bson.Serialization.Serializers.ByteArraySerializer must implement IBsonArraySerializer to be used with LINQ.")]
         public void Unsupported_byte_array_item_access()
         {
             _ = GetMongoQueryable<SimpleTypesArraysHolder>()
                 .Where(u => u.ByteArray[0] == 12);
         }
 
-        [InvalidLinq("Unsupported filter: ({document}{Name} == {document}{LastName}).", version: DriverVersions.Linq2OrLower)]
-        public void Unsupported_cross_reference_1()
-        {
-            _ = GetMongoQueryable<Person>()
-                .Where(u => u.Name == u.LastName);
-        }
-
-        [InvalidLinq("Unsupported filter: ({IntArray.0} == {IntArray.1}).", version: DriverVersions.Linq2OrLower)]
-        public void Unsupported_cross_reference_2()
-        {
-            _ = GetMongoQueryable<SimpleTypesArraysHolder>()
-                .Where(u => u.IntArray[0] == u.IntArray[1]);
-        }
-
         [InvalidLinq("Method referencing lambda parameter is not supported LINQ expression.")]
-        [InvalidLinq3("Method referencing lambda parameter is not supported LINQ expression.")]
         public void Unsupported_external_method_referencing_lambda_variable()
         {
             _ = GetMongoQueryable()
@@ -71,7 +50,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
         [InvalidLinq("Method referencing lambda parameter is not supported LINQ expression.")]
-        [InvalidLinq3("Method referencing lambda parameter is not supported LINQ expression.")]
         public void Unsupported_external_method_referencing_lambda_variable_2()
         {
             _ = GetMongoQueryable()
@@ -79,24 +57,20 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
         [InvalidLinq("Method referencing lambda parameter is not supported LINQ expression.")]
-        [InvalidLinq3("Method referencing lambda parameter is not supported LINQ expression.")]
         public void Unsupported_external_method_referencing_lambda_variable_3()
         {
             _ = GetMongoQueryable()
                 .Where(u => u.Address == ReturnArgument(u).Address);
         }
 
-
-        [InvalidLinq("{document}{Matrix2}.Get(1, 1) is not supported.")]
-        [InvalidLinq3("Expression not supported: u.Matrix2.Get(1, 1).")]
+        [InvalidLinq("Expression not supported: u.Matrix2.Get(1, 1).")]
         public void Unsupported_multidimensional_array_dimension1()
         {
             _ = GetMongoQueryable<MultiDimentionalArrayHolder>()
                 .Where(u => u.Matrix2[1, 1] == 1);
         }
 
-        [InvalidLinq("{document}{Matrix3}.Get(1, 1, 1) is not supported.")]
-        [InvalidLinq3("Expression not supported: u.Matrix3.Get(1, 1, 1).")]
+        [InvalidLinq("Expression not supported: u.Matrix3.Get(1, 1, 1).")]
         public void Unsupported_multidimensional_array_dimension2()
         {
             _ = GetMongoQueryable<MultiDimentionalArrayHolder>()
@@ -104,7 +78,6 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
         [InvalidLinq("Method referencing lambda parameter is not supported LINQ expression.")]
-        [InvalidLinq3("Method referencing lambda parameter is not supported LINQ expression.")]
         public void Unsupported_nested_external_method_referencing_lambda_variable()
         {
             _ = GetMongoQueryable<Person>()
@@ -112,34 +85,24 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
         [InvalidLinq("Method referencing lambda parameter is not supported LINQ expression.")]
-        [InvalidLinq3("Method referencing lambda parameter is not supported LINQ expression.")]
         public void Unsupported_nested_external_method_referencing_lambda_variable_2()
         {
             _ = GetMongoQueryable<Person>()
                 .Where(u => ReturnArgument(ReturnArgument(ReturnArgument(this).ReturnArgument(u.Vehicle.VehicleType))).Type == VehicleTypeEnum.Bus);
         }
 
-        [InvalidLinq("{document}.GetHashCode() is not supported.")]
-        [InvalidLinq3("Expression not supported: u.GetHashCode().")]
+        [InvalidLinq("Expression not supported: u.GetHashCode().")]
         public void Unsupported_object_method_invocation()
         {
             _ = GetMongoQueryable()
                 .Where(u => u.GetHashCode() == 1);
         }
 
-        [InvalidLinq("{document}{Name}.LastIndexOf(1) is not supported.")]
-        [InvalidLinq3("Expression not supported: u.Name.LastIndexOf(1).")]
+        [InvalidLinq("Expression not supported: u.Name.LastIndexOf(1).")]
         public void Unsupported_string_method_LastIndexOf()
         {
             _ = GetMongoQueryable()
                .Where(u => u.Name.LastIndexOf('1') == 1);
-        }
-
-        [InvalidLinq("{document}{Name}.Trim() is not supported.", DriverVersions.Linq2OrLower)]
-        public void Unsupported_string_method_Trim()
-        {
-            _ = GetMongoQueryable()
-               .Where(u => u.Name.Trim() == "!23");
         }
 
 #if NET472
@@ -166,8 +129,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(y => y);
         }
 
-        [InvalidLinq("{document}.Quantity is not supported.")]
-        [InvalidLinq("{document}._AppleID is not supported.")]
+        [InvalidLinq("Serializer for MongoDB.Analyzer.Tests.Common.DataModel.Fruit does not have a member named Quantity.")]
+        [InvalidLinq("Serializer for MongoDB.Analyzer.Tests.Common.DataModel.Apple does not have a member named _AppleID.")]
         public void Warnings_due_to_bson_ignore()
         {
             _ = GetMongoQueryable<Fruit>().Where(f => f.Quantity == 22);

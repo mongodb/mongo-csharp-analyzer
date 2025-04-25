@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
 using MongoDB.Analyzer.Tests.Common.DataModel;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
-using System.Linq;
 
 namespace MongoDB.Analyzer.Tests.Common
 {
@@ -31,8 +30,8 @@ namespace MongoDB.Analyzer.Tests.Common
         protected IMongoCollection<T> GetMongoCollection<T>() =>
             MongoDBProvider.MongoDatabase.GetCollection<T>("TestCollection");
 
-        protected IMongoQueryable<User> GetMongoQueryable() => GetMongoCollection().AsQueryable();
-        protected IMongoQueryable<T> GetMongoQueryable<T>() => GetMongoCollection<T>().AsQueryable();
+        protected IQueryable<User> GetMongoQueryable() => GetMongoCollection().AsQueryable();
+        protected IQueryable<T> GetMongoQueryable<T>() => GetMongoCollection<T>().AsQueryable();
 
         protected T ReturnArgument<T>(T arg) => arg;
     }

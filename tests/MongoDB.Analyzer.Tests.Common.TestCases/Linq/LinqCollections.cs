@@ -20,7 +20,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqCollections : TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
         public void CustomEnumerables()
         {
             _ = GetMongoQueryable<CustomEnumerableHolder>().Where(t =>
@@ -30,7 +30,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                     t.Enumerable2.ElementAt(12).Enumerable2.ElementAt(21).Enumerable1.ElementAt(1) == 2);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]
         public void CustomLists()
         {
             _ = GetMongoQueryable<CustomListsHolder>()
@@ -42,7 +42,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(t => t.NestedListsHolderIList[12].IntIList[12] == 2);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
         public void Enumerables()
         {
             _ = GetMongoQueryable<EnumerableHolder>().Where(t =>
@@ -52,7 +52,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                     t.Enumerable2.ElementAt(12).Enumerable2.ElementAt(21).Enumerable1.ElementAt(1) == 2);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]
         public void Lists()
         {
             _ = GetMongoQueryable<ListsHolder>()
@@ -65,10 +65,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
 
-        [MQL("aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"IntList.0\" : 2 } }, { \"$match\" : { \"StringList\" : { \"$size\" : 12 } } }, { \"$match\" : { \"PesonsList.2.Address.City\" : \"Hamburg\" } }, { \"$match\" : { \"NestedListsHolderList.2.StringList.4\" : \"Nested\" } }, { \"$match\" : { \"IntIList.1\" : 12 } }, { \"$match\" : { \"NestedListsHolderIList.12.IntIList.12\" : 2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Enumerable1\" : { \"$size\" : 121 }, \"Enumerable1.12\" : 1, \"Enumerable2\" : { \"$size\" : 22 }, \"Enumerable2.12.Enumerable2.21.Enumerable1.1\" : 2 } }])")]
         public void Query_syntax()
         {
             _ = from listsHolder in GetMongoQueryable<ListsHolder>()

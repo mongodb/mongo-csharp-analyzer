@@ -20,7 +20,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqComments : TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
         public void MultiLine_comment_before_and_after_expression()
         {
             /*
@@ -36,7 +36,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             */
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
         public void MultiLine_comment_between_expressions()
         {
             _ = GetMongoCollection()
@@ -57,7 +57,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(u => u.Height == 180);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
         public void Multiple_multilines_comments_inside_expressions()
         {
             _ = GetMongoCollection().AsQueryable()
@@ -65,8 +65,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(/* multi line comment */ u => u.Height == 180 /* multi line comment */);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
         public void Query_Syntax()
         {
             _ = from user in GetMongoCollection()
@@ -102,7 +102,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select user;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
         public void SingleLine_comment_before_and_after_expression()
         {
             // single line comment
@@ -112,7 +112,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             // single line comment
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }, { \"$match\" : { \"Height\" : 180 } }])")]
         public void SingleLine_comment_between_linq_invocations()
         {
             _ = GetMongoCollection()

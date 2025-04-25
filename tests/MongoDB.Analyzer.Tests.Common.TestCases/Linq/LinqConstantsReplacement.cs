@@ -22,7 +22,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqConstantsReplacement : TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : byteConstant }, { \"SiblingsCount\" : 0 }, { \"SiblingsCount\" : intConstant1 }, { \"SiblingsCount\" : 1 }, { \"SiblingsCount\" : intConstant2 }, { \"SiblingsCount\" : 2 }, { \"TicksSinceBirth\" : NumberLong(longConstant1) }, { \"TicksSinceBirth\" : NumberLong(3) }, { \"TicksSinceBirth\" : NumberLong(longConstant2) }, { \"TicksSinceBirth\" : NumberLong(4) }, { \"Name\" : stringConstant1 }, { \"Name\" : \"s__5\" }, { \"Name\" : stringConstant2 }, { \"Name\" : \"s__6\" }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : byteConstant }, { \"SiblingsCount\" : 0 }, { \"SiblingsCount\" : intConstant1 }, { \"SiblingsCount\" : 1 }, { \"SiblingsCount\" : intConstant2 }, { \"SiblingsCount\" : 2 }, { \"TicksSinceBirth\" : longConstant1 }, { \"TicksSinceBirth\" : 3 }, { \"TicksSinceBirth\" : longConstant2 }, { \"TicksSinceBirth\" : 4 }, { \"Name\" : stringConstant1 }, { \"Name\" : \"s__5\" }, { \"Name\" : stringConstant2 }, { \"Name\" : \"s__6\" }] } }])")]
         public void Colliding_constants_and_variables()
         {
             const byte byteConstant = 0;
@@ -50,7 +50,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Name == "s__6");
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : \"BBB\" }, { \"Name\" : \"BBB\" }, { \"Name\" : \"BBB\" }, { \"Vehicle.VehicleType.Type\" : 0 }, { \"Vehicle.VehicleType.MPG\" : 234.43199999999999 }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : \"BBB\" }, { \"Name\" : \"BBB\" }, { \"Name\" : \"BBB\" }, { \"Vehicle.VehicleType.Type\" : 0 }, { \"Vehicle.VehicleType.MPG\" : 234.43199999999999 }] } }])")]
         public void Const_values_defined_in_regular_class_in_expression()
         {
             _ = GetMongoQueryable<Person>().Where(p =>
@@ -61,7 +61,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Vehicle.VehicleType.MPG == ConstantsHolder.ConstantDouble);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : s__1 }, { \"Name\" : s__2 }, { \"Age\" : intConstant1 }, { \"Age\" : intConstant2 }, { \"Age\" : varConstant33 }, { \"Age\" : varConstant44 }, { \"Name\" : \"s__1\" }, { \"Name\" : \"s__2\" }, { \"Name\" : \"3\" }, { \"Name\" : \"4\" }, { \"Name\" : \"5\" }, { \"Name\" : \"6\" }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : s__1 }, { \"Name\" : s__2 }, { \"Age\" : intConstant1 }, { \"Age\" : intConstant2 }, { \"Age\" : varConstant33 }, { \"Age\" : varConstant44 }, { \"Name\" : \"s__1\" }, { \"Name\" : \"s__2\" }, { \"Name\" : \"3\" }, { \"Name\" : \"4\" }, { \"Name\" : \"5\" }, { \"Name\" : \"6\" }] } }])")]
         public void Constant_string_containing_const_remapped_values()
         {
             const int intConstant1 = 1;
@@ -86,29 +86,30 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 u.Name == "6");
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : 10 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : 10 } }])")]
         public void Constants_expressions_referenced_in_expression_1()
         {
             _ = GetMongoQueryable<Person>().Where(p => p.SiblingsCount == 1 + 2 + 3 + 4);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Joe\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Joe\" } }])")]
         public void Constants_expressions_referenced_in_expression_2()
         {
             _ = GetMongoQueryable<Person>().Where(p => p.Name == "Jo" + "e");
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : varConstant0, \"Vehicle.VehicleType.Type\" : varConstant0 } }])")]
+        // VS-166
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : varConstant0, \"Vehicle.VehicleType.Type\" : varConstant0 } }])")]
         public void Constants_replacing_interfering_with_enum_default()
         {
-            int varConstant0 = 0;
+            int varConstant0 = 1;
 
             _ = GetMongoQueryable<Person>().Where(p =>
                 p.SiblingsCount == varConstant0 &&
-                p.Vehicle.VehicleType.Type == VehicleTypeEnum.Bus);
+                p.Vehicle.VehicleType.Type == VehicleTypeEnum.Car);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : StaticHolder.Person.Name, \"Vehicle.LicenceNumber\" : StaticHolder.Person.Vehicle.LicenceNumber, \"Vehicle.VehicleType.MPG\" : StaticHolder.Person.Vehicle.VehicleType.MPG } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : StaticHolder.Person.Name, \"Vehicle.LicenceNumber\" : StaticHolder.Person.Vehicle.LicenceNumber, \"Vehicle.VehicleType.MPG\" : StaticHolder.Person.Vehicle.VehicleType.MPG } }])")]
         public void Custom_typed_properties_defined_in_static_class_in_expression()
         {
             _ = GetMongoQueryable<Person>().Where(p =>
@@ -117,7 +118,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Vehicle.VehicleType.MPG == StaticHolder.Person.Vehicle.VehicleType.MPG);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : personA.Name, \"Vehicle.VehicleType.Type\" : personA.Vehicle.VehicleType.Type, \"Vehicle.VehicleType.MPG\" : personA.Vehicle.VehicleType.MPG } }, { \"$match\" : { \"Name\" : personB.Name, \"Vehicle.VehicleType.Type\" : personB.Vehicle.VehicleType.Type, \"SiblingsCount\" : personB.SiblingsCount, \"TicksSinceBirth\" : NumberLong(personB.TicksSinceBirth) } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : personA.Name, \"Vehicle.VehicleType.Type\" : personA.Vehicle.VehicleType.Type, \"Vehicle.VehicleType.MPG\" : personA.Vehicle.VehicleType.MPG } }, { \"$match\" : { \"Name\" : personB.Name, \"Vehicle.VehicleType.Type\" : personB.Vehicle.VehicleType.Type, \"SiblingsCount\" : personB.SiblingsCount, \"TicksSinceBirth\" : personB.TicksSinceBirth } }])")]
         public void Custom_types_variables_referenced_in_expression()
         {
             var personA = new Person();
@@ -135,7 +136,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                     p.TicksSinceBirth == personB.TicksSinceBirth);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : count1 + count2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : count1 + count2 } }])")]
         public void Dynamic_expressions_referenced_in_expression_1()
         {
             var count1 = 1;
@@ -143,7 +144,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<Person>().Where(p => p.SiblingsCount == count1 + count2);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : count1 + (count2 + 2) >> 12 + count3 - 123 * count4 + 0 - count5 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : count1 + (count2 + 2) >> 12 + count3 - 123 * count4 + 0 - count5 } }])")]
         public void Dynamic_expressions_referenced_in_expression_2()
         {
             var count1 = 1;
@@ -154,14 +155,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<Person>().Where(p => p.SiblingsCount == count1 + (count2 + 2) >> 12 + count3 - 123 * count4 + 0 - count5);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : count1 + _fieldDouble + PropertyDouble - 0 + 9 + _fieldPerson.SiblingsCount } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : count1 + _fieldDouble + PropertyDouble - 0 + 9 + _fieldPerson.SiblingsCount } }])")]
         public void Dynamic_expressions_referenced_in_expression_3()
         {
             var count1 = 1;
             _ = GetMongoQueryable<Person>().Where(p => p.SiblingsCount == count1 + _fieldDouble + PropertyDouble - 0 + 9 + _fieldPerson.SiblingsCount);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : Add(Add(count1 + 2, count2), 2) + Add(count3, count3) + 2 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : Add(Add(count1 + 2, count2), 2) + Add(count3, count3) + 2 } }])")]
         public void Dynamic_expressions_referenced_in_expression_4()
         {
             // Binary expression is top most
@@ -171,7 +172,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<Person>().Where(p => p.SiblingsCount == Add(Add(count1 + 2, count2), 2) + Add(count3, count3) + 2);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : Add(Add(count1 + 2, count2) + Add(count3, count3), 123) } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : Add(Add(count1 + 2, count2) + Add(count3, count3), 123) } }])")]
         public void Dynamic_expressions_referenced_in_expression_5()
         {
             // Method invocation is top most
@@ -181,7 +182,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<Person>().Where(p => p.SiblingsCount == Add(Add(count1 + 2, count2) + Add(count3, count3), 123));
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"SiblingsCount\" : GetThis().Add(Add(count1 + 2, count2) + GetThis().Add(count3, count3), GetThis()._fieldInt) } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"SiblingsCount\" : GetThis().Add(Add(count1 + 2, count2) + GetThis().Add(count3, count3), GetThis()._fieldInt) } }])")]
         public void Dynamic_expressions_referenced_in_expression_6()
         {
             // Method invocation is top most
@@ -191,7 +192,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<Person>().Where(p => p.SiblingsCount == GetThis().Add(Add(count1 + 2, count2) + GetThis().Add(count3, count3), GetThis()._fieldInt));
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : GetThis().Concate(Concate(str1 + \"123\", str2) + GetThis().Concate(str2, GetThis().PropertyString), GetThis()._fieldString) } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : GetThis().Concate(Concate(str1 + \"123\", str2) + GetThis().Concate(str2, GetThis().PropertyString), GetThis()._fieldString) } }])")]
         public void Dynamic_expressions_referenced_in_expression_7()
         {
             // Method invocation is top most
@@ -200,7 +201,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<Person>().Where(p => p.Name == GetThis().Concate(Concate(str1 + "123", str2) + GetThis().Concate(str2, GetThis().PropertyString), GetThis()._fieldString));
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : _fieldPerson.Name, \"LastName\" : _fieldString, \"Address.City\" : _fieldPerson.Address.City, \"Vehicle.VehicleType.MPG\" : _fieldDouble } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : _fieldPerson.Name, \"LastName\" : _fieldString, \"Address.City\" : _fieldPerson.Address.City, \"Vehicle.VehicleType.MPG\" : _fieldDouble } }])")]
         public void Local_field_reference()
         {
             _ = GetMongoQueryable<Person>().Where(p =>
@@ -210,7 +211,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Vehicle.VehicleType.MPG == _fieldDouble);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : PropertyPerson.Name, \"LastName\" : PropertyString, \"Address.City\" : PropertyPerson.Address.City, \"Vehicle.VehicleType.MPG\" : PropertyDouble } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : PropertyPerson.Name, \"LastName\" : PropertyString, \"Address.City\" : PropertyPerson.Address.City, \"Vehicle.VehicleType.MPG\" : PropertyDouble } }])")]
         public void Local_property_reference()
         {
             _ = GetMongoQueryable<Person>().Where(p =>
@@ -220,7 +221,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Vehicle.VehicleType.MPG == PropertyDouble);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : objA.GetString() }, { \"Name\" : objB.GetString() }, { \"Address.City\" : objA.GetString(\"AddressA\", 123) }, { \"Address.City\" : objB.GetString(\"AddressB\", 321) }, { \"Address.City\" : objA.GetSelf().GetSelf().GetString(\"Address\", 123) }, { \"Vehicle.VehicleType.VehicleMake.Name\" : objA.GetSelf().GetSelf(\"random\").GetSelf().GetPerson(\"Bob\").Vehicle.VehicleType.VehicleMake.Name }, { \"Vehicle.VehicleType.Type\" : objA.GetSelf().GetPerson().Vehicle.VehicleType.Type }, { \"Vehicle.VehicleType.Type\" : objB.GetSelf().GetSelf().GetPerson(\"NewName\").Vehicle.VehicleType.Type }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : objA.GetString() }, { \"Name\" : objB.GetString() }, { \"Address.City\" : objA.GetString(\"AddressA\", 123) }, { \"Address.City\" : objB.GetString(\"AddressB\", 321) }, { \"Address.City\" : objA.GetSelf().GetSelf().GetString(\"Address\", 123) }, { \"Vehicle.VehicleType.VehicleMake.Name\" : objA.GetSelf().GetSelf(\"random\").GetSelf().GetPerson(\"Bob\").Vehicle.VehicleType.VehicleMake.Name }, { \"Vehicle.VehicleType.Type\" : objA.GetSelf().GetPerson().Vehicle.VehicleType.Type }, { \"Vehicle.VehicleType.Type\" : objB.GetSelf().GetSelf().GetPerson(\"NewName\").Vehicle.VehicleType.Type }] } }])")]
         public void Method_from_local_variable_referenced_in_expression()
         {
             var objA = new ClassWithMethods();
@@ -237,7 +238,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Vehicle.VehicleType.Type == objB.GetSelf().GetSelf().GetPerson("NewName").Vehicle.VehicleType.Type);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"$or\" : [{ \"Name\" : GetName() }, { \"Name\" : GetName(\"Smith\", 12) }], \"Vehicle.VehicleType.MPG\" : GetMpg(), \"TicksSinceBirth\" : NumberLong(GetPerson(13).TicksSinceBirth), \"Vehicle.VehicleType.Type\" : GetPerson().Vehicle.VehicleType.Type }, { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum() }, { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum(VehicleTypeEnum.Bus) }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"$and\" : [{ \"$or\" : [{ \"Name\" : GetName() }, { \"Name\" : GetName(\"Smith\", 12) }] }, { \"Vehicle.VehicleType.MPG\" : GetMpg() }, { \"TicksSinceBirth\" : GetPerson(13).TicksSinceBirth }, { \"Vehicle.VehicleType.Type\" : GetPerson().Vehicle.VehicleType.Type }] }, { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum() }, { \"Vehicle.VehicleType.Type\" : GetVehicleTypeEnum(VehicleTypeEnum.Bus) }] } }])")]
         public void Method_referenced_in_expression()
         {
             _ = GetMongoQueryable<Person>()
@@ -250,7 +251,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                     p.Vehicle.VehicleType.Type == GetVehicleTypeEnum(VehicleTypeEnum.Bus));
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : person.Name }, { \"SiblingsCount\" : person.SiblingsCount }, { \"Vehicle.VehicleType.Type\" : person.Vehicle.VehicleType.Type }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : person.Name }, { \"SiblingsCount\" : person.SiblingsCount }, { \"Vehicle.VehicleType.Type\" : person.Vehicle.VehicleType.Type }] } }])")]
         public void Methods_with_custom_type_parameters(Person person)
         {
             _ = GetMongoQueryable<Person>().Where(p =>
@@ -259,7 +260,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Vehicle.VehicleType.Type == person.Vehicle.VehicleType.Type);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : genericType.DataT2, \"Address.City\" : genericType.DataT3.Address.City, \"Vehicle.LicenceNumber\" : genericType.DataT3.Vehicle.LicenceNumber, \"Vehicle.VehicleType.Type\" : genericType.DataT4 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : genericType.DataT2, \"Address.City\" : genericType.DataT3.Address.City, \"Vehicle.LicenceNumber\" : genericType.DataT3.Vehicle.LicenceNumber, \"Vehicle.VehicleType.Type\" : genericType.DataT4 } }])")]
         public void Methods_with_generic_type_parameters(MultipleTypeGeneric<int, string, Person, VehicleTypeEnum> genericType)
         {
             _ = GetMongoQueryable<Person>().Where(p =>
@@ -269,7 +270,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Vehicle.VehicleType.Type == genericType.DataT4);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : stringParam1 }, { \"SiblingsCount\" : intParam }, { \"SiblingsCount\" : longParam }, { \"Vehicle.VehicleType.Type\" : enumParam }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"Name\" : stringParam1 }, { \"SiblingsCount\" : intParam }, { \"SiblingsCount\" : longParam }, { \"Vehicle.VehicleType.Type\" : enumParam }] } }])")]
         public void Methods_with_simple_type_parameters(int intParam, string stringParam1, VehicleTypeEnum enumParam, long longParam)
         {
             _ = GetMongoQueryable<Person>().Where(p =>
@@ -279,21 +280,21 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Vehicle.VehicleType.Type == enumParam);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Point.X\" : 1 }, { \"Rectangle.Width\" : 123 }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"Point.X\" : 1 }, { \"Rectangle.Width\" : 123 }] } }])")]
         public void Poco_containing_system_types()
         {
             _ = GetMongoQueryable<ClassWithSystemTypes>().Where(o =>
                 o.Point.X == 1 || o.Rectangle.Width == 123);
         }
 
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1, 1] }, GetPerson().SiblingsCount] } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1, 1] }, GetPerson().SiblingsCount] } } }])")]
         public void Property_transformation_variable()
         {
             var count1 = 1;
             _ = GetMongoQueryable<Person>().Where(u => u.SiblingsCount + count1 + 1 == GetPerson().SiblingsCount);
         }
 
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1, 1] }, { \"$add\" : [\"$SiblingsCount\", count2] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"_prefix\", \"$Name\", \"_suffix\"] }, { \"$concat\" : [suffix, \"$Name\", prefix] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\"] }, { \"$concat\" : [\"$LastName\", Concate(prefix, Concate(prefix, suffix))] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\", Concate(\"abc\", suffix)] }, { \"$concat\" : [Concate(\"bca\", prefix), \"$LastName\", { \"$toString\" : \"$SiblingsCount\" }, suffix] }] } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1, 1] }, { \"$add\" : [\"$SiblingsCount\", count2] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"_prefix\", \"$Name\", \"_suffix\"] }, { \"$concat\" : [suffix, \"$Name\", prefix] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\"] }, { \"$concat\" : [\"$LastName\", Concate(prefix, Concate(prefix, suffix))] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\", Concate(\"abc\", suffix)] }, { \"$concat\" : [Concate(\"bca\", prefix), \"$LastName\", { \"$toString\" : \"$SiblingsCount\" }, suffix] }] } } }])")]
         public void Property_transformation_variable_2()
         {
             var count1 = 1;
@@ -308,7 +309,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(u => prefix + u.Name + Concate("abc", suffix) == Concate("bca", prefix) + u.LastName + u.SiblingsCount.ToString() + suffix);
         }
 
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1] }, { \"$add\" : [\"$SiblingsCount\", { \"$strLenCP\" : \"$Vehicle.LicenceNumber\" }, { \"$strLenCP\" : \"$LastName\" }] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [count2, \"$SiblingsCount\", count1, 1] }, { \"$subtract\" : [Add(count1, count2), { \"$divide\" : [{ \"$multiply\" : [\"$SiblingsCount\", { \"$strLenCP\" : \"$Vehicle.LicenceNumber\" }] }, { \"$strLenCP\" : \"$LastName\" }] }] }] } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1] }, { \"$add\" : [\"$SiblingsCount\", { \"$strLenCP\" : \"$Vehicle.LicenceNumber\" }, { \"$strLenCP\" : \"$LastName\" }] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [count2, \"$SiblingsCount\", count1, 1] }, { \"$subtract\" : [Add(count1, count2), { \"$divide\" : [{ \"$multiply\" : [\"$SiblingsCount\", { \"$strLenCP\" : \"$Vehicle.LicenceNumber\" }] }, { \"$strLenCP\" : \"$LastName\" }] }] }] } } }])")]
         public void Property_transformation_variable_3()
         {
             var count1 = 1;
@@ -319,7 +320,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Where(u => count2 + u.SiblingsCount + count1 + 1 == Add(count1, count2) - u.SiblingsCount * u.Vehicle.LicenceNumber.Length / u.LastName.Length);
         }
 
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$and\" : [{ \"$expr\" : { \"$lte\" : [{ \"$add\" : [\"$SiblingsCount\", { \"$strLenCP\" : \"$LastName\" }, count2] }, { \"$add\" : [\"$SiblingsCount\", GetPerson().SiblingsCount * _fieldPerson.TicksSinceBirth * count1] }] } }, { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"$Name\", _fieldPerson.LastName, count2.ToString()] }, { \"$concat\" : [Concate(_fieldPerson.Name, _fieldPerson.LastName) + \"suffix\", \"$Address.City\"] }] } }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$and\" : [{ \"$expr\" : { \"$lte\" : [{ \"$add\" : [\"$SiblingsCount\", { \"$strLenCP\" : \"$LastName\" }, count2] }, { \"$add\" : [\"$SiblingsCount\", GetPerson().SiblingsCount * _fieldPerson.TicksSinceBirth * count1] }] } }, { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"$Name\", _fieldPerson.LastName, count2.ToString()] }, { \"$concat\" : [Concate(_fieldPerson.Name, _fieldPerson.LastName) + \"suffix\", \"$Address.City\"] }] } }] } }])")]
         public void Property_transformation_variable_4()
         {
             var count1 = 1;
@@ -330,14 +331,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 u.Name + _fieldPerson.LastName + count2.ToString() == Concate(_fieldPerson.Name, _fieldPerson.LastName) + "suffix" + u.Address.City);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"BsonType\" : 1 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"BsonType\" : 1 } }])")]
         public void Query_containing_bson_type_enum()
         {
             _ = GetMongoQueryable<ClassWithBsonTypes>().Where(o =>
                 o.BsonType == BsonType.Double);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Nested.Nested.Point.X\" : Point.Empty.X }, { \"Nested.Point.Y\" : 123 }, { \"Nested.Point.X\" : GetDrawingPoint().X }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"Nested.Nested.Point.X\" : Point.Empty.X }, { \"Nested.Point.Y\" : 123 }, { \"Nested.Point.X\" : GetDrawingPoint().X }] } }])")]
         public void Query_containing_system_types()
         {
             _ = GetMongoQueryable<ClassWithSystemTypes>().Where(o =>
@@ -346,7 +347,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 o.Nested.Point.X == GetDrawingPoint().X);
         }
 
-        [MQLLinq3("db.coll.Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1, 1] }, { \"$add\" : [\"$SiblingsCount\", count2] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"_prefix\", \"$Name\", \"_suffix\"] }, { \"$concat\" : [suffix, \"$Name\", prefix] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\"] }, { \"$concat\" : [\"$LastName\", Concate(prefix, Concate(prefix, suffix))] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\", Concate(\"abc\", suffix)] }, { \"$concat\" : [Concate(\"bca\", prefix), \"$LastName\", { \"$toString\" : \"$SiblingsCount\" }, suffix] }] } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$add\" : [\"$SiblingsCount\", count1, 1] }, { \"$add\" : [\"$SiblingsCount\", count2] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [\"_prefix\", \"$Name\", \"_suffix\"] }, { \"$concat\" : [suffix, \"$Name\", prefix] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\"] }, { \"$concat\" : [\"$LastName\", Concate(prefix, Concate(prefix, suffix))] }] } } }, { \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$concat\" : [prefix, \"$Name\", Concate(\"abc\", suffix)] }, { \"$concat\" : [Concate(\"bca\", prefix), \"$LastName\", { \"$toString\" : \"$SiblingsCount\" }, suffix] }] } } }])")]
         public void Query_syntax()
         {
             var count1 = 1;
@@ -362,7 +363,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select person;
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : StaticHolder.ReadonlyByte }, { \"SiblingsCount\" : StaticHolder.ReadonlyShort }, { \"SiblingsCount\" : StaticHolder.ReadonlyInt }, { \"TicksSinceBirth\" : NumberLong(StaticHolder.ReadonlyLong) }, { \"Name\" : StaticHolder.ReadonlyString }, { \"Name\" : DataModel.StaticHolder.ReadonlyString }, { \"Name\" : DataModel.StaticHolder.ReadonlyString2 }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyString }, { \"Vehicle.VehicleType.Type\" : StaticHolder.ReadonlyEnum }, { \"Vehicle.VehicleType.MPG\" : StaticHolder.ReadonlyDouble }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : StaticHolder.ReadonlyByte }, { \"SiblingsCount\" : StaticHolder.ReadonlyShort }, { \"SiblingsCount\" : StaticHolder.ReadonlyInt }, { \"TicksSinceBirth\" : StaticHolder.ReadonlyLong }, { \"Name\" : StaticHolder.ReadonlyString }, { \"Name\" : DataModel.StaticHolder.ReadonlyString }, { \"Name\" : DataModel.StaticHolder.ReadonlyString2 }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.ReadonlyString }, { \"Vehicle.VehicleType.Type\" : StaticHolder.ReadonlyEnum }, { \"Vehicle.VehicleType.MPG\" : StaticHolder.ReadonlyDouble }] } }])")]
         public void Readonly_values_defined_in_static_class_in_expression()
         {
             _ = GetMongoQueryable<Person>().Where(p =>
@@ -378,7 +379,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Vehicle.VehicleType.MPG == StaticHolder.ReadonlyDouble);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : name, \"Vehicle.VehicleType.Type\" : vehicleTypeEnum, \"Vehicle.VehicleType.MPG\" : mpg } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : name, \"Vehicle.VehicleType.Type\" : vehicleTypeEnum, \"Vehicle.VehicleType.MPG\" : mpg } }])")]
         public void Simple_local_variables_referenced_in_expression()
         {
             var name = "Alice";
@@ -391,7 +392,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 p.Vehicle.VehicleType.MPG == mpg);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : StaticHolder.PropByte }, { \"SiblingsCount\" : StaticHolder.PropShort }, { \"SiblingsCount\" : StaticHolder.PropInt }, { \"TicksSinceBirth\" : NumberLong(StaticHolder.PropLong) }, { \"Name\" : StaticHolder.PropString }, { \"Name\" : DataModel.StaticHolder.PropString }, { \"Name\" : DataModel.StaticHolder.PropString2 }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString2 }, { \"Vehicle.VehicleType.Type\" : StaticHolder.PropEnum }, { \"Vehicle.VehicleType.MPG\" : StaticHolder.PropDouble }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"SiblingsCount\" : StaticHolder.PropByte }, { \"SiblingsCount\" : StaticHolder.PropShort }, { \"SiblingsCount\" : StaticHolder.PropInt }, { \"TicksSinceBirth\" : StaticHolder.PropLong }, { \"Name\" : StaticHolder.PropString }, { \"Name\" : DataModel.StaticHolder.PropString }, { \"Name\" : DataModel.StaticHolder.PropString2 }, { \"Name\" : MongoDB.Analyzer.Tests.Common.DataModel.StaticHolder.PropString2 }, { \"Vehicle.VehicleType.Type\" : StaticHolder.PropEnum }, { \"Vehicle.VehicleType.MPG\" : StaticHolder.PropDouble }] } }])")]
         public void Simple_typed_properties_defined_in_static_class_in_expression()
         {
             _ = GetMongoQueryable<Person>().Where(p =>
@@ -424,8 +425,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         private string GetName(string suffix, int count) => "Alice " + suffix + count;
 
         private double GetMpg() => 123.123;
-        private VehicleTypeEnum GetVehicleTypeEnum() => VehicleTypeEnum.Motorcylce;
-        private VehicleTypeEnum GetVehicleTypeEnum(VehicleTypeEnum vehicleTypeEnum) => VehicleTypeEnum.Motorcylce;
+        private VehicleTypeEnum GetVehicleTypeEnum() => VehicleTypeEnum.Motorcycle;
+        private VehicleTypeEnum GetVehicleTypeEnum(VehicleTypeEnum vehicleTypeEnum) => VehicleTypeEnum.Motorcycle;
 
         private Point GetDrawingPoint() => new(1, 2);
 

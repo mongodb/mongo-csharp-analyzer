@@ -33,8 +33,6 @@ internal static class MqlGeneratorSyntaxElements
     internal static class Linq
     {
         public const string GetDriverVersion = nameof(GetDriverVersion);
-        public const string IQueryableProviderV2 = nameof(IQueryableProviderV2);
-        public const string IQueryableProviderV3 = nameof(IQueryableProviderV3);
         public const string LinqMethodName = "Where";
 
         public const string MqlGenerator = nameof(MqlGenerator);

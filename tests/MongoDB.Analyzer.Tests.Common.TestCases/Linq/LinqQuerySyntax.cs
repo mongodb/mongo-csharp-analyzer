@@ -22,9 +22,9 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqQuerySyntax: TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : NameComposer(firstName, lastName) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : DoubleAge(ageParameter) } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Height\" : DoubleHeight(25) } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : NameComposer(firstName, lastName) } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Age\" : DoubleAge(ageParameter) } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Height\" : DoubleHeight(25) } }])")]
         public void Method_invocations()
         {
             var firstName = "John";
@@ -44,8 +44,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 select user;
         }
 
-        [MQL("aggregate([{ \"$project\" : { \"PersonsList\" : { \"$map\" : { \"input\" : { \"$filter\" : { \"input\" : \"$PesonsList\", \"as\" : \"person\", \"cond\" : { \"$lt\" : [\"$$person.SiblingsCount\", 2] } } }, \"as\" : \"person\", \"in\" : { \"Name\" : \"$$person.Name\", \"Address\" : \"$$person.Address\" } } }, \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"IntIList.9\" : { \"$exists\" : true } } }, { \"$match\" : { \"PesonsList.14\" : { \"$exists\" : true } } }, { \"$project\" : { \"ListsHolder\" : { \"$map\" : { \"input\" : { \"$filter\" : { \"input\" : \"$NestedListsHolderList\", \"as\" : \"nestedListsHolder\", \"cond\" : { \"$and\" : [{ \"$eq\" : [{ \"$size\" : \"$$nestedListsHolder.IntIList\" }, { \"$size\" : \"$$nestedListsHolder.IntIList\" }] }, { \"$eq\" : [{ \"$size\" : \"$$nestedListsHolder.PesonsList\" }, { \"$size\" : \"$$nestedListsHolder.PesonsList\" }] }] } } }, \"as\" : \"nestedListsHolder\", \"in\" : { \"PersonsList\" : \"$$nestedListsHolder.PesonsList\", \"IntList\" : \"$$nestedListsHolder.IntIList\" } } }, \"People\" : { \"$filter\" : { \"input\" : \"$PesonsList\", \"as\" : \"person\", \"cond\" : { \"$and\" : [{ \"$lte\" : [\"$$person.SiblingsCount\", maxSiblings] }, { \"$and\" : [{ \"$eq\" : [\"$$person.Vehicle.VehicleType.Type\", 1] }, { \"$eq\" : [\"$$person.Vehicle.VehicleType.Category\", vehicleCategory] }] }] } } }, \"_id\" : maxSiblings } }])")]
+        [MQL("Aggregate([{ \"$project\" : { \"PersonsList\" : { \"$map\" : { \"input\" : { \"$filter\" : { \"input\" : \"$PesonsList\", \"as\" : \"person\", \"cond\" : { \"$lt\" : [\"$$person.SiblingsCount\", 2] } } }, \"as\" : \"person\", \"in\" : { \"Name\" : \"$$person.Name\", \"Address\" : \"$$person.Address\" } } }, \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"IntIList.9\" : { \"$exists\" : true } } }, { \"$match\" : { \"PesonsList.14\" : { \"$exists\" : true } } }, { \"$project\" : { \"ListsHolder\" : { \"$map\" : { \"input\" : { \"$filter\" : { \"input\" : \"$NestedListsHolderList\", \"as\" : \"nestedListsHolder\", \"cond\" : { \"$and\" : [{ \"$eq\" : [{ \"$size\" : \"$$nestedListsHolder.IntIList\" }, { \"$size\" : \"$IntIList\" }] }, { \"$eq\" : [{ \"$size\" : \"$$nestedListsHolder.PesonsList\" }, { \"$size\" : \"$PesonsList\" }] }] } } }, \"as\" : \"nestedListsHolder\", \"in\" : { \"PersonsList\" : \"$$nestedListsHolder.PesonsList\", \"IntList\" : \"$$nestedListsHolder.IntIList\" } } }, \"People\" : { \"$filter\" : { \"input\" : { \"$filter\" : { \"input\" : { \"$filter\" : { \"input\" : \"$PesonsList\", \"as\" : \"person\", \"cond\" : { \"$lte\" : [\"$$person.SiblingsCount\", maxSiblings] } } }, \"as\" : \"person\", \"cond\" : { \"$eq\" : [\"$$person.Vehicle.VehicleType.Type\", 0] } } }, \"as\" : \"person\", \"cond\" : { \"$eq\" : [\"$$person.Vehicle.VehicleType.Category\", vehicleCategory] } } }, \"_id\" : 0 } }])")]
         public void Nested_LINQ_Query()
         {
             var maxSiblings = 22;
@@ -76,17 +76,17 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                                   },
                     People = from person in listsHolder.PesonsList
                              where person.SiblingsCount <= maxSiblings
-                             where person.Vehicle.VehicleType.Type == VehicleTypeEnum.Car
+                             where person.Vehicle.VehicleType.Type == VehicleTypeEnum.Bus
                              where person.Vehicle.VehicleType.Category == vehicleCategory
                              select person
                 };
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : user.Age, \"LastName\" : person.Address.City } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Age\" : 22, \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$and\" : [{ \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] }, { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] }] } }, { \"$project\" : { \"Age\" : \"$Age\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] } }, { \"$match\" : { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }, { \"$project\" : { \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"_id\" : 0 } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] } }, { \"$match\" : { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }, { \"$match\" : { \"Address\" : /^Drive/s } }, { \"$project\" : { \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Age\" : user.Age, \"LastName\" : person.Address.City } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$and\" : [{ \"Age\" : 22 }, { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] }] } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$and\" : [{ \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] }, { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] }] } }, { \"$project\" : { \"_v\" : \"$Age\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] } }, { \"$match\" : { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }, { \"$project\" : { \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"_id\" : 0 } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$or\" : [{ \"Age\" : 22 }, { \"Age\" : 25 }] } }, { \"$match\" : { \"$or\" : [{ \"LastName\" : \"Doe\" }, { \"Name\" : \"John\" }] } }, { \"$match\" : { \"Address\" : { \"$regularExpression\" : { \"pattern\" : \"^Drive\", \"options\" : \"s\" } } } }, { \"$project\" : { \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"Name\" : \"$Name\", \"_id\" : 0 } }])")]
         public void Simple_Linq_queries()
         {
             User user = new User();

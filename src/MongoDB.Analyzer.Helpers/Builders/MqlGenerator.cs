@@ -27,6 +27,7 @@ namespace MongoDB.Analyzer.Helpers.Builders
         private static readonly Int32 s_dummyRef1; // using System
         private static readonly BsonType s_dummyRef2; // using MongoDB.Bson
         private static readonly TimeSpanUnits s_dummyRef3; // using MongoDB.Bson.Serialization.Option
+        private static readonly IQueryable<int> s_dummyRef4; // using System.Linq
 #pragma warning restore IDE0051 // These fields are never used, they are needed to ensure that the relevant usings are not accidently removed
 #pragma warning restore CS0169
 
@@ -36,7 +37,6 @@ namespace MongoDB.Analyzer.Helpers.Builders
         }
 
         public static string GetDriverVersion() => typeof(Builders<>).Assembly.GetName().Version.ToString(3);
-        public static int[] LinqReference => Enumerable.Range(1, 10).ToArray();
 
         public static string GetMQL()
         {

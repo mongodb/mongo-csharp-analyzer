@@ -22,16 +22,16 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
 {
     public sealed class LinqNullForgivingOperators : TestCasesBase
     {
-        [MQL("aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"StringField\" : \"value\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\" } }])")]
         public void Identifier()
         {
             _ = GetMongoQueryable<ClassWithObjectId>().Where(c => c!.StringField == "value");
             _ = GetMongoQueryable<User>().Where(u => u!.Name == "Bob");
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"FieldString\" : \"Bob\", \"PropertyArray.0\" : 1 } }, { \"$match\" : { \"FieldMixedDataMembers.FieldString\" : \"Alice\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"StringField\" : null } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"FieldString\" : \"Bob\", \"PropertyArray.0\" : 1 } }, { \"$match\" : { \"FieldMixedDataMembers.FieldString\" : \"Alice\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"StringField\" : null } }])")]
         public void Literals()
         {
             _ = GetMongoQueryable<MixedDataMembers>()
@@ -41,8 +41,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<ClassWithObjectId>().Where(c => c.StringField == null!);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : GetNullableString() } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : name } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : GetNullableString() } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : name } }])")]
         public void Methods()
         {
             _ = GetMongoQueryable<User>().Where(u => u.Name == GetNullableString()!);
@@ -51,13 +51,13 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<User>().Where(u => u.Name == name!);
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Address.City\" : \"Boston\" } }])")]
         public void Nested()
         {
             _ = GetMongoQueryable<Person>().Where(p => p!.Address!.City! == "Boston");
@@ -69,14 +69,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
             _ = GetMongoQueryable<Person>().Where(p => p!.Address.City == "Boston");
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : \"Bob\" } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : \"Bob\" } }])")]
         public void Property()
         {
             _ = GetMongoQueryable<User>().Where(u => u.Name! == "Bob");
         }
 
-        [MQL("aggregate([{ \"$match\" : { \"Name\" : name } }])")]
-        [MQL("aggregate([{ \"$match\" : { \"LastName\" : lastName } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"Name\" : name } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"LastName\" : lastName } }])")]
         public void Variables()
         {
             string? name = "name";

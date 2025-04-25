@@ -98,15 +98,6 @@ internal static class DiagnosticsRules
         isEnabledByDefault: true,
         helpLinkUri: GetRuleUrl(DiagnosticIdNotSupportedLinqExpression));
 
-    public static DiagnosticDescriptor DiagnosticRuleNotSupportedLinq2Expression { get; } = new DiagnosticDescriptor(
-         id: DiagnosticIdNotSupportedLinq2Expression,
-         title: "Not supported LINQ2 expression",
-         messageFormat: "Supported in LINQ3 only: {0}",
-         category: LinqCategory,
-         defaultSeverity: DiagnosticSeverity.Warning,
-         isEnabledByDefault: true,
-         helpLinkUri: GetRuleUrl(DiagnosticIdNotSupportedLinq2Expression));
-
     // POCO
     public static DiagnosticDescriptor DiagnosticRulePoco2Json { get; } = new DiagnosticDescriptor(
         id: DiagnosticIdPoco2Json,
@@ -139,7 +130,6 @@ internal static class DiagnosticsRules
             // LINQ
             DiagnosticRuleLinq2MQL,
             DiagnosticRuleNotSupportedLinqExpression,
-            DiagnosticRuleNotSupportedLinq2Expression,
 
             // POCO
             DiagnosticRulePoco2Json,

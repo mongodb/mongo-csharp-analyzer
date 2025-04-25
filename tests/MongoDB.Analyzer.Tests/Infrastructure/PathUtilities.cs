@@ -13,8 +13,6 @@
 // limitations under the License.
 
 using System.IO;
-using MongoDB.Analyzer.Tests.Common;
-using NuGet.Versioning;
 
 namespace MongoDB.Analyzer.Tests.Infrastructure;
 
@@ -25,8 +23,7 @@ internal static class PathUtilities
     private static readonly string s_projectParentFolderPrefix = Path.Combine("..", "..", "..", "..");
     private static readonly string s_testCasesPath = GetFullPathRelativeToParent(s_testCasesBaseFolder);
 
-    public static string TestDataModelAssemblyPathDriver_2_27_OrLower { get; } = GetFullPathRelativeToParent("MongoDB.Analyzer.Tests.Common.ClassLibrary", "bin", "DRIVER_2_27_OR_LOWER", "netstandard2.0", "MongoDB.Analyzer.Tests.Common.ClassLibrary");
-    public static string TestDataModelAssemblyPathDriver_2_28_OrGreater { get; } = GetFullPathRelativeToParent("MongoDB.Analyzer.Tests.Common.ClassLibrary", "bin", "DRIVER_2_28_OR_GREATER", "netstandard2.0", "MongoDB.Analyzer.Tests.Common.ClassLibrary");
+    public static string TestDataModelAssemblyPathDriver { get; } = GetFullPathRelativeToParent("MongoDB.Analyzer.Tests.Common.ClassLibrary", "bin", "Debug", "netstandard2.0", "MongoDB.Analyzer.Tests.Common.ClassLibrary");
     public static string NugetConfigPath { get; } = GetFullPathRelativeToParent("..", "nuget.config");
 
     public static string GetTestCaseFileFullPathFromName(string testCaseFullyQualifiedName)
@@ -40,9 +37,9 @@ internal static class PathUtilities
         return result;
     }
 
-    public static string GetTestDataModelAssemblyPath(string driverVersion)
+    public static string GetTestDataModelAssemblyPath()
     {
-        var testDataModelAssembly = IsDriverVersion_2_28_OrGreater(driverVersion) ? TestDataModelAssemblyPathDriver_2_28_OrGreater : TestDataModelAssemblyPathDriver_2_27_OrLower;
+        var testDataModelAssembly = TestDataModelAssemblyPathDriver;
 
         if (!File.Exists($"{testDataModelAssembly}.dll"))
         {
@@ -54,6 +51,4 @@ internal static class PathUtilities
 
     private static string GetFullPathRelativeToParent(params string[] pathComponents) =>
         Path.GetFullPath(Path.Combine(s_projectParentFolderPrefix, pathComponents.Length == 1 ? pathComponents[0] : Path.Combine(pathComponents)));
-
-    private static bool IsDriverVersion_2_28_OrGreater(string driverVersion) => VersionRange.Parse(DriverVersions.V2_28_OrGreater).Satisfies(NuGetVersion.Parse(driverVersion));
 }

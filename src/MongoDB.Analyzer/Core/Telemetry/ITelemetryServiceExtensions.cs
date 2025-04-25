@@ -44,7 +44,7 @@ internal static class ITelemetryServiceExtensions
                 ("output_platform", (csharpOptions?.Platform)?.ToString() ?? "Unknown"),
                 ("lang_version", (csharpCompilation?.LanguageVersion)?.ToString() ?? "Unknown"),
                 ("syntax_tree_length", semanticModelAnalysisContext.SemanticModel.SyntaxTree.Length),
-                ("linq_version", settings.DefaultLinqVersion?.ToString()),
+                ("linq_version", "V3"),
                 ("poco_analysis_verbosity", settings.PocoAnalysisVerbosity.ToString()),
                 ("poco_limit", settings.PocoLimit.ToString()),
                 ("logs_enabled", settings.OutputInternalLogsToFile),

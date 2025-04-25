@@ -21,37 +21,37 @@ namespace MongoDB.Analyzer.Helpers.Builders
     {
         public static string Render<T>(FilterDefinition<T> filterDefinition)
         {
-            var renderedBuildersDefinition = filterDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
+            var renderedBuildersDefinition = filterDefinition.Render(GetRenderArgs<T>());
             return renderedBuildersDefinition.ToString();
         }
 
         public static string Render<T>(UpdateDefinition<T> updateDefinition)
         {
-            var renderedBuildersDefinition = updateDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
+            var renderedBuildersDefinition = updateDefinition.Render(GetRenderArgs<T>());
             return renderedBuildersDefinition.ToString();
         }
 
         public static string Render<T>(SortDefinition<T> sortDefinition)
         {
-            var renderedBuildersDefinition = sortDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
+            var renderedBuildersDefinition = sortDefinition.Render(GetRenderArgs<T>());
             return renderedBuildersDefinition.ToString();
         }
 
         public static string Render<T>(IndexKeysDefinition<T> indexDefinition)
         {
-            var renderedBuildersDefinition = indexDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
+            var renderedBuildersDefinition = indexDefinition.Render(GetRenderArgs<T>());
             return renderedBuildersDefinition.ToString();
         }
 
         public static string Render<T>(ProjectionDefinition<T> projectionDefinition)
         {
-            var renderedBuildersDefinition = projectionDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
+            var renderedBuildersDefinition = projectionDefinition.Render(GetRenderArgs<T>());
             return renderedBuildersDefinition.ToString();
         }
 
         public static string Render<T, E>(ProjectionDefinition<T, E> projectionDefinition)
         {
-            var renderedBuildersDefinition = projectionDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
+            var renderedBuildersDefinition = projectionDefinition.Render(GetRenderArgs<T>());
             return renderedBuildersDefinition.Document.ToString();
         }
 
@@ -60,19 +60,12 @@ namespace MongoDB.Analyzer.Helpers.Builders
             return fluentDefinition.ToString();
         }
 
-#if DRIVER_2_21_OR_GREATER
         public static string Render<T>(MongoDB.Driver.Search.SearchDefinition<T> searchDefinition)
         {
-            var renderedBuildersDefinition = searchDefinition.Render(new MongoDB.Driver.Search.SearchDefinitionRenderContext<T>(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry));
+            var renderedBuildersDefinition = searchDefinition.Render(GetRenderArgs<T>());
             return renderedBuildersDefinition.ToString();
         }
-#elif DRIVER_2_19_OR_GREATER
-        public static string Render<T>(MongoDB.Driver.Search.SearchDefinition<T> searchDefinition)
-        {
-            var renderedBuildersDefinition = searchDefinition.Render(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
-            return renderedBuildersDefinition.ToString();
-        }
-#endif
+
+        private static RenderArgs<T> GetRenderArgs<T>() => new RenderArgs<T>(BsonSerializer.LookupSerializer<T>(), BsonSerializer.SerializerRegistry);
     }
 }
-

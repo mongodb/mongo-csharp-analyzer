@@ -106,7 +106,7 @@ internal static class EFAnalyzer
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
                 var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleEF2MQL;
-                var decoratedMessage = AnalysisUtilities.DecorateMessage(mql, driverVersion, settings);
+                var decoratedMessage = AnalysisUtilities.SanitizeAndDecorateMql(mql, driverVersion, settings);
                 semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
             }

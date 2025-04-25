@@ -105,8 +105,8 @@ internal static class LinqAnalyzer
             if (mqlResult.Mql != null)
             {
                 var mql = analysisContext.Node.ConstantsRemapper.RemapConstants(mqlResult.Mql);
-                var diagnosticDescriptor = mqlResult.Linq3Only ? DiagnosticsRules.DiagnosticRuleNotSupportedLinq2Expression : DiagnosticsRules.DiagnosticRuleLinq2MQL;
-                var decoratedMessage = AnalysisUtilities.DecorateMessage(mql, driverVersion, settings);
+                var diagnosticDescriptor = DiagnosticsRules.DiagnosticRuleLinq2MQL;
+                var decoratedMessage = AnalysisUtilities.SanitizeAndDecorateMql(mql, driverVersion, settings);
                 semanticContext.ReportDiagnostics(diagnosticDescriptor, decoratedMessage, locations);
                 mqlCount++;
             }

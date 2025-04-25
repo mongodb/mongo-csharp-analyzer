@@ -57,8 +57,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         {
             _ = Builders<SimpleTypesArraysHolder>.Filter.In(t => t.IntArray[0], new[] { 11, 22, 33 });
         }
-
-        [BuildersMQL("{ \"$or\" : [{ \"JaggedStringArray2.0.1\" : \"str\" }, { \"JaggedStringArray2.1.3\" : \"str2\" }, { \"JaggedIntArray3.2.999.29\" : -1 }, { \"JaggedIntArray3.10.1.3\" : { \"$ne\" : 3 } }, { \"JaggedLongArray4.2.3.2.2\" : { \"$ne\" : NumberLong(-9223372036854775808) } }, { \"JaggedIntArray3.10.1.3\" : { \"$ne\" : 23 } }, { \"JaggedLongArray4.10.1.3.3\" : { \"$ne\" : NumberLong(3) } }, { \"JaggedShortArray5.2.999.29.12.144\" : { \"$ne\" : 0 } }, { \"JaggedShortArray5.10.1.3.3.32\" : { \"$ne\" : 0 } }] }")]
+        
+        [BuildersMQL("{ \"$or\" : [{ \"JaggedStringArray2.0.1\" : \"str\" }, { \"JaggedStringArray2.1.3\" : \"str2\" }, { \"JaggedIntArray3.2.999.29\" : -1 }, { \"JaggedIntArray3.10.1.3\" : { \"$ne\" : 3 } }, { \"JaggedLongArray4.2.3.2.2\" : { \"$ne\" : -9223372036854775808 } }, { \"JaggedIntArray3.10.1.3\" : { \"$ne\" : 23 } }, { \"JaggedLongArray4.10.1.3.3\" : { \"$ne\" : 3 } }, { \"JaggedShortArray5.2.999.29.12.144\" : { \"$ne\" : 0 } }, { \"JaggedShortArray5.10.1.3.3.32\" : { \"$ne\" : 0 } }] }")]
         public void Jagged_array_of_predefined_type_items_access()
         {
             _ = Builders<SimpleTypesArraysHolder>.Filter.Eq(u => u.JaggedStringArray2[0][1], "str") |

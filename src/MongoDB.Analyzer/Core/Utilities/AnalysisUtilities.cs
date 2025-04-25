@@ -16,6 +16,16 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class AnalysisUtilities
 {
+    public static string SanitizeAndDecorateMql(string mql, string driverVersion, MongoDBAnalyzerSettings settings)
+    {
+        if (mql.StartsWith("db.coll."))
+        {
+            mql = mql.Remove(0, 8);
+        }
+
+        return DecorateMessage(mql, driverVersion, settings);
+    }
+
     public static string DecorateMessage(string message, string driverVersion, MongoDBAnalyzerSettings settings) =>
         settings.OutputDriverVersion ? $"{message}_v{driverVersion}" : message;
 

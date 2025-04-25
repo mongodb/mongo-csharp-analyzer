@@ -18,7 +18,6 @@ namespace MongoDB.Analyzer.Tests.Common
     {
         public const string MongoLinq2MQL = "MALinq1001";
         public const string NotSupportedLinqExpression = "MALinq2001";
-        public const string NotSupportedLinq2Expression = "MALinq2002";
 
         public const string Builders2MQL = "MABuilders1001";
         public const string NotSupportedBuildersExpression = "MABuilders2001";
@@ -31,11 +30,10 @@ namespace MongoDB.Analyzer.Tests.Common
 
         public const string NoRule = nameof(NoRule);
 
-        public static string[] AllRules { get; } = new[]
-        {
+        public static string[] AllRules { get; } =
+        [
             MongoLinq2MQL,
             NotSupportedLinqExpression,
-            NotSupportedLinq2Expression,
             Builders2MQL,
             NotSupportedBuildersExpression,
             EF2MQL,
@@ -43,6 +41,6 @@ namespace MongoDB.Analyzer.Tests.Common
             Poco2Json,
             NotSupportedPoco,
             NoRule
-        };
+        ];
     }
 }

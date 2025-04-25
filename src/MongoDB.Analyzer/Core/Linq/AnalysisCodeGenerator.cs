@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using MongoDB.Analyzer.Core.HelperResources;
 using MongoDB.Analyzer.Core.Utilities;
 using static MongoDB.Analyzer.Core.HelperResources.ResourcesUtilities;
 
@@ -20,7 +19,7 @@ namespace MongoDB.Analyzer.Core.Linq;
 
 internal static class AnalysisCodeGenerator
 {
-    private static readonly SyntaxTreesCache s_syntaxTreesCache;
+    private static readonly SyntaxTree[] s_commonResources;
     private static readonly MqlGeneratorTestMethodTemplate s_testMethodTemplate;
     private static readonly CSharpParseOptions s_parseOptions;
 
@@ -30,7 +29,7 @@ internal static class AnalysisCodeGenerator
         s_testMethodTemplate = LinqMqlGeneratorTemplateBuilder.CreateTestMethodTemplate(mqlGeneratorSyntaxTree);
 
         s_parseOptions = (CSharpParseOptions)mqlGeneratorSyntaxTree.Options;
-        s_syntaxTreesCache = new SyntaxTreesCache(s_parseOptions, ResourceNames.Linq.QueryableProvider);
+        s_commonResources = GetCommonCodeResources();
     }
 
     public static CompilationResult Compile(MongoAnalysisContext context, ExpressionsAnalysis linqExpressionAnalysis)
@@ -42,15 +41,10 @@ internal static class AnalysisCodeGenerator
             return CompilationResult.Failure;
         }
 
-        var isLinq3 = referencesContainer.Version >= LinqAnalysisConstants.MinLinq3Version;
-        var isLinq3Default = referencesContainer.Version >= LinqAnalysisConstants.DefaultLinq3Version;
-        var defaultLinqVersion = context.Settings.DefaultLinqVersion ?? (isLinq3Default ? LinqVersion.V3 : LinqVersion.V2);
-
         var typesSyntaxTree = TypesGeneratorHelper.GenerateTypesSyntaxTree(AnalysisType.Linq, linqExpressionAnalysis.TypesDeclarations, s_parseOptions);
         var mqlGeneratorSyntaxTree = GenerateMqlGeneratorSyntaxTree(linqExpressionAnalysis);
 
-        var helperSyntaxTrees = s_syntaxTreesCache.GetSyntaxTrees(referencesContainer.Version);
-        var syntaxTrees = new List<SyntaxTree>(helperSyntaxTrees)
+        var syntaxTrees = new List<SyntaxTree>(s_commonResources)
             {
                 typesSyntaxTree,
                 mqlGeneratorSyntaxTree
@@ -64,7 +58,7 @@ internal static class AnalysisCodeGenerator
 
         var result = new CompilationResult(
             true,
-            new LinqMqlGeneratorExecutor(generatorType, isLinq3 ? LinqVersion.V3 : LinqVersion.V2, defaultLinqVersion),
+            new LinqMqlGeneratorExecutor(generatorType),
             referencesContainer.Version);
 
         return result;

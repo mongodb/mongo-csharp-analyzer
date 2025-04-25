@@ -39,7 +39,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         [BuildersMQL("{ \"SiblingsCount\" : { \"$lte\" : anonymousObject.Item } }")]
         [BuildersMQL("{ \"Root.Data\" : { \"$lt\" : new { RootValue = 22 }.RootValue } }")]
         [BuildersMQL("{ new { Field = \"IntList\" }.Field : { \"$gt\" : new { Value = 22 }.Value } }")]
-        [BuildersMQL("{ new { Field = \"Age\" }.Field : { \"$mod\" : [NumberLong(new { Value = 21 }.Value), NumberLong(new { Value = 23 }.Value)] } }")]
+        [BuildersMQL("{ new { Field = \"Age\" }.Field : { \"$mod\" : [new { Value = 21 }.Value, new { Value = 23 }.Value] } }")]
         [BuildersMQL("{ new { Field = \"Age\" }.Field : { \"$ne\" : new { Age = (value << 2) * (value / 2) }.Age } }")]
         [BuildersMQL("{ new { Field = \"IntArray\" }.Field : { \"$in\" : [11, 22, 33] } }")]
         [BuildersMQL("{ \"$or\" : [{ new { Field = \"IntArray\" }.Field : { \"$gt\" : new { Value = 123 }.Value } }, { new { Field = \"ObjectArray\" }.Field : { \"$ne\" : null } }] }")]
@@ -63,15 +63,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                 Builders<SimpleTypesArraysHolder>.Filter.AnyNe<object>(new { Field = "ObjectArray" }.Field, null);
         }
 
-        [BuildersMQL("find({ \"Age\" : { \"$lt\" : 10 } }, { \"_id\" : 0 })", DriverVersions.V2_18_OrLower)]
-        [BuildersMQL("find({ \"Age\" : { \"$lt\" : 10 } }, { \"_v\" : { }, \"_id\" : 0 })", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("find({ \"Age\" : { \"$lt\" : 10 } }, { \"Address\" : 1, \"_id\" : 0 })", DriverVersions.V2_18_OrLower)]
-        [BuildersMQL("find({ \"Age\" : { \"$lt\" : 10 } }, { \"Address\" : \"$Address\", \"_id\" : 0 })", DriverVersions.V2_19_to_2_20)]
-        [BuildersMQL("find({ \"Age\" : { \"$lt\" : 10 } }, { \"Address\" : 1, \"_id\" : 0 })", DriverVersions.V2_21_OrGreater)]
-        [BuildersMQL("find({ }, { \"Address\" : 1, \"Age\" : 1, \"Scores\" : 1, \"_id\" : 0 })", DriverVersions.V2_18_OrLower)]
-        [BuildersMQL("find({ }, { \"A\" : \"$Address\", \"B\" : \"$Scores\", \"C\" : \"$Age\", \"_id\" : 0 })", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("find({ \"$text\" : { \"$search\" : \"testSearch\" } }, { \"Address\" : 1, \"Age\" : 1, \"Height\" : 1, \"Scores.0\" : 1, \"Scores.10\" : 1, \"_id\" : 0 })", DriverVersions.V2_18_OrLower)]
-        [BuildersMQL("find({ \"$text\" : { \"$search\" : \"testSearch\" } }, { \"A\" : \"$Address\", \"B\" : { \"$arrayElemAt\" : [\"$Scores\", 0] }, \"C\" : { \"$multiply\" : [\"$Age\", 10] }, \"D\" : { \"$multiply\" : [\"$Height\", \"$Age\", { \"$arrayElemAt\" : [\"$Scores\", 10] }] }, \"_id\" : 0 })", DriverVersions.V2_19_OrGreater)]
+        [BuildersMQL("find({ \"Age\" : { \"$lt\" : 10 } }, { \"_v\" : { \"$literal\" : { } }, \"_id\" : 0 })")]
+        [BuildersMQL("find({ \"Age\" : { \"$lt\" : 10 } }, { \"Address\" : 1, \"_id\" : 0 })")]
+        [BuildersMQL("find({ }, { \"A\" : \"$Address\", \"B\" : \"$Scores\", \"C\" : \"$Age\", \"_id\" : 0 })")]
+        [BuildersMQL("find({ \"$text\" : { \"$search\" : \"testSearch\" } }, { \"A\" : \"$Address\", \"B\" : { \"$arrayElemAt\" : [\"$Scores\", 0] }, \"C\" : { \"$multiply\" : [\"$Age\", 10] }, \"D\" : { \"$multiply\" : [\"$Height\", \"$Age\", { \"$arrayElemAt\" : [\"$Scores\", 10] }] }, \"_id\" : 0 })")]
         public void FluentApi_project()
         {
             GetMongoCollection()
@@ -109,16 +104,12 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                         .Text(new { Field = "Vehicle", IntValue = 10, BoolValue = false, DoubleValue = 2.5 }.Field));
         }
 
-        [BuildersMQL("{ \"Address\" : 1, \"Age\" : 1, \"_id\" : 0 }", DriverVersions.V2_18_OrLower)]
-        [BuildersMQL("{ \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"_id\" : 0 }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"SiblingsCount\" : 1, \"TicksSinceBirth\" : 1, \"_id\" : 0 }", DriverVersions.V2_18_OrLower)]
-        [BuildersMQL("{ \"Average\" : { \"$divide\" : [{ \"$add\" : [\"$SiblingsCount\", \"$TicksSinceBirth\"] }, NumberLong(2)] }, \"Total\" : { \"$add\" : [\"$SiblingsCount\", \"$TicksSinceBirth\"] }, \"_id\" : 0 }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"Age\" : 1, \"Height\" : 1, \"_id\" : 0 }", DriverVersions.V2_18_OrLower)]
-        [BuildersMQL("{ \"Avg\" : { \"$divide\" : [{ \"$add\" : [{ \"$multiply\" : [\"$Age\", 2] }, \"$Height\"] }, 2] }, \"_id\" : 0 }", DriverVersions.V2_19_OrGreater)]
+        [BuildersMQL("{ \"Age\" : \"$Age\", \"Address\" : \"$Address\", \"_id\" : 0 }")]
+        [BuildersMQL("{ \"Average\" : { \"$divide\" : [{ \"$add\" : [\"$SiblingsCount\", \"$TicksSinceBirth\"] }, 2] }, \"Total\" : { \"$add\" : [\"$SiblingsCount\", \"$TicksSinceBirth\"] }, \"_id\" : 0 }")]
+        [BuildersMQL("{ \"Avg\" : { \"$divide\" : [{ \"$add\" : [{ \"$multiply\" : [\"$Age\", 2] }, \"$Height\"] }, 2] }, \"_id\" : 0 }")]
         [BuildersMQL("{ new { FieldToExclude = \"Age\" }.FieldToExclude : 0 }")]
         [BuildersMQL("{ new { FieldToInclude = \"Scores\" }.FieldToInclude : 1 }")]
-        [BuildersMQL("{ new { Field = \"IntArray\" }.Field : { \"$slice\" : [10, 5] } }", DriverVersions.V2_22_OrLower)]
-        [BuildersMQL("{ new { Field = \"IntArray\" }.Field : { \"$slice\" : [\"$s__0\", 10, 5] } }", DriverVersions.V2_23_OrGreater)]
+        [BuildersMQL("{ new { Field = \"IntArray\" }.Field : { \"$slice\" : [\"$s__1\", 10, 5] } }")]
         [BuildersMQL("{ new { Field = \"Age\" }.Field : 1, new { Field = \"LastName\" }.Field : 1 }")]
         public void Projection()
         {

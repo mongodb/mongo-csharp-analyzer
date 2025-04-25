@@ -20,15 +20,11 @@ internal static class ResourcesUtilities
     {
         ResourceNames.EmptyCursor,
         ResourceNames.MongoClientMock,
-        ResourceNames.MongoDatabaseMock
+        ResourceNames.MongoDatabaseMock,
+        ResourceNames.MongoCollectionMock
     };
 
     private static readonly CSharpParseOptions s_parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp8);
-
-    private static readonly string[] s_versionedResources = new[]
-    {
-        ResourceNames.MongoCollectionMock
-    };
 
     public static SyntaxTree GetCodeResource(string csharpCodeResourceName, CSharpParseOptions parseOptions = null) =>
         CSharpSyntaxTree.ParseText(GetStringResource(csharpCodeResourceName), parseOptions ?? s_parseOptions);
@@ -37,12 +33,6 @@ internal static class ResourcesUtilities
         s_commonResources
             .Concat(additionalResourceNames)
             .Select(code => GetCodeResource(code, s_parseOptions))
-            .ToArray();
-
-    public static SyntaxTree[] GetVersionedCodeResources(CSharpParseOptions parseOptions, params string[] additionalResourceNames) =>
-        s_versionedResources
-            .Concat(additionalResourceNames)
-            .Select(code => GetCodeResource(code, parseOptions))
             .ToArray();
 
     private static string GetStringResource(string resourceName)

@@ -36,7 +36,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                                 new GeoJson2DGeographicCoordinates(-161.323242, 22.512557)
                         })));
 
-        [BuildersMQL("{ \"autocomplete\" : { \"query\" : \"My address\", \"path\" : \"Address\" } }", DriverVersions.V2_19_OrGreater, 1, 2, 3)]
+        [BuildersMQL("{ \"autocomplete\" : { \"query\" : \"My address\", \"path\" : \"Address\" } }", 1, 2, 3)]
         public void Autocomplete()
         {
             _ = Builders<User>.Search.Autocomplete(m => m.Address, "My address");
@@ -44,7 +44,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<BsonDocument>.Search.Autocomplete("Address", "My address");
         }
 
-        [BuildersMQL("{ \"equals\" : { \"value\" : true, \"path\" : \"IsRetired\" } }", DriverVersions.V2_19_OrGreater, 1, 2, 3)]
+        [BuildersMQL("{ \"equals\" : { \"value\" : true, \"path\" : \"IsRetired\" } }", 1, 2, 3)]
         public void Equals()
         {
             _ = Builders<Person>.Search.Equals(m => m.IsRetired, true);
@@ -52,8 +52,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<BsonDocument>.Search.Equals("IsRetired", true);
         }
 
-        [BuildersMQL("{ \"near\" : { \"origin\" : 1, \"pivot\" : 2, \"path\" : \"SiblingsCount\" } }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"near\" : { \"origin\" : NumberLong(5), \"pivot\" : NumberLong(2), \"path\" : \"SiblingsCount\" } }", DriverVersions.V2_19_OrGreater, 2, 3)]
+        [BuildersMQL("{ \"near\" : { \"origin\" : 1, \"pivot\" : 2, \"path\" : \"SiblingsCount\" } }")]
+        [BuildersMQL("{ \"near\" : { \"origin\" : 5, \"pivot\" : 2, \"path\" : \"SiblingsCount\" } }", 2, 3)]
         public void Near()
         {
             Builders<Person>.Search.Near(p => p.SiblingsCount, 1, 2);
@@ -61,7 +61,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             Builders<BsonDocument>.Search.Near("SiblingsCount", 5L, 2L);
         }
 
-        [BuildersMQL("{ \"phrase\" : { \"query\" : \"Columbia\", \"path\" : \"Address.Province\" } }", DriverVersions.V2_19_OrGreater, 1, 2, 3)]
+        [BuildersMQL("{ \"phrase\" : { \"query\" : \"Columbia\", \"path\" : \"Address.Province\" } }", 1, 2, 3)]
         public void Phrase()
         {
             _ = Builders<Person>.Search.Phrase(m => m.Address.Province, "Columbia");
@@ -69,7 +69,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<BsonDocument>.Search.Phrase("Address.Province", "Columbia");
         }
 
-        [BuildersMQL("{ \"queryString\" : { \"defaultPath\" : \"Name\", \"query\" : \"constant string\" } }", DriverVersions.V2_19_OrGreater, 1, 2, 3)]
+        [BuildersMQL("{ \"queryString\" : { \"defaultPath\" : \"Name\", \"query\" : \"constant string\" } }", 1, 2, 3)]
         public void QueryString()
         {
             _ = Builders<Person>.Search.QueryString(m => m.Name, "constant string");
@@ -77,8 +77,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<BsonDocument>.Search.QueryString("Name", "constant string");
         }
 
-        [BuildersMQL("{ \"regex\" : { \"query\" : [\"Donald\", \"Mike\"], \"path\" : \"Name\" } }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"regex\" : { \"query\" : \"Alice\", \"path\" : \"Name\" } }", DriverVersions.V2_19_OrGreater, 2, 3)]
+        [BuildersMQL("{ \"regex\" : { \"query\" : [\"Donald\", \"Mike\"], \"path\" : \"Name\" } }")]
+        [BuildersMQL("{ \"regex\" : { \"query\" : \"Alice\", \"path\" : \"Name\" } }", 2, 3)]
         public void Regex()
         {
             _ = Builders<Person>.Search.Regex(m => m.Name, new[] { "Donald", "Mike" });
@@ -86,17 +86,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<BsonDocument>.Search.Regex("Name", "Alice");
         }
 
-        [NoDiagnostics(DriverVersions.V2_18_OrLower)]
-        public void Search_should_be_ignored_in_older_drivers()
-        {
-            // Technically Atlas Search code can't appear with older drivers, via normal C# usage,
-            // so this test covers isoteric edge cases.
-            _ = Builders<User>.Search.Text(m => m.Address, "My address");
-            _ = Builders<Person>.Search.Phrase(m => m.Address.Province, "Columbia");
-        }
-
-        [BuildersMQL("{ \"span\" : { \"first\" : { \"operator\" : { \"term\" : { \"query\" : \"foo\", \"path\" : \"Name\" } }, \"endPositionLte\" : 5 } } }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"span\" : { \"or\" : { \"clauses\" : [{ \"term\" : { \"query\" : \"a\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"b\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"c\", \"path\" : \"Name\" } }] } } }", DriverVersions.V2_19_OrGreater)]
+        [BuildersMQL("{ \"span\" : { \"first\" : { \"operator\" : { \"term\" : { \"query\" : \"foo\", \"path\" : \"Name\" } }, \"endPositionLte\" : 5 } } }")]
+        [BuildersMQL("{ \"span\" : { \"or\" : { \"clauses\" : [{ \"term\" : { \"query\" : \"a\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"b\", \"path\" : \"Name\" } }, { \"term\" : { \"query\" : \"c\", \"path\" : \"Name\" } }] } } }")]
         public void Span()
         {
             _ = Builders<Person>.Search.Span(Builders<Person>.SearchSpan
@@ -108,7 +99,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                     Builders<Person>.SearchSpan.Term(p => p.Name, "c")));
         }
 
-        [BuildersMQL("{ \"text\" : { \"query\" : \"My address\", \"path\" : \"Address\" } }", DriverVersions.V2_19_OrGreater, 1, 2, 3)]
+        [BuildersMQL("{ \"text\" : { \"query\" : \"My address\", \"path\" : \"Address\" } }", 1, 2, 3)]
         public void Text()
         {
             _ = Builders<User>.Search.Text(m => m.Address, "My address");
@@ -116,7 +107,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             _ = Builders<BsonDocument>.Search.Text("Address", "My address");
         }
 
-        [NoDiagnostics(DriverVersions.V2_19_OrGreater)]
+        [NoDiagnostics()]
         public void Valid_but_ignored()
         {
             _ = Builders<Person>.Search.GeoShape(
@@ -138,8 +129,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
                     }, "A");
         }
 
-        [BuildersMQL("{ \"wildcard\" : { \"query\" : [\"foo\", \"bar\"], \"path\" : \"Name\" } }", DriverVersions.V2_19_OrGreater)]
-        [BuildersMQL("{ \"wildcard\" : { \"query\" : \"A\", \"path\" : \"Name\" } }", DriverVersions.V2_19_OrGreater, 2, 3)]
+        [BuildersMQL("{ \"wildcard\" : { \"query\" : [\"foo\", \"bar\"], \"path\" : \"Name\" } }")]
+        [BuildersMQL("{ \"wildcard\" : { \"query\" : \"A\", \"path\" : \"Name\" } }", 2, 3)]
         public void Wildcard()
         {
             _ = Builders<Person>.Search.Wildcard(m => m.Name, new[] { "foo", "bar" });

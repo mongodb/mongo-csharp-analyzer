@@ -18,7 +18,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoEnums : TestCasesBase
     {
-        [PocoJson("{ \"EnumInt8\" : 0, \"EnumUInt8\" : 0, \"EnumInt16\" : 0, \"EnumUInt16\" : 0, \"EnumInt32\" : 0, \"EnumUInt32\" : 0, \"EnumInt64\" : NumberLong(0), \"EnumUInt64\" : NumberLong(0) }")]
+        [PocoJson("{ \"EnumInt8\" : 0, \"EnumUInt8\" : 0, \"EnumInt16\" : 0, \"EnumUInt16\" : 0, \"EnumInt32\" : 0, \"EnumUInt32\" : 0, \"EnumInt64\" : 0, \"EnumUInt64\" : 0 }")]
         public void EnumHolder()
         {
         }

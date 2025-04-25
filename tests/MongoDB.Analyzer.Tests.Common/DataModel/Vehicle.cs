@@ -39,6 +39,6 @@ namespace MongoDB.Analyzer.Tests.Common.DataModel
     {
         Bus,
         Car,
-        Motorcylce
+        Motorcycle
     }
 }

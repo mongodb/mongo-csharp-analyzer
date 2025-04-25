@@ -25,14 +25,12 @@ namespace MongoDB.Analyzer.Tests.Common
         public string Version { get; }
         public Location[] Locations { get; }
         public DriverTargetFramework TargetFramework { get; }
-        public LinqVersion LinqProvider { get; }
         public PocoAnalysisVerbosity PocoAnalysisVerbosity { get; }
 
         public DiagnosticRuleTestCaseAttribute(
             string ruleId,
             string message,
             string version = null,
-            LinqVersion linqProvider = LinqVersion.V2,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
             PocoAnalysisVerbosity pocoAnalysisVerbosity = PocoAnalysisVerbosity.All,
             int[] codeLines = null)
@@ -40,7 +38,6 @@ namespace MongoDB.Analyzer.Tests.Common
             RuleId = ruleId;
             Message = message;
             Version = version;
-            LinqProvider = linqProvider;
             TargetFramework = targetFramework;
             Locations = codeLines?.Any() == true ? codeLines.Select(l => new Location(l, -1)).ToArray() : new[] { Location.Empty };
             PocoAnalysisVerbosity = pocoAnalysisVerbosity;
@@ -58,32 +55,20 @@ namespace MongoDB.Analyzer.Tests.Common
         public MQLAttribute(
             string message,
             params int[] codeLines) :
-            this(message, null, LinqVersion.V2, DriverTargetFramework.All, codeLines)
+            this(message, null, DriverTargetFramework.All, codeLines)
         {
         }
 
         public MQLAttribute(
             string message,
             string version = null,
-            LinqVersion linqProvider = LinqVersion.V2,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
             params int[] codeLines) :
             base(DiagnosticRulesConstants.MongoLinq2MQL,
                 message,
                 version,
-                linqProvider,
                 targetFramework,
                 codeLines: codeLines)
-        {
-        }
-    }
-
-    public sealed class MQLLinq3Attribute : MQLAttribute
-    {
-        public MQLLinq3Attribute(
-            string message,
-            DriverTargetFramework targetFramework = DriverTargetFramework.All) :
-            base(message, DriverVersions.Linq3OrGreater, LinqVersion.V3, targetFramework)
         {
         }
     }
@@ -93,20 +78,18 @@ namespace MongoDB.Analyzer.Tests.Common
         public MQLEFAttribute(
             string message,
             params int[] codeLines) :
-            this(message, null, LinqVersion.V3, DriverTargetFramework.All, codeLines)
+            this(message, null, DriverTargetFramework.All, codeLines)
         {
         }
 
         public MQLEFAttribute(
             string message,
             string version = null,
-            LinqVersion linqProvider = LinqVersion.V3,
             DriverTargetFramework targetFramework = DriverTargetFramework.All,
             params int[] codeLines) :
             base(DiagnosticRulesConstants.EF2MQL,
                 message,
                 version,
-                linqProvider,
                 targetFramework,
                 codeLines: codeLines)
         {
@@ -115,8 +98,8 @@ namespace MongoDB.Analyzer.Tests.Common
 
     public sealed class NotSupportedEFAttribute : DiagnosticRuleTestCaseAttribute
     {
-        public NotSupportedEFAttribute(string message, string version = null, LinqVersion linqProvider = LinqVersion.V3, DriverTargetFramework targetFramework = DriverTargetFramework.All, params int[] codeLines) :
-            base(DiagnosticRulesConstants.NotSupportedEFExpression, message, version, linqProvider, targetFramework, codeLines: codeLines)
+        public NotSupportedEFAttribute(string message, string version = null, DriverTargetFramework targetFramework = DriverTargetFramework.All, params int[] codeLines) :
+            base(DiagnosticRulesConstants.NotSupportedEFExpression, message, version, targetFramework, codeLines: codeLines)
         {
         }
     }
@@ -126,32 +109,8 @@ namespace MongoDB.Analyzer.Tests.Common
         public InvalidLinqAttribute(
             string message,
             string version = null,
-            LinqVersion linqProvider = LinqVersion.V2,
             DriverTargetFramework targetFramework = DriverTargetFramework.All) :
-            base(DiagnosticRulesConstants.NotSupportedLinqExpression, message, version, linqProvider, targetFramework)
-        {
-        }
-    }
-
-    public sealed class InvalidLinq3Attribute : InvalidLinqAttribute
-    {
-        public InvalidLinq3Attribute(
-          string message,
-          string version = DriverVersions.Linq3OrGreater,
-          DriverTargetFramework targetFramework = DriverTargetFramework.All) :
-          base(message, version, LinqVersion.V3, targetFramework)
-        {
-        }
-    }
-
-    public sealed class NotSupportedLinq2Attribute : DiagnosticRuleTestCaseAttribute
-    {
-        public NotSupportedLinq2Attribute(
-            string message,
-            DriverTargetFramework targetFramework = DriverTargetFramework.All,
-            string version = DriverVersions.Linq3OrGreater,
-            LinqVersion linqVersion = LinqVersion.V2) :
-            base(DiagnosticRulesConstants.NotSupportedLinq2Expression, message, version, linqVersion, targetFramework)
+            base(DiagnosticRulesConstants.NotSupportedLinqExpression, message, version, targetFramework)
         {
         }
     }

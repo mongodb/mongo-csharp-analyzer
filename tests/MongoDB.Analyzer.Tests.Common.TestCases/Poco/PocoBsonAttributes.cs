@@ -21,7 +21,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Poco
 {
     public sealed class PocoBsonAttributes : TestCasesBase
     {
-        [PocoJson("{ \"ExpiryDate\" : ISODate(\"1911-11-11T00:00:00Z\"), \"Name\" : \"Benjamin\", \"InStock\" : false, \"price\" : \"0\", \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"08:08:08\" }")]
+        [PocoJson("{ \"ExpiryDate\" : { \"$date\" : { \"$numberLong\" : \"-1834790400000\" } }, \"Name\" : \"Benjamin\", \"InStock\" : false, \"price\" : { \"$numberDecimal\" : \"0\" }, \"Pair\" : { \"StringA\" : null, \"StringB\" : null }, \"Length\" : 6, \"Width\" : 5, \"SaleTime\" : \"08:08:08\" }")]
         public void Clothing()
         {
         }

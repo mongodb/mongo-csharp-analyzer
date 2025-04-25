@@ -19,7 +19,7 @@ namespace MongoDB.Analyzer.Tests.Common
 {
     public static class LinqExtensions
     {
-        public static IMongoQueryable<T> ApplyPaging<T>(this IMongoQueryable<T> query, int page, int pageSize) =>
+        public static IQueryable<T> ApplyPaging<T>(this IQueryable<T> query, int page, int pageSize) =>
             query.Skip((page - 1) * pageSize).Take(pageSize);
 
         public static IQueryable<T> ApplyPagingIQueryable<T>(this IQueryable<T> query, int page, int pageSize) =>

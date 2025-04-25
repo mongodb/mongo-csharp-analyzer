@@ -16,30 +16,30 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class ReferencesProvider
 {
-    private const string Netstandard20 = "netstandard2.0";
+    private const string Netstandard21 = "netstandard2.1";
     private const string NetstandardDll = "netstandard.dll";
 
-    private static readonly string[] s_additionalDependencies = new[] { "System.Runtime.dll" };
+    private static readonly string[] s_additionalDependencies = ["System.Runtime.dll"];
 
     private static readonly ConcurrentDictionary<Version, IDictionary<string, string>> s_mongodbAssemblyPaths = new();
 
-    private static readonly HashSet<string> s_mongodbDriverAssemblies = new(new[]
-    {
+    private static readonly HashSet<string> s_mongodbDriverAssemblies = new(
+    [
         "MongoDB.Bson.dll",
         "MongoDB.Driver.Core.dll",
         "MongoDB.Driver.dll"
-    });
+    ]);
 
     public static string GetDriverVersion(Assembly assembly) =>
         assembly.GetReferencedAssemblies().FirstOrDefault(a => a.Name.Contains("MongoDB"))?.Version?.ToString();
 
     public static Version GetMongoDBDriverVersion(IEnumerable<MetadataReference> metadataReferences)
     {
-        var mongoDBreference = GetMongoDBDriverReferences(metadataReferences).FirstOrDefault();
+        var mongoDBReference = GetMongoDBDriverReferences(metadataReferences).FirstOrDefault();
 
-        if (mongoDBreference != null)
+        if (mongoDBReference != null)
         {
-            var assemblyName = AssemblyName.GetAssemblyName(mongoDBreference.FilePath);
+            var assemblyName = AssemblyName.GetAssemblyName(mongoDBReference.FilePath);
             return assemblyName?.Version;
         }
 
@@ -65,7 +65,7 @@ internal static class ReferencesProvider
             return null;
         }
 
-        var (version, nameToPathMappings, missingAssemblyPath) = GetNetstandard20DriverAssemblyLocation(mongoDBReferences);
+        var (version, nameToPathMappings, missingAssemblyPath) = GetNetstandard21DriverAssemblyLocation(mongoDBReferences);
         if (version == null)
         {
             var referencesFilenames = string.Join(",", mongoDBReferences.Select(r => r?.FilePath));
@@ -76,7 +76,7 @@ internal static class ReferencesProvider
         }
         else
         {
-            logger.Log($"Found Netstandard20 driver location for {version}");
+            logger.Log($"Found Netstandard21 driver location for {version}");
         }
 
         foreach (var mapping in nameToPathMappings)
@@ -120,7 +120,7 @@ internal static class ReferencesProvider
         .Where(r => s_mongodbDriverAssemblies.Contains(Path.GetFileName(r.FilePath)))
         .ToArray();
 
-    private static (Version, IDictionary<string, string>, string MissingAssembly) GetNetstandard20DriverAssemblyLocation(PortableExecutableReference[] driverReferences)
+    private static (Version, IDictionary<string, string>, string MissingAssembly) GetNetstandard21DriverAssemblyLocation(PortableExecutableReference[] driverReferences)
     {
         IDictionary<string, string> nameToPathMapping = null;
         Version version = null;
@@ -130,7 +130,7 @@ internal static class ReferencesProvider
             var assemblyName = Path.GetFileName(reference.FilePath);
             var libPath = Path.GetFullPath(Path.GetDirectoryName(Path.GetDirectoryName(reference.FilePath)));
 
-            var assemblyPath = Path.Combine(libPath, Netstandard20, assemblyName);
+            var assemblyPath = Path.Combine(libPath, Netstandard21, assemblyName);
 
             if (File.Exists(assemblyPath))
             {

@@ -36,18 +36,18 @@ internal static class LinqExpressionProcessor
 
         foreach (var node in root.DescendantNodesWithSkipList<ExpressionSyntax>(processedSyntaxNodes))
         {
-            var deepestMongoQueryableNode = node;
+            var deepestIQueryableNode = node;
 
             if (node is QueryExpressionSyntax queryNode)
             {
                 var expression = queryNode.FromClause.Expression;
                 var queryMethodSymbol = semanticModel.GetTypeInfo(expression).Type;
-                if (!queryMethodSymbol.IsIMongoQueryable())
+                if (!queryMethodSymbol.IsIQueryable())
                 {
                     continue;
                 }
 
-                deepestMongoQueryableNode = queryNode.FromClause.Expression;
+                deepestIQueryableNode = queryNode.FromClause.Expression;
             }
             else if (node is InvocationExpressionSyntax invocationNode)
             {
@@ -60,7 +60,7 @@ internal static class LinqExpressionProcessor
                     continue;
                 }
 
-                deepestMongoQueryableNode = invocationNode
+                deepestIQueryableNode = invocationNode
                     .NestedInvocations()
                     .FirstOrDefault(n =>
                         {
@@ -78,15 +78,24 @@ internal static class LinqExpressionProcessor
             processedSyntaxNodes.Add(node);
 
             // Validate IMongoQueryable node candidate
-            if (deepestMongoQueryableNode == null)
+            if (deepestIQueryableNode == null)
             {
                 continue;
             }
 
-            var mongoQueryableTypeInfo = semanticModel.GetTypeInfo(deepestMongoQueryableNode);
+            var mongoQueryableTypeInfo = semanticModel.GetTypeInfo(deepestIQueryableNode);
+            var isDBSet = mongoQueryableTypeInfo.Type.IsDBSet();
+            var isIQueryable = mongoQueryableTypeInfo.Type.IsIQueryable();
 
-            if ((!mongoQueryableTypeInfo.Type.IsIMongoQueryable() && analysisType == AnalysisType.Linq) || (!mongoQueryableTypeInfo.Type.IsDBSet() && analysisType == AnalysisType.EF) ||
-                mongoQueryableTypeInfo.Type is not INamedTypeSymbol mongoQueryableNamedType ||
+            if (!isDBSet && analysisType == AnalysisType.EF ||
+                ((!isIQueryable || isDBSet) && analysisType == AnalysisType.Linq))
+            {
+                // Allow only DBSet<T> in EF analysis
+                // Allow only IQueryable<T> except DBSet<T> in LINQ analysis
+                continue;
+            }
+            
+            if (mongoQueryableTypeInfo.Type is not INamedTypeSymbol mongoQueryableNamedType ||
                 mongoQueryableNamedType.TypeArguments.Length != 1 ||
                 !mongoQueryableNamedType.TypeArguments[0].IsSupportedMongoCollectionType())
             {
@@ -100,7 +109,7 @@ internal static class LinqExpressionProcessor
                 {
                     var generatedMongoQueryableTypeName = typesProcessor.ProcessTypeSymbol(mongoQueryableNamedType.TypeArguments[0]);
 
-                    var rewriteContext = RewriteContext.Linq(node, deepestMongoQueryableNode, semanticModel, typesProcessor);
+                    var rewriteContext = RewriteContext.Linq(node, deepestIQueryableNode, semanticModel, typesProcessor);
                     var (newLinqExpression, constantsMapper) = RewriteExpression(rewriteContext);
 
                     if (newLinqExpression != null)

@@ -2,15 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>9</LangVersion>
-    <Configurations>DRIVER_2_27_OR_LOWER;DRIVER_2_28_OR_GREATER</Configurations>
+    <LangVersion>12</LangVersion>
+    <Configurations>Debug</Configurations>
   </PropertyGroup>
 
   <Import Project="..\MongoDB.Analyzer.Tests.Common\MongoDB.Analyzer.Tests.Common.projitems" Label="Shared" />
 
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.12.4" Condition="'$(Configuration)' == 'DRIVER_2_27_OR_LOWER'" />
-    <PackageReference Include="MongoDB.Driver" Version="2.28.0" Condition="'$(Configuration)' == 'DRIVER_2_28_OR_GREATER'" />
+    <PackageReference Include="MongoDB.Driver" Version="3.0.0"/>
   </ItemGroup>
 
   <ItemGroup>

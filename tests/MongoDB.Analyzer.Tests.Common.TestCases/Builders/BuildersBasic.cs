@@ -22,7 +22,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 {
     public sealed class BuildersBasic : TestCasesBase
     {
-        [BuildersMQL("{ \"$or\" : [{ \"name\" : \"Alice\" }, { \"lastName\" : /berg/ }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"name\" : \"Alice\" }, { \"lastName\" : { \"$regularExpression\" : { \"pattern\" : \"berg\", \"options\" : \"\" } } }] }")]
         public void BsonDocument()
         {
             _ = Builders<BsonDocument>.Filter.Eq("name", "Alice") |
@@ -158,24 +158,24 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
 
         [BuildersMQL("{ \"Root.Data\" : intVariable1 + intVariable2 }")]
         [BuildersMQL("{ \"VehicleType.MPG\" : intVariable1 + intVariable2 }")]
-        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(intVariable1 + intVariable2) }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : intVariable1 + intVariable2 }")]
         [BuildersMQL("{ \"VehicleType.MPG\" : uintVariable1 + uintVariable2 }")]
-        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(uintVariable1 + uintVariable2) }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : uintVariable1 + uintVariable2 }")]
         [BuildersMQL("{ \"Root.Data\" : shortVariable1 + shortVariable2 }")]
         [BuildersMQL("{ \"VehicleType.MPG\" : shortVariable1 + shortVariable2 }")]
-        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(shortVariable1 + shortVariable2) }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : shortVariable1 + shortVariable2 }")]
         [BuildersMQL("{ \"Root.Data\" : ushortVariable1 + ushortVariable2 }")]
         [BuildersMQL("{ \"VehicleType.MPG\" : ushortVariable1 + ushortVariable2 }")]
-        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(ushortVariable1 + ushortVariable2) }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : ushortVariable1 + ushortVariable2 }")]
         [BuildersMQL("{ \"Data\" : byteVariable1 + byteVariable2 }")]
         [BuildersMQL("{ \"VehicleType.MPG\" : byteVariable1 + byteVariable2 }")]
-        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(byteVariable1 + byteVariable2) }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : byteVariable1 + byteVariable2 }")]
         [BuildersMQL("{ \"Data\" : sbyteVariable1 + sbyteVariable2 }")]
         [BuildersMQL("{ \"VehicleType.MPG\" : sbyteVariable1 + sbyteVariable2 }")]
-        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(sbyteVariable1 + sbyteVariable2) }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : sbyteVariable1 + sbyteVariable2 }")]
         [BuildersMQL("{ \"Data\" : longVariable1 + longVariable2 }")]
         [BuildersMQL("{ \"VehicleType.MPG\" : longVariable1 + longVariable2 }")]
-        [BuildersMQL("{ \"TicksSinceBirth\" : NumberLong(longVariable1 + longVariable2) }")]
+        [BuildersMQL("{ \"TicksSinceBirth\" : longVariable1 + longVariable2 }")]
         [BuildersMQL("{ \"VehicleType.MPG\" : ulongVariable1 + ulongVariable2 }")]
         [BuildersMQL("{ \"Root.Data\" : doubleVariable1 + doubleVariable2 }")]
         [BuildersMQL("{ \"VehicleType.MPG\" : doubleVariable1 + doubleVariable2 }")]
@@ -338,7 +338,7 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
             });
         }
 
-        [BuildersMQL("{ \"$or\" : [{ \"Name\" : /Bob/ }, { \"Name\" : /localVariable/ }] }")]
+        [BuildersMQL("{ \"$or\" : [{ \"Name\" : { \"$regularExpression\" : { \"pattern\" : \"Bob\", \"options\" : \"\" } } }, { \"Name\" : { \"$regularExpression\" : { \"pattern\" : localVariable, \"options\" : \"\" } } }] }")]
         public void Regex()
         {
             var localVariable = "Alice";
