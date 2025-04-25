@@ -25,19 +25,19 @@ namespace MongoDB.Analyzer.Tests.Infrastructure;
 
 public sealed class CodeBasedTestCasesSourceAttribute : Attribute, ITestDataSource
 {
-    private readonly Type _testCasesProdiverType;
+    private readonly Type _testCasesProviderType;
 
-    public CodeBasedTestCasesSourceAttribute(Type testCasesProdiverType)
+    public CodeBasedTestCasesSourceAttribute(Type testCasesProviderType)
     {
-        _testCasesProdiverType = testCasesProdiverType;
+        _testCasesProviderType = testCasesProviderType;
     }
 
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {
-        var testCasesMethods = _testCasesProdiverType
+        var testCasesMethods = _testCasesProviderType
             .GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
             .Where(m => m.MemberType == MemberTypes.Method &&
-                m.DeclaringType == _testCasesProdiverType &&
+                m.DeclaringType == _testCasesProviderType &&
                 m.GetCustomAttributes().OfType<DiagnosticRuleTestCaseAttribute>().Any());
 
         var data = testCasesMethods.SelectMany(m =>
@@ -70,8 +70,8 @@ public sealed class CodeBasedTestCasesSourceAttribute : Attribute, ITestDataSour
                 location.StartLine >= 0 ? location.StartLine : 0,
                 location.StartLine >= 0 ? attribute.Message : null
             group new DiagnosticRule(attribute.RuleId, $"{attribute.Message}_v{version.ToString("V", new VersionFormatter())}", location)
-                by new { version, attribute.PocoAnalysisVerbosity } into g
-            select new DiagnosticTestCase(fileName, memberInfo.Name, g.Key.version.ToString(), g.Key.PocoAnalysisVerbosity, g.ToArray());
+                by new { version, attribute.PocoAnalysisVerbosity, attribute.LinqAnalysisVerbosity } into g
+            select new DiagnosticTestCase(fileName, memberInfo.Name, g.Key.version.ToString(), g.Key.LinqAnalysisVerbosity, g.Key.PocoAnalysisVerbosity, [.. g]);
 
         return diagnosticsTestCases.ToArray();
     }

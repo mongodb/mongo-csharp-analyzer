@@ -20,9 +20,16 @@ internal static class LinqExpressionProcessor
 {
     public static ExpressionsAnalysis ProcessSemanticModel(MongoAnalysisContext context, AnalysisType analysisType = AnalysisType.Linq)
     {
-        if (analysisType != AnalysisType.Linq && analysisType != AnalysisType.EF)
+        var isLinq = analysisType == AnalysisType.Linq;
+        var isEF = analysisType == AnalysisType.EF;
+        if (!isEF && !isLinq)
         {
             throw new ArgumentOutOfRangeException(nameof(analysisType), analysisType, "Unsupported analysis type");
+        }
+
+        if (isLinq && !ShouldAnalyzeLinqVerbosity(context))
+        {
+            return new();
         }
 
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;
@@ -77,9 +84,16 @@ internal static class LinqExpressionProcessor
 
             processedSyntaxNodes.Add(node);
 
-            // Validate IMongoQueryable node candidate
             if (deepestIQueryableNode == null)
             {
+                // No IQueryable node found
+                continue;
+            }
+
+            var deepestInvocationNode = deepestIQueryableNode.NestedInvocations().LastOrDefault();
+            if (deepestInvocationNode != null && semanticModel.GetTypeInfo(deepestInvocationNode).Type.IsSystemCollectionOrArray())
+            {
+                // Skip system collections and arrays
                 continue;
             }
 
@@ -87,14 +101,13 @@ internal static class LinqExpressionProcessor
             var isDBSet = mongoQueryableTypeInfo.Type.IsDBSet();
             var isIQueryable = mongoQueryableTypeInfo.Type.IsIQueryable();
 
-            if (!isDBSet && analysisType == AnalysisType.EF ||
-                ((!isIQueryable || isDBSet) && analysisType == AnalysisType.Linq))
+            if (!isDBSet && isEF || ((!isIQueryable || isDBSet) && isLinq))
             {
                 // Allow only DBSet<T> in EF analysis
                 // Allow only IQueryable<T> except DBSet<T> in LINQ analysis
                 continue;
             }
-            
+
             if (mongoQueryableTypeInfo.Type is not INamedTypeSymbol mongoQueryableNamedType ||
                 mongoQueryableNamedType.TypeArguments.Length != 1 ||
                 !mongoQueryableNamedType.TypeArguments[0].IsSupportedMongoCollectionType())
@@ -104,8 +117,8 @@ internal static class LinqExpressionProcessor
 
             try
             {
-                if ((analysisType == AnalysisType.Linq && PreanalyzeLinqExpression(node, semanticModel, invalidExpressionNodes)) ||
-                    (analysisType == AnalysisType.EF && PreanalyzeEFExpression(node, semanticModel, invalidExpressionNodes, mongoQueryableNamedType)))
+                if ((isLinq && PreanalyzeLinqExpression(node, semanticModel, invalidExpressionNodes)) ||
+                    (isEF && PreanalyzeEFExpression(node, semanticModel, invalidExpressionNodes, mongoQueryableNamedType)))
                 {
                     var generatedMongoQueryableTypeName = typesProcessor.ProcessTypeSymbol(mongoQueryableNamedType.TypeArguments[0]);
 
@@ -133,8 +146,8 @@ internal static class LinqExpressionProcessor
 
         var linqAnalysis = new ExpressionsAnalysis()
         {
-            AnalysisNodeContexts = analysisContexts.ToArray(),
-            InvalidExpressionNodes = invalidExpressionNodes.ToArray(),
+            AnalysisNodeContexts = [.. analysisContexts],
+            InvalidExpressionNodes = [.. invalidExpressionNodes],
             TypesDeclarations = typesProcessor.TypesDeclarations
         };
 
@@ -142,6 +155,20 @@ internal static class LinqExpressionProcessor
 
         return linqAnalysis;
     }
+
+    private static bool ShouldAnalyzeLinqVerbosity(MongoAnalysisContext context) =>
+        context.Settings.LinqAnalysisVerbosity switch
+        {
+            LinqAnalysisVerbosity.None => false,
+            LinqAnalysisVerbosity.Medium => HasMongoDBNamespace(context.SemanticModelAnalysisContext.SemanticModel.SyntaxTree),
+            LinqAnalysisVerbosity.All => true,
+            _ => throw new ArgumentOutOfRangeException(nameof(context.Settings.LinqAnalysisVerbosity))
+        };
+
+    private static bool HasMongoDBNamespace(SyntaxTree syntaxTree) =>
+        syntaxTree.GetRoot().DescendantNodes().Any(s =>
+            s is UsingDirectiveSyntax usingDirectiveSyntax &&
+            usingDirectiveSyntax.Name.ToFullString().StartsWith("MongoDB.Driver"));
 
     private static bool PreanalyzeLinqExpression(SyntaxNode linqExpressionNode, SemanticModel semanticModel, List<InvalidExpressionAnalysisNode> invalidLinqExpressionNodes)
     {

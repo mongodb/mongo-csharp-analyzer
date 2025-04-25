@@ -26,12 +26,21 @@ internal enum PocoAnalysisVerbosity
     All
 }
 
+[JsonConverter(typeof(StringEnumConverter))]
+internal enum LinqAnalysisVerbosity
+{
+    None,
+    Medium,
+    All
+}
+
 internal record MongoDBAnalyzerSettings(
     [DefaultValue(false)] bool OutputDriverVersion = false,
     [DefaultValue(false)] bool OutputInternalExceptions = false,
     [DefaultValue(false)] bool OutputInternalLogsToFile = false,
     [DefaultValue(null)] string LogFileName = null,
     [DefaultValue(true)] bool SendTelemetry = true,
+    [DefaultValue(LinqAnalysisVerbosity.Medium)] LinqAnalysisVerbosity LinqAnalysisVerbosity = LinqAnalysisVerbosity.Medium,
     [DefaultValue(PocoAnalysisVerbosity.Medium)] PocoAnalysisVerbosity PocoAnalysisVerbosity = PocoAnalysisVerbosity.Medium,
     [DefaultValue(500)] int PocoLimit = 500,
     [DefaultValue(true)] bool EnableVariableTracking = true)

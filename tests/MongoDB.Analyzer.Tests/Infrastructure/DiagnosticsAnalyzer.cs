@@ -28,7 +28,8 @@ internal static class DiagnosticsAnalyzer
     public static async Task<ImmutableArray<Diagnostic>> Analyze(
         string testCodeFilename,
         string driverVersion,
-        Common.PocoAnalysisVerbosity jsonAnalyzerVerbosity)
+        Common.LinqAnalysisVerbosity linqAnalysisVerbosity,
+        Common.PocoAnalysisVerbosity pocoAnalysisVerbosity)
     {
         var testDataModelAssembly = PathUtilities.GetTestDataModelAssemblyPath();
 
@@ -61,12 +62,15 @@ internal static class DiagnosticsAnalyzer
             compilationOptions);
 
         var mongodbAnalyzer = new MongoDBDiagnosticAnalyzer();
-        jsonAnalyzerVerbosity = jsonAnalyzerVerbosity == Common.PocoAnalysisVerbosity.Undefined ? Common.PocoAnalysisVerbosity.None : jsonAnalyzerVerbosity;
 
-        var settings = new MongoDBAnalyzerSettings(
-            OutputDriverVersion: true,
-            SendTelemetry: false,
-            PocoAnalysisVerbosity: (PocoAnalysisVerbosity)jsonAnalyzerVerbosity);
+        var settings = new MongoDBAnalyzerSettings(OutputDriverVersion: true, SendTelemetry: false);
+
+        if (linqAnalysisVerbosity != Common.LinqAnalysisVerbosity.Undefined)
+            settings = settings with { LinqAnalysisVerbosity = (LinqAnalysisVerbosity)linqAnalysisVerbosity };
+
+        if (pocoAnalysisVerbosity != Common.PocoAnalysisVerbosity.Undefined)
+            settings = settings with { PocoAnalysisVerbosity = (PocoAnalysisVerbosity)pocoAnalysisVerbosity };
+
         var analyzerOptions = new AnalyzerOptions(ImmutableArray.Create<AdditionalText>(new AdditionalTextAnalyzerSettings(settings)));
 
         var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(mongodbAnalyzer), analyzerOptions);

@@ -23,10 +23,11 @@ internal static class SymbolExtensions
     private const string NamespaceMongoDBDriver = "MongoDB.Driver";
     private const string NamespaceMongoDBLinq = "MongoDB.Driver.Linq";
     private const string NamespaceSystem = "System";
+    private const string NamespaceSystemCollectionsGeneric = "System.Collections.Generic";
     private const string NamespaceSystemLinq = "System.Linq";
 
-    private static readonly HashSet<string> s_supportedBsonAttributes = new()
-    {
+    private static readonly HashSet<string> s_supportedBsonAttributes =
+    [
         "BsonConstructorAttribute",
         "BsonDateTimeOptionsAttribute",
         "BsonDefaultValueAttribute",
@@ -43,32 +44,32 @@ internal static class SymbolExtensions
         "BsonNoIdAttribute",
         "BsonRequiredAttribute",
         "BsonTimeSpanOptionsAttribute"
-    };
+    ];
 
-    private static readonly HashSet<string> s_supportedBsonTypes = new()
-    {
+    private static readonly HashSet<string> s_supportedBsonTypes =
+    [
         "MongoDB.Bson.BsonDocument",
         "MongoDB.Bson.BsonObjectId",
         "MongoDB.Bson.BsonType",
         "MongoDB.Bson.BsonValue",
         "MongoDB.Bson.Serialization.Options.TimeSpanUnits"
-    };
+    ];
 
-    private static readonly HashSet<string> s_supportedCollections = new()
-    {
+    private static readonly HashSet<string> s_supportedCollections =
+    [
         "System.Collections.Generic.IEnumerable<T>",
         "System.Collections.Generic.IList<T>",
         "System.Collections.Generic.List<T>"
-    };
+    ];
 
-    private static readonly HashSet<string> s_supportedSystemTypes = new()
-    {
+    private static readonly HashSet<string> s_supportedSystemTypes =
+    [
         "System.DateTime",
         "System.DateTimeKind",
         "System.DateTimeOffset",
         "System.TimeSpan",
         "System.Type"
-    };
+    ];
 
     public static (bool IsNullable, ITypeSymbol underlyingType) DiscardNullable(this ITypeSymbol typeSymbol) =>
         typeSymbol?.OriginalDefinition.SpecialType switch
@@ -253,24 +254,39 @@ internal static class SymbolExtensions
         (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
 
+    public static bool IsSystemCollectionOrArray(this ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol is IArrayTypeSymbol)
+            return true;
+
+        if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
+            return false;
+
+
+        if (namedTypeSymbol.ContainingNamespace?.ToDisplayString() == NamespaceSystemCollectionsGeneric)
+            return true;
+
+        return false;
+    }
+
     private static SyntaxToken[] GetPublicFieldModifiers() =>
-        new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) };
+        [SyntaxFactory.Token(SyntaxKind.PublicKeyword)];
 
     private static AccessorDeclarationSyntax[] GetReadOnlyPropertyAccessors() =>
-        new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
+        [ SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) ];
 
     private static SyntaxToken[] GetReadOnlyPublicFieldModifiers() =>
-        new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword) };
+        [SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)];
 
     private static AccessorDeclarationSyntax[] GetReadWritePropertyAccessors() =>
-        new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+        [ SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
             .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)), SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) ];
 
     private static AccessorDeclarationSyntax[] GetWriteOnlyPropertyAccessors() =>
-        new[] { SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) };
+        [ SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)) ];
 
     private static bool ImplementsOrIsInterface(this ITypeSymbol typeSymbol, string @namespace, string interfaceName)
     {
