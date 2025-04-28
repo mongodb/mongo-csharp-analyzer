@@ -81,4 +81,12 @@ public sealed class LinqTests : DiagnosticsTestCasesRunner
     [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(LinqSuffix))]
     public Task Suffixes(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(LinqVerbosity))]
+    public Task Verbosity(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(LinqVerbosityMDBNamespace))]
+    public Task VerbosityMDBNamespace(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }

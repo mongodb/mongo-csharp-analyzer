@@ -21,7 +21,7 @@ internal static class PocoExpressionProcessor
         if (context.Settings.PocoAnalysisVerbosity == PocoAnalysisVerbosity.None ||
             context.Settings.PocoLimit <= 0)
         {
-            return default;
+            return new();
         }
 
         var semanticModel = context.SemanticModelAnalysisContext.SemanticModel;

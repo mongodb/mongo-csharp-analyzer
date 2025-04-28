@@ -21,5 +21,13 @@ namespace MongoDB.Analyzer.Tests.Common
         All,
         Undefined
     }
+
+    public enum LinqAnalysisVerbosity
+    {
+        None,
+        Medium,
+        All,
+        Undefined
+    }
 }
 

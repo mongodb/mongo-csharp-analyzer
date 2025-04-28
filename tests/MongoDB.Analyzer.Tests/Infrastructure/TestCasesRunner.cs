@@ -24,14 +24,14 @@ namespace MongoDB.Analyzer.Tests.Infrastructure;
 
 internal static class TestCasesRunner
 {
-    private record TestsBundleKey(string TestFileName, string DriverVersion, PocoAnalysisVerbosity PocoAnalysisVerbosity);
+    private record TestsBundleKey(string TestFileName, string DriverVersion, LinqAnalysisVerbosity LinqAnalysisVerbosity, PocoAnalysisVerbosity PocoAnalysisVerbosity);
 
     private static readonly IDictionary<TestsBundleKey, IDictionary<string, DiagnosticTestCaseResult>>
         s_testResults = new Dictionary<TestsBundleKey, IDictionary<string, DiagnosticTestCaseResult>>();
 
     public static async Task<DiagnosticTestCaseResult> RunTestCase(DiagnosticTestCase diagnosticTestCase)
     {
-        var testCollectionKey = new TestsBundleKey(diagnosticTestCase.FileName, diagnosticTestCase.Version, diagnosticTestCase.JsonAnalyzerVerbosity);
+        var testCollectionKey = new TestsBundleKey(diagnosticTestCase.FileName, diagnosticTestCase.Version, diagnosticTestCase.LinqAnalysisVerbosity, diagnosticTestCase.PocoAnalysisVerbosity);
 
         if (!s_testResults.TryGetValue(testCollectionKey, out var testCasesResults))
         {
@@ -49,6 +49,7 @@ internal static class TestCasesRunner
         var diagnostics = await DiagnosticsAnalyzer.Analyze(
             testsBundleKey.TestFileName,
             testsBundleKey.DriverVersion,
+            testsBundleKey.LinqAnalysisVerbosity,
             testsBundleKey.PocoAnalysisVerbosity);
 
         var diagnosticsAndMethodNodes = diagnostics

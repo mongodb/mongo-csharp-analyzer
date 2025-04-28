@@ -176,9 +176,6 @@ internal static class SyntaxNodeExtensions
 
             expressionSyntax = GetNextNestedInvocation(expressionSyntax);
         }
-
-        ExpressionSyntax GetNextNestedInvocation(SyntaxNode syntaxNode) =>
-            ((syntaxNode as InvocationExpressionSyntax)?.Expression as MemberAccessExpressionSyntax)?.Expression;
     }
 
     public static SyntaxNode TrimParenthesis(this SyntaxNode syntaxNode)
