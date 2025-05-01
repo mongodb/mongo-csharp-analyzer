@@ -49,10 +49,17 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
             logger.Log($"Analysis started, analyzer version: {Assembly.GetExecutingAssembly().GetName().Version}, file: {GetFilePath(context)}");
             telemetryService.AnalysisStarted(context, settings);
 
-            flushTelemetry |= LinqAnalyzer.AnalyzeIMongoQueryable(mongoAnalyzerContext);
-            flushTelemetry |= EFAnalyzer.AnalyzeEFQueryable(mongoAnalyzerContext);
-            flushTelemetry |= BuildersAnalyzer.AnalyzeBuilders(mongoAnalyzerContext);
-            flushTelemetry |= PocoAnalyzer.AnalyzePoco(mongoAnalyzerContext);
+            if (!IsDriverVersionSupported(mongoAnalyzerContext))
+            {
+                flushTelemetry = true;
+            }
+            else
+            {
+                flushTelemetry |= LinqAnalyzer.AnalyzeIMongoQueryable(mongoAnalyzerContext);
+                flushTelemetry |= EFAnalyzer.AnalyzeEFQueryable(mongoAnalyzerContext);
+                flushTelemetry |= BuildersAnalyzer.AnalyzeBuilders(mongoAnalyzerContext);
+                flushTelemetry |= PocoAnalyzer.AnalyzePoco(mongoAnalyzerContext);
+            }
         }
         catch (Exception ex)
         {
@@ -85,5 +92,17 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
         {
             return "Unknown";
         }
+    }
+
+    private static bool IsDriverVersionSupported(MongoAnalysisContext context)
+    {
+        var driverVersion = ReferencesProvider.GetMongoDBDriverVersion(context.SemanticModelAnalysisContext.SemanticModel.Compilation.References);
+        if (driverVersion < AnalysisConstants.MinimalDriverVersion)
+        {
+            context.Logger.Log($"Driver version {driverVersion} is not supported. The minimal supported version is {AnalysisConstants.MinimalDriverVersion}.");
+            return false;
+        }
+
+        return true;
     }
 }

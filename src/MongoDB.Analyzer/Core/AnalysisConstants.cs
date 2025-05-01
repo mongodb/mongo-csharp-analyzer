@@ -16,6 +16,8 @@ namespace MongoDB.Analyzer.Core;
 
 internal static class AnalysisConstants
 {
+    public static Version MinimalDriverVersion { get; } = new(3, 0);
+
     public const string AnalysisAssemblyName = nameof(AnalysisAssemblyName);
     public const string GeneratedTypeName = "GenType";
 }
