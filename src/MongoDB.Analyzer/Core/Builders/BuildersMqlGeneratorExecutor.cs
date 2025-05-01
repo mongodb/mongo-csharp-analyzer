@@ -40,7 +40,7 @@ internal sealed class BuildersMqlGeneratorExecutor
         {
             var mqlMethod = _testClassType.GetMethod(methodName);
 
-            var executeResult = mqlMethod.Invoke(null, new object[] { });
+            var executeResult = mqlMethod.Invoke(null, []);
 
             if (executeResult is string executeResultString)
             {
@@ -59,7 +59,7 @@ internal sealed class BuildersMqlGeneratorExecutor
     {
         try
         {
-            return (string)_testClassType.GetMethod(MqlGeneratorSyntaxElements.Builders.GetDriverVersion).Invoke(null, new object[] { });
+            return (string)_testClassType.GetMethod(MqlGeneratorSyntaxElements.Builders.GetDriverVersion).Invoke(null, []);
         }
         catch { }
 

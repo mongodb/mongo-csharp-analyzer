@@ -31,7 +31,7 @@ internal sealed class Logger : IDisposable
     {
         _correlationId = correlationId;
         _fileName = fileName;
-        _logs = new List<string>();
+        _logs = [];
     }
 
     public void Dispose()
