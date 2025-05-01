@@ -49,7 +49,7 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
             logger.Log($"Analysis started, analyzer version: {Assembly.GetExecutingAssembly().GetName().Version}, file: {GetFilePath(context)}");
             telemetryService.AnalysisStarted(context, settings);
 
-            if (!IsDriverVersionValid(mongoAnalyzerContext))
+            if (!IsDriverVersionSupported(mongoAnalyzerContext))
             {
                 flushTelemetry = true;
             }
@@ -94,7 +94,7 @@ public sealed class MongoDBDiagnosticAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    private static bool IsDriverVersionValid(MongoAnalysisContext context)
+    private static bool IsDriverVersionSupported(MongoAnalysisContext context)
     {
         var driverVersion = ReferencesProvider.GetMongoDBDriverVersion(context.SemanticModelAnalysisContext.SemanticModel.Compilation.References);
         if (driverVersion < AnalysisConstants.MinimalDriverVersion)
