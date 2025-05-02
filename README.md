@@ -1,7 +1,7 @@
 ﻿MongoDB C# Analyzer
 ===================
 
-You can get the latest stable release from the [official Nuget.org feed](https://www.nuget.org/packages/MongoDB.Analyzer)
+[![MongoDB.Analyzer](https://img.shields.io/nuget/v/MongoDB.Analyzer.svg)](https://www.nuget.org/packages/MongoDB.Analyzer/)
 
 Getting Started
 ---------------
