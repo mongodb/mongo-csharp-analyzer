@@ -28,8 +28,8 @@ internal record AnalysisTelemetry(
     public static AnalysisTelemetry Invalid = new(-1, -1, null, null, -1, -1, -1, -1, -1);
     public static AnalysisTelemetry Empty = new(0, 0, null, null, -1, -1, -1, -1, -1);
 
-    public (string, object)[] ToKeyValues() => new (string, object)[]
-        {
+    public (string, object)[] ToKeyValues() =>
+        [
             ("expressions_found_count", ExpressionsFound),
             ("data_types_count", DataTypesCount),
             ("driver_version", DriverVersion),
@@ -38,5 +38,5 @@ internal record AnalysisTelemetry(
             ("driver_exception_count", DriverExceptionCount),
             ("internal_exception_count", InternalExceptionCount),
             ("duration_ms", DurationMS)
-        };
+        ];
 }
