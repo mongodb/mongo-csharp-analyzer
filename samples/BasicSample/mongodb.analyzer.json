@@ -1,23 +1,22 @@
 {
-  // Default LINQ provider, for drivers supporting LINQ3 (2.14 and higher)
-  // Default value is V2 in [2.14, 2.18] versions and V3 in [2.19, ) versions
-  // "DefaultLinqVersion": "V2",
+    // Enables builders variables tracking and composition, enabled by default
+    "EnableVariableTracking": true,
 
-  // Enables builders variables tracking and composition, enabled by default
-  "EnableVariableTracking": true,
+    // Appends the driver version to MQL expression
+    "OutputDriverVersion": true,
 
-  // Appends the driver version to MQL expression
-  "OutputDriverVersion": false,
+    // Outputs internal analyzer exceptions
+    "OutputInternalExceptions": true,
 
-  // Outputs internal analyzer exceptions
-  "OutputInternalExceptions": false,
+    // Outputs internal logs to a file
+    "OutputInternalLogsToFile": false,
 
-  // Outputs internal logs to a file
-  "OutputInternalLogsToFile": false,
+    // Logs file, to be used in conjunction with OutputInternalLogsToFile setting
+    "LogFileName": "c:\\logs\\analyzerlogs.txt",
 
-  // Logs file, to be used in conjunction with OutputInternalLogsToFile setting
-  "LogFileName": "c:\\logs\\analyzerlogs.txt",
+    // LINQ analysis verbosity, defaults to Medium
+    // "LinqAnalysisVerbosity": "All",
 
-  // POCO analysis verbosity, defaults to Medium
-  "PocoAnalysisVerbosity" : "All"
+    // POCO analysis verbosity, defaults to Medium
+    "PocoAnalysisVerbosity": "All"
 }
