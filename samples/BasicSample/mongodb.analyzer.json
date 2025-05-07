@@ -3,7 +3,7 @@
     "EnableVariableTracking": true,
 
     // Appends the driver version to MQL expression
-    "OutputDriverVersion": true,
+    "OutputDriverVersion": false,
 
     // Outputs internal analyzer exceptions
     "OutputInternalExceptions": true,

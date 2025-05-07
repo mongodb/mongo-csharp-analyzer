@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="3.4.0" />
-    <PackageReference Include="MongoDB.Analyzer" Version="1.5.6" />
+    <PackageReference Include="MongoDB.Analyzer" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
   </ItemGroup>
 
