@@ -27,3 +27,5 @@ Contributing
 Please see our [guidelines](CONTRIBUTING.md) for contributing to this project.
 
 Thank you to [everyone](https://github.com/mongodb/mongo-csharp-analyzer/graphs/contributors) who has contributed to this project.
+
+DO NOT MERGE!
