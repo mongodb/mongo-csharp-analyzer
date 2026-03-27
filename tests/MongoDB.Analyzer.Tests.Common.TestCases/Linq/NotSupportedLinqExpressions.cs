@@ -29,7 +29,8 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         }
 
         [InvalidLinq("Expression not supported: 10 in (o.BsonDocument.ElementCount == 10) because it was not possible to determine how to serialize the constant.", DriverVersions.V3_1_AndLower)]
-        [InvalidLinq("Expression not supported: o.BsonDocument.ElementCount.", DriverVersions.V3_2_OrGreater)]
+        [InvalidLinq("Expression not supported: o.BsonDocument.ElementCount.", DriverVersions.V3_2_to_3_6_OrGreater)]
+        [InvalidLinq("Serializer value type MongoDB.Bson.BsonValue is incompatible with expression value type System.Int32 (Parameter 'serializer')", DriverVersions.V3_7_OrGreater)]
         public void Unsupported_bson_types()
         {
             _ = GetMongoQueryable<ClassWithBsonTypes>().Where(o => o.BsonDocument.ElementCount == 10);
@@ -129,8 +130,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
                 .Select(y => y);
         }
 
-        [InvalidLinq("Serializer for MongoDB.Analyzer.Tests.Common.DataModel.Fruit does not have a member named Quantity.")]
-        [InvalidLinq("Serializer for MongoDB.Analyzer.Tests.Common.DataModel.Apple does not have a member named _AppleID.")]
+        [InvalidLinq("Serializer for MongoDB.Analyzer.Tests.Common.DataModel.Fruit does not have a member named Quantity.", DriverVersions.V3_6_AndLower)]
+        [InvalidLinq("Serializer for MongoDB.Analyzer.Tests.Common.DataModel.Apple does not have a member named _AppleID.", DriverVersions.V3_6_AndLower)]
+        [InvalidLinq("Expression not supported: f.Quantity because serializer for MongoDB.Analyzer.Tests.Common.DataModel.Fruit does not have a member named Quantity..", DriverVersions.V3_7_OrGreater)]
+        [InvalidLinq("Expression not supported: a._AppleID because serializer for MongoDB.Analyzer.Tests.Common.DataModel.Apple does not have a member named _AppleID..", DriverVersions.V3_7_OrGreater)]
         public void Warnings_due_to_bson_ignore()
         {
             _ = GetMongoQueryable<Fruit>().Where(f => f.Quantity == 22);
