@@ -257,13 +257,14 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Builders
         }
 
         // VS-166
-        [BuildersMQL("{ \"$or\" : [{ \"Nested.Nested.Nested.Nested.BsonType\" : BsonDocument.ElementCount }, { \"Nested.Nested.Nested.BsonDocument.ElementCount\" : BsonDocument.ElementCount }, { \"Nested.Nested.BsonDocument.ElementCount\" : GetBsonDocument().ElementCount }] }")]
-        public void Query_containing_bson_types()
-        {
-            _ = Builders<ClassWithBsonTypes>.Filter.Eq(o => o.Nested.Nested.Nested.Nested.BsonType, BsonType.Double) |
-                Builders<ClassWithBsonTypes>.Filter.Eq(o => o.Nested.Nested.Nested.BsonDocument.ElementCount, BsonDocument.ElementCount) |
-                Builders<ClassWithBsonTypes>.Filter.Eq(o => o.Nested.Nested.BsonDocument.ElementCount, GetBsonDocument().ElementCount);
-        }
+        // Disabled due to CSHARP-5952
+        // [BuildersMQL("{ \"$or\" : [{ \"Nested.Nested.Nested.Nested.BsonType\" : BsonDocument.ElementCount }, { \"Nested.Nested.Nested.BsonDocument.ElementCount\" : BsonDocument.ElementCount }, { \"Nested.Nested.BsonDocument.ElementCount\" : GetBsonDocument().ElementCount }] }")]
+        // public void Query_containing_bson_types()
+        // {
+        //     _ = Builders<ClassWithBsonTypes>.Filter.Eq(o => o.Nested.Nested.Nested.Nested.BsonType, BsonType.Double) |
+        //         Builders<ClassWithBsonTypes>.Filter.Eq(o => o.Nested.Nested.Nested.BsonDocument.ElementCount, BsonDocument.ElementCount) |
+        //         Builders<ClassWithBsonTypes>.Filter.Eq(o => o.Nested.Nested.BsonDocument.ElementCount, GetBsonDocument().ElementCount);
+        // }
 
         [BuildersMQL("{ \"$or\" : [{ \"Nested.Nested.Point.X\" : Point.Empty.X }, { \"Nested.Point.Y\" : 123 }, { \"Nested.Point.X\" : GetDrawingPoint().X }] }")]
         public void Query_containing_system_types()

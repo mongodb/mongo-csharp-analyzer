@@ -30,8 +30,10 @@ namespace MongoDB.Analyzer.Tests.Common.TestCases.Linq
         [MQL("Aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
         [MQL("Aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
         [MQL("Aggregate([{ \"$match\" : { \"Age\" : 22 } }])")]
-        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, common::DataModel.StaticHolder.ReadonlyByteNullable] } } }])")]
-        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, dataModel::StaticHolder.ReadonlyByteNullable] } } }])")]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, common::DataModel.StaticHolder.ReadonlyByteNullable] } } }])", DriverVersions.V3_6_AndLower)]
+        [MQL("Aggregate([{ \"$match\" : { \"$expr\" : { \"$eq\" : [{ \"$toInt\" : \"$ByteNullable\" }, dataModel::StaticHolder.ReadonlyByteNullable] } } }])", DriverVersions.V3_6_AndLower)]
+        [MQL("Aggregate([{ \"$match\" : { \"ByteNullable\" : common::DataModel.StaticHolder.ReadonlyByteNullable } }])", DriverVersions.V3_7_OrGreater)]
+        [MQL("Aggregate([{ \"$match\" : { \"ByteNullable\" : dataModel::StaticHolder.ReadonlyByteNullable } }])", DriverVersions.V3_7_OrGreater)]
         public void Qualified_alias()
         {
             _ = GetMongoQueryable<user>().Where(user => user.Age == 22);

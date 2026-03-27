@@ -19,5 +19,8 @@ namespace MongoDB.Analyzer.Tests.Common
         public const string V3_0_OrGreater = "[3.0.0, )";
         public const string V3_1_AndLower = "[3.0.0, 3.2.0)";
         public const string V3_2_OrGreater = "[3.2.0, )";
+        public const string V3_2_to_3_6_OrGreater = "[3.2.0, 3.6.0]";
+        public const string V3_6_AndLower  = "[3.0.0, 3.6.0]";
+        public const string V3_7_OrGreater = "[3.7.0, )";
     }
 }
